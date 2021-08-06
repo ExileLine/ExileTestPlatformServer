@@ -10,6 +10,7 @@ from flask import Blueprint
 
 from .api.index.index import IndexApi
 from .api.case_api.case_api import CaseApi, CaseReqDataApi
+from .api.case_var_api.case_var_api import CaseVarApi
 from .api.ass_rule_api.ass_rule_api import RespAssertionRuleApi, FieldAssertionRuleApi, RuleTestApi
 
 api = Blueprint('api', __name__)
@@ -17,6 +18,8 @@ api = Blueprint('api', __name__)
 api.add_url_rule('/', view_func=IndexApi.as_view('index'))
 api.add_url_rule('/case', view_func=CaseApi.as_view('case'))
 api.add_url_rule('/case/<case_id>', view_func=CaseApi.as_view('case_detail'))
+api.add_url_rule('/case_var', view_func=CaseVarApi.as_view('case_var'))
+api.add_url_rule('/case_var/<var_id>', view_func=CaseVarApi.as_view('case_var_detail'))
 api.add_url_rule('/case_req_data', view_func=CaseReqDataApi.as_view('case_req_data'))
 api.add_url_rule('/case_req_data/<req_data_id>', view_func=CaseReqDataApi.as_view('case_req_data_detail'))
 api.add_url_rule('/resp_ass_rule', view_func=RespAssertionRuleApi.as_view('resp_ass_rule'))
