@@ -26,32 +26,29 @@ def check_field_ass(aj_list):
         query_len = len(query)
         assert_list = a.get('assert_list', [])
         assert_list_len = len(assert_list)
-        if check_bool and isinstance(query, list) and isinstance(assert_list, list):
-            max_len = max([query_len, assert_list_len])
-            for index, i in enumerate(range(max_len)):
-                if query:
-                    query_obj = query.pop()
-                    if isinstance(query_obj, dict):
-                        if check_keys(query_obj, 'field_name', 'field_key', 'query_rule', 'is_sql', 'sql'):
-                            pass
-                        else:
-                            return False, 'query对象key错误,位置:{}'.format(index)
-                    else:
-                        return False, 'query 对象:{} 类型错误:{} 位置:{}'.format(query_obj, type(query_obj), index)
 
-                if assert_list:
-                    ass_obj = assert_list.pop()
-                    if isinstance(ass_obj, dict):
-                        if check_keys(ass_obj, 'assert_key', 'assert_val', 'assert_val_type', 'rule'):
-                            pass
-                        else:
-                            return False, 'assert_list对象key错误,位置:{}'.format(index)
-                    else:
-                        return False, 'assert_list对象:{} 类型错误:{} 位置:{}'.format(ass_obj, type(ass_obj), index)
-                else:
-                    return True, 'pass'
-        else:
+        if not check_bool or not isinstance(query, list) or not isinstance(assert_list, list):
             return False, 'ass_json 参数错误'
+
+        max_len = max([query_len, assert_list_len])
+        for index, i in enumerate(range(max_len)):
+            if not query or not assert_list:
+                return True, 'pass'
+
+            if query:
+                query_obj = query.pop()
+                if not isinstance(query_obj, dict):
+                    return False, 'query 对象:{} 类型错误:{} 位置:{}'.format(query_obj, type(query_obj), index)
+                if not check_keys(query_obj, 'field_name', 'field_key', 'query_rule', 'is_sql', 'sql'):
+                    return False, 'query对象key错误,位置:{}'.format(index)
+
+            if assert_list:
+                ass_obj = assert_list.pop()
+                if not isinstance(ass_obj, dict):
+                    return False, 'assert_list对象:{} 类型错误:{} 位置:{}'.format(ass_obj, type(ass_obj), index)
+
+                if not check_keys(ass_obj, 'assert_key', 'assert_val', 'assert_val_type', 'rule'):
+                    return False, 'assert_list对象key错误,位置:{}'.format(index)
 
 
 class RespAssertionRuleApi(MethodView):
@@ -78,8 +75,8 @@ class RespAssertionRuleApi(MethodView):
         query_ass_resp = TestCaseAssResponse.query.get(ass_resp_id)
         if query_ass_resp:
             return api_result(code=200, message='操作成功', data=query_ass_resp.to_json())
-        else:
-            return api_result(code=400, message='返回值断言id:{}数据不存在'.format(ass_resp_id))
+
+        return api_result(code=400, message='返回值断言id:{}数据不存在'.format(ass_resp_id))
 
     def post(self):
         """返回值断言新增"""
@@ -89,35 +86,32 @@ class RespAssertionRuleApi(MethodView):
         remark = data.get('remark')
 
         if isinstance(ass_json, list) and ass_json:
-            for a in ass_json:
-                check_bool = check_keys(
-                    a, 'assert_key', 'assert_val', 'assert_val_type', 'expect_val', 'rule', 'is_rule_source',
-                    'python_val_exp'
-                )
-                if check_bool:
-                    rule = a.get('rule')
-                    is_rule_source = a.get('is_rule_source')
-                    ass_rule_bool = bool(rule in ['>', '<', '='])
-                    is_rule_source_bool = bool(str(is_rule_source) in ['0', '1'])
-                    if ass_rule_bool and is_rule_source_bool:
-                        pass
-                    else:
-                        return api_result(code=400, message='检验规则或规则来源错误:{},{}'.format(rule, is_rule_source))
-                else:
-                    return api_result(code=400, message='检验对象错误', data=a)
-
-            new_ass_resp = TestCaseAssResponse(
-                assert_description=assert_description,
-                ass_json=ass_json,
-                creator='调试',
-                creator_id=1,
-                remark=remark
-            )
-            db.session.add(new_ass_resp)
-            db.session.commit()
-            return api_result(code=201, message='创建成功', data=data)
-        else:
             return ab_code(400)
+        for a in ass_json:
+            check_bool = check_keys(
+                a, 'assert_key', 'assert_val', 'assert_val_type', 'expect_val', 'rule', 'is_rule_source',
+                'python_val_exp'
+            )
+            if not check_bool:
+                return api_result(code=400, message='检验对象错误', data=a)
+
+            rule = a.get('rule')
+            is_rule_source = a.get('is_rule_source')
+            ass_rule_bool = bool(rule in ['>', '<', '='])
+            is_rule_source_bool = bool(str(is_rule_source) in ['0', '1'])
+            if not ass_rule_bool or not is_rule_source_bool:
+                return api_result(code=400, message='检验规则或规则来源错误:{},{}'.format(rule, is_rule_source))
+
+        new_ass_resp = TestCaseAssResponse(
+            assert_description=assert_description,
+            ass_json=ass_json,
+            creator='调试',
+            creator_id=1,
+            remark=remark
+        )
+        db.session.add(new_ass_resp)
+        db.session.commit()
+        return api_result(code=201, message='创建成功', data=data)
 
     def put(self):
         """返回值断言编辑"""
@@ -127,38 +121,37 @@ class RespAssertionRuleApi(MethodView):
         ass_json = data.get('ass_json', [])
         remark = data.get('remark')
 
-        if isinstance(ass_json, list) and ass_json:
-            for a in ass_json:
-                check_bool = check_keys(
-                    a, 'assert_key', 'assert_val', 'assert_val_type', 'expect_val', 'rule', 'is_rule_source',
-                    'python_val_exp'
-                )
-                if check_bool:
-                    rule = a.get('rule')
-                    is_rule_source = a.get('is_rule_source')
-                    ass_rule_bool = bool(rule in ['>', '<', '='])
-                    is_rule_source_bool = bool(str(is_rule_source) in ['0', '1'])
-                    if ass_rule_bool and is_rule_source_bool:
-                        pass
-                    else:
-                        return api_result(code=400, message='检验规则或规则来源错误:{},{}'.format(rule, is_rule_source))
-                else:
-                    return api_result(code=400, message='检验对象错误', data=a)
-
-            query_ass_resp = TestCaseAssResponse.query.get(ass_resp_id)
-
-            if query_ass_resp:
-                query_ass_resp.assert_description = assert_description
-                query_ass_resp.ass_json = ass_json
-                query_ass_resp.remark = remark
-                query_ass_resp.modifier = "调试"
-                query_ass_resp.modifier_id = 1
-                db.session.commit()
-                return api_result(code=203, message='编辑成功')
-            else:
-                return api_result(code=400, message='返回值断言id:{}数据不存在'.format(ass_resp_id))
-        else:
+        if not isinstance(ass_json, list) or not ass_json:
             return ab_code(400)
+
+        for a in ass_json:
+            check_bool = check_keys(
+                a, 'assert_key', 'assert_val', 'assert_val_type', 'expect_val', 'rule', 'is_rule_source',
+                'python_val_exp'
+            )
+            if not check_bool:
+                return api_result(code=400, message='检验对象错误', data=a)
+
+            rule = a.get('rule')
+            is_rule_source = a.get('is_rule_source')
+            ass_rule_bool = bool(rule in ['>', '<', '='])
+            is_rule_source_bool = bool(str(is_rule_source) in ['0', '1'])
+
+            if not ass_rule_bool or not is_rule_source_bool:
+                return api_result(code=400, message='检验规则或规则来源错误:{},{}'.format(rule, is_rule_source))
+
+        query_ass_resp = TestCaseAssResponse.query.get(ass_resp_id)
+
+        if query_ass_resp:
+            query_ass_resp.assert_description = assert_description
+            query_ass_resp.ass_json = ass_json
+            query_ass_resp.remark = remark
+            query_ass_resp.modifier = "调试"
+            query_ass_resp.modifier_id = 1
+            db.session.commit()
+            return api_result(code=203, message='编辑成功')
+
+        return api_result(code=400, message='返回值断言id:{}数据不存在'.format(ass_resp_id))
 
     def delete(self):
         """返回值断言删除"""
@@ -171,8 +164,8 @@ class RespAssertionRuleApi(MethodView):
             query_ass_resp.modifier_id = 1
             db.session.commit()
             return api_result(code=204, message='删除成功')
-        else:
-            return api_result(code=400, message='返回值断言id:{}数据不存在'.format(ass_resp_id))
+
+        return api_result(code=400, message='返回值断言id:{}数据不存在'.format(ass_resp_id))
 
 
 class FieldAssertionRuleApi(MethodView):
@@ -218,8 +211,8 @@ class FieldAssertionRuleApi(MethodView):
         query_ass_field = TestCaseAssField.query.get(ass_field_id)
         if query_ass_field:
             return api_result(code=200, message='操作成功', data=query_ass_field.to_json())
-        else:
-            return api_result(code=400, message='字段断言id:{}数据不存在'.format(ass_field_id))
+
+        return api_result(code=400, message='字段断言id:{}数据不存在'.format(ass_field_id))
 
     def post(self):
         """字段断言新增"""
@@ -228,24 +221,25 @@ class FieldAssertionRuleApi(MethodView):
         ass_json = data.get('ass_json', [])
         remark = data.get('remark')
 
-        if isinstance(ass_json, list) and ass_json:
-            to_ass_json = copy.deepcopy(ass_json)
-            _bool, _msg = check_field_ass(to_ass_json)
-            if _bool:
-                new_ass_field = TestCaseAssField(
-                    assert_description=assert_description,
-                    ass_json=ass_json,
-                    creator='调试',
-                    creator_id=1,
-                    remark=remark
-                )
-                db.session.add(new_ass_field)
-                db.session.commit()
-                return api_result(code=201, message='创建成功')
-            else:
-                return api_result(code=400, message='{}'.format(_msg))
-        else:
-            ab_code(400)
+        if not isinstance(ass_json, list) or not ass_json:
+            return ab_code(400)
+
+        to_ass_json = copy.deepcopy(ass_json)
+        _bool, _msg = check_field_ass(to_ass_json)
+
+        if not _bool:
+            return api_result(code=400, message='{}'.format(_msg))
+
+        new_ass_field = TestCaseAssField(
+            assert_description=assert_description,
+            ass_json=ass_json,
+            creator='调试',
+            creator_id=1,
+            remark=remark
+        )
+        db.session.add(new_ass_field)
+        db.session.commit()
+        return api_result(code=201, message='创建成功')
 
     def put(self):
         """字段断言编辑"""
@@ -255,25 +249,27 @@ class FieldAssertionRuleApi(MethodView):
         ass_json = data.get('ass_json', [])
         remark = data.get('remark')
 
-        if isinstance(ass_json, list) and ass_json:
-            to_ass_json = copy.deepcopy(ass_json)
-            _bool, _msg = check_field_ass(to_ass_json)
-            if _bool:
-                query_ass_field = TestCaseAssField.query.get(ass_field_id)
-                if query_ass_field:
-                    query_ass_field.assert_description = assert_description
-                    query_ass_field.ass_json = ass_json
-                    query_ass_field.remark = remark
-                    query_ass_field.modifier = "调试"
-                    query_ass_field.modifier_id = 1
-                    db.session.commit()
-                    return api_result(code=203, message='编辑成功')
-                else:
-                    return api_result(code=400, message='字段断言id:{}数据不存在'.format(ass_field_id))
-            else:
-                return api_result(code=400, message='{}'.format(_msg))
-        else:
-            ab_code(400)
+        if not isinstance(ass_json, list) or not ass_json:
+            return ab_code(400)
+
+        to_ass_json = copy.deepcopy(ass_json)
+        _bool, _msg = check_field_ass(to_ass_json)
+
+        if not _bool:
+            return api_result(code=400, message='{}'.format(_msg))
+
+        query_ass_field = TestCaseAssField.query.get(ass_field_id)
+
+        if not query_ass_field:
+            return api_result(code=400, message='字段断言id:{}数据不存在'.format(ass_field_id))
+
+        query_ass_field.assert_description = assert_description
+        query_ass_field.ass_json = ass_json
+        query_ass_field.remark = remark
+        query_ass_field.modifier = "调试"
+        query_ass_field.modifier_id = 1
+        db.session.commit()
+        return api_result(code=203, message='编辑成功')
 
     def delete(self):
         """字段断言规则删除"""
@@ -287,8 +283,8 @@ class FieldAssertionRuleApi(MethodView):
             query_ass_field.modifier_id = 1
             db.session.commit()
             return api_result(code=204, message='删除成功')
-        else:
-            return api_result(code=400, message='字段断言id:{}数据不存在'.format(ass_field_id))
+
+        return api_result(code=400, message='字段断言id:{}数据不存在'.format(ass_field_id))
 
 
 class RuleTestApi(MethodView):
@@ -381,3 +377,200 @@ class RuleTestApi(MethodView):
                 "result_data": None
             }
             return api_result(code=400, message='未找到对应的值,请检查取值规则', data=resp_data)
+
+
+if __name__ == '__main__':
+    l1 = [
+        {
+            "db_name": "online",
+            "table_name": "ol_user",
+            "query": [
+                {
+                    "field_name": "id",
+                    "field_key": "1",
+                    "query_rule": "=",
+                    "is_sql": "1",
+                    "sql": "SELECT * FROM ol_user WHERE id=1;"
+                },
+                {
+                    "field_name": "name",
+                    "field_key": "yyx",
+                    "query_rule": "=",
+                    "is_sql": "1",
+                    "sql": "SELECT * FROM ol_user WHERE id=1;"
+                }
+            ],
+            "assert_list": [
+                {
+                    "assert_key": "id",
+                    "assert_val": "1",
+                    "assert_val_type": "1",
+                    "rule": "="
+                },
+                {
+                    "assert_key": "id",
+                    "assert_val": "1",
+                    "assert_val_type": "1",
+                    "rule": "="
+                }
+            ]
+        },
+        {
+            "db_name": "online",
+            "table_name": "ol_user",
+            "query": [
+                {
+                    "field_name": "id",
+                    "field_key": "1",
+                    "query_rule": "=",
+                    "is_sql": "1",
+                    "sql": "SELECT * FROM ol_user WHERE id=1;"
+                },
+                {
+                    "field_name": "name",
+                    "field_key": "yyx",
+                    "query_rule": "=",
+                    "is_sql": "1",
+                    "sql": "SELECT * FROM ol_user WHERE id=1;"
+                }
+            ],
+            "assert_list": [
+                {
+                    "assert_key": "id",
+                    "assert_val": "1",
+                    "assert_val_type": "1",
+                    "rule": "="
+                }
+            ]
+        }
+    ]
+    l2 = [
+        {
+            "db_name": "online",
+            "table_name": "ol_user",
+            "query": [
+                {
+                    "field_name1": "id",
+                    "field_key": "1",
+                    "query_rule": "=",
+                    "is_sql": "1",
+                    "sql": "SELECT * FROM ol_user WHERE id=1;"
+                },
+                {
+                    "field_name": "name",
+                    "field_key": "yyx",
+                    "query_rule": "=",
+                    "is_sql": "1",
+                    "sql": "SELECT * FROM ol_user WHERE id=1;"
+                }
+            ],
+            "assert_list": [
+                {
+                    "assert_key": "id",
+                    "assert_val": "1",
+                    "assert_val_type": "1",
+                    "rule": "="
+                },
+                {
+                    "assert_key": "id",
+                    "assert_val": "1",
+                    "assert_val_type": "1",
+                    "rule": "="
+                }
+            ]
+        },
+        {
+            "db_name": "online",
+            "table_name": "ol_user",
+            "query": [
+                {
+                    "field_name": "id",
+                    "field_key": "1",
+                    "query_rule": "=",
+                    "is_sql": "1",
+                    "sql": "SELECT * FROM ol_user WHERE id=1;"
+                },
+                {
+                    "field_name": "name",
+                    "field_key": "yyx",
+                    "query_rule": "=",
+                    "is_sql": "1",
+                    "sql": "SELECT * FROM ol_user WHERE id=1;"
+                }
+            ],
+            "assert_list": [
+                {
+                    "assert_key": "id",
+                    "assert_val": "1",
+                    "assert_val_type": "1",
+                    "rule": "="
+                }
+            ]
+        }
+    ]
+    l3 = [
+        {
+            "db_name": "online",
+            "table_name": "ol_user",
+            "query": [
+                {
+                    "field_name": "id",
+                    "field_key": "1",
+                    "query_rule": "=",
+                    "is_sql": "1",
+                    "sql": "SELECT * FROM ol_user WHERE id=1;"
+                },
+                {
+                    "field_name": "name",
+                    "field_key": "yyx",
+                    "query_rule": "=",
+                    "is_sql": "1",
+                    "sql": "SELECT * FROM ol_user WHERE id=1;"
+                }
+            ],
+            "assert_list": [
+                {
+                    "assert_key1": "id",
+                    "assert_val": "1",
+                    "assert_val_type": "1",
+                    "rule": "="
+                },
+                {
+                    "assert_key": "id",
+                    "assert_val": "1",
+                    "assert_val_type": "1",
+                    "rule": "="
+                }
+            ]
+        },
+        {
+            "db_name": "online",
+            "table_name": "ol_user",
+            "query": [
+                {
+                    "field_name": "id",
+                    "field_key": "1",
+                    "query_rule": "=",
+                    "is_sql": "1",
+                    "sql": "SELECT * FROM ol_user WHERE id=1;"
+                },
+                {
+                    "field_name": "name",
+                    "field_key": "yyx",
+                    "query_rule": "=",
+                    "is_sql": "1",
+                    "sql": "SELECT * FROM ol_user WHERE id=1;"
+                }
+            ],
+            "assert_list": [
+                {
+                    "assert_key": "id",
+                    "assert_val": "1",
+                    "assert_val_type": "1",
+                    "rule": "="
+                }
+            ]
+        }
+    ]
+    for i in [l1, l2, l3]:
+        print(check_field_ass(i))
