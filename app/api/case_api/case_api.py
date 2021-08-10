@@ -14,9 +14,9 @@ def check_var(var_list):
     """检查使用的变量是否存在"""
     # var_list = d.get('var_list')
     if var_list:
-        result = TestVariable.query.filter(TestVariable.var_name.in_(var_list)).all()
-        if result:
-            l2 = [v.get('var_name') for v in result]
+        query_var_list = TestVariable.query.filter(TestVariable.var_name.in_(var_list)).all()
+        if query_var_list:
+            l2 = [v.var_name for v in query_var_list]
             r = [i for i in var_list if i not in l2]
             if r:
                 # return api_result(code=400, message='应用的变量:{}不存在,请先创建创建'.format(r))
@@ -49,11 +49,14 @@ class CaseApi(MethodView):
     """
 
     def get(self, case_id):
+        """用例详情"""
+
         # Todo 用例,数据,变量,resp断言,field断言
         return api_result(code=200, message='test case detail')
 
     def post(self):
         """用例新增"""
+
         data = request.get_json()
         case_name = data.get('case_name')
         request_method = data.get('request_method')
@@ -62,25 +65,30 @@ class CaseApi(MethodView):
         remark = data.get('remark')
 
         _bool, _msg = check_var(var_list=var_list)
-        request_method = check_method(current_method=request_method)
+        request_method_result = check_method(current_method=request_method)
 
-        if _bool:
-            if request_method:
-                new_test_case = TestCase(
-                    case_name=case_name,
-                    request_method=request_method,
-                    request_url=request_url,
-                    remark=remark,
-                    creator='调试',
-                    creator_id=1,
-                )
-                db.session.add(new_test_case)
-                db.session.commit()
-                return api_result(code=201, message='创建成功')
-            else:
-                api_result(code=400, message='请求方式:{}不存在'.format(request_method))
-        else:
+        if not _bool:
             return api_result(code=400, message=_msg)
+
+        if not request_method_result:
+            return api_result(code=400, message='请求方式:{} 不存在'.format(request_method))
+
+        query_case = TestCase.query.filter_by(case_name=case_name).first()
+
+        if query_case:
+            return api_result(code=400, message='用例名称:{} 已经存在'.format(case_name))
+
+        new_test_case = TestCase(
+            case_name=case_name,
+            request_method=request_method_result,
+            request_url=request_url,
+            remark=remark,
+            creator='调试',
+            creator_id=1,
+        )
+        db.session.add(new_test_case)
+        db.session.commit()
+        return api_result(code=201, message='创建成功')
 
     def put(self):
         """用例编辑"""
@@ -95,38 +103,43 @@ class CaseApi(MethodView):
 
         query_case = TestCase.query.get(case_id)
 
-        if query_case:
-            _bool, _msg = check_var(var_list=var_list)
-            if _bool:
-                query_case.case_name = case_name
-                query_case.request_method = request_method
-                query_case.request_url = request_url
-                query_case.remark = remark
-                query_case.modifier = "调试"
-                query_case.modifier_id = 1
-                db.session.commit()
-                return api_result(code=203, message='编辑成功')
-            else:
-                return api_result(code=400, message=_msg)
-
-        else:
+        if not query_case:
             return api_result(code=400, message='用例id:{}数据不存在'.format(case_id))
+
+        _bool, _msg = check_var(var_list=var_list)
+
+        if not _bool:
+            return api_result(code=400, message=_msg)
+
+        if query_case.case_name != case_name:
+            if TestCase.query.filter_by(case_name=case_name).all():
+                return api_result(code=400, message='用例名称:{} 已经存在'.format(case_name))
+
+        query_case.case_name = case_name
+        query_case.request_method = request_method
+        query_case.request_url = request_url
+        query_case.remark = remark
+        query_case.modifier = "调试"
+        query_case.modifier_id = 1
+        db.session.commit()
+        return api_result(code=203, message='编辑成功')
 
     def delete(self):
         """用例删除"""
+
         data = request.get_json()
         case_id = data.get('case_id')
 
         query_case = TestCase.query.get(case_id)
 
-        if query_case:
-            query_case.is_deleted = query_case.id
-            query_case.modifier = "调试"
-            query_case.modifier_id = 1
-            db.session.commit()
-            return api_result(code=204, message='删除成功')
-        else:
+        if not query_case:
             return api_result(code=400, message='用例id:{}数据不存在'.format(case_id))
+
+        query_case.is_deleted = query_case.id
+        query_case.modifier = "调试"
+        query_case.modifier_id = 1
+        db.session.commit()
+        return api_result(code=204, message='删除成功')
 
 
 class CaseReqDataApi(MethodView):
