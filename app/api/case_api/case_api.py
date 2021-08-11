@@ -15,20 +15,17 @@ def check_var(var_list):
     # var_list = d.get('var_list')
     if var_list:
         query_var_list = TestVariable.query.filter(TestVariable.var_name.in_(var_list)).all()
-        if query_var_list:
-            l2 = [v.var_name for v in query_var_list]
-            r = [i for i in var_list if i not in l2]
-            if r:
-                # return api_result(code=400, message='应用的变量:{}不存在,请先创建创建'.format(r))
-                return False, '应用的变量:{}不存在,请先创建创建'.format(r)
-        else:
+        if not query_var_list:
             # return api_result(code=400, message='应用的变量:{}不存在,请先创建创建'.format(var_list))
             return False, '应用的变量:{}不存在,请先创建创建'.format(var_list)
 
-        return True, 'pass'
+        l2 = [v.var_name for v in query_var_list]
+        r = [i for i in var_list if i not in l2]
+        if r:
+            # return api_result(code=400, message='应用的变量:{}不存在,请先创建创建'.format(r))
+            return False, '应用的变量:{}不存在,请先创建创建'.format(r)
 
-    else:
-        return True, 'pass'
+    return True, 'pass'
 
 
 def check_method(current_method):
