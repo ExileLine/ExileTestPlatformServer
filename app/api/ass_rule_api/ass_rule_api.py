@@ -72,6 +72,7 @@ class RespAssertionRuleApi(MethodView):
 
     def get(self, ass_resp_id):
         """返回值断言明细"""
+
         query_ass_resp = TestCaseAssResponse.query.get(ass_resp_id)
         if query_ass_resp:
             return api_result(code=200, message='操作成功', data=query_ass_resp.to_json())
@@ -80,13 +81,15 @@ class RespAssertionRuleApi(MethodView):
 
     def post(self):
         """返回值断言新增"""
+
         data = request.get_json()
         assert_description = data.get('assert_description')
         ass_json = data.get('ass_json', [])
         remark = data.get('remark')
 
-        if isinstance(ass_json, list) and ass_json:
+        if not isinstance(ass_json, list) or not ass_json:
             return ab_code(400)
+
         for a in ass_json:
             check_bool = check_keys(
                 a, 'assert_key', 'assert_val', 'assert_val_type', 'expect_val', 'rule', 'is_rule_source',
@@ -115,6 +118,7 @@ class RespAssertionRuleApi(MethodView):
 
     def put(self):
         """返回值断言编辑"""
+
         data = request.get_json()
         ass_resp_id = data.get('ass_resp_id')
         assert_description = data.get('assert_description')
@@ -155,9 +159,11 @@ class RespAssertionRuleApi(MethodView):
 
     def delete(self):
         """返回值断言删除"""
+
         data = request.get_json()
         ass_resp_id = data.get('ass_resp_id')
         query_ass_resp = TestCaseAssResponse.query.get(ass_resp_id)
+
         if query_ass_resp:
             query_ass_resp.is_deleted = query_ass_resp.id
             query_ass_resp.modifier = "调试"
@@ -208,7 +214,9 @@ class FieldAssertionRuleApi(MethodView):
 
     def get(self, ass_field_id):
         """字段断言明细"""
+
         query_ass_field = TestCaseAssField.query.get(ass_field_id)
+
         if query_ass_field:
             return api_result(code=200, message='操作成功', data=query_ass_field.to_json())
 
@@ -216,6 +224,7 @@ class FieldAssertionRuleApi(MethodView):
 
     def post(self):
         """字段断言新增"""
+
         data = request.get_json()
         assert_description = data.get('assert_description')
         ass_json = data.get('ass_json', [])
@@ -243,6 +252,7 @@ class FieldAssertionRuleApi(MethodView):
 
     def put(self):
         """字段断言编辑"""
+
         data = request.get_json()
         ass_field_id = data.get('ass_field_id')
         assert_description = data.get('assert_description')
@@ -273,6 +283,7 @@ class FieldAssertionRuleApi(MethodView):
 
     def delete(self):
         """字段断言规则删除"""
+
         data = request.get_json()
         ass_field_id = data.get('ass_field_id')
         query_ass_field = TestCaseAssField.query.get(ass_field_id)
@@ -327,6 +338,7 @@ class RuleTestApi(MethodView):
     """
 
     def post(self):
+        """1"""
         data = request.get_json()
         rule_str = data.get('rule_str', "")
         data_self = data.get('data_self', {})
@@ -377,200 +389,3 @@ class RuleTestApi(MethodView):
                 "result_data": None
             }
             return api_result(code=400, message='未找到对应的值,请检查取值规则', data=resp_data)
-
-
-if __name__ == '__main__':
-    l1 = [
-        {
-            "db_name": "online",
-            "table_name": "ol_user",
-            "query": [
-                {
-                    "field_name": "id",
-                    "field_key": "1",
-                    "query_rule": "=",
-                    "is_sql": "1",
-                    "sql": "SELECT * FROM ol_user WHERE id=1;"
-                },
-                {
-                    "field_name": "name",
-                    "field_key": "yyx",
-                    "query_rule": "=",
-                    "is_sql": "1",
-                    "sql": "SELECT * FROM ol_user WHERE id=1;"
-                }
-            ],
-            "assert_list": [
-                {
-                    "assert_key": "id",
-                    "assert_val": "1",
-                    "assert_val_type": "1",
-                    "rule": "="
-                },
-                {
-                    "assert_key": "id",
-                    "assert_val": "1",
-                    "assert_val_type": "1",
-                    "rule": "="
-                }
-            ]
-        },
-        {
-            "db_name": "online",
-            "table_name": "ol_user",
-            "query": [
-                {
-                    "field_name": "id",
-                    "field_key": "1",
-                    "query_rule": "=",
-                    "is_sql": "1",
-                    "sql": "SELECT * FROM ol_user WHERE id=1;"
-                },
-                {
-                    "field_name": "name",
-                    "field_key": "yyx",
-                    "query_rule": "=",
-                    "is_sql": "1",
-                    "sql": "SELECT * FROM ol_user WHERE id=1;"
-                }
-            ],
-            "assert_list": [
-                {
-                    "assert_key": "id",
-                    "assert_val": "1",
-                    "assert_val_type": "1",
-                    "rule": "="
-                }
-            ]
-        }
-    ]
-    l2 = [
-        {
-            "db_name": "online",
-            "table_name": "ol_user",
-            "query": [
-                {
-                    "field_name1": "id",
-                    "field_key": "1",
-                    "query_rule": "=",
-                    "is_sql": "1",
-                    "sql": "SELECT * FROM ol_user WHERE id=1;"
-                },
-                {
-                    "field_name": "name",
-                    "field_key": "yyx",
-                    "query_rule": "=",
-                    "is_sql": "1",
-                    "sql": "SELECT * FROM ol_user WHERE id=1;"
-                }
-            ],
-            "assert_list": [
-                {
-                    "assert_key": "id",
-                    "assert_val": "1",
-                    "assert_val_type": "1",
-                    "rule": "="
-                },
-                {
-                    "assert_key": "id",
-                    "assert_val": "1",
-                    "assert_val_type": "1",
-                    "rule": "="
-                }
-            ]
-        },
-        {
-            "db_name": "online",
-            "table_name": "ol_user",
-            "query": [
-                {
-                    "field_name": "id",
-                    "field_key": "1",
-                    "query_rule": "=",
-                    "is_sql": "1",
-                    "sql": "SELECT * FROM ol_user WHERE id=1;"
-                },
-                {
-                    "field_name": "name",
-                    "field_key": "yyx",
-                    "query_rule": "=",
-                    "is_sql": "1",
-                    "sql": "SELECT * FROM ol_user WHERE id=1;"
-                }
-            ],
-            "assert_list": [
-                {
-                    "assert_key": "id",
-                    "assert_val": "1",
-                    "assert_val_type": "1",
-                    "rule": "="
-                }
-            ]
-        }
-    ]
-    l3 = [
-        {
-            "db_name": "online",
-            "table_name": "ol_user",
-            "query": [
-                {
-                    "field_name": "id",
-                    "field_key": "1",
-                    "query_rule": "=",
-                    "is_sql": "1",
-                    "sql": "SELECT * FROM ol_user WHERE id=1;"
-                },
-                {
-                    "field_name": "name",
-                    "field_key": "yyx",
-                    "query_rule": "=",
-                    "is_sql": "1",
-                    "sql": "SELECT * FROM ol_user WHERE id=1;"
-                }
-            ],
-            "assert_list": [
-                {
-                    "assert_key1": "id",
-                    "assert_val": "1",
-                    "assert_val_type": "1",
-                    "rule": "="
-                },
-                {
-                    "assert_key": "id",
-                    "assert_val": "1",
-                    "assert_val_type": "1",
-                    "rule": "="
-                }
-            ]
-        },
-        {
-            "db_name": "online",
-            "table_name": "ol_user",
-            "query": [
-                {
-                    "field_name": "id",
-                    "field_key": "1",
-                    "query_rule": "=",
-                    "is_sql": "1",
-                    "sql": "SELECT * FROM ol_user WHERE id=1;"
-                },
-                {
-                    "field_name": "name",
-                    "field_key": "yyx",
-                    "query_rule": "=",
-                    "is_sql": "1",
-                    "sql": "SELECT * FROM ol_user WHERE id=1;"
-                }
-            ],
-            "assert_list": [
-                {
-                    "assert_key": "id",
-                    "assert_val": "1",
-                    "assert_val_type": "1",
-                    "rule": "="
-                }
-            ]
-        }
-    ]
-    for i in [l1, l2, l3]:
-        print(check_field_ass(i))
