@@ -45,89 +45,96 @@ class CaseVarApi(MethodView):
 
     def get(self, var_id):
         """用例变量详情"""
+
         query_var = TestVariable.query.get(var_id)
-        if query_var:
-            return api_result(code=200, message='操作成功', data=query_var.to_json())
-        else:
+
+        if not query_var:
             return api_result(code=400, message='用例变量id:{}数据不存在'.format(var_id))
+
+        return api_result(code=200, message='操作成功', data=query_var.to_json())
 
     def post(self):
         """用例变量新增"""
-        data = request.get_json()
-        if check_req_var(data):
-            var_name = data.get('var_name')
-            var_value = data.get('var_value')
-            var_type = data.get('var_type')
-            var_source = data.get('var_source')
-            var_get_key = data.get('var_get_key')
-            remark = data.get('remark')
 
-            query_var = TestVariable.query.filter_by(var_name=var_name).first()
-            if query_var:
-                return api_result(code=200, message='变量:【{}】已存在'.format(var_name))
-            else:
-                new_var = TestVariable(
-                    var_name=var_name,
-                    var_value=var_value,
-                    var_type=var_type_dict.get(var_type.lower()),
-                    var_source=var_source_dict.get(var_source),
-                    var_get_key=var_get_key,
-                    remark=remark,
-                    creator='调试',
-                    creator_id=1
-                )
-                db.session.add(new_var)
-                db.session.commit()
-                return api_result(code=201, message='创建成功')
-        else:
+        data = request.get_json()
+        if not check_req_var(data):
             return ab_code(400)
+
+        var_name = data.get('var_name')
+        var_value = data.get('var_value')
+        var_type = data.get('var_type')
+        var_source = data.get('var_source')
+        var_get_key = data.get('var_get_key')
+        remark = data.get('remark')
+
+        query_var = TestVariable.query.filter_by(var_name=var_name).first()
+
+        if query_var:
+            return api_result(code=200, message='变量:【{}】已存在'.format(var_name))
+        else:
+            new_var = TestVariable(
+                var_name=var_name,
+                var_value=var_value,
+                var_type=var_type_dict.get(var_type.lower()),
+                var_source=var_source_dict.get(var_source),
+                var_get_key=var_get_key,
+                remark=remark,
+                creator='调试',
+                creator_id=1
+            )
+            db.session.add(new_var)
+            db.session.commit()
+            return api_result(code=201, message='创建成功')
 
     def put(self):
         """用例变量编辑"""
+
         data = request.get_json()
-        if check_req_var(data):
-            var_id = data.get('var_id')
-            var_name = data.get('var_name')
-            var_value = data.get('var_value')
-            var_type = data.get('var_type')
-            var_source = data.get('var_source')
-            var_get_key = data.get('var_get_key')
-            remark = data.get('remark')
 
-            query_var_filter = TestVariable.query.filter_by(var_name=var_name).first()
-            query_var = TestVariable.query.get(var_id)
+        if not check_req_var(data):
+            return ab_code(400)
 
-            if query_var_filter and query_var.to_json().get('var_name') != var_name:
-                return api_result(code=400, message='用例名称:{} 已存在'.format(var_name))
+        var_id = data.get('var_id')
+        var_name = data.get('var_name')
+        var_value = data.get('var_value')
+        var_type = data.get('var_type')
+        var_source = data.get('var_source')
+        var_get_key = data.get('var_get_key')
+        remark = data.get('remark')
 
-            if query_var:
-                query_var.var_name = var_name
-                query_var.var_value = var_value
-                query_var.var_type = var_type_dict.get(var_type.lower())
-                query_var.var_source = var_source_dict.get(var_source)
-                query_var.var_get_key = var_get_key
-                query_var.remark = remark
-                query_var.modifier = "调试"
-                query_var.modifier_id = 1
-                db.session.commit()
-                return api_result(code=203, message='编辑成功')
-            else:
-                return api_result(code=400, message='用例变量id:{}数据不存在'.format(var_id))
+        query_var_filter = TestVariable.query.filter_by(var_name=var_name).first()
+        query_var = TestVariable.query.get(var_id)
+
+        if query_var_filter and query_var.to_json().get('var_name') != var_name:
+            return api_result(code=400, message='用例名称:{} 已存在'.format(var_name))
+
+        if query_var:
+            query_var.var_name = var_name
+            query_var.var_value = var_value
+            query_var.var_type = var_type_dict.get(var_type.lower())
+            query_var.var_source = var_source_dict.get(var_source)
+            query_var.var_get_key = var_get_key
+            query_var.remark = remark
+            query_var.modifier = "调试"
+            query_var.modifier_id = 1
+            db.session.commit()
+            return api_result(code=203, message='编辑成功')
         else:
-            ab_code(400)
+            return api_result(code=400, message='用例变量id:{}数据不存在'.format(var_id))
 
     def delete(self):
         """用例变量删除"""
+
         data = request.get_json()
         var_id = data.get('var_id')
 
         query_var = TestVariable.query.get(var_id)
 
-        if query_var:
-            query_var.is_deleted = query_var.id
-            query_var.modifier = "调试"
-            query_var.modifier_id = 1
-            db.session.commit()
-            return api_result(code=204, message='删除成功')
-        else:
+        if not query_var:
             return api_result(code=400, message='用例变量id:{}数据不存在'.format(var_id))
+
+        query_var.is_deleted = query_var.id
+        query_var.modifier = "调试"
+        query_var.modifier_id = 1
+        db.session.commit()
+        return api_result(code=204, message='删除成功')
