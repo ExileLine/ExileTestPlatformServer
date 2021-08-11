@@ -263,5 +263,25 @@ class CaseBindDataApi(MethodView):
 
     def post(self):
         """用例配置数据"""
+
         data = request.get_json()
         case_id = data.get('case_id')
+        var_ids = data.get('var_ids', [])
+
+        if not isinstance(var_ids, list) or not var_ids:
+            return api_result()
+
+        query_case = TestCase.query.get(case_id)
+
+        if not query_case:
+            return api_result(code=400, message='用例id不存在:{}'.format(case_id))
+
+        query_var_list = TestVariable.query.filter(TestVariable.id.in_(var_ids)).all()
+
+        query_var_ids = [v.to_json().get('id') for v in query_var_list]
+
+        set_result = list(set(var_ids).difference(set(query_var_ids)))
+        if set_result:
+            return api_result(code=400, message='变量不存在:{}'.format(set_result))
+
+        # Todo 入库
