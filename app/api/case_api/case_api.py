@@ -296,7 +296,7 @@ class CaseBindDataApi(MethodView):
         if query_bind.is_deleted != 0:
             query_bind.is_deleted = 0
             db.session.commit()
-            return api_result(code=203, message='状态更新成功,绑定成功')
+            return api_result(code=201, message='状态更新成功,绑定成功')
 
     def put(self):
         """用例数据解绑"""
@@ -317,3 +317,31 @@ class CaseBindDataApi(MethodView):
         query_bind.modifier_id = 1
         db.session.commit()
         return api_result(code=203, message='状态更新成功,解除绑定成功')
+
+
+class CaseBindRespAssApi(MethodView):
+    """Resp断言规则绑定"""
+
+    def post(self):
+        """Resp断言规则绑定"""
+
+        data = request.get_json()
+        bind_id = data.get('bind_id')
+        ass_resp_ids = data.get('ass_resp_ids', [])
+
+        if not isinstance(ass_resp_ids, list):
+            return ab_code(400)
+
+        query_bind = TestCaseDataAssBind.query.get(bind_id)
+
+        if not query_bind:
+            return api_result(code=400, message='bind_id:{}不存在'.format(bind_id))
+
+        if query_bind.is_deleted != 0:
+            return api_result(code=400, message='已删除is_deleted:{}'.format(query_bind.is_deleted))
+
+        query_bind.ass_resp_id_list = ass_resp_ids
+        query_bind.modifier = "调试"
+        query_bind.modifier_id = 1
+        db.session.commit()
+        return api_result(code=201, message='Resp检验规则绑定成功')
