@@ -2,7 +2,7 @@
 # @Time    : 2021/7/24 1:15 下午
 # @Author  : ShaHeTop-Almighty-ares
 # @Email   : yang6333yyx@126.com
-# @File    : ass_rule_api.py
+# @File    : case_ass_rule_api.py
 # @Software: PyCharm
 
 from app.all_reference import *

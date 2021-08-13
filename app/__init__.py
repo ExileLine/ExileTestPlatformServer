@@ -11,7 +11,7 @@ from flask import Blueprint
 from .api.index.index import IndexApi
 from .api.case_api.case_api import CaseApi, CaseReqDataApi, CaseBindDataApi, CaseBindRespAssApi, CaseBindFieldAssApi
 from .api.case_var_api.case_var_api import CaseVarApi
-from .api.ass_rule_api.ass_rule_api import RespAssertionRuleApi, FieldAssertionRuleApi, RuleTestApi
+from .api.case_ass_rule_api.case_ass_rule_api import RespAssertionRuleApi, FieldAssertionRuleApi, RuleTestApi
 
 api = Blueprint('api', __name__)
 
