@@ -9,7 +9,7 @@
 from flask import Blueprint
 
 from .api.index.index import IndexApi
-from .api.case_api.case_api import CaseApi, CaseReqDataApi, CaseBindDataApi, CaseBindRespAssApi
+from .api.case_api.case_api import CaseApi, CaseReqDataApi, CaseBindDataApi, CaseBindRespAssApi, CaseBindFieldAssApi
 from .api.case_var_api.case_var_api import CaseVarApi
 from .api.ass_rule_api.ass_rule_api import RespAssertionRuleApi, FieldAssertionRuleApi, RuleTestApi
 
@@ -28,4 +28,5 @@ api.add_url_rule('/field_ass_rule', view_func=FieldAssertionRuleApi.as_view('fie
 api.add_url_rule('/field_ass_rule/<ass_field_id>', view_func=FieldAssertionRuleApi.as_view('field_ass_rule_detail'))
 api.add_url_rule('/case_bind_data', view_func=CaseBindDataApi.as_view('case_bind_data'))
 api.add_url_rule('/case_bind_resp_ass', view_func=CaseBindRespAssApi.as_view('case_bind_resp_ass'))
+api.add_url_rule('/case_bind_field_ass', view_func=CaseBindFieldAssApi.as_view('case_bind_field_ass'))
 api.add_url_rule('/rule_test', view_func=RuleTestApi.as_view('rule_test'))

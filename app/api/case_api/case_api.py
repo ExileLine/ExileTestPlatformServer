@@ -345,3 +345,31 @@ class CaseBindRespAssApi(MethodView):
         query_bind.modifier_id = 1
         db.session.commit()
         return api_result(code=201, message='Resp检验规则绑定成功')
+
+
+class CaseBindFieldAssApi(MethodView):
+    """Field断言规则绑定"""
+
+    def post(self):
+        """Field断言规则绑定"""
+
+        data = request.get_json()
+        bind_id = data.get('bind_id')
+        ass_field_ids = data.get('ass_field_ids', [])
+
+        if not isinstance(ass_field_ids, list):
+            return ab_code(400)
+
+        query_bind = TestCaseDataAssBind.query.get(bind_id)
+
+        if not query_bind:
+            return api_result(code=400, message='bind_id:{}不存在'.format(bind_id))
+
+        if query_bind.is_deleted != 0:
+            return api_result(code=400, message='已删除is_deleted:{}'.format(query_bind.is_deleted))
+
+        query_bind.ass_field_id_list = ass_field_ids
+        query_bind.modifier = "调试"
+        query_bind.modifier_id = 1
+        db.session.commit()
+        return api_result(code=201, message='Field检验规则绑定成功')
