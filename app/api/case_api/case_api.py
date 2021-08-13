@@ -262,17 +262,11 @@ class CaseBindDataApi(MethodView):
     """
 
     def post(self):
-        """用例配置数据post"""
+        """用例绑定数据"""
 
         data = request.get_json()
         case_id = data.get('case_id')
         data_id = data.get('data_id')
-        ex_type = data.get('ex_type')
-
-        ex_type_dict = {
-            "bind": 1,
-            "untie": 2
-        }
 
         query_case = TestCase.query.get(case_id)
         query_case_data = TestCaseData.query.get(data_id)
@@ -304,13 +298,8 @@ class CaseBindDataApi(MethodView):
             db.session.commit()
             return api_result(code=203, message='状态更新成功,绑定成功')
 
-        # if ex_type_dict.get(ex_type) == 2:
-        #     query_bind.is_deleted = query_bind.id
-        #     db.session.commit()
-        #     return api_result(code=203, message='状态更新成功,接触绑定成功')
-
     def put(self):
-        """用例配置数据put"""
+        """用例数据解绑"""
 
         data = request.get_json()
         case_id = data.get('case_id')
@@ -318,12 +307,13 @@ class CaseBindDataApi(MethodView):
 
         query_bind = TestCaseDataAssBind.query.filter_by(case_id=case_id, data_id=data_id).first()
 
-        if query_bind:
-            query_bind.ass_resp_id_list = ass_resp_id_list
-            query_bind.ass_field_id_list = ass_field_id_list
-            query_bind.modifier = "调试"
-            query_bind.modifier_id = 1
-            db.session.commit()
-            return api_result(code=203, message='编辑成功')
-        else:
-            return api_result(code=400, message='查询为空')
+        if not query_bind:
+            return api_result(code=400, message='解除绑定失败:错误的case_id:{} 或 data_id:{}'.format(case_id, data_id))
+
+        query_bind.is_deleted = query_bind.id
+        query_bind.ass_resp_id_list = []
+        query_bind.ass_field_id_list = []
+        query_bind.modifier = "调试"
+        query_bind.modifier_id = 1
+        db.session.commit()
+        return api_result(code=203, message='状态更新成功,解除绑定成功')
