@@ -60,7 +60,7 @@ class TestCaseAssResponse(BaseModel):
 
     def __repr__(self):
         return 'TestCaseAssResponse 模型对象-> id:{} 断言描述:{} 断言规则:{}'.format(
-            self.id, self.assert_description, self.assert_summary
+            self.id, self.assert_description, self.ass_json
         )
 
 
@@ -78,7 +78,7 @@ class TestCaseAssField(BaseModel):
 
     def __repr__(self):
         return 'TestCaseAssField 模型对象-> id:{} 断言描述:{} 断言规则:{}'.format(
-            self.id, self.assert_description, self.assert_summary
+            self.id, self.assert_description, self.ass_json
         )
 
 
