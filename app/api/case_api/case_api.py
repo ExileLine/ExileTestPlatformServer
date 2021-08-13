@@ -410,3 +410,61 @@ class CaseBindFieldAssApi(MethodView):
         query_bind.modifier_id = 1
         db.session.commit()
         return api_result(code=201, message='Field检验规则绑定成功')
+
+
+class CasePageApi(MethodView):
+    """
+    case page api
+    POST: 用例分页模糊查询
+    """
+
+    def post(self):
+        """用例分页模糊查询"""
+
+        data = request.get_json()
+        case_id = data.get('case_id')
+        case_name = data.get('case_name')
+        is_deleted = data.get('is_deleted', 0)
+        page, size = page_size(**data)
+
+        sql = """
+        SELECT * 
+        FROM exilic_test_case  
+        WHERE 
+        id LIKE"%%" 
+        and case_name LIKE"%B1%" 
+        and is_deleted=0
+        ORDER BY create_timestamp LIMIT 0,20;
+        """
+
+        like_list = [
+            TestCase.id.ilike("%{}%".format(case_id if case_id else '')),
+            TestCase.case_name.ilike("%{}%".format(case_name if case_name else ''))
+        ]
+
+        where_list = []
+        where_list.append(TestCase.is_deleted != 0) if is_deleted and is_deleted != 0 else where_list.append(
+            TestCase.is_deleted == 0)
+
+        result = TestCase.query.filter(
+            and_(*like_list),
+            *where_list
+        ).order_by(
+            TestCase.create_time.desc()
+        ).paginate(
+            page=int(page),
+            per_page=int(size),
+            error_out=False
+        )
+        result_list = []
+        total = result.total
+        for res in result.items:
+            case_json = res.to_json()
+            result_list.append(case_json)
+
+        result_data = {
+            'records': result_list,
+            'now_page': page,
+            'total': total
+        }
+        return api_result(code=200, message='操作成功', data=result_data)
