@@ -14,8 +14,9 @@ from .api.case_api.case_api import CaseApi, CasePageApi
 from .api.case_data_api.case_data_api import CaseReqDataApi, CaseReqDataPageApi
 from .api.case_var_api.case_var_api import CaseVarApi, CaseVarPageApi
 from .api.case_bind_api.case_bind_api import CaseBindDataApi, CaseBindRespAssApi, CaseBindFieldAssApi
-from .api.case_ass_rule_api.case_ass_rule_api import RespAssertionRuleApi, FieldAssertionRuleApi, RuleTestApi, \
+from .api.case_ass_rule_api.case_ass_rule_api import RespAssertionRuleApi, FieldAssertionRuleApi, \
     RespAssertionRulePageApi, FieldAssertionRulePageApi
+from .api.rule_test_api.rule_test_api import RuleTestApi
 
 api = Blueprint('api', __name__)
 
