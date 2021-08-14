@@ -138,3 +138,39 @@ class CaseVarApi(MethodView):
         query_var.modifier_id = 1
         db.session.commit()
         return api_result(code=204, message='删除成功')
+
+
+class CaseVarPageApi(MethodView):
+    """
+    case var page api
+    POST: 用例变量分页模糊查询
+    """
+
+    def post(self):
+        """用例变量分页模糊查询"""
+
+        data = request.get_json()
+        var_id = data.get('var_id')
+        var_name = data.get('var_name')
+        is_deleted = data.get('is_deleted', False)
+        page, size = page_size(**data)
+
+        sql = """
+        SELECT * 
+        FROM exilic_test_variable  
+        WHERE 
+        id LIKE"%%" 
+        and var_name LIKE"%B1%" 
+        and is_deleted=0
+        ORDER BY create_timestamp LIMIT 0,20;
+        """
+
+        result_data = general_query(
+            model=TestVariable,
+            field_list=['id', 'var_name'],
+            query_list=[var_id, var_name],
+            is_deleted=is_deleted,
+            page=page,
+            size=size
+        )
+        return api_result(code=200, message='操作成功', data=result_data)

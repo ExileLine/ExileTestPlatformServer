@@ -19,5 +19,5 @@ from common.libs.api_result import api_result
 from common.libs.customException import ab_code, ab_code_2
 from common.libs.tools import check_keys, json_format, project_db
 from common.libs.auth import Token, check_user, R
-from common.libs.utils import AdminRefreshCache, page_size
+from common.libs.utils import AdminRefreshCache, page_size, general_query
 from ExtendRegister.db_register import db
