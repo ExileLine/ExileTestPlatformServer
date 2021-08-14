@@ -39,7 +39,7 @@ def page_size(page=None, size=None, **kwargs):
 
 
 def general_query(model, field_list, query_list, is_deleted, page, size):
-    """通用查询"""
+    """通用分页模糊查询"""
 
     if not isinstance(model, DefaultMeta):
         raise TypeError('model need to be flask_sqlalchemy.model.DefaultMeta type and cannot be empty')
