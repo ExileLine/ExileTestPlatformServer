@@ -11,7 +11,7 @@ from datetime import timedelta
 
 import redis
 
-project_name = 'ExilicTestPlatformServer'
+project_name = 'ExileTestPlatformServer'
 
 
 def get_config():
