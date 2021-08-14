@@ -94,3 +94,42 @@ class CaseEnvApi(MethodView):
         query_env.modifier_id = 1
         db.session.commit()
         return api_result(code=204, message='删除成功')
+
+
+class CaseEnvPageApi(MethodView):
+    """
+    case env page api
+    POST: 用例测试环境分页模糊查询
+    """
+
+    def post(self):
+        """用例分页模糊查询"""
+
+        data = request.get_json()
+        env_id = data.get('env_id')
+        env_url = data.get('env_url')
+        env_name = data.get('env_name')
+        is_deleted = data.get('is_deleted', False)
+        page, size = page_size(**data)
+
+        sql = """
+        SELECT * 
+        FROM exilic_test_env  
+        WHERE 
+        id LIKE"%%" 
+        and env_url LIKE"%%" 
+        and env_name LIKE"%%" 
+        and is_deleted=0
+        ORDER BY create_timestamp LIMIT 0,20;
+        """
+
+        result_data = general_query(
+            model=TestEnv,
+            field_list=['id', 'env_url', 'env_name'],
+            query_list=[env_id, env_url, env_name],
+            is_deleted=is_deleted,
+            page=page,
+            size=size
+        )
+
+        return api_result(code=200, message='操作成功', data=result_data)

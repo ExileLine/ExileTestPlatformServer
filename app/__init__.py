@@ -9,7 +9,7 @@
 from flask import Blueprint
 
 from .api.index.index import IndexApi
-from .api.case_env_api.case_env_api import CaseEnvApi
+from .api.case_env_api.case_env_api import CaseEnvApi, CaseEnvPageApi
 from .api.case_api.case_api import CaseApi, CaseReqDataApi, CaseBindDataApi, CaseBindRespAssApi, CaseBindFieldAssApi, \
     CasePageApi, CaseReqDataPageApi
 from .api.case_var_api.case_var_api import CaseVarApi, CaseVarPageApi
@@ -22,7 +22,7 @@ api.add_url_rule('/', view_func=IndexApi.as_view('index'))
 
 api.add_url_rule('/case_env', view_func=CaseEnvApi.as_view('case_env'))
 api.add_url_rule('/case_env/<env_id>', view_func=CaseEnvApi.as_view('case_env_detail'))
-# api.add_url_rule('/case_env_page', view_func=CaseEnvApi.as_view('case_env_page'))
+api.add_url_rule('/case_env_page', view_func=CaseEnvPageApi.as_view('case_env_page'))
 
 api.add_url_rule('/case', view_func=CaseApi.as_view('case'))
 api.add_url_rule('/case/<case_id>', view_func=CaseApi.as_view('case_detail'))
