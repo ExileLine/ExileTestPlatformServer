@@ -8,8 +8,13 @@
 import json
 import time
 
+from sqlalchemy import or_, and_
+from flask_sqlalchemy.model import DefaultMeta
+
 from common.libs.auth import R
 from common.libs.tools import project_db, logger
+
+
 # from app.models.admin.models import Admin, Role, Permission, MidAdminAndRole, MidPermissionAndRole, ApiResource
 
 
@@ -31,6 +36,58 @@ def page_size(page=None, size=None, **kwargs):
     size = size if size and isinstance(size, int) else int(kwargs.get('size', 20))
     page = (page - 1) * size if page != 0 else 0
     return page, size
+
+
+def general_query(model, field_list, query_list, is_deleted, page, size):
+    """通用查询"""
+
+    if not isinstance(model, DefaultMeta):
+        raise TypeError('model need to be flask_sqlalchemy.model.DefaultMeta type and cannot be empty')
+
+    if not isinstance(field_list, list) or not field_list:
+        raise TypeError('field_list need to be list type and cannot be empty')
+
+    if not isinstance(query_list, list) or not query_list:
+        raise TypeError('query_list need to be list type and cannot be empty')
+
+    if not isinstance(page, int) or not isinstance(size, int):
+        raise TypeError('page or size need to be int type and cannot be empty')
+
+    if not isinstance(is_deleted, bool):
+        raise TypeError('is_deleted need to be bool type and cannot be empty')
+
+    like_list = []
+    for index, field in enumerate(field_list):
+        query_var = query_list[index]
+        _like = getattr(model, str(field)).ilike("%{}%".format(query_var if query_var else ''))
+        like_list.append(_like)
+
+    where_list = []
+    where_list.append(getattr(model, 'is_deleted') != 0) if is_deleted else where_list.append(
+        getattr(model, 'is_deleted') == 0)
+
+    result = getattr(model, 'query').filter(
+        and_(*like_list),
+        *where_list
+    ).order_by(
+        getattr(model, 'create_time').desc()
+    ).paginate(
+        page=int(page),
+        per_page=int(size),
+        error_out=False
+    )
+    result_list = []
+    total = result.total
+    for res in result.items:
+        case_var_json = res.to_json()
+        result_list.append(case_var_json)
+
+    result_data = {
+        'records': result_list,
+        'now_page': page,
+        'total': total
+    }
+    return result_data
 
 
 class AdminRefreshCache:
