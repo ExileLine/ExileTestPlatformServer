@@ -193,7 +193,7 @@ class CaseReqDataApi(MethodView):
         if not query_req_case_data:
             return api_result(code=400, message='用例req数据id:{}数据不存在'.format(req_data_id))
 
-        return api_result(code=200, message='删除成功', data=query_req_case_data.to_json())
+        return api_result(code=200, message='操作成功', data=query_req_case_data.to_json())
 
     def post(self):
         """用例req数据新增"""

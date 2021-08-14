@@ -74,10 +74,11 @@ class RespAssertionRuleApi(MethodView):
         """返回值断言明细"""
 
         query_ass_resp = TestCaseAssResponse.query.get(ass_resp_id)
-        if query_ass_resp:
-            return api_result(code=200, message='操作成功', data=query_ass_resp.to_json())
 
-        return api_result(code=400, message='返回值断言id:{}数据不存在'.format(ass_resp_id))
+        if not query_ass_resp:
+            return api_result(code=400, message='返回值断言id:{}数据不存在'.format(ass_resp_id))
+
+        return api_result(code=200, message='操作成功', data=query_ass_resp.to_json())
 
     def post(self):
         """返回值断言新增"""
@@ -217,10 +218,10 @@ class FieldAssertionRuleApi(MethodView):
 
         query_ass_field = TestCaseAssField.query.get(ass_field_id)
 
-        if query_ass_field:
-            return api_result(code=200, message='操作成功', data=query_ass_field.to_json())
+        if not query_ass_field:
+            return api_result(code=400, message='字段断言id:{}数据不存在'.format(ass_field_id))
 
-        return api_result(code=400, message='字段断言id:{}数据不存在'.format(ass_field_id))
+        return api_result(code=200, message='操作成功', data=query_ass_field.to_json())
 
     def post(self):
         """字段断言新增"""
