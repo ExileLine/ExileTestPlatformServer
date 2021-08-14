@@ -298,6 +298,78 @@ class FieldAssertionRuleApi(MethodView):
         return api_result(code=400, message='字段断言id:{}数据不存在'.format(ass_field_id))
 
 
+class RespAssertionRulePageApi(MethodView):
+    """
+    resp assertion rule page api
+    POST: 返回值断言规则分页模糊查询
+    """
+
+    def post(self):
+        """用例变量分页模糊查询"""
+
+        data = request.get_json()
+        resp_ass_id = data.get('resp_ass_id')
+        assert_description = data.get('assert_description')
+        is_deleted = data.get('is_deleted', False)
+        page, size = page_size(**data)
+
+        sql = """
+        SELECT * 
+        FROM exilic_ass_response  
+        WHERE 
+        id LIKE"%%" 
+        and assert_description LIKE"%B1%" 
+        and is_deleted=0
+        ORDER BY create_timestamp LIMIT 0,20;
+        """
+
+        result_data = general_query(
+            model=TestCaseAssResponse,
+            field_list=['id', 'assert_description'],
+            query_list=[resp_ass_id, assert_description],
+            is_deleted=is_deleted,
+            page=page,
+            size=size
+        )
+        return api_result(code=200, message='操作成功', data=result_data)
+
+
+class FieldAssertionRulePageApi(MethodView):
+    """
+    field assertion rule page api
+    POST: 字段断言规则分页模糊查询
+    """
+
+    def post(self):
+        """用例变量分页模糊查询"""
+
+        data = request.get_json()
+        field_ass_id = data.get('field_ass_id')
+        assert_description = data.get('assert_description')
+        is_deleted = data.get('is_deleted', False)
+        page, size = page_size(**data)
+
+        sql = """
+        SELECT * 
+        FROM exilic_ass_response  
+        WHERE 
+        id LIKE"%%" 
+        and assert_description LIKE"%B1%" 
+        and is_deleted=0
+        ORDER BY create_timestamp LIMIT 0,20;
+        """
+
+        result_data = general_query(
+            model=TestCaseAssField,
+            field_list=['id', 'assert_description'],
+            query_list=[field_ass_id, assert_description],
+            is_deleted=is_deleted,
+            page=page,
+            size=size
+        )
+        return api_result(code=200, message='操作成功', data=result_data)
+
+
 class RuleTestApi(MethodView):
     """
     取值规程调试Api
