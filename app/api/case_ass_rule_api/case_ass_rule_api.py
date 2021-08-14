@@ -351,7 +351,7 @@ class FieldAssertionRulePageApi(MethodView):
 
         sql = """
         SELECT * 
-        FROM exilic_ass_response  
+        FROM exilic_ass_field  
         WHERE 
         id LIKE"%%" 
         and assert_description LIKE"%B1%" 
