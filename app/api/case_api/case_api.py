@@ -424,7 +424,7 @@ class CasePageApi(MethodView):
         data = request.get_json()
         case_id = data.get('case_id')
         case_name = data.get('case_name')
-        is_deleted = data.get('is_deleted', 0)
+        is_deleted = data.get('is_deleted', False)
         page, size = page_size(**data)
 
         sql = """
@@ -437,34 +437,13 @@ class CasePageApi(MethodView):
         ORDER BY create_timestamp LIMIT 0,20;
         """
 
-        like_list = [
-            TestCase.id.ilike("%{}%".format(case_id if case_id else '')),
-            TestCase.case_name.ilike("%{}%".format(case_name if case_name else ''))
-        ]
-
-        where_list = []
-        where_list.append(TestCase.is_deleted != 0) if is_deleted and is_deleted != 0 else where_list.append(
-            TestCase.is_deleted == 0)
-
-        result = TestCase.query.filter(
-            and_(*like_list),
-            *where_list
-        ).order_by(
-            TestCase.create_time.desc()
-        ).paginate(
-            page=int(page),
-            per_page=int(size),
-            error_out=False
+        result_data = general_query(
+            model=TestCase,
+            field_list=['id', 'case_name'],
+            query_list=[case_id, case_name],
+            is_deleted=is_deleted,
+            page=page,
+            size=size
         )
-        result_list = []
-        total = result.total
-        for res in result.items:
-            case_json = res.to_json()
-            result_list.append(case_json)
 
-        result_data = {
-            'records': result_list,
-            'now_page': page,
-            'total': total
-        }
         return api_result(code=200, message='操作成功', data=result_data)
