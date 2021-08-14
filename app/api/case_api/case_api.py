@@ -447,3 +447,40 @@ class CasePageApi(MethodView):
         )
 
         return api_result(code=200, message='操作成功', data=result_data)
+
+
+class CaseReqDataPageApi(MethodView):
+    """
+    case req data page api
+    POST: 用例req数据分页模糊查询
+    """
+
+    def post(self):
+        """用例req数据分页模糊查询"""
+
+        data = request.get_json()
+        data_id = data.get('data_id')
+        data_name = data.get('data_name')
+        is_deleted = data.get('is_deleted', False)
+        page, size = page_size(**data)
+
+        sql = """
+        SELECT * 
+        FROM exilic_test_case_data  
+        WHERE 
+        id LIKE"%%" 
+        and case_name LIKE"%B1%" 
+        and is_deleted=0
+        ORDER BY create_timestamp LIMIT 0,20;
+        """
+
+        result_data = general_query(
+            model=TestCaseData,
+            field_list=['id', 'data_name'],
+            query_list=[data_id, data_name],
+            is_deleted=is_deleted,
+            page=page,
+            size=size
+        )
+
+        return api_result(code=200, message='操作成功', data=result_data)
