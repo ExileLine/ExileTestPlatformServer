@@ -8,7 +8,7 @@
 
 from flask import Blueprint
 
-from .api.index.index import IndexApi
+from .api.index_api.index_api import IndexApi
 from .api.case_env_api.case_env_api import CaseEnvApi, CaseEnvPageApi
 from .api.case_api.case_api import CaseApi, CasePageApi
 from .api.case_data_api.case_data_api import CaseReqDataApi, CaseReqDataPageApi
@@ -20,7 +20,7 @@ from .api.rule_test_api.rule_test_api import RuleTestApi
 
 api = Blueprint('api', __name__)
 
-api.add_url_rule('/', view_func=IndexApi.as_view('index'))
+api.add_url_rule('/', view_func=IndexApi.as_view('index_api'))
 
 api.add_url_rule('/case_env', view_func=CaseEnvApi.as_view('case_env'))
 api.add_url_rule('/case_env/<env_id>', view_func=CaseEnvApi.as_view('case_env_detail'))

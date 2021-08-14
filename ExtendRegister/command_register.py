@@ -115,7 +115,7 @@ def register_commands(app):
         api_resource = [
             {
                 'name': 'crm首页',
-                'url': '/crm/index',
+                'url': '/crm/index_api',
                 'method': 'GET'
             },
             {
