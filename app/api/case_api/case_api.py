@@ -191,7 +191,7 @@ class CaseReqDataApi(MethodView):
         query_req_case_data = TestCaseData.query.get(req_data_id)
 
         if not query_req_case_data:
-            return api_result(code=400, message='用例req数据id:{}数据不存在'.format(req_data_id))
+            return api_result(code=400, message='用例req_id:{}数据不存在'.format(req_data_id))
 
         return api_result(code=200, message='操作成功', data=query_req_case_data.to_json())
 
