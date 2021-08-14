@@ -249,3 +249,20 @@ class AdminRefreshCache:
             [cls.query_admin_permission_info(admin_id=admin_id) for admin_id in args]
         else:
             [cls.query_admin_permission_info(admin_id=admin_id) for admin_id in cls.admin_id_list]
+
+
+if __name__ == '__main__':
+    from ApplicationExample import create_app
+    from app.models.test_variable.models import TestVariable
+
+    app = create_app()
+    with app.app_context():
+        result_data = general_query(
+            model=TestVariable,
+            field_list=['id', 'var_name'],
+            query_list=['', ''],
+            is_deleted=False,
+            page=1,
+            size=20
+        )
+        print(result_data)
