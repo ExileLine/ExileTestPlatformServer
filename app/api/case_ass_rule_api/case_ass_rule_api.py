@@ -8,6 +8,8 @@
 from app.all_reference import *
 from app.models.test_case.models import TestCaseAssResponse, TestCaseAssField
 
+rule_list = ['=', '<', '>', '<=', '>=', 'in', 'not in']
+
 
 def check_field_ass(aj_list):
     """检查:断言新增的参数"""
@@ -47,11 +49,8 @@ def check_field_ass(aj_list):
                 if not isinstance(ass_obj, dict):
                     return False, 'assert_list对象:{} 类型错误:{} 位置:{}'.format(ass_obj, type(ass_obj), index)
 
-                if not check_keys(ass_obj, 'assert_key', 'assert_val', 'assert_val_type', 'rule'):
+                if not check_keys(ass_obj, 'assert_key', 'expect_val', 'expect_val_type', 'rule'):
                     return False, 'assert_list对象key错误,位置:{}'.format(index)
-
-
-rule_list = ['=', '<', '>', '<=', '>=', 'in', 'not in']
 
 
 class RespAssertionRuleApi(MethodView):
@@ -192,6 +191,19 @@ class FieldAssertionRuleApi(MethodView):
     PUT: 断言规则编辑
     DELETE: 断言规则删除
 
+    query:
+        :field_name: 字段的名称
+        :field_key: 字段的值
+        :query_rule: 查询规则
+        :is_sql: 是否使用sql(开启后将不使用上述的field_name,field_key,query_rule)
+        :sql: sql
+
+    assert_list:
+        :assert_key: 键(用于简单取值)
+        :expect_val: 期望值
+        :expect_val_type: 期望值类型
+        :rule: 规则
+
     ass_json_demo = {
                 "db_name": "online",
                 "table_name": "ol_user",
@@ -214,8 +226,8 @@ class FieldAssertionRuleApi(MethodView):
                 "assert_list": [
                     {
                         "assert_key": "id",
-                        "assert_val": "1",
-                        "assert_val_type": "1",
+                        "expect_val": "1",
+                        "expect_val_type": "1",
                         "rule": "="
                     }
                 ]
