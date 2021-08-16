@@ -51,6 +51,9 @@ def check_field_ass(aj_list):
                     return False, 'assert_list对象key错误,位置:{}'.format(index)
 
 
+rule_list = ['=', '<', '>', '<=', '>=', 'in', 'not in']
+
+
 class RespAssertionRuleApi(MethodView):
     """
     返回值断言规则Api
@@ -59,13 +62,21 @@ class RespAssertionRuleApi(MethodView):
     PUT: 断言规则编辑
     DELETE: 断言规则删除
 
+
+    :assert_key: 返回值的键(用于简单取值)
+    :expect_val: 期望值
+    :expect_val_type: 期望值类型
+    :rule: 规则
+    :is_expression: 是否使用取值公式
+    :python_val_exp: python取值公式
+
+
     ass_json_demo = {
             "assert_key": "code",
-            "assert_val": "200",
-            "assert_val_type": "1",
-            "expect_val": "333",
+            "expect_val": "200",
+            "expect_val_type": "1",
             "rule": "=",
-            "is_rule_source": 0,
+            "is_expression": 0,
             "python_val_exp": "okc.get('a').get('b').get('c')[0]"
         }
     """
@@ -93,18 +104,17 @@ class RespAssertionRuleApi(MethodView):
 
         for a in ass_json:
             check_bool = check_keys(
-                a, 'assert_key', 'assert_val', 'assert_val_type', 'expect_val', 'rule', 'is_rule_source',
-                'python_val_exp'
+                a, 'assert_key', 'expect_val_type', 'expect_val', 'rule', 'is_expression', 'python_val_exp'
             )
             if not check_bool:
                 return api_result(code=400, message='检验对象错误', data=a)
 
             rule = a.get('rule')
-            is_rule_source = a.get('is_rule_source')
-            ass_rule_bool = bool(rule in ['>', '<', '='])
-            is_rule_source_bool = bool(str(is_rule_source) in ['0', '1'])
+            is_expression = a.get('is_expression')
+            ass_rule_bool = bool(rule in rule_list)
+            is_rule_source_bool = bool(str(is_expression) in ['0', '1'])
             if not ass_rule_bool or not is_rule_source_bool:
-                return api_result(code=400, message='检验规则或规则来源错误:{},{}'.format(rule, is_rule_source))
+                return api_result(code=400, message='检验规则或规则来源错误:{},{}'.format(rule, is_expression))
 
         new_ass_resp = TestCaseAssResponse(
             assert_description=assert_description,
@@ -131,19 +141,18 @@ class RespAssertionRuleApi(MethodView):
 
         for a in ass_json:
             check_bool = check_keys(
-                a, 'assert_key', 'assert_val', 'assert_val_type', 'expect_val', 'rule', 'is_rule_source',
-                'python_val_exp'
+                a, 'assert_key', 'expect_val_type', 'expect_val', 'rule', 'is_expression', 'python_val_exp'
             )
             if not check_bool:
                 return api_result(code=400, message='检验对象错误', data=a)
 
             rule = a.get('rule')
-            is_rule_source = a.get('is_rule_source')
-            ass_rule_bool = bool(rule in ['>', '<', '='])
-            is_rule_source_bool = bool(str(is_rule_source) in ['0', '1'])
+            is_expression = a.get('is_expression')
+            ass_rule_bool = bool(rule in rule_list)
+            is_rule_source_bool = bool(str(is_expression) in ['0', '1'])
 
             if not ass_rule_bool or not is_rule_source_bool:
-                return api_result(code=400, message='检验规则或规则来源错误:{},{}'.format(rule, is_rule_source))
+                return api_result(code=400, message='检验规则或规则来源错误:{},{}'.format(rule, is_expression))
 
         query_ass_resp = TestCaseAssResponse.query.get(ass_resp_id)
 
