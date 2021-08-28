@@ -5,6 +5,8 @@
 # @File    : index_api.py
 # @Software: PyCharm
 
+import time
+
 from app.all_reference import *
 
 
@@ -14,4 +16,4 @@ class IndexApi(MethodView):
     """
 
     def get(self):
-        return api_result(code=200, message='test platform index_api')
+        return api_result(code=200, message='index', data=time.time())
