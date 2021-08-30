@@ -17,6 +17,7 @@ from .api.case_bind_api.case_bind_api import CaseBindDataApi, CaseBindRespAssApi
 from .api.case_ass_rule_api.case_ass_rule_api import RespAssertionRuleApi, FieldAssertionRuleApi, \
     RespAssertionRulePageApi, FieldAssertionRulePageApi
 from .api.rule_test_api.rule_test_api import RuleTestApi
+from .api.case_exec_api.case_exec_api import CaseExecApi
 
 api = Blueprint('api', __name__)
 
@@ -51,3 +52,5 @@ api.add_url_rule('/case_bind_resp_ass', view_func=CaseBindRespAssApi.as_view('ca
 api.add_url_rule('/case_bind_field_ass', view_func=CaseBindFieldAssApi.as_view('case_bind_field_ass'))
 
 api.add_url_rule('/rule_test', view_func=RuleTestApi.as_view('rule_test'))
+
+api.add_url_rule('/case_exec', view_func=CaseExecApi.as_view('case_exec'))
