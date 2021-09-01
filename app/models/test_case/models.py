@@ -36,6 +36,7 @@ class TestCaseData(BaseModel):
     request_body = db.Column(db.JSON, comment='body')
     request_body_type = db.Column(TINYINT(3, unsigned=True), comment='body请求参数类型:1-FormData;2-JsonData;3-X-FormData')
     var_list = db.Column(db.JSON, comment='引用变量列表')
+    update_var_list = db.Column(db.JSON, comment='更新变量列表')
     creator = db.Column(db.String(32), comment='创建人')
     creator_id = db.Column(BIGINT(20, unsigned=True), comment='创建人id')
     modifier = db.Column(db.String(32), comment='更新人')
