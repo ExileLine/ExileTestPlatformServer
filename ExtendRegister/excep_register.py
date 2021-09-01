@@ -8,12 +8,13 @@
 import traceback
 
 from flask import request
+from loguru import logger
 from werkzeug.exceptions import HTTPException
 
 from app import api
 from common.libs.customException import CustomException
 from common.libs.api_result import api_result
-from common.libs.tools import print_logs, logger
+from common.libs.public_func import print_logs
 
 
 @api.app_errorhandler(Exception)

@@ -9,9 +9,9 @@ import json
 import uuid
 
 from flask import g
+from loguru import logger
 
 from common.libs.db import project_db, R
-from common.libs.tools import logger
 from common.libs.customException import ab_code_2
 from app.models.admin.models import Admin, Role, Permission, MidAdminAndRole, MidPermissionAndRole, ApiResource
 

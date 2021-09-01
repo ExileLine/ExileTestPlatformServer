@@ -13,10 +13,9 @@ from loguru import logger
 
 from app import api
 from app.models.admin.models import Admin
-from common.libs.auth import check_user, R
-from common.libs.tools import print_logs
+from common.libs.auth import check_user, R, AdminRefreshCache
+from common.libs.public_func import print_logs
 from common.libs.customException import ab_code_2
-from common.libs.utils import AdminRefreshCache
 
 
 @api.before_request

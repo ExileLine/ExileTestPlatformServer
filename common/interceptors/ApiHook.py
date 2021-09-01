@@ -8,7 +8,7 @@
 from flask import request, g
 
 from app import api
-from common.libs.tools import print_logs
+from common.libs.public_func import print_logs
 
 
 @api.before_request
