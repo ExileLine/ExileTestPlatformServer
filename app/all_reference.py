@@ -10,15 +10,19 @@ import re
 import json
 import time
 import copy
+import requests
 import threading
 
+from loguru import logger
 from sqlalchemy import or_, and_
 from flask.views import MethodView
-from flask import abort, render_template, request, g, url_for, redirect
+from flask import abort, render_template, request, g
 
+from ExtendRegister.db_register import db
+from common.libs.db import project_db, R
 from common.libs.api_result import api_result
 from common.libs.customException import ab_code, ab_code_2
-from common.libs.tools import check_keys, json_format, project_db
-from common.libs.auth import Token, check_user, R
-from common.libs.utils import AdminRefreshCache, page_size, general_query, query_case_zip
-from ExtendRegister.db_register import db
+from common.libs.tools import check_keys, json_format
+from common.libs.auth import Token, check_user
+from common.libs.query_related import page_size, general_query, query_case_zip
+from common.libs.utils import AdminRefreshCache
