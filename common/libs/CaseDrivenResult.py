@@ -20,16 +20,32 @@ from common.libs.assert_related import AssertMain
 class CaseDrivenResult:
     """
     main
-    1.组装用例 √
-    2.转换参数 √
-    3.发出请求 √
-    4.resp断言前置检查 √
-    5.resp断言 √
-    6.更新变量 √
-    7.field断言前置检查
-    8.field断言
-    7.日志记录
-    8.生成报告
+    1.组装用例:
+        CaseDrivenResult.__init__ √
+
+    2.转换参数:
+        CaseDrivenResult.var_conversion √
+
+    3.发出请求:
+        CaseDrivenResult.current_request √
+
+    4.resp断言前置检查:
+        AssertMain.assert_resp_main √
+
+    5.resp断言:
+        AssertMain.assert_resp_main √
+
+    6.更新变量:
+        CaseDrivenResult.update_var √
+
+    7.field断言前置检查:
+
+    8.field断言:
+
+    7.日志记录:
+
+    8.生成报告:
+
     """
 
     def __init__(self, case):
