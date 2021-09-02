@@ -8,8 +8,6 @@
 from app.all_reference import *
 from app.models.test_case.models import TestCaseAssResponse, TestCaseAssField
 
-rule_list = ['=', '<', '>', '<=', '>=', 'in', 'not in']
-
 
 def check_field_ass(aj_list):
     """检查:断言新增的参数"""
@@ -101,6 +99,8 @@ class RespAssertionRuleApi(MethodView):
         if not isinstance(ass_json, list) or not ass_json:
             return ab_code(400)
 
+        new_ass_json = []
+
         for a in ass_json:
             check_bool = check_keys(
                 a, 'assert_key', 'expect_val_type', 'expect_val', 'rule', 'is_expression', 'python_val_exp'
@@ -108,16 +108,26 @@ class RespAssertionRuleApi(MethodView):
             if not check_bool:
                 return api_result(code=400, message='检验对象错误', data=a)
 
-            rule = a.get('rule')
+            rule = rule_save_dict.get(a.get('rule'))
+            if not rule:
+                return api_result(code=400, message='规则参数错误:{}'.format(a.get('rule')))
+
             is_expression = a.get('is_expression')
-            ass_rule_bool = bool(rule in rule_list)
             is_rule_source_bool = bool(str(is_expression) in ['0', '1'])
-            if not ass_rule_bool or not is_rule_source_bool:
-                return api_result(code=400, message='检验规则或规则来源错误:{},{}'.format(rule, is_expression))
+            if not is_rule_source_bool:
+                return api_result(code=400, message='规则参数错误:{}'.format(is_expression))
+
+            expect_val = a.get('expect_val')
+            expect_val_type = expect_val_type_dict.get(str(a.get('expect_val_type')))
+            try:
+                a['expect_val'] = expect_val_type(expect_val)
+                new_ass_json.append(a)
+            except BaseException as e:
+                return api_result(code=400, message='参数:{} 无法转换至 类型:{}'.format(expect_val, type(expect_val_type())))
 
         new_ass_resp = TestCaseAssResponse(
             assert_description=assert_description,
-            ass_json=ass_json,
+            ass_json=new_ass_json,
             creator='调试',
             creator_id=1,
             remark=remark
@@ -138,6 +148,8 @@ class RespAssertionRuleApi(MethodView):
         if not isinstance(ass_json, list) or not ass_json:
             return ab_code(400)
 
+        new_ass_json = []
+
         for a in ass_json:
             check_bool = check_keys(
                 a, 'assert_key', 'expect_val_type', 'expect_val', 'rule', 'is_expression', 'python_val_exp'
@@ -145,19 +157,28 @@ class RespAssertionRuleApi(MethodView):
             if not check_bool:
                 return api_result(code=400, message='检验对象错误', data=a)
 
-            rule = a.get('rule')
-            is_expression = a.get('is_expression')
-            ass_rule_bool = bool(rule in rule_list)
-            is_rule_source_bool = bool(str(is_expression) in ['0', '1'])
+            rule = rule_save_dict.get(a.get('rule'))
+            if not rule:
+                return api_result(code=400, message='规则参数错误:{}'.format(a.get('rule')))
 
-            if not ass_rule_bool or not is_rule_source_bool:
-                return api_result(code=400, message='检验规则或规则来源错误:{},{}'.format(rule, is_expression))
+            is_expression = a.get('is_expression')
+            is_rule_source_bool = bool(str(is_expression) in ['0', '1'])
+            if not is_rule_source_bool:
+                return api_result(code=400, message='规则参数错误:{}'.format(is_expression))
+
+            expect_val = a.get('expect_val')
+            expect_val_type = expect_val_type_dict.get(str(a.get('expect_val_type')))
+            try:
+                a['expect_val'] = expect_val_type(expect_val)
+                new_ass_json.append(a)
+            except BaseException as e:
+                return api_result(code=400, message='参数:{} 无法转换至 类型:{}'.format(expect_val, type(expect_val_type())))
 
         query_ass_resp = TestCaseAssResponse.query.get(ass_resp_id)
 
         if query_ass_resp:
             query_ass_resp.assert_description = assert_description
-            query_ass_resp.ass_json = ass_json
+            query_ass_resp.ass_json = new_ass_json
             query_ass_resp.remark = remark
             query_ass_resp.modifier = "调试"
             query_ass_resp.modifier_id = 1
