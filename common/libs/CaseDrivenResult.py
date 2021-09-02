@@ -257,7 +257,7 @@ class CaseDrivenResult:
                     else:
                         logger.info('=== 断言规则没有100%通过,不更新变量以及数据库校验 ===')
         else:
-            pass
+            logger.info('=== 未配置请求参数 ===')
 
 
 if __name__ == '__main__':
