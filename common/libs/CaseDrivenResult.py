@@ -20,12 +20,14 @@ from common.libs.assert_related import AssertMain
 class CaseDrivenResult:
     """
     main
-    1.组装用例
-    2.转换参数
-    3.发出请求
-    4.断言前置检查
-    5.断言
-    6.更新变量
+    1.组装用例 √
+    2.转换参数 √
+    3.发出请求 √
+    4.resp断言前置检查 √
+    5.resp断言 √
+    6.更新变量 √
+    7.field断言前置检查
+    8.field断言
     7.日志记录
     8.生成报告
     """
@@ -157,6 +159,20 @@ class CaseDrivenResult:
             )
         return response
 
+    def update_var(self):
+        """更新变量"""
+        if self.update_var_list:
+            for up in self.update_var_list:
+                current_list = [item for item in up.items()][0]
+                id = current_list[0]
+                var_value = current_list[1]
+                sql = """UPDATE exilic_test_variable SET var_value='{}' WHERE id='{}';""".format(
+                    json.dumps(var_value, ensure_ascii=False), id)
+                logger.info('=== update sql ===\n{}'.format(sql))
+                project_db.update_data(sql)
+        else:
+            logger.info('=== 更新变量列表为空不需要更新变量===')
+
     def go_test(self):
         """调试"""
         print(self.resp_ass_count)
@@ -199,14 +215,14 @@ class CaseDrivenResult:
                 json_format(self.resp_headers, '用例:{} -> resp_headers'.format(self.case_name))
 
                 if case_resp_ass_info:
-                    for resp_ass in case_resp_ass_info:
+                    for resp_ass in case_resp_ass_info:  # 遍历断言规则逐一校验
                         resp_ass_list = resp_ass.get('ass_json')
                         assert_description = resp_ass.get('assert_description')
-                        print(resp_ass_list)
+                        # print(resp_ass_list)
                         if self.check_ass_keys(assert_list=resp_ass_list, check_type=1):
                             self.resp_ass_count = len(resp_ass_list)
                             for resp_ass_dict in resp_ass_list:
-                                print(resp_ass_dict)
+                                # print(resp_ass_dict)
                                 new_ass = AssertMain(
                                     resp_json=self.resp_json,
                                     resp_headers=self.resp_headers,
@@ -214,12 +230,16 @@ class CaseDrivenResult:
                                     **resp_ass_dict
                                 )
                                 resp_ass_result = new_ass.assert_resp_main()
-                                print(resp_ass_result)
+                                # print(resp_ass_result)
                                 if resp_ass_result[0]:
                                     self.resp_ass_success += 1
                                 else:
                                     self.resp_ass_fail += 1
 
+                    if self.resp_ass_fail == 0:  # 所有断言规则通过,更新变量
+                        self.update_var()
+                    else:
+                        logger.info('=== 断言规则没有100%通过,不更新变量以及数据库校验 ===')
         else:
             pass
 
@@ -251,7 +271,8 @@ if __name__ == '__main__':
                         "username"
                     ],
                     "update_var_list": [
-                        {"3": "更新"}
+                        {"2": "999"},
+                        {"3": "更新123"}
                     ],
                 },
                 "case_field_ass_info": [],
@@ -300,4 +321,4 @@ if __name__ == '__main__':
 
     cdr = CaseDrivenResult(case=ddd)
     cdr.main()
-    cdr.go_test()
+    # cdr.go_test()

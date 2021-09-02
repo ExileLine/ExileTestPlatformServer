@@ -74,10 +74,10 @@ class AssertMain:
             logger.info('{} {} {}'.format(self.this_val, self.rule, __expect_val))
             __assert_bool = getattr(self.this_val, self.rule)(__expect_val)
             if isinstance(__assert_bool, bool) and __assert_bool:
-                print('true')
+                # print('true')
                 return True, '断言通过'
             else:
-                print('false')
+                # print('false')
                 return False, '断言失败'
 
         except BaseException as e:
