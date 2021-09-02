@@ -5,6 +5,8 @@
 # @File    : assert_related.py
 # @Software: PyCharm
 
+from loguru import logger
+
 
 class AssertMain:
     """
@@ -14,43 +16,41 @@ class AssertMain:
     lt     :less than（小于）
     le     :less and equal（小于等于）
     ne     :not equal (不等于)
+    contains: in
     """
 
     rule_dict = {
-        '1': '__eq__',
-        '2': '__gt__',
-        '3': '__ge__',
-        '4': '__lt__',
-        '5': '__le__',
-        '6': '__ne__'
+        '=': '__eq__',
+        '>': '__gt__',
+        '>=': '__ge__',
+        '<': '__lt__',
+        '<=': '__le__',
+        '!=': '__ne__',
+        'in': '__contains__'
     }
 
-    expect_val_type_dict = {
-        '1': 'int',
-        '2': 'str',
-        '3': 'list',
-        '4': 'dict'
-    }
+    def __init__(self, resp_json=None, resp_headers=None, assert_description=None, assert_key=None, rule=None,
+                 expect_val=None, expect_val_type=None, is_expression=None, python_val_exp=None):
+        self.resp_json = resp_json
+        self.resp_headers = resp_headers
 
-    def __init__(self, this_val, expect_val, rule, expect_val_type):
-        self.this_val = this_val
+        self.assert_description = assert_description
+        self.this_val = None
+        self.assert_key = assert_key
+        self.rule = self.rule_dict.get(rule, '')  # 转换
         self.expect_val = expect_val
-        self.rule = self.rule_dict.get(rule, '')
-        self.expect_val_type = self.expect_val_type_dict.get(expect_val_type, '')
+        self.expect_val_type = expect_val_type
+        self.is_expression = is_expression
+        self.python_val_exp = python_val_exp
 
-    def check_dict_val(self):
-        """检查"""
+    def get_resp_this_val(self):
+        """用键获取需要断言的值"""
+        if self.is_expression:  # 公式取值
+            pass
+        else:  # 直接常规取值:紧限于返回值的第一层键值对如:{"code":200,"message":"ok"}
+            self.this_val = self.resp_json.get(self.assert_key)
 
-        if not hasattr(self.this_val, self.rule):
-            print('rule_dict 不存在 key: {}'.format(self.rule))
-            return False
-        if not hasattr(self.expect_val, '__{}__'.format(self.expect_val_type)):
-            print('expect_val_type_dict 不存在 key: {}'.format(self.expect_val_type))
-            return False
-
-        return True
-
-    def assert_main(self):
+    def assert_resp_main(self):
         """
         断言
         :this_val: 当前值
@@ -58,42 +58,47 @@ class AssertMain:
         :expect_val_type: 期望值类型
         :expect_val: 期望值
         """
+        self.get_resp_this_val()
 
-        if self.check_dict_val():
-            try:
-                """
-                等价于以下三种
-                int(expect_val)
-                getattr(expect_val, '__int__')()
-                expect_val.__int__()
-                """
-                __expect_val = getattr(self.expect_val, '__{}__'.format(self.expect_val_type))()
-                print(__expect_val, type(__expect_val))
+        try:
+            __expect_val = self.this_val
+            """
+            解析:
+            this_val = 1
+            rule = rule_dict.get('1')
+            expect_val = 1
+            bool(getattr(a, rule)(expect_val)) 等价 bool(this_val == expect_val) 
+            this_val == expect_val
+            """
+            logger.info('=== 断言:{} ==='.format(self.assert_description))
+            logger.info('{} {} {}'.format(self.this_val, self.rule, __expect_val))
+            __assert_bool = getattr(self.this_val, self.rule)(__expect_val)
+            if isinstance(__assert_bool, bool) and __assert_bool:
+                print('true')
+                return True, '断言通过'
+            else:
+                print('false')
+                return False, '断言失败'
 
-                """
-                解析:
-                this_val = 1
-                rule = rule_dict.get('1')
-                expect_val = 1
-                bool(getattr(a, rule)(expect_val)) 等价 bool(this_val == expect_val) 
-                this_val == expect_val
-                """
-                print('{} {} {}'.format(self.this_val, self.rule, __expect_val))
-                __assert_bool = getattr(self.this_val, self.rule)(__expect_val)
-                if isinstance(__assert_bool, bool) and __assert_bool:
-                    print('true')
-                    return True, '断言通过'
-                else:
-                    print('false')
-                    return False, '断言失败'
+        except BaseException as e:
+            return False, str(e)
 
-            except BaseException as e:
-                return False, str(e)
-
-        else:
-            return False, "参数异常"
+    def go_test(self):
+        """调试"""
+        print('\n'.join(['%s:%s' % item for item in self.__dict__.items()]))
 
 
 if __name__ == '__main__':
-    am = AssertMain(this_val=1, rule='1', expect_val_type='1', expect_val=1)
-    am.assert_main()
+    demo = [
+        {
+            'assert_key': 'code',
+            'expect_val': '200',
+            'expect_val_type': '1',
+            'is_expression': 0,
+            'python_val_exp': "okc.get('a').get('b').get('c')[0]",
+            'rule': '='
+        },
+        {'assert_key': 'message', 'expect_val': 'index', 'expect_val_type': '1', 'is_expression': 0,
+         'python_val_exp': "okc.get('a').get('b').get('c')[0]", 'rule': '='}
+    ]
+    new_ass = AssertMain(demo)

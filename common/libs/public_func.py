@@ -38,11 +38,17 @@ def check_keys(dic, *keys):
     return True
 
 
-def json_format(d):
+def json_format(d, msg=None):
     """json格式打印"""
     try:
-        logger.info('\n' + json.dumps(d, sort_keys=True, indent=4, separators=(', ', ': '), ensure_ascii=False))
+        logger.info(
+            '{}\n'.format(msg) + json.dumps(d, sort_keys=True, indent=4, separators=(', ', ': '), ensure_ascii=False))
         # print(json.dumps(d, sort_keys=True, indent=4, separators=(', ', ': '), ensure_ascii=False))
     except BaseException as e:
-        logger.info(d)
+        logger.info('{}\n{}'.format(msg, d))
         # print(d)
+
+
+if __name__ == '__main__':
+    d = {"a": "b"}
+    print(check_keys(d, *["b"]))

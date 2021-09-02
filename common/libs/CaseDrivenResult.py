@@ -12,7 +12,9 @@ import requests
 from loguru import logger
 
 from common.libs.db import project_db
+from common.libs.public_func import check_keys
 from common.libs.public_func import json_format
+from common.libs.assert_related import AssertMain
 
 
 class CaseDrivenResult:
@@ -21,10 +23,11 @@ class CaseDrivenResult:
     1.组装用例
     2.转换参数
     3.发出请求
-    4.断言
-    5.更新变量
-    6.日志记录
-    7.生成报告
+    4.断言前置检查
+    5.断言
+    6.更新变量
+    7.日志记录
+    8.生成报告
     """
 
     def __init__(self, case):
@@ -35,15 +38,31 @@ class CaseDrivenResult:
         self.case_name = self.case_info.get('case_name')
         self.request_url = self.case_info.get('request_url')
         self.request_method = self.case_info.get('request_method')
+        self.update_var_list = []
+
+        self.resp_json = {}
+        self.resp_headers = {}
+
+        self.resp_ass_count = 0
+        self.resp_ass_success = 0
+        self.resp_ass_fail = 0
+        self.resp_ass_success_rate = 0
+        self.resp_ass_fail_rate = 0
+
+        self.field_ass_count = 0
+        self.field_ass_success = 0
+        self.field_ass_fail = 0
+        self.field_ass_success_rate = 0
+        self.field_ass_fail_rate = 0
 
     @staticmethod
     def show_log(url, headers, req_json, resp_headers, resp_json):
         """测试用例日志打印"""
         logger.info('test url\n{}'.format(url))
-        logger.info('test headers\n{}'.format(json_format(headers)))
-        logger.info('test req_json\n{}'.format(json_format(req_json)))
-        logger.info('test resp_headers\n{}'.format(json_format(resp_headers)))
-        logger.info('test resp_json\n{}'.format(json_format(resp_json)))
+        json_format(headers, msg='test headers')
+        json_format(req_json, msg='test req_json')
+        json_format(resp_headers, msg='test resp_headers')
+        json_format(resp_json, msg='test resp_json')
 
     @staticmethod
     def var_conversion(before_var):
@@ -77,6 +96,32 @@ class CaseDrivenResult:
                 return None
         else:
             return None
+
+    @staticmethod
+    def check_ass_keys(assert_list, check_type):
+        """
+        检查断言对象参数类型是否正确
+        assert_list: ->list 规则列表
+        check_type: ->int 1-响应断言规则;2-数据库校验规则
+        """
+        keys_dict = {
+            "1": ["assert_key", "expect_val", "expect_val_type", "is_expression", "python_val_exp", "rule"],
+            "2": ""  # TODO 数据库校验规则
+
+        }
+        if not isinstance(assert_list, list) or not assert_list:
+            logger.info("assert_list:类型错误{}".format(assert_list))
+            return False
+
+        if check_type not in [1, 2]:
+            logger.info("check_type:类型错误{}".format(check_type))
+            return False
+
+        for ass in assert_list:
+            if not check_keys(ass, *keys_dict.get(str(check_type))):
+                logger.info("缺少需要的键值对:{}".format(ass))
+                return False
+        return True
 
     @classmethod
     def current_request(cls, method=None, **kwargs):
@@ -112,6 +157,13 @@ class CaseDrivenResult:
             )
         return response
 
+    def go_test(self):
+        """调试"""
+        print(self.resp_ass_count)
+        print(self.resp_ass_success)
+        print(self.resp_ass_fail)
+        print(self.update_var_list)
+
     def main(self):
         """main"""
 
@@ -119,6 +171,7 @@ class CaseDrivenResult:
 
             for bind in self.bind_info:
                 case_data_info = bind.get('case_data_info', {})
+                self.update_var_list = case_data_info.get('update_var_list')
                 case_resp_ass_info = bind.get('case_resp_ass_info', [])
                 case_field_ass_info = bind.get('case_field_ass_info', [])
 
@@ -140,7 +193,33 @@ class CaseDrivenResult:
                 send = self.var_conversion(send)
 
                 resp = self.current_request(method=self.request_method.lower(), **send)
-                print(resp.json())
+                self.resp_json = resp.json()
+                self.resp_headers = resp.headers
+                json_format(self.resp_json, '用例:{} -> resp_json'.format(self.case_name))
+                json_format(self.resp_headers, '用例:{} -> resp_headers'.format(self.case_name))
+
+                if case_resp_ass_info:
+                    for resp_ass in case_resp_ass_info:
+                        resp_ass_list = resp_ass.get('ass_json')
+                        assert_description = resp_ass.get('assert_description')
+                        print(resp_ass_list)
+                        if self.check_ass_keys(assert_list=resp_ass_list, check_type=1):
+                            self.resp_ass_count = len(resp_ass_list)
+                            for resp_ass_dict in resp_ass_list:
+                                print(resp_ass_dict)
+                                new_ass = AssertMain(
+                                    resp_json=self.resp_json,
+                                    resp_headers=self.resp_headers,
+                                    assert_description=assert_description,
+                                    **resp_ass_dict
+                                )
+                                resp_ass_result = new_ass.assert_resp_main()
+                                print(resp_ass_result)
+                                if resp_ass_result[0]:
+                                    self.resp_ass_success += 1
+                                else:
+                                    self.resp_ass_fail += 1
+
         else:
             pass
 
@@ -178,24 +257,11 @@ if __name__ == '__main__':
                 "case_field_ass_info": [],
                 "case_resp_ass_info": [
                     {
-                        "ass_json": [
-                            {
-                                "assert_key": "code",
-                                "expect_val": "200",
-                                "expect_val_type": "1",
-                                "is_expression": 0,
-                                "python_val_exp": "okc.get('a').get('b').get('c')[0]",
-                                "rule": "="
-                            },
-                            {
-                                "assert_key": "message",
-                                "expect_val": "index",
-                                "expect_val_type": "1",
-                                "is_expression": 0,
-                                "python_val_exp": "okc.get('a').get('b').get('c')[0]",
-                                "rule": "="
-                            }
-                        ],
+                        "ass_json": [{"rule": "=", "assert_key": "code", "expect_val": 200, "is_expression": 0,
+                                      "python_val_exp": "okc.get('a').get('b').get('c')[0]", "expect_val_type": "1"},
+                                     {"rule": "=", "assert_key": "message", "expect_val": "index", "is_expression": 0,
+                                      "python_val_exp": "okc.get('a').get('b').get('c')[0]", "expect_val_type": "2"}
+                                     ],
                         "assert_description": "Resp通用断言",
                         "create_time": "2021-09-01 20:30:04",
                         "create_timestamp": 1630499057,
@@ -234,3 +300,4 @@ if __name__ == '__main__':
 
     cdr = CaseDrivenResult(case=ddd)
     cdr.main()
+    cdr.go_test()

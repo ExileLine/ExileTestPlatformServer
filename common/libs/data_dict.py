@@ -7,16 +7,19 @@
 
 import json
 
+# RespAssertionRuleApi 新增,编辑时候使用
 rule_save_dict = {
     "=": 1,
     "<": 2,
     ">": 3,
     "<=": 4,
     ">=": 5,
-    "in": 6,
-    "not in": 7
+    "!=": 6,
+    "in": 7,
+    "not in": 8
 }
 
+# RespAssertionRuleApi 新增,编辑时候使用
 expect_val_type_dict = {
     '1': int,
     '2': str,
@@ -26,11 +29,21 @@ expect_val_type_dict = {
     '5': json.dumps
 }
 
+rule_dict = {
+    '=': '__eq__',
+    '>': '__gt__',
+    '>=': '__ge__',
+    '<': '__lt__',
+    '<=': '__le__',
+    '!=': '__ne__',
+    'in': '__contains__'
+}
+
 if __name__ == '__main__':
-    a = 123
-    # a = "123"
-    # print(expect_val_type_dict.get('1')(a))
+    a = "123"
+    # a = 123
+    print(expect_val_type_dict.get('1')(a))
     print(expect_val_type_dict.get('2')(a))
-    # print(expect_val_type_dict.get('3')(a))
-    # print(expect_val_type_dict.get('4')(a))
+    print(expect_val_type_dict.get('3')(a))
+    print(expect_val_type_dict.get('4')(a))
     print(expect_val_type_dict.get('5')(a))
