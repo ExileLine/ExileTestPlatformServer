@@ -261,7 +261,7 @@ class CaseDrivenResult:
 
 
 if __name__ == '__main__':
-    ddd = {
+    demo = {
         "bind_info": [
             {
                 "case_data_info": {
@@ -294,11 +294,12 @@ if __name__ == '__main__':
                 "case_field_ass_info": [],
                 "case_resp_ass_info": [
                     {
-                        "ass_json": [{"rule": "=", "assert_key": "code", "expect_val": 200, "is_expression": 0,
-                                      "python_val_exp": "okc.get('a').get('b').get('c')[0]", "expect_val_type": "1"},
-                                     {"rule": "=", "assert_key": "message", "expect_val": "index", "is_expression": 0,
-                                      "python_val_exp": "okc.get('a').get('b').get('c')[0]", "expect_val_type": "2"}
-                                     ],
+                        "ass_json": [
+                            {"rule": "=", "assert_key": "code", "expect_val": 200, "is_expression": 0,
+                             "python_val_exp": "okc.get('a').get('b').get('c')[0]", "expect_val_type": "1"},
+                            {"rule": "=", "assert_key": "message", "expect_val": "index", "is_expression": 0,
+                             "python_val_exp": "okc.get('a').get('b').get('c')[0]", "expect_val_type": "2"}
+                        ],
                         "assert_description": "Resp通用断言",
                         "create_time": "2021-09-01 20:30:04",
                         "create_timestamp": 1630499057,
@@ -334,7 +335,6 @@ if __name__ == '__main__':
             "update_timestamp": None
         }
     }
-
-    cdr = CaseDrivenResult(case=ddd)
+    cdr = CaseDrivenResult(case=demo)
     cdr.main()
     # cdr.go_test()

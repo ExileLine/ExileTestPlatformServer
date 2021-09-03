@@ -89,16 +89,30 @@ class AssertMain:
 
 
 if __name__ == '__main__':
-    demo = [
-        {
-            'assert_key': 'code',
-            'expect_val': '200',
-            'expect_val_type': '1',
-            'is_expression': 0,
-            'python_val_exp': "okc.get('a').get('b').get('c')[0]",
-            'rule': '='
-        },
-        {'assert_key': 'message', 'expect_val': 'index', 'expect_val_type': '1', 'is_expression': 0,
-         'python_val_exp': "okc.get('a').get('b').get('c')[0]", 'rule': '='}
-    ]
-    new_ass = AssertMain(demo)
+    resp_headers = {
+        'Content-Type': 'application/json',
+        'Content-Length': '72',
+        'Server': 'Werkzeug/2.0.1 Python/3.9.4',
+        'Date': 'Thu, 02 Sep 2021 12:48:32 GMT'
+    }
+    resp_json = {
+        "code": 200,
+        "data": 1630586912.8031318,
+        "message": "index"
+    }
+    resp_ass_dict = {
+        "rule": "=",
+        "assert_key": "code",
+        "expect_val": 200,
+        "is_expression": 0,
+        "python_val_exp": "okc.get('a').get('b').get('c')[0]",
+        "expect_val_type": "1"
+    }
+    new_ass = AssertMain(
+        resp_json=resp_json,
+        resp_headers=resp_headers,
+        assert_description="Resp通用断言",
+        **resp_ass_dict
+    )
+    resp_ass_result = new_ass.assert_resp_main()
+    print(resp_ass_result)
