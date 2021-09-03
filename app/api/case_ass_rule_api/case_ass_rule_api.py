@@ -55,7 +55,10 @@ def check_field_ass(aj_list):
         assert_list = a.get('assert_list', [])
         print(check_bool)
 
-        # TODO sql语句检验
+        pattern = r"\b(exec|insert|drop|grant|alter|delete|update|count|chr|mid|master|truncate|char|delclare)\b|(\*)"
+        r = re.search(pattern, sql.lower())
+        if r:
+            return False, '{}:不属于查询类别的Sql语句'.format(r.group())
 
         if not check_bool or not isinstance(assert_list, list):
             return False, 'ass_json 参数错误'
