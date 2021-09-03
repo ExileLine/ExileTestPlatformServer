@@ -125,9 +125,10 @@ class CaseDrivenResult:
         assert_list: ->list 规则列表
         check_type: ->int 1-响应断言规则;2-数据库校验规则
         """
+
         keys_dict = {
             "1": ["assert_key", "expect_val", "expect_val_type", "is_expression", "python_val_exp", "rule"],
-            "2": ""  # TODO 数据库校验规则
+            "2": ["assert_list", "db_id", "sql"]
 
         }
         if not isinstance(assert_list, list) or not assert_list:
@@ -242,23 +243,39 @@ class CaseDrivenResult:
                             self.resp_ass_count = len(resp_ass_list)
                             for resp_ass_dict in resp_ass_list:
                                 # print(resp_ass_dict)
-                                new_ass = AssertMain(
+                                new_resp_ass = AssertMain(
                                     resp_json=self.resp_json,
                                     resp_headers=self.resp_headers,
                                     assert_description=assert_description,
                                     **resp_ass_dict
                                 )
-                                resp_ass_result = new_ass.assert_resp_main()
+                                resp_ass_result = new_resp_ass.assert_resp_main()
                                 # print(resp_ass_result)
                                 if resp_ass_result[0]:
                                     self.resp_ass_success += 1
                                 else:
                                     self.resp_ass_fail += 1
+                        else:
+                            return False
 
-                    if self.resp_ass_fail == 0:  # 所有断言规则通过,更新变量
-                        self.update_var()
+                    if self.resp_ass_fail == 0:  # 所有断言规则通过
+                        self.update_var()  # 更新变量
+                        for field_ass in case_field_ass_info:
+                            field_ass_list = field_ass.get('ass_json')
+                            assert_description = field_ass.get('assert_description')
+                            if self.check_ass_keys(assert_list=field_ass_list, check_type=2):  # 数据库校验
+                                for field_ass_dict in field_ass_list:
+                                    print(field_ass_dict)
+                                    # TODO 触发断言
+                                    new_field_ass = AssertMain(
+                                        assert_description=assert_description,
+                                        **field_ass_dict
+                                    )
+                            else:
+                                return False
+
                     else:
-                        logger.info('=== 断言规则没有100%通过,不更新变量以及数据库校验 ===')
+                        logger.info('=== 断言规则没有100%通过,不更新变量以及不进行数据库校验 ===')
         else:
             logger.info('=== 未配置请求参数 ===')
 
@@ -381,38 +398,22 @@ if __name__ == '__main__':
                                         "rule": "="
                                     }
                                 ],
-                                "db_name": "ExilicTestPlatform",
-                                "query": [
-                                    {
-                                        "field_key": "1",
-                                        "field_name": "id",
-                                        "is_sql": "1",
-                                        "query_rule": "=",
-                                        "sql": "SELECT * FROM exilic_test_case WHERE id=1;"
-                                    },
-                                    {
-                                        "field_key": "测试用例B1",
-                                        "field_name": "case_name",
-                                        "is_sql": "1",
-                                        "query_rule": "=",
-                                        "sql": "SELECT * FROM exilic_test_case WHERE id=1;"
-                                    }
-                                ],
-                                "table_name": "exilic_test_case"
+                                "db_id": 1,
+                                "sql": "select id FROM exilic_test_case WHERE id=1;"
                             }
                         ],
-                        "assert_description": "通用字段校验",
-                        "create_time": "2021-09-03 14:25:53",
-                        "create_timestamp": 1630649234,
+                        "assert_description": "通用字段校验yyx",
+                        "create_time": "2021-09-04 00:41:37",
+                        "create_timestamp": 1630687235,
                         "creator": "调试",
                         "creator_id": 1,
-                        "id": 9,
+                        "id": 20,
                         "is_deleted": 0,
                         "modifier": None,
                         "modifier_id": None,
                         "remark": "remark",
                         "status": 1,
-                        "update_time": "2021-09-03 14:25:53",
+                        "update_time": "2021-09-04 00:41:38",
                         "update_timestamp": None
                     }
                 ],
