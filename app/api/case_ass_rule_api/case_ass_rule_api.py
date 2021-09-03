@@ -9,14 +9,9 @@ from app.all_reference import *
 from app.models.test_case.models import TestCaseAssResponse, TestCaseAssField
 
 
-def check_field_ass(aj_list):
+# 旧数据结构,暂时保留
+def check_field_ass_old(aj_list):
     """检查:断言新增的参数"""
-
-    def check_keys(dic, *keys):
-        for k in keys:
-            if k not in dic.keys():
-                return False
-        return True
 
     for a in aj_list:
         check_bool = check_keys(
@@ -49,6 +44,31 @@ def check_field_ass(aj_list):
 
                 if not check_keys(ass_obj, 'assert_key', 'expect_val', 'expect_val_type', 'rule'):
                     return False, 'assert_list对象key错误,位置:{}'.format(index)
+
+
+def check_field_ass(aj_list):
+    """检查:断言新增的参数"""
+
+    for a in aj_list:
+        check_bool = check_keys(a, 'sql', 'assert_list')
+        sql = a.get('sql')
+        assert_list = a.get('assert_list', [])
+        print(check_bool)
+
+        # TODO sql语句检验
+
+        if not check_bool or not isinstance(assert_list, list):
+            return False, 'ass_json 参数错误'
+
+        if assert_list:
+            ass_obj = assert_list.pop()
+            print(ass_obj)
+            if not isinstance(ass_obj, dict):
+                return False, 'assert_list对象:{} 类型错误:{}'.format(ass_obj, type(ass_obj))
+
+            if not check_keys(ass_obj, 'assert_key', 'expect_val', 'expect_val_type', 'rule'):
+                return False, 'assert_list对象key错误:{}'.format(ass_obj)
+    return True, 'True'
 
 
 class RespAssertionRuleApi(MethodView):
@@ -226,24 +246,8 @@ class FieldAssertionRuleApi(MethodView):
         :rule: 规则
 
     ass_json_demo = {
-                "db_name": "online",
-                "table_name": "ol_user",
-                "query": [
-                    {
-                        "field_name": "id",
-                        "field_key": "1",
-                        "query_rule": "=",
-                        "is_sql": "1",
-                        "sql": "SELECT * FROM ol_user WHERE id=1;"
-                    },
-                    {
-                        "field_name": "name",
-                        "field_key": "yyx",
-                        "query_rule": "=",
-                        "is_sql": "1",
-                        "sql": "SELECT * FROM ol_user WHERE id=1;"
-                    }
-                ],
+
+                "sql": "SELECT * FROM exilic_test_case WHERE id=1;",
                 "assert_list": [
                     {
                         "assert_key": "id",
@@ -289,9 +293,8 @@ class FieldAssertionRuleApi(MethodView):
             creator_id=1,
             remark=remark
         )
-        db.session.add(new_ass_field)
-        db.session.commit()
-        return api_result(code=201, message='创建成功')
+        new_ass_field.save()
+        return api_result(code=201, message='创建成功', data=ass_json)
 
     def put(self):
         """字段断言编辑"""
