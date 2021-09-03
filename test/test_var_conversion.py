@@ -16,7 +16,17 @@ if __name__ == '__main__':
         "username": "${username}"
     }
     d4 = ["${user_id}", "${username}"]
+    d5 = {'url': 'http://127.0.0.1:7272/api', 'headers': {}, 'data': {}}
+    d6 = {'url': 'http://127.0.0.1:7272/api', 'headers': {}, 'data': {"key": "${user_id}"}}
+    d7 = {'url': 'http://127.0.0.1:7272/api', 'headers': {}, 'data': {"key": "${aaa}"}}
     print(CaseDrivenResult.var_conversion(d1))
     print(CaseDrivenResult.var_conversion(d2))
     print(CaseDrivenResult.var_conversion(d3))
     print(CaseDrivenResult.var_conversion(d4))
+
+    result5 = CaseDrivenResult.var_conversion(d5)
+    result6 = CaseDrivenResult.var_conversion(d6)
+    result7 = CaseDrivenResult.var_conversion(d7)
+    print(result5, type(result5))
+    print(result6, type(result6))
+    print(result7, type(result7))

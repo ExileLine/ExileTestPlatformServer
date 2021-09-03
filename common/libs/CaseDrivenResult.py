@@ -93,12 +93,15 @@ class CaseDrivenResult:
         result_list = re.findall('\\$\\{([^}]*)', before_var)
 
         if result_list:
+            err_var_list = []
             current_dict = {}
             for res in result_list:
                 sql = """select var_value from exilic_test_variable where var_name='{}';""".format(res)
                 query_result = project_db.select(sql=sql, only=True)
                 if query_result:
                     current_dict[res] = json.loads(query_result.get('var_value'))
+                else:
+                    err_var_list.append(res)
             if current_dict:
                 current_str = before_var
                 for k, v in current_dict.items():
@@ -107,13 +110,13 @@ class CaseDrivenResult:
                     current_str = current_str.replace(old_var, new_var)
                 if isinstance(before_var_init, (list, dict)):
                     current_str = json.loads(current_str)
-                    print('okc')
                 # print(current_str)
                 return current_str
             else:
-                return None
+                logger.info('===未找到变量:{}对应的参数==='.format(err_var_list))
+                return before_var_init
         else:
-            return None
+            return before_var_init
 
     @staticmethod
     def check_ass_keys(assert_list, check_type):
@@ -335,6 +338,139 @@ if __name__ == '__main__':
             "update_timestamp": None
         }
     }
-    cdr = CaseDrivenResult(case=demo)
+    demo2 = {
+        "bind_info": [
+            {
+                "case_data_info": {
+                    "create_time": "2021-09-01 20:34:39",
+                    "create_timestamp": 1630499057,
+                    "creator": "调试",
+                    "creator_id": 1,
+                    "data_name": "数据99999",
+                    "id": 12,
+                    "is_deleted": 0,
+                    "modifier": None,
+                    "modifier_id": None,
+                    "remark": None,
+                    "request_body": {"key": "${aaa}"},
+                    "request_body_type": 1,
+                    "request_headers": {},
+                    "request_params": {},
+                    "status": 1,
+                    "update_time": "2021-09-01 20:34:40",
+                    "update_timestamp": None,
+                    "update_var_list": [
+                        {
+                            "3": "更新"
+                        }
+                    ],
+                    "var_list": [
+                        "user_id",
+                        "username"
+                    ]
+                },
+                "case_field_ass_info": [
+                    {
+                        "ass_json": [
+                            {
+                                "assert_list": [
+                                    {
+                                        "assert_key": "id",
+                                        "expect_val": "1",
+                                        "expect_val_type": "1",
+                                        "rule": "="
+                                    }
+                                ],
+                                "db_name": "ExilicTestPlatform",
+                                "query": [
+                                    {
+                                        "field_key": "1",
+                                        "field_name": "id",
+                                        "is_sql": "1",
+                                        "query_rule": "=",
+                                        "sql": "SELECT * FROM exilic_test_case WHERE id=1;"
+                                    },
+                                    {
+                                        "field_key": "测试用例B1",
+                                        "field_name": "case_name",
+                                        "is_sql": "1",
+                                        "query_rule": "=",
+                                        "sql": "SELECT * FROM exilic_test_case WHERE id=1;"
+                                    }
+                                ],
+                                "table_name": "exilic_test_case"
+                            }
+                        ],
+                        "assert_description": "通用字段校验",
+                        "create_time": "2021-09-03 14:25:53",
+                        "create_timestamp": 1630649234,
+                        "creator": "调试",
+                        "creator_id": 1,
+                        "id": 9,
+                        "is_deleted": 0,
+                        "modifier": None,
+                        "modifier_id": None,
+                        "remark": "remark",
+                        "status": 1,
+                        "update_time": "2021-09-03 14:25:53",
+                        "update_timestamp": None
+                    }
+                ],
+                "case_resp_ass_info": [
+                    {
+                        "ass_json": [
+                            {
+                                "assert_key": "code",
+                                "expect_val": "200",
+                                "expect_val_type": "1",
+                                "is_expression": 0,
+                                "python_val_exp": "okc.get('a').get('b').get('c')[0]",
+                                "rule": "="
+                            },
+                            {
+                                "assert_key": "message",
+                                "expect_val": "index",
+                                "expect_val_type": "1",
+                                "is_expression": 0,
+                                "python_val_exp": "okc.get('a').get('b').get('c')[0]",
+                                "rule": "="
+                            }
+                        ],
+                        "assert_description": "Resp通用断言",
+                        "create_time": "2021-09-01 20:30:04",
+                        "create_timestamp": 1630499057,
+                        "creator": "调试",
+                        "creator_id": 1,
+                        "id": 10,
+                        "is_deleted": 0,
+                        "modifier": None,
+                        "modifier_id": None,
+                        "remark": "remark",
+                        "status": 1,
+                        "update_time": "2021-09-01 20:30:05",
+                        "update_timestamp": None
+                    }
+                ]
+            }
+        ],
+        "case_info": {
+            "case_name": "测试indexApi",
+            "create_time": "2021-09-01 20:27:32",
+            "create_timestamp": 1630499057,
+            "creator": "调试",
+            "creator_id": 1,
+            "id": 14,
+            "is_deleted": 0,
+            "modifier": None,
+            "modifier_id": None,
+            "remark": "remark",
+            "request_method": "GET",
+            "request_url": "http://127.0.0.1:7272/api",
+            "status": 1,
+            "update_time": "2021-09-01 20:27:32",
+            "update_timestamp": None
+        }
+    }
+    cdr = CaseDrivenResult(case=demo2)
     cdr.main()
     # cdr.go_test()
