@@ -13,6 +13,7 @@ from .api.case_env_api.case_env_api import CaseEnvApi, CaseEnvPageApi
 from .api.case_api.case_api import CaseApi, CasePageApi
 from .api.case_data_api.case_data_api import CaseReqDataApi, CaseReqDataPageApi
 from .api.case_var_api.case_var_api import CaseVarApi, CaseVarPageApi
+from .api.case_db_api.case_db_api import CaseDBApi, CaseDBPageApi
 from .api.case_bind_api.case_bind_api import CaseBindDataApi, CaseBindRespAssApi, CaseBindFieldAssApi
 from .api.case_ass_rule_api.case_ass_rule_api import RespAssertionRuleApi, FieldAssertionRuleApi, \
     RespAssertionRulePageApi, FieldAssertionRulePageApi
@@ -38,6 +39,10 @@ api.add_url_rule('/case_req_data_page', view_func=CaseReqDataPageApi.as_view('ca
 api.add_url_rule('/case_var', view_func=CaseVarApi.as_view('case_var'))
 api.add_url_rule('/case_var/<var_id>', view_func=CaseVarApi.as_view('case_var_detail'))
 api.add_url_rule('/case_var_page', view_func=CaseVarPageApi.as_view('case_var_page'))
+
+api.add_url_rule('/case_db', view_func=CaseDBApi.as_view('case_db'))
+api.add_url_rule('/case_db/<db_id>', view_func=CaseDBApi.as_view('case_db_detail'))
+api.add_url_rule('/case_db_page', view_func=CaseDBPageApi.as_view('case_db_page'))
 
 api.add_url_rule('/resp_ass_rule', view_func=RespAssertionRuleApi.as_view('resp_ass_rule'))
 api.add_url_rule('/resp_ass_rule/<ass_resp_id>', view_func=RespAssertionRuleApi.as_view('resp_ass_rule_detail'))
