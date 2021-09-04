@@ -54,7 +54,6 @@ class AssertMain:
         self.sql = sql
         self.assert_list = assert_list
         if self.db_id:
-            # TODO 创建数据库配置表,以及对应的CRUD Api
             # TODO 通过db_id在数据库配置表中查出对应的数据可以配置
             # TODO ping通该需要断言的数据库后执行测试的sql,否则返回False
             DB = {
