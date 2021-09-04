@@ -128,7 +128,7 @@ class CaseDrivenResult:
 
         keys_dict = {
             "1": ["assert_key", "expect_val", "expect_val_type", "is_expression", "python_val_exp", "rule"],
-            "2": ["assert_list", "db_id", "sql"]
+            "2": ["assert_list", "db_id"]
 
         }
         if not isinstance(assert_list, list) or not assert_list:
