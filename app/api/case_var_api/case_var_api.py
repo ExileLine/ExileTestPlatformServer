@@ -106,7 +106,7 @@ class CaseVarApi(MethodView):
         query_var = TestVariable.query.get(var_id)
 
         if query_var_filter and query_var.to_json().get('var_name') != var_name:
-            return api_result(code=400, message='用例名称:{} 已存在'.format(var_name))
+            return api_result(code=400, message='变量名称:{} 已存在'.format(var_name))
 
         if query_var:
             query_var.var_name = var_name
