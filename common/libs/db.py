@@ -232,9 +232,13 @@ project_db = MyPyMysql(**DB, debug=CONFIG_OBJ.DEBUG)  # MySql实例
 
 if __name__ == '__main__':
     # 测试 MySql
+    print('\n===test MySql===')
     sql = "SELECT id,case_name FROM exilic_test_case WHERE id=1;"
+    print('ping:', project_db.db_obj().open)
     result = project_db.select(sql, only=True)
     print(result)
 
     # 测试 Redis
+    print('\n===test Redis===')
+    print('ping:', R.ping())
     print(R.get('yangyuexiong'))
