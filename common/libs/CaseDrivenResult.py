@@ -30,10 +30,10 @@ class CaseDrivenResult:
         CaseDrivenResult.current_request √
 
     4.resp断言前置检查:
-        AssertMain.assert_resp_main √
+        CaseDrivenResult.execute_resp_ass -> AssertMain.assert_resp_main √
 
     5.resp断言:
-        AssertMain.assert_resp_main √
+        CaseDrivenResult.execute_resp_ass -> AssertMain.assert_resp_main √
 
     6.更新变量:
         CaseDrivenResult.update_var √
@@ -136,12 +136,12 @@ class CaseDrivenResult:
             return False
 
         if check_type not in [1, 2]:
-            logger.info("check_type:类型错误{}".format(check_type))
+            logger.error("check_type:类型错误{}".format(check_type))
             return False
 
         for ass in assert_list:
             if not check_keys(ass, *keys_dict.get(str(check_type))):
-                logger.info("缺少需要的键值对:{}".format(ass))
+                logger.error("缺少需要的键值对:{}".format(ass))
                 return False
         return True
 
@@ -178,6 +178,63 @@ class CaseDrivenResult:
                 resp_headers={}
             )
         return response
+
+    def execute_resp_ass(self, resp_ass_list, assert_description):
+        """
+        执行Resp断言
+        resp_ass_list demo
+            [
+                {
+                    "assert_key": "code",
+                    "expect_val": "200",
+                    "expect_val_type": "1",
+                    "is_expression": 0,
+                    "python_val_exp": "okc.get('a').get('b').get('c')[0]",
+                    "rule": "="
+                },
+                {
+                    "assert_key": "message",
+                    "expect_val": "index",
+                    "expect_val_type": "1",
+                    "is_expression": 0,
+                    "python_val_exp": "okc.get('a').get('b').get('c')[0]",
+                    "rule": "="
+                }
+            ]
+        """
+        for resp_ass_dict in resp_ass_list:
+            # print(resp_ass_dict)
+            new_resp_ass = AssertMain(
+                resp_json=self.resp_json,
+                resp_headers=self.resp_headers,
+                assert_description=assert_description,
+                **resp_ass_dict
+            )
+            resp_ass_result = new_resp_ass.assert_resp_main()
+            # print(resp_ass_result)
+            if resp_ass_result[0]:  # [bool,str]
+                self.resp_ass_success += 1
+            else:
+                self.resp_ass_fail += 1
+
+    def execute_field_ass(self, field_ass_list, assert_description):
+        """
+        执行Field断言
+        """
+
+        for field_ass_dict in field_ass_list:
+            # print(field_ass_dict)
+            # TODO 触发断言
+            new_field_ass = AssertMain(
+                assert_description=assert_description,
+                **field_ass_dict
+            )
+            field_ass_result = new_field_ass.assert_field_main()
+            # print(field_ass_result)
+            if field_ass_result[0]:  # [bool,str]
+                self.field_ass_success += 1
+            else:
+                self.field_ass_fail += 1
 
     def update_var(self):
         """更新变量"""
@@ -239,23 +296,11 @@ class CaseDrivenResult:
                         resp_ass_list = resp_ass.get('ass_json')
                         assert_description = resp_ass.get('assert_description')
                         # print(resp_ass_list)
-                        if self.check_ass_keys(assert_list=resp_ass_list, check_type=1):
+                        if self.check_ass_keys(assert_list=resp_ass_list, check_type=1):  # 响应检验
                             self.resp_ass_count = len(resp_ass_list)
-                            for resp_ass_dict in resp_ass_list:
-                                # print(resp_ass_dict)
-                                new_resp_ass = AssertMain(
-                                    resp_json=self.resp_json,
-                                    resp_headers=self.resp_headers,
-                                    assert_description=assert_description,
-                                    **resp_ass_dict
-                                )
-                                resp_ass_result = new_resp_ass.assert_resp_main()
-                                # print(resp_ass_result)
-                                if resp_ass_result[0]:
-                                    self.resp_ass_success += 1
-                                else:
-                                    self.resp_ass_fail += 1
+                            self.execute_resp_ass(resp_ass_list=resp_ass_list, assert_description=assert_description)
                         else:
+                            logger.error('=== check_ass_keys error ===')
                             return False
 
                     if self.resp_ass_fail == 0:  # 所有断言规则通过
@@ -264,13 +309,11 @@ class CaseDrivenResult:
                             field_ass_list = field_ass.get('ass_json')
                             assert_description = field_ass.get('assert_description')
                             if self.check_ass_keys(assert_list=field_ass_list, check_type=2):  # 数据库校验
-                                for field_ass_dict in field_ass_list:
-                                    print(field_ass_dict)
-                                    # TODO 触发断言
-                                    new_field_ass = AssertMain(
-                                        assert_description=assert_description,
-                                        **field_ass_dict
-                                    )
+                                self.field_ass_count = len(field_ass_list)
+                                self.execute_field_ass(
+                                    field_ass_list=field_ass_list,
+                                    assert_description=assert_description
+                                )
                             else:
                                 return False
 

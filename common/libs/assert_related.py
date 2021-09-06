@@ -15,25 +15,43 @@ from app.models.test_case_config.models import TestDatabases
 class ReturnDB:
     """获取DB"""
 
-    def __init__(self, db_type=None, db_connection=None):
-        self.db_type = db_type
-        self.db_connection = db_connection
-        self.return_db = None
+    def __init__(self, db_id=None):
+        self.db_id = db_id
+        self.db_type = None
+        self.db_connection = None
+
+    def check_db(self):
+        """检查是否存在该db的连接配置"""
+
+        # <----------调试代码---------->
+        from ApplicationExample import create_app
+        app = create_app()
+        with app.app_context():
+            query_db = TestDatabases.query.get(self.db_id)
+        # <----------调试代码---------->
+
+        if query_db:
+            db_obj = query_db.to_json()
+            db_type = db_obj.get('db_type')
+            db_connection = db_obj.get('db_connection')
+            self.db_type = db_type
+            self.db_connection = db_connection
+            return True
+        else:
+            return False
 
     def get_mysql(self):
         """mysql"""
-        db = MyPyMysql(**self.db_connection)  # MySql实例
+        db = MyPyMysql(**self.db_connection, debug=True)  # MySql实例
         ping = db.db_obj().open
-        self.return_db = db
-        return self.return_db
+        return db
 
     def get_redis(self):
         """redis"""
         pool = redis.ConnectionPool(**self.db_connection)
         db = redis.Redis(connection_pool=pool)  # Redis实例
         db.ping()
-        self.return_db = db
-        return self.return_db
+        return db
 
     def main(self):
         """main"""
@@ -41,8 +59,11 @@ class ReturnDB:
             "mysql": self.get_mysql,
             "redis": self.get_redis
         }
-        db_dict.get(self.db_type.lower())()
-        return self.return_db
+        if self.check_db() and self.db_type:
+            print(self.db_connection, type(self.db_connection))
+            return db_dict.get(self.db_type.lower())()
+        else:
+            return None
 
 
 class AssertMain:
@@ -91,7 +112,7 @@ class AssertMain:
         self.test_db = None
         if self.db_id:
             try:
-                self.get_db()
+                self.test_db = ReturnDB(db_id=self.db_id).main()
             except BaseException as e:
                 logger.error("=== 连接:{}-db 失败:{} === ".format(self.db_type, str(e)))
 
@@ -101,23 +122,6 @@ class AssertMain:
             pass
         else:  # 直接常规取值:紧限于返回值的第一层键值对如:{"code":200,"message":"ok"}
             self.this_val = self.resp_json.get(self.assert_key)
-
-    def get_db(self):
-        """获取数据源的db"""
-
-        # <----------调试代码---------->
-        from ApplicationExample import create_app
-        app = create_app()
-        with app.app_context():
-            query_db = TestDatabases.query.get(self.db_id)
-        # <----------调试代码---------->
-
-        if query_db:
-            db_obj = query_db.to_json()
-            db_type = db_obj.get('db_type')
-            db_connection = db_obj.get('db_connection')
-            self.db_type = db_type
-            self.test_db = ReturnDB(db_type=db_type, db_connection=db_connection).main()
 
     def assert_resp_main(self):
         """
@@ -140,7 +144,9 @@ class AssertMain:
             this_val == expect_val
             """
             logger.info('=== 断言:{} ==='.format(self.assert_description))
-            logger.info('{} {} {}'.format(self.this_val, self.rule, __expect_val))
+            logger.info('{}:{} {} {}:{}'.format(
+                self.this_val, type(self.this_val), self.rule, __expect_val, type(__expect_val))
+            )
             __assert_bool = getattr(self.this_val, self.rule)(__expect_val)
             if isinstance(__assert_bool, bool) and __assert_bool:
                 # print('true')
@@ -160,6 +166,36 @@ class AssertMain:
         :expect_val_type: 期望值类型
         :expect_val: 期望值
         """
+        query_result = self.test_db.select(self.query, only=True)
+        print(query_result)
+
+        def __ass_1():
+            """查询结果为一个dict,检验key:value"""
+            for ass in self.assert_list:
+                print(ass)
+                __key = ass.get('assert_key')
+                print(__key)
+                __result_key = query_result.get(__key)
+                print(__result_key)
+
+                this_val = __result_key
+                __rule = self.rule_dict.get(ass.get('rule'), '')
+                __expect_val = ass.get('expect_val')
+                logger.info('=== 断言:{} ==='.format(self.assert_description))
+                logger.info(
+                    '{}:{} [{}.{}] {}:{}'.format(
+                        this_val, type(this_val), ass.get('rule'), __rule, __expect_val, type(__expect_val))
+                )
+                __assert_bool = getattr(this_val, __rule)(__expect_val)
+                print(__assert_bool)
+
+            return
+
+        def __ass_2():
+            """查询结果为一个[],检验:=,>,>=,<,<=,in,not in"""
+            return
+
+        __ass_1()
 
     def go_test(self):
         """调试"""
@@ -204,13 +240,13 @@ if __name__ == '__main__':
             "assert_list": [
                 {
                     "assert_key": "id",
-                    "expect_val": "1",
+                    "expect_val": 1,
                     "expect_val_type": "1",
                     "rule": "="
                 }
             ],
             "db_id": 1,
-            "query": "select id FROM exilic_test_case WHERE id=1;"
+            "query": "select * from ExilicTestPlatform.exilic_test_case where id=1;"
         }
 
         new_ass = AssertMain(
@@ -221,3 +257,4 @@ if __name__ == '__main__':
 
 
     test_field_ass()
+    # print(ReturnDB(db_id=1).main().select("""select * from ExilicTestPlatform.exilic_test_case where id=1;"""))
