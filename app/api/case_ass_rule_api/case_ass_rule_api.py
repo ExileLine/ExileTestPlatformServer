@@ -50,15 +50,15 @@ def check_field_ass(aj_list):
     """检查:断言新增的参数"""
 
     for a in aj_list:
-        check_bool = check_keys(a, 'sql', 'assert_list')
-        sql = a.get('sql')
+        check_bool = check_keys(a, 'query', 'assert_list')
+        query = a.get('query')
         assert_list = a.get('assert_list', [])
         print(check_bool)
 
         pattern = r"\b(exec|insert|drop|grant|alter|delete|update|count|chr|mid|master|truncate|char|delclare)\b|(\*)"
-        r = re.search(pattern, sql.lower())
+        r = re.search(pattern, query.lower())
         if r:
-            return False, '{}:不属于查询类别的Sql语句'.format(r.group())
+            return False, '{}:不属于查询类别的语句或指令'.format(r.group())
 
         if not check_bool or not isinstance(assert_list, list):
             return False, 'ass_json 参数错误'
@@ -261,7 +261,7 @@ class FieldAssertionRuleApi(MethodView):
                 ]
             }
     """
-
+    # TODO ass_json_demo
     def get(self, ass_field_id):
         """字段断言明细"""
 
