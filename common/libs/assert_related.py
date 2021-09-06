@@ -5,10 +5,44 @@
 # @File    : assert_related.py
 # @Software: PyCharm
 
-
+import redis
 from loguru import logger
 
 from common.libs.db import MyPyMysql
+from app.models.test_case_config.models import TestDatabases
+
+
+class ReturnDB:
+    """获取DB"""
+
+    def __init__(self, db_type=None, db_connection=None):
+        self.db_type = db_type
+        self.db_connection = db_connection
+        self.return_db = None
+
+    def get_mysql(self):
+        """mysql"""
+        db = MyPyMysql(**self.db_connection)  # MySql实例
+        ping = db.db_obj().open
+        self.return_db = db
+        return self.return_db
+
+    def get_redis(self):
+        """redis"""
+        pool = redis.ConnectionPool(**self.db_connection)
+        db = redis.Redis(connection_pool=pool)  # Redis实例
+        db.ping()
+        self.return_db = db
+        return self.return_db
+
+    def main(self):
+        """main"""
+        db_dict = {
+            "mysql": self.get_mysql,
+            "redis": self.get_redis
+        }
+        db_dict.get(self.db_type.lower())()
+        return self.return_db
 
 
 class AssertMain:
@@ -33,7 +67,7 @@ class AssertMain:
     }
 
     def __init__(self, resp_json=None, resp_headers=None, assert_description=None, assert_key=None, rule=None,
-                 expect_val=None, expect_val_type=None, is_expression=None, python_val_exp=None, db_id=None, sql=None,
+                 expect_val=None, expect_val_type=None, is_expression=None, python_val_exp=None, db_id=None, query=None,
                  assert_list=None):
 
         self.resp_json = resp_json
@@ -51,19 +85,15 @@ class AssertMain:
 
         """field ass"""
         self.db_id = db_id
-        self.sql = sql
+        self.query = query
         self.assert_list = assert_list
+        self.db_type = None
+        self.test_db = None
         if self.db_id:
-            # TODO 通过db_id在数据库配置表中查出对应的数据可以配置
-            # TODO ping通该需要断言的数据库后执行测试的sql,否则返回False
-            DB = {
-                # 'user': CONFIG_OBJ.MYSQL_USERNAME,
-                # 'password': CONFIG_OBJ.MYSQL_PASSWORD,
-                # 'host': CONFIG_OBJ.MYSQL_HOSTNAME,
-                # 'port': CONFIG_OBJ.MYSQL_PORT,
-                # 'db': CONFIG_OBJ.MYSQL_DATABASE
-            }
-            self.db = MyPyMysql(**DB)
+            try:
+                self.get_db()
+            except BaseException as e:
+                logger.error("=== 连接:{}-db 失败:{} === ".format(self.db_type, str(e)))
 
     def get_resp_this_val(self):
         """用键获取需要断言的值"""
@@ -71,6 +101,23 @@ class AssertMain:
             pass
         else:  # 直接常规取值:紧限于返回值的第一层键值对如:{"code":200,"message":"ok"}
             self.this_val = self.resp_json.get(self.assert_key)
+
+    def get_db(self):
+        """获取数据源的db"""
+
+        # <----------调试代码---------->
+        from ApplicationExample import create_app
+        app = create_app()
+        with app.app_context():
+            query_db = TestDatabases.query.get(self.db_id)
+        # <----------调试代码---------->
+
+        if query_db:
+            db_obj = query_db.to_json()
+            db_type = db_obj.get('db_type')
+            db_connection = db_obj.get('db_connection')
+            self.db_type = db_type
+            self.test_db = ReturnDB(db_type=db_type, db_connection=db_connection).main()
 
     def assert_resp_main(self):
         """
@@ -162,11 +209,15 @@ if __name__ == '__main__':
                     "rule": "="
                 }
             ],
-            "sql": "SELECT * FROM exilic_test_case WHERE id=1;"
+            "db_id": 1,
+            "query": "select id FROM exilic_test_case WHERE id=1;"
         }
+
         new_ass = AssertMain(
             assert_description="Field通用断言",
             **field_ass_dict
         )
         field_ass_result = new_ass.assert_field_main()
-        print(field_ass_result)
+
+
+    test_field_ass()

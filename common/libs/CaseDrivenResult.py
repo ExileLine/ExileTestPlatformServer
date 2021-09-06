@@ -399,7 +399,7 @@ if __name__ == '__main__':
                                     }
                                 ],
                                 "db_id": 1,
-                                "sql": "select id FROM exilic_test_case WHERE id=1;"
+                                "query": "select id FROM exilic_test_case WHERE id=1;"
                             }
                         ],
                         "assert_description": "通用字段校验yyx",
