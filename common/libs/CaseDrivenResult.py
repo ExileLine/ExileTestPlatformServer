@@ -212,7 +212,7 @@ class CaseDrivenResult:
             )
             resp_ass_result = new_resp_ass.assert_resp_main()
             # print(resp_ass_result)
-            if resp_ass_result[0]:  # [bool,str]
+            if resp_ass_result.get('status'):  # [bool,str]
                 self.resp_ass_success += 1
             else:
                 self.resp_ass_fail += 1
@@ -231,7 +231,7 @@ class CaseDrivenResult:
             )
             field_ass_result = new_field_ass.assert_field_main()
             # print(field_ass_result)
-            if field_ass_result[0]:  # [bool,str]
+            if field_ass_result.get('status'):  # [bool,str]
                 self.field_ass_success += 1
             else:
                 self.field_ass_fail += 1
@@ -310,10 +310,10 @@ class CaseDrivenResult:
                             assert_description = field_ass.get('assert_description')
                             if self.check_ass_keys(assert_list=field_ass_list, check_type=2):  # 数据库校验
                                 self.field_ass_count = len(field_ass_list)
-                                self.execute_field_ass(
-                                    field_ass_list=field_ass_list,
-                                    assert_description=assert_description
-                                )
+                                # self.execute_field_ass(
+                                #     field_ass_list=field_ass_list,
+                                #     assert_description=assert_description
+                                # )
                             else:
                                 return False
 
@@ -465,7 +465,7 @@ if __name__ == '__main__':
                         "ass_json": [
                             {
                                 "assert_key": "code",
-                                "expect_val": "200",
+                                "expect_val": 200,
                                 "expect_val_type": "1",
                                 "is_expression": 0,
                                 "python_val_exp": "okc.get('a').get('b').get('c')[0]",

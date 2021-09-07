@@ -120,6 +120,7 @@ class AssertMain:
         """用键获取需要断言的值"""
         if self.is_expression:  # 公式取值
             pass
+            # TODO 公式取值
         else:  # 直接常规取值:紧限于返回值的第一层键值对如:{"code":200,"message":"ok"}
             self.this_val = self.resp_json.get(self.assert_key)
 
@@ -130,11 +131,11 @@ class AssertMain:
         :rule: 规则
         :expect_val_type: 期望值类型
         :expect_val: 期望值
+        ps:如果该方法报错,是参数在入库的时候接口没有做好检验或者手动修改了数据库的数据
         """
         self.get_resp_this_val()
 
         try:
-            __expect_val = self.this_val
             """
             解析:
             this_val = 1
@@ -144,16 +145,27 @@ class AssertMain:
             this_val == expect_val
             """
             logger.info('=== 断言:{} ==='.format(self.assert_description))
-            logger.info('{}:{} {} {}:{}'.format(
-                self.this_val, type(self.this_val), self.rule, __expect_val, type(__expect_val))
+            message = '{}:{} {} {}:{}'.format(
+                self.this_val,
+                type(self.this_val),
+                self.rule,
+                self.expect_val,
+                type(self.expect_val)
             )
-            __assert_bool = getattr(self.this_val, self.rule)(__expect_val)
+            logger.info(message)
+            __assert_bool = getattr(self.this_val, self.rule)(self.expect_val)
             if isinstance(__assert_bool, bool) and __assert_bool:
-                # print('true')
-                return True, '断言通过'
+                logger.success('=== 断言通过 ===')
+                return {
+                    "status": True,
+                    "message": message
+                }
             else:
-                # print('false')
-                return False, '断言失败'
+                logger.error('=== 断言失败 ===')
+                return {
+                    "status": False,
+                    "message": message
+                }
 
         except BaseException as e:
             return False, str(e)
@@ -169,8 +181,11 @@ class AssertMain:
         query_result = self.test_db.select(self.query, only=True)
         print(query_result)
 
-        def __ass_1():
-            """查询结果为一个dict,检验key:value"""
+        def __ass_dict_result():
+            """
+            查询结果为一个dict,检验key:value
+            ps:如果该方法报错,是参数在入库的时候接口没有做好检验或者手动修改了数据库的数据
+            """
             for ass in self.assert_list:
                 print(ass)
                 __key = ass.get('assert_key')
@@ -188,14 +203,24 @@ class AssertMain:
                 )
                 __assert_bool = getattr(this_val, __rule)(__expect_val)
                 print(__assert_bool)
+                if isinstance(__assert_bool, bool) and __assert_bool:
+                    logger.success('=== 断言通过 ===')
+                    return True, '断言通过'
+                else:
+                    logger.error('=== 断言失败 ===')
+                    return False, '断言失败'
 
             return
 
-        def __ass_2():
-            """查询结果为一个[],检验:=,>,>=,<,<=,in,not in"""
+        def __ass_list_result():
+            """
+            查询结果为一个[],检验:=,>,>=,<,<=,in,not in
+            ps:如果该方法报错,是参数在入库的时候接口没有做好检验或者手动修改了数据库的数据
+            """
+
             return
 
-        __ass_1()
+        __ass_dict_result()
 
     def go_test(self):
         """调试"""
@@ -241,6 +266,12 @@ if __name__ == '__main__':
                 {
                     "assert_key": "id",
                     "expect_val": 1,
+                    "expect_val_type": "1",
+                    "rule": "="
+                },
+                {
+                    "assert_key": "id",
+                    "expect_val": 2,
                     "expect_val_type": "1",
                     "rule": "="
                 }
