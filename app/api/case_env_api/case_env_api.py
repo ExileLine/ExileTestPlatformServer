@@ -48,8 +48,7 @@ class CaseEnvApi(MethodView):
             creator='调试',
             creator_id=1
         )
-        db.session.add(new_env)
-        db.session.commit()
+        new_env.save()
         return api_result(code=201, message='创建成功')
 
     def put(self):

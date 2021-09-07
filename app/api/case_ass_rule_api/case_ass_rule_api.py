@@ -155,8 +155,7 @@ class RespAssertionRuleApi(MethodView):
             creator_id=1,
             remark=remark
         )
-        db.session.add(new_ass_resp)
-        db.session.commit()
+        new_ass_resp.save()
         return api_result(code=201, message='创建成功', data=data)
 
     def put(self):
