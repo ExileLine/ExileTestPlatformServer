@@ -30,17 +30,19 @@ class CaseDrivenResult:
         CaseDrivenResult.current_request √
 
     4.resp断言前置检查:
-        CaseDrivenResult.execute_resp_ass -> AssertMain.assert_resp_main √
+        CaseDrivenResult.check_resp_ass_keys √
 
-    5.resp断言:
+    5.resp断言执行:
         CaseDrivenResult.execute_resp_ass -> AssertMain.assert_resp_main √
 
     6.更新变量:
         CaseDrivenResult.update_var √
 
     7.field断言前置检查:
+        CaseDrivenResult.check_field_ass_keys √
 
-    8.field断言:
+    8.field断言执行:
+        CaseDrivenResult.execute_field_ass -> AssertMain.assert_field_main √
 
     7.日志记录:
 
@@ -119,30 +121,43 @@ class CaseDrivenResult:
             return before_var_init
 
     @staticmethod
-    def check_ass_keys(assert_list, check_type):
+    def check_resp_ass_keys(assert_list):
         """
-        检查断言对象参数类型是否正确
+        检查resp断言对象参数类型是否正确
         assert_list: ->list 规则列表
-        check_type: ->int 1-响应断言规则;2-数据库校验规则
         """
 
-        keys_dict = {
-            "1": ["assert_key", "expect_val", "expect_val_type", "is_expression", "python_val_exp", "rule"],
-            "2": ["assert_list", "db_id"]
+        cl = ["assert_key", "expect_val", "expect_val_type", "is_expression", "python_val_exp", "rule"]
 
-        }
         if not isinstance(assert_list, list) or not assert_list:
             logger.info("assert_list:类型错误{}".format(assert_list))
             return False
 
-        if check_type not in [1, 2]:
-            logger.error("check_type:类型错误{}".format(check_type))
+        for ass in assert_list:
+            if not check_keys(ass, *cl):
+                logger.error("缺少需要的键值对:{}".format(ass))
+                return False
+        return True
+
+    @staticmethod
+    def check_field_ass_keys(assert_list):
+        """
+        检查field断言对象参数类型是否正确
+        assert_list: ->list 规则列表
+        """
+
+        cl = ["assert_key", "expect_val", "expect_val_type", "rule"]
+
+        if not isinstance(assert_list, list) or not assert_list:
+            logger.info("assert_list:类型错误{}".format(assert_list))
             return False
 
         for ass in assert_list:
-            if not check_keys(ass, *keys_dict.get(str(check_type))):
-                logger.error("缺少需要的键值对:{}".format(ass))
-                return False
+            child_assert_list = ass.get('assert_list')
+            for ass_child in child_assert_list:
+                if not check_keys(ass_child, *cl):
+                    logger.error("缺少需要的键值对:{}".format(ass))
+                    return False
         return True
 
     @classmethod
@@ -224,17 +239,15 @@ class CaseDrivenResult:
 
         for field_ass_dict in field_ass_list:
             # print(field_ass_dict)
-            # TODO 触发断言
             new_field_ass = AssertMain(
                 assert_description=assert_description,
                 **field_ass_dict
             )
+
             field_ass_result = new_field_ass.assert_field_main()
-            # print(field_ass_result)
-            if field_ass_result.get('status'):  # [bool,str]
-                self.field_ass_success += 1
-            else:
-                self.field_ass_fail += 1
+
+            self.field_ass_success += field_ass_result.get('success')
+            self.field_ass_fail += field_ass_result.get('fail')
 
     def update_var(self):
         """更新变量"""
@@ -245,7 +258,7 @@ class CaseDrivenResult:
                 var_value = current_list[1]
                 sql = """UPDATE exilic_test_variable SET var_value='{}' WHERE id='{}';""".format(
                     json.dumps(var_value, ensure_ascii=False), id)
-                logger.info('=== update sql ===\n{}'.format(sql))
+                logger.success('=== update sql === 【 {} 】'.format(sql))
                 project_db.update_data(sql)
         else:
             logger.info('=== 更新变量列表为空不需要更新变量===')
@@ -256,6 +269,14 @@ class CaseDrivenResult:
         print(self.resp_ass_success)
         print(self.resp_ass_fail)
         print(self.update_var_list)
+
+        print(self.resp_ass_count)
+        print(self.resp_ass_success)
+        print(self.resp_ass_fail)
+
+        print(self.field_ass_count)
+        print(self.field_ass_success)
+        print(self.field_ass_fail)
 
     def main(self):
         """main"""
@@ -296,7 +317,7 @@ class CaseDrivenResult:
                         resp_ass_list = resp_ass.get('ass_json')
                         assert_description = resp_ass.get('assert_description')
                         # print(resp_ass_list)
-                        if self.check_ass_keys(assert_list=resp_ass_list, check_type=1):  # 响应检验
+                        if self.check_resp_ass_keys(assert_list=resp_ass_list):  # 响应检验
                             self.resp_ass_count = len(resp_ass_list)
                             self.execute_resp_ass(resp_ass_list=resp_ass_list, assert_description=assert_description)
                         else:
@@ -308,12 +329,15 @@ class CaseDrivenResult:
                         for field_ass in case_field_ass_info:
                             field_ass_list = field_ass.get('ass_json')
                             assert_description = field_ass.get('assert_description')
-                            if self.check_ass_keys(assert_list=field_ass_list, check_type=2):  # 数据库校验
-                                self.field_ass_count = len(field_ass_list)
-                                # self.execute_field_ass(
-                                #     field_ass_list=field_ass_list,
-                                #     assert_description=assert_description
-                                # )
+                            # print(field_ass_list)
+                            if self.check_field_ass_keys(assert_list=field_ass_list):  # 数据库校验
+                                for field_ass_child in field_ass_list:
+                                    assert_list = field_ass_child.get('assert_list')
+                                    self.field_ass_count = len(assert_list)
+                                self.execute_field_ass(
+                                    field_ass_list=field_ass_list,
+                                    assert_description=assert_description
+                                )
                             else:
                                 return False
 
@@ -412,7 +436,7 @@ if __name__ == '__main__':
                     "modifier": None,
                     "modifier_id": None,
                     "remark": None,
-                    "request_body": {"key": "${aaa}"},
+                    "request_body": {},
                     "request_body_type": 1,
                     "request_headers": {},
                     "request_params": {},
@@ -436,27 +460,33 @@ if __name__ == '__main__':
                                 "assert_list": [
                                     {
                                         "assert_key": "id",
-                                        "expect_val": "1",
+                                        "expect_val": 1,
                                         "expect_val_type": "1",
+                                        "rule": "="
+                                    },
+                                    {
+                                        "assert_key": "case_name",
+                                        "expect_val": "测试用例B1",
+                                        "expect_val_type": "2",
                                         "rule": "="
                                     }
                                 ],
                                 "db_id": 1,
-                                "query": "select id FROM exilic_test_case WHERE id=1;"
+                                "query": "select id,case_name FROM ExilicTestPlatform.exilic_test_case WHERE id=1;"
                             }
                         ],
-                        "assert_description": "通用字段校验yyx",
-                        "create_time": "2021-09-04 00:41:37",
-                        "create_timestamp": 1630687235,
+                        "assert_description": "A通用字段校验",
+                        "create_time": "2021-09-08 14:22:05",
+                        "create_timestamp": 1631082124,
                         "creator": "调试",
                         "creator_id": 1,
-                        "id": 20,
+                        "id": 28,
                         "is_deleted": 0,
                         "modifier": None,
                         "modifier_id": None,
                         "remark": "remark",
                         "status": 1,
-                        "update_time": "2021-09-04 00:41:38",
+                        "update_time": "2021-09-08 14:22:06",
                         "update_timestamp": None
                     }
                 ],

@@ -60,7 +60,7 @@ class ReturnDB:
             "redis": self.get_redis
         }
         if self.check_db() and self.db_type:
-            print(self.db_connection, type(self.db_connection))
+            logger.info("=== 测试需要连接的db配置: {} - {} ===".format(self.db_connection, type(self.db_connection)))
             return db_dict.get(self.db_type.lower())()
         else:
             return None
@@ -145,6 +145,7 @@ class AssertMain:
             this_val == expect_val
             """
             logger.info('=== 断言:{} ==='.format(self.assert_description))
+            logger.info('=== 键值:{} ==='.format({self.assert_key: self.this_val}))
             message = '{}:{} {} {}:{}'.format(
                 self.this_val,
                 type(self.this_val),
@@ -179,7 +180,10 @@ class AssertMain:
         :expect_val: 期望值
         """
         query_result = self.test_db.select(self.query, only=True)
-        print(query_result)
+        logger.success("=== 测试数据查询结果: {} ===".format(query_result))
+
+        ass_field_success = []
+        ass_field_fail = []
 
         def __ass_dict_result():
             """
@@ -187,40 +191,46 @@ class AssertMain:
             ps:如果该方法报错,是参数在入库的时候接口没有做好检验或者手动修改了数据库的数据
             """
             for ass in self.assert_list:
-                print(ass)
+                # print(ass)
                 __key = ass.get('assert_key')
-                print(__key)
+                # print(__key)
                 __result_key = query_result.get(__key)
-                print(__result_key)
+                # print(__result_key)
 
                 this_val = __result_key
                 __rule = self.rule_dict.get(ass.get('rule'), '')
                 __expect_val = ass.get('expect_val')
                 logger.info('=== 断言:{} ==='.format(self.assert_description))
-                logger.info(
-                    '{}:{} [{}.{}] {}:{}'.format(
-                        this_val, type(this_val), ass.get('rule'), __rule, __expect_val, type(__expect_val))
+                logger.info('=== 字段:{} ==='.format(__key))
+                message = '{}:{} [{}.{}] {}:{}'.format(
+                    this_val, type(this_val), ass.get('rule'), __rule, __expect_val, type(__expect_val)
                 )
+                logger.info(message)
                 __assert_bool = getattr(this_val, __rule)(__expect_val)
-                print(__assert_bool)
+                # print(__assert_bool)
+
                 if isinstance(__assert_bool, bool) and __assert_bool:
                     logger.success('=== 断言通过 ===')
-                    return True, '断言通过'
+                    ass_field_success.append(message)
                 else:
                     logger.error('=== 断言失败 ===')
-                    return False, '断言失败'
+                    ass_field_fail.append(message)
 
-            return
+            return {
+                "success": len(ass_field_success),
+                "fail": len(ass_field_fail),
+            }
 
         def __ass_list_result():
             """
             查询结果为一个[],检验:=,>,>=,<,<=,in,not in
             ps:如果该方法报错,是参数在入库的时候接口没有做好检验或者手动修改了数据库的数据
             """
-
             return
 
-        __ass_dict_result()
+        result = __ass_dict_result()
+
+        return result
 
     def go_test(self):
         """调试"""
@@ -270,14 +280,14 @@ if __name__ == '__main__':
                     "rule": "="
                 },
                 {
-                    "assert_key": "id",
-                    "expect_val": 2,
-                    "expect_val_type": "1",
+                    "assert_key": "case_name",
+                    "expect_val": "测试用例B1",
+                    "expect_val_type": "2",
                     "rule": "="
                 }
             ],
             "db_id": 1,
-            "query": "select * from ExilicTestPlatform.exilic_test_case where id=1;"
+            "query": "select * FROM ExilicTestPlatform.exilic_test_case WHERE id=1;"
         }
 
         new_ass = AssertMain(
