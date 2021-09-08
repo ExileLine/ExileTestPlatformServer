@@ -179,6 +179,8 @@ class AssertMain:
         :expect_val_type: 期望值类型
         :expect_val: 期望值
         """
+        # TODO 后续兼容其他数据库
+        #  例如: Oracle、DB2、SQL Server、Redis, Mongodb, ES 等
         query_result = self.test_db.select(self.query, only=True)
         logger.success("=== 测试数据查询结果: {} ===".format(query_result))
 
@@ -228,6 +230,7 @@ class AssertMain:
             """
             return
 
+        # TODO __ass_list_result
         result = __ass_dict_result()
 
         return result
