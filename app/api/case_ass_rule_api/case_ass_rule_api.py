@@ -108,23 +108,37 @@ class RespAssertionRuleApi(MethodView):
     PUT: 断言规则编辑
     DELETE: 断言规则删除
 
+    req_demo = {
+        "assert_description": "Resp通用断言123",
+        "remark": "remark",
+        "ass_json": [
+            {
+                "assert_key": "code",
+                "expect_val": "200",
+                "expect_val_type": "1",
+                "rule": "=",
+                "is_expression": 0,
+                "python_val_exp": "okc.get('a').get('b').get('c')[0]"
+            },
+            {
+                "assert_key": "message",
+                "expect_val": "index",
+                "expect_val_type": "2",
+                "rule": "=",
+                "is_expression": 0,
+                "python_val_exp": "okc.get('a').get('b').get('c')[0]"
+            }
+        ]
+    }
 
-    :assert_key: 返回值的键(用于简单取值)
-    :expect_val: 期望值
-    :expect_val_type: 期望值类型
-    :rule: 规则
-    :is_expression: 是否使用取值公式
-    :python_val_exp: python取值公式
+    ass_json:
+        :assert_key: 返回值的键(用于简单取值)
+        :expect_val: 期望值
+        :expect_val_type: 期望值类型
+        :rule: 规则
+        :is_expression: 是否使用取值公式
+        :python_val_exp: python取值公式
 
-
-    ass_json_demo = {
-            "assert_key": "code",
-            "expect_val": "200",
-            "expect_val_type": "1",
-            "rule": "=",
-            "is_expression": 0,
-            "python_val_exp": "okc.get('a').get('b').get('c')[0]"
-        }
     """
 
     def get(self, ass_resp_id):
@@ -284,7 +298,6 @@ class FieldAssertionRuleApi(MethodView):
             }
         ]
     }
-
 
     assert_list:
         :assert_key: 键(用于简单取值)
