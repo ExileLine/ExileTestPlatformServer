@@ -61,10 +61,9 @@ def check_field_ass(aj_list):
 
     for a in aj_list:
         check_bool = check_keys(a, 'db_id', 'query', 'assert_list')
+        db_id = a.get('db_id')
         query = a.get('query')
         assert_list = a.get('assert_list', [])
-        print(check_bool)
-        print(a)
 
         pattern = r"\b(exec|insert|drop|grant|alter|delete|update|count|chr|mid|master|truncate|char|delclare)\b|(\*)"
         r = re.search(pattern, query.lower())
@@ -73,6 +72,13 @@ def check_field_ass(aj_list):
 
         if not check_bool or not isinstance(assert_list, list):
             return __result(status=False, message='ass_json 参数错误')
+
+        current_assert_list = []
+        current_ass_obj = {
+            "db_id": db_id,
+            "query": query,
+            "assert_list": current_assert_list
+        }
 
         for ass_obj in assert_list:
             print(ass_obj)
@@ -86,7 +92,7 @@ def check_field_ass(aj_list):
             expect_val_type = expect_val_type_dict.get(str(ass_obj.get('expect_val_type')))
             try:
                 ass_obj['expect_val'] = expect_val_type(expect_val)
-                new_ass_json.append(ass_obj)
+                current_assert_list.append(ass_obj)
             except BaseException as e:
                 return __result(
                     status=False,
@@ -96,6 +102,8 @@ def check_field_ass(aj_list):
                         str(e)
                     )
                 )
+
+        new_ass_json.append(current_ass_obj)
 
     return __result(status=True, message='True', result_ass_json=new_ass_json)
 
@@ -344,7 +352,7 @@ class FieldAssertionRuleApi(MethodView):
             remark=remark
         )
         new_ass_field.save()
-        return api_result(code=201, message='创建成功', data=ass_json)
+        return api_result(code=201, message='创建成功', data=_ass_json)
 
     def put(self):
         """字段断言编辑"""
@@ -372,7 +380,7 @@ class FieldAssertionRuleApi(MethodView):
             return api_result(code=400, message='字段断言id:{}数据不存在'.format(ass_field_id))
 
         query_ass_field.assert_description = assert_description
-        query_ass_field.ass_json = ass_json
+        query_ass_field.ass_json = _ass_json
         query_ass_field.remark = remark
         query_ass_field.modifier = "调试"
         query_ass_field.modifier_id = 1
