@@ -49,29 +49,55 @@ def check_field_ass_old(aj_list):
 def check_field_ass(aj_list):
     """检查:断言新增的参数"""
 
+    def __result(status, message, result_ass_json=None):
+        result = {
+            "status": status,
+            "message": message,
+            "ass_json": result_ass_json
+        }
+        return result
+
+    new_ass_json = []
+
     for a in aj_list:
-        check_bool = check_keys(a, 'query', 'assert_list')
+        check_bool = check_keys(a, 'db_id', 'query', 'assert_list')
         query = a.get('query')
         assert_list = a.get('assert_list', [])
         print(check_bool)
+        print(a)
 
         pattern = r"\b(exec|insert|drop|grant|alter|delete|update|count|chr|mid|master|truncate|char|delclare)\b|(\*)"
         r = re.search(pattern, query.lower())
         if r:
-            return False, '{}:不属于查询类别的语句或指令'.format(r.group())
+            return __result(status=False, message='{}:不属于查询类别的语句或指令'.format(r.group()))
 
         if not check_bool or not isinstance(assert_list, list):
-            return False, 'ass_json 参数错误'
+            return __result(status=False, message='ass_json 参数错误')
 
-        if assert_list:
-            ass_obj = assert_list.pop()
+        for ass_obj in assert_list:
             print(ass_obj)
             if not isinstance(ass_obj, dict):
-                return False, 'assert_list对象:{} 类型错误:{}'.format(ass_obj, type(ass_obj))
+                return __result(status=False, message='assert_list 中的对象:{} 类型错误:{}'.format(ass_obj, type(ass_obj)))
 
             if not check_keys(ass_obj, 'assert_key', 'expect_val', 'expect_val_type', 'rule'):
-                return False, 'assert_list对象key错误:{}'.format(ass_obj)
-    return True, 'True'
+                return __result(status=False, message='assert_list 中的对象key错误:{}'.format(ass_obj))
+
+            expect_val = ass_obj.get('expect_val')
+            expect_val_type = expect_val_type_dict.get(str(ass_obj.get('expect_val_type')))
+            try:
+                ass_obj['expect_val'] = expect_val_type(expect_val)
+                new_ass_json.append(ass_obj)
+            except BaseException as e:
+                return __result(
+                    status=False,
+                    message='参数:{} 无法转换至 类型:{} ERROR:{}'.format(
+                        expect_val,
+                        type(expect_val_type()),
+                        str(e)
+                    )
+                )
+
+    return __result(status=True, message='True', result_ass_json=new_ass_json)
 
 
 class RespAssertionRuleApi(MethodView):
@@ -234,12 +260,31 @@ class FieldAssertionRuleApi(MethodView):
     PUT: 断言规则编辑
     DELETE: 断言规则删除
 
-    query:
-        :field_name: 字段的名称
-        :field_key: 字段的值
-        :query_rule: 查询规则
-        :is_sql: 是否使用sql(开启后将不使用上述的field_name,field_key,query_rule)
-        :sql: sql
+    req_demo = {
+        "assert_description": "A通用字段校验",
+        "remark": "remark",
+        "ass_json": [
+            {
+                "db_id": 1,
+                "query": "select id FROM exilic_test_case WHERE id=1;",
+                "assert_list": [
+                    {
+                        "assert_key": "id",
+                        "expect_val": 1,
+                        "expect_val_type": "1",
+                        "rule": "="
+                    },
+                    {
+                        "assert_key": "case_name",
+                        "expect_val": "测试用例B1",
+                        "expect_val_type": "2",
+                        "rule": "="
+                    }
+                ]
+            }
+        ]
+    }
+
 
     assert_list:
         :assert_key: 键(用于简单取值)
@@ -247,20 +292,8 @@ class FieldAssertionRuleApi(MethodView):
         :expect_val_type: 期望值类型
         :rule: 规则
 
-    ass_json_demo = {
-
-                "sql": "SELECT * FROM exilic_test_case WHERE id=1;",
-                "assert_list": [
-                    {
-                        "assert_key": "id",
-                        "expect_val": "1",
-                        "expect_val_type": "1",
-                        "rule": "="
-                    }
-                ]
-            }
     """
-    # TODO ass_json_demo
+
     def get(self, ass_field_id):
         """字段断言明细"""
 
@@ -282,15 +315,17 @@ class FieldAssertionRuleApi(MethodView):
         if not isinstance(ass_json, list) or not ass_json:
             return ab_code(400)
 
-        to_ass_json = copy.deepcopy(ass_json)
-        _bool, _msg = check_field_ass(to_ass_json)
+        check_result = check_field_ass(ass_json)
+        _bool = check_result.get('status')
+        _msg = check_result.get('message')
+        _ass_json = check_result.get('ass_json')
 
         if not _bool:
             return api_result(code=400, message='{}'.format(_msg))
 
         new_ass_field = TestCaseAssField(
             assert_description=assert_description,
-            ass_json=ass_json,
+            ass_json=_ass_json,
             creator='调试',
             creator_id=1,
             remark=remark
@@ -310,8 +345,10 @@ class FieldAssertionRuleApi(MethodView):
         if not isinstance(ass_json, list) or not ass_json:
             return ab_code(400)
 
-        to_ass_json = copy.deepcopy(ass_json)
-        _bool, _msg = check_field_ass(to_ass_json)
+        check_result = check_field_ass(ass_json)
+        _bool = check_result.get('status')
+        _msg = check_result.get('message')
+        _ass_json = check_result.get('ass_json')
 
         if not _bool:
             return api_result(code=400, message='{}'.format(_msg))
