@@ -118,6 +118,8 @@ class AssertMain:
 
     def get_resp_this_val(self):
         """用键获取需要断言的值"""
+        print(self.is_expression)
+        print(self.python_val_exp)
         if self.is_expression:  # 公式取值
             pass
             # TODO 公式取值
