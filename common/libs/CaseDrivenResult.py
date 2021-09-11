@@ -27,21 +27,26 @@ class CaseDrivenResult:
         CaseDrivenResult.var_conversion √
 
     3.发出请求:
+        CaseDrivenResult.assemble_data_send √
         CaseDrivenResult.current_request √
 
     4.resp断言前置检查:
+        CaseDrivenResult.resp_check_ass_execute √
         CaseDrivenResult.check_resp_ass_keys √
 
     5.resp断言执行:
+        CaseDrivenResult.resp_check_ass_execute √
         CaseDrivenResult.execute_resp_ass -> AssertMain.assert_resp_main √
 
     6.更新变量:
         CaseDrivenResult.update_var √
 
     7.field断言前置检查:
+        CaseDrivenResult.field_check_ass_execute √
         CaseDrivenResult.check_field_ass_keys √
 
     8.field断言执行:
+        CaseDrivenResult.field_check_ass_execute √
         CaseDrivenResult.execute_field_ass -> AssertMain.assert_field_main √
 
     7.日志记录:
@@ -55,6 +60,7 @@ class CaseDrivenResult:
         self.case_info = self.case.get('case_info', {})
         self.bind_info = self.case.get('bind_info', [])
 
+        self.base_url = self.case_info.get('base_url')
         self.case_name = self.case_info.get('case_name')
         self.request_url = self.case_info.get('request_url')
         self.request_method = self.case_info.get('request_method')
@@ -74,6 +80,82 @@ class CaseDrivenResult:
         self.field_ass_fail = 0
         self.field_ass_success_rate = 0
         self.field_ass_fail_rate = 0
+
+    def assemble_data_send(self, case_data_info):
+        """
+        组装数据发送并且更新变量
+        :return:
+        """
+        # case_data_info = bind.get('case_data_info', {})
+        request_body = case_data_info.get('request_body')
+        request_headers = case_data_info.get('request_headers')
+        request_body_type = str(case_data_info.get('request_body_type'))
+        self.update_var_list = case_data_info.get('update_var_list')
+
+        req_type_dict = {
+            "1": {"data": request_body},
+            "2": {"json": request_body},
+            "3": {"data": request_body}
+        }
+        before_send = {
+            "url": self.request_url,  # TODO 有 base url 拼接
+            "headers": request_headers,
+        }
+        req_json_data = req_type_dict.get(request_body_type)
+        before_send.update(req_json_data)
+
+        send = self.var_conversion(before_send)
+
+        resp = self.current_request(method=self.request_method.lower(), **send)
+        self.resp_json = resp.json()
+        self.resp_headers = resp.headers
+        json_format(self.resp_json, '用例:{} -> resp_json'.format(self.case_name))
+        json_format(self.resp_headers, '用例:{} -> resp_headers'.format(self.case_name))
+
+    def resp_check_ass_execute(self, case_resp_ass_info):
+        """
+        检查 resp 断言规则并执行断言
+        :return:
+        """
+        if case_resp_ass_info:
+            for resp_ass in case_resp_ass_info:  # 遍历断言规则逐一校验
+                resp_ass_list = resp_ass.get('ass_json')
+                assert_description = resp_ass.get('assert_description')
+                # print(resp_ass_list)
+                if self.check_resp_ass_keys(assert_list=resp_ass_list):  # 响应检验
+                    self.resp_ass_count = len(resp_ass_list)
+                    self.execute_resp_ass(resp_ass_list=resp_ass_list, assert_description=assert_description)
+                else:
+                    logger.error('=== check_ass_keys error ===')
+                    return False
+        else:
+            logger.info('=== case_resp_ass_info is [] ===')
+            return False
+
+    def field_check_ass_execute(self, case_field_ass_info):
+        """
+        检查 field 断言规则并执行断言
+        :return:
+        """
+        if self.resp_ass_fail == 0:  # 所有断言规则通过
+            self.update_var()  # 更新变量
+            for field_ass in case_field_ass_info:
+                field_ass_list = field_ass.get('ass_json')
+                assert_description = field_ass.get('assert_description')
+                # print(field_ass_list)
+                if self.check_field_ass_keys(assert_list=field_ass_list):  # 数据库校验
+                    for field_ass_child in field_ass_list:
+                        assert_list = field_ass_child.get('assert_list')
+                        self.field_ass_count = len(assert_list)
+                    self.execute_field_ass(
+                        field_ass_list=field_ass_list,
+                        assert_description=assert_description
+                    )
+                else:
+                    return False
+
+        else:
+            logger.info('=== 断言规则没有100%通过,不更新变量以及不进行数据库校验 ===')
 
     @staticmethod
     def show_log(url, headers, req_json, resp_headers, resp_json):
@@ -205,7 +287,7 @@ class CaseDrivenResult:
                     "expect_val_type": "1",
                     "is_expression": 0,
                     "python_val_exp": "okc.get('a').get('b').get('c')[0]",
-                    "rule": "="
+                    "rule": "__eq__"
                 },
                 {
                     "assert_key": "message",
@@ -213,7 +295,7 @@ class CaseDrivenResult:
                     "expect_val_type": "1",
                     "is_expression": 0,
                     "python_val_exp": "okc.get('a').get('b').get('c')[0]",
-                    "rule": "="
+                    "rule": "__eq__"
                 }
             ]
         """
@@ -285,64 +367,15 @@ class CaseDrivenResult:
 
             for bind in self.bind_info:
                 case_data_info = bind.get('case_data_info', {})
-                self.update_var_list = case_data_info.get('update_var_list')
                 case_resp_ass_info = bind.get('case_resp_ass_info', [])
                 case_field_ass_info = bind.get('case_field_ass_info', [])
 
-                req_type_dict = {
-                    "1": {"data": case_data_info.get('request_body')},
-                    "2": {"json": case_data_info.get('request_body')},
-                    "3": {"data": case_data_info.get('request_body')}
-                }
+                self.assemble_data_send(case_data_info=case_data_info)
 
-                send = {
-                    "url": self.request_url,  # TODO 有 base url 拼接
-                    "headers": case_data_info.get('request_headers'),
+                self.resp_check_ass_execute(case_resp_ass_info=case_resp_ass_info)
 
-                }
+                self.field_check_ass_execute(case_field_ass_info=case_field_ass_info)
 
-                go = req_type_dict.get(str(case_data_info.get('request_body_type')))
-                send.update(go)
-
-                send = self.var_conversion(send)
-
-                resp = self.current_request(method=self.request_method.lower(), **send)
-                self.resp_json = resp.json()
-                self.resp_headers = resp.headers
-                json_format(self.resp_json, '用例:{} -> resp_json'.format(self.case_name))
-                json_format(self.resp_headers, '用例:{} -> resp_headers'.format(self.case_name))
-
-                if case_resp_ass_info:
-                    for resp_ass in case_resp_ass_info:  # 遍历断言规则逐一校验
-                        resp_ass_list = resp_ass.get('ass_json')
-                        assert_description = resp_ass.get('assert_description')
-                        # print(resp_ass_list)
-                        if self.check_resp_ass_keys(assert_list=resp_ass_list):  # 响应检验
-                            self.resp_ass_count = len(resp_ass_list)
-                            self.execute_resp_ass(resp_ass_list=resp_ass_list, assert_description=assert_description)
-                        else:
-                            logger.error('=== check_ass_keys error ===')
-                            return False
-
-                    if self.resp_ass_fail == 0:  # 所有断言规则通过
-                        self.update_var()  # 更新变量
-                        for field_ass in case_field_ass_info:
-                            field_ass_list = field_ass.get('ass_json')
-                            assert_description = field_ass.get('assert_description')
-                            # print(field_ass_list)
-                            if self.check_field_ass_keys(assert_list=field_ass_list):  # 数据库校验
-                                for field_ass_child in field_ass_list:
-                                    assert_list = field_ass_child.get('assert_list')
-                                    self.field_ass_count = len(assert_list)
-                                self.execute_field_ass(
-                                    field_ass_list=field_ass_list,
-                                    assert_description=assert_description
-                                )
-                            else:
-                                return False
-
-                    else:
-                        logger.info('=== 断言规则没有100%通过,不更新变量以及不进行数据库校验 ===')
         else:
             logger.info('=== 未配置请求参数 ===')
 
@@ -362,68 +395,104 @@ if __name__ == '__main__':
                     "modifier": None,
                     "modifier_id": None,
                     "remark": None,
-                    "request_body": {"key": "${user_id}"},
+                    "request_body": {},
                     "request_body_type": 1,
-                    "request_headers": {"key": "${user_id}"},
-                    "request_params": {"key": "${user_id}"},
+                    "request_headers": {},
+                    "request_params": {},
                     "status": 1,
                     "update_time": "2021-09-01 20:34:40",
                     "update_timestamp": None,
+                    "update_var_list": [
+                        {
+                            "3": "更新"
+                        }
+                    ],
                     "var_list": [
                         "user_id",
                         "username"
-                    ],
-                    "update_var_list": [
-                        {"2": "999"},
-                        {"3": "更新123"}
-                    ],
+                    ]
                 },
-                "case_field_ass_info": [],
-                "case_resp_ass_info": [
+                "case_field_ass_info": [
                     {
                         "ass_json": [
-                            {"rule": "=", "assert_key": "code", "expect_val": 200, "is_expression": 0,
-                             "python_val_exp": "okc.get('a').get('b').get('c')[0]", "expect_val_type": "1"},
-                            {"rule": "=", "assert_key": "message", "expect_val": "index", "is_expression": 0,
-                             "python_val_exp": "okc.get('a').get('b').get('c')[0]", "expect_val_type": "2"}
+                            {
+                                "assert_list": [
+                                    {
+                                        "assert_key": "id",
+                                        "expect_val": 1,
+                                        "expect_val_type": "1",
+                                        "rule": "__eq__"
+                                    },
+                                    {
+                                        "assert_key": "case_name",
+                                        "expect_val": "测试用例B1",
+                                        "expect_val_type": "2",
+                                        "rule": "__eq__"
+                                    }
+                                ],
+                                "db_id": 1,
+                                "query": "select id,case_name FROM ExilicTestPlatform.exilic_test_case WHERE id=1;"
+                            }
                         ],
-                        "assert_description": "Resp通用断言",
-                        "create_time": "2021-09-01 20:30:04",
-                        "create_timestamp": 1630499057,
+                        "assert_description": "A通用字段校验",
+                        "create_time": "2021-09-11 17:18:10",
+                        "create_timestamp": 1631351884,
                         "creator": "调试",
                         "creator_id": 1,
-                        "id": 10,
+                        "id": 33,
                         "is_deleted": 0,
                         "modifier": None,
                         "modifier_id": None,
                         "remark": "remark",
                         "status": 1,
-                        "update_time": "2021-09-01 20:30:05",
+                        "update_time": "2021-09-11 17:18:11",
+                        "update_timestamp": None
+                    }
+                ],
+                "case_resp_ass_info": [
+                    {
+                        "ass_json": [
+                            {
+                                "assert_key": "code",
+                                "expect_val": 200,
+                                "expect_val_type": "1",
+                                "is_expression": 0,
+                                "python_val_exp": "okc.get('a').get('b').get('c')[0]",
+                                "rule": "__eq__"
+                            },
+                            {
+                                "assert_key": "code",
+                                "expect_val": 200,
+                                "expect_val_type": "1",
+                                "is_expression": 0,
+                                "python_val_exp": "okc.get('a').get('b').get('c')[0]",
+                                "rule": "__ge__"
+                            },
+                            {
+                                "assert_key": "message",
+                                "expect_val": "index",
+                                "expect_val_type": "2",
+                                "is_expression": 0,
+                                "python_val_exp": "okc.get('a').get('b').get('c')[0]",
+                                "rule": "__eq__"
+                            }
+                        ],
+                        "assert_description": "Resp通用断言123",
+                        "create_time": "2021-09-11 17:03:39",
+                        "create_timestamp": 1631351018,
+                        "creator": "调试",
+                        "creator_id": 1,
+                        "id": 20,
+                        "is_deleted": 0,
+                        "modifier": None,
+                        "modifier_id": None,
+                        "remark": "remark",
+                        "status": 1,
+                        "update_time": "2021-09-11 17:03:39",
                         "update_timestamp": None
                     }
                 ]
-            }
-        ],
-        "case_info": {
-            "case_name": "测试indexApi",
-            "create_time": "2021-09-01 20:27:32",
-            "create_timestamp": 1630499057,
-            "creator": "调试",
-            "creator_id": 1,
-            "id": 14,
-            "is_deleted": 0,
-            "modifier": None,
-            "modifier_id": None,
-            "remark": "remark",
-            "request_method": "GET",
-            "request_url": "http://127.0.0.1:7272/api",
-            "status": 1,
-            "update_time": "2021-09-01 20:27:32",
-            "update_timestamp": None
-        }
-    }
-    demo2 = {
-        "bind_info": [
+            },
             {
                 "case_data_info": {
                     "create_time": "2021-09-01 20:34:39",
@@ -553,6 +622,6 @@ if __name__ == '__main__':
             "update_timestamp": None
         }
     }
-    cdr = CaseDrivenResult(case=demo2)
+    cdr = CaseDrivenResult(case=demo)
     cdr.main()
     # cdr.go_test()
