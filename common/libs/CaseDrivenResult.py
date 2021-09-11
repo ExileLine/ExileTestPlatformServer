@@ -462,13 +462,13 @@ if __name__ == '__main__':
                                         "assert_key": "id",
                                         "expect_val": 1,
                                         "expect_val_type": "1",
-                                        "rule": "="
+                                        "rule": "__eq__"
                                     },
                                     {
                                         "assert_key": "case_name",
                                         "expect_val": "测试用例B1",
                                         "expect_val_type": "2",
-                                        "rule": "="
+                                        "rule": "__eq__"
                                     }
                                 ],
                                 "db_id": 1,
@@ -476,17 +476,17 @@ if __name__ == '__main__':
                             }
                         ],
                         "assert_description": "A通用字段校验",
-                        "create_time": "2021-09-08 14:22:05",
-                        "create_timestamp": 1631082124,
+                        "create_time": "2021-09-11 17:18:10",
+                        "create_timestamp": 1631351884,
                         "creator": "调试",
                         "creator_id": 1,
-                        "id": 28,
+                        "id": 33,
                         "is_deleted": 0,
                         "modifier": None,
                         "modifier_id": None,
                         "remark": "remark",
                         "status": 1,
-                        "update_time": "2021-09-08 14:22:06",
+                        "update_time": "2021-09-11 17:18:11",
                         "update_timestamp": None
                     }
                 ],
@@ -499,29 +499,37 @@ if __name__ == '__main__':
                                 "expect_val_type": "1",
                                 "is_expression": 0,
                                 "python_val_exp": "okc.get('a').get('b').get('c')[0]",
-                                "rule": "="
+                                "rule": "__eq__"
+                            },
+                            {
+                                "assert_key": "code",
+                                "expect_val": 200,
+                                "expect_val_type": "1",
+                                "is_expression": 0,
+                                "python_val_exp": "okc.get('a').get('b').get('c')[0]",
+                                "rule": "__ge__"
                             },
                             {
                                 "assert_key": "message",
                                 "expect_val": "index",
-                                "expect_val_type": "1",
+                                "expect_val_type": "2",
                                 "is_expression": 0,
                                 "python_val_exp": "okc.get('a').get('b').get('c')[0]",
-                                "rule": "="
+                                "rule": "__eq__"
                             }
                         ],
-                        "assert_description": "Resp通用断言",
-                        "create_time": "2021-09-01 20:30:04",
-                        "create_timestamp": 1630499057,
+                        "assert_description": "Resp通用断言123",
+                        "create_time": "2021-09-11 17:03:39",
+                        "create_timestamp": 1631351018,
                         "creator": "调试",
                         "creator_id": 1,
-                        "id": 10,
+                        "id": 20,
                         "is_deleted": 0,
                         "modifier": None,
                         "modifier_id": None,
                         "remark": "remark",
                         "status": 1,
-                        "update_time": "2021-09-01 20:30:05",
+                        "update_time": "2021-09-11 17:03:39",
                         "update_timestamp": None
                     }
                 ]
