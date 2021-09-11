@@ -86,7 +86,6 @@ class CaseDrivenResult:
         组装数据发送并且更新变量
         :return:
         """
-        # case_data_info = bind.get('case_data_info', {})
         request_body = case_data_info.get('request_body')
         request_headers = case_data_info.get('request_headers')
         request_body_type = str(case_data_info.get('request_body_type'))
@@ -97,8 +96,11 @@ class CaseDrivenResult:
             "2": {"json": request_body},
             "3": {"data": request_body}
         }
+
+        url = self.base_url + self.request_url if self.base_url else self.request_url
+
         before_send = {
-            "url": self.request_url,  # TODO 有 base url 拼接
+            "url": url,
             "headers": request_headers,
         }
         req_json_data = req_type_dict.get(request_body_type)
@@ -617,6 +619,7 @@ if __name__ == '__main__':
             "remark": "remark",
             "request_method": "GET",
             "request_url": "http://127.0.0.1:7272/api",
+            # "request_url": "/api",
             "status": 1,
             "update_time": "2021-09-01 20:27:32",
             "update_timestamp": None
