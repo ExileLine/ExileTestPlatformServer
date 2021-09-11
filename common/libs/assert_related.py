@@ -77,16 +77,6 @@ class AssertMain:
     contains: in
     """
 
-    rule_dict = {
-        '=': '__eq__',
-        '>': '__gt__',
-        '>=': '__ge__',
-        '<': '__lt__',
-        '<=': '__le__',
-        '!=': '__ne__',
-        'in': '__contains__'
-    }
-
     def __init__(self, resp_json=None, resp_headers=None, assert_description=None, assert_key=None, rule=None,
                  expect_val=None, expect_val_type=None, is_expression=None, python_val_exp=None, db_id=None, query=None,
                  assert_list=None):
@@ -98,7 +88,7 @@ class AssertMain:
         self.assert_description = assert_description
         self.this_val = None
         self.assert_key = assert_key
-        self.rule = self.rule_dict.get(rule, '')  # 转换
+        self.rule = rule
         self.expect_val = expect_val
         self.expect_val_type = expect_val_type
         self.is_expression = is_expression
@@ -116,15 +106,41 @@ class AssertMain:
             except BaseException as e:
                 logger.error("=== 连接:{}-db 失败:{} === ".format(self.db_type, str(e)))
 
-    def get_resp_this_val(self):
-        """用键获取需要断言的值"""
-        print(self.is_expression)
-        print(self.python_val_exp)
+    def set_this_val(self):
+        """
+        用键获取需要断言的值
+        :return:
+        """
+        # print(self.is_expression)
+        # print(self.python_val_exp)
         if self.is_expression:  # 公式取值
             pass
             # TODO 公式取值
         else:  # 直接常规取值:紧限于返回值的第一层键值对如:{"code":200,"message":"ok"}
             self.this_val = self.resp_json.get(self.assert_key)
+
+    @classmethod
+    def assert_main(cls, this_val, rule, expect_val):
+        """
+        断言
+        :param this_val: 当前值
+        :param rule: 规则比较符
+        :param expect_val: 期望值
+        :return:
+        """
+        this_val_type = type(this_val)
+        expect_val_type = type(expect_val)
+
+        if not this_val_type == expect_val_type:
+            raise TypeError("当前值:{} 类型:{} 与 期望值:{} 类型:{} 不一致,无法用于比较.".format(
+                this_val, expect_val_type, expect_val, expect_val_type
+            ))
+        if not hasattr(this_val, rule):
+            raise AttributeError("当前值:{} 没有属性:{}".format(this_val, rule))
+
+        result = getattr(this_val, rule)(expect_val)
+
+        return result
 
     def assert_resp_main(self):
         """
@@ -135,43 +151,31 @@ class AssertMain:
         :expect_val: 期望值
         ps:如果该方法报错,是参数在入库的时候接口没有做好检验或者手动修改了数据库的数据
         """
-        self.get_resp_this_val()
+        self.set_this_val()
 
-        try:
-            """
-            解析:
-            this_val = 1
-            rule = rule_dict.get('1')
-            expect_val = 1
-            bool(getattr(a, rule)(expect_val)) 等价 bool(this_val == expect_val) 
-            this_val == expect_val
-            """
-            logger.info('=== 断言:{} ==='.format(self.assert_description))
-            logger.info('=== 键值:{} ==='.format({self.assert_key: self.this_val}))
-            message = '{}:{} {} {}:{}'.format(
-                self.this_val,
-                type(self.this_val),
-                self.rule,
-                self.expect_val,
-                type(self.expect_val)
-            )
-            logger.info(message)
-            __assert_bool = getattr(self.this_val, self.rule)(self.expect_val)
-            if isinstance(__assert_bool, bool) and __assert_bool:
-                logger.success('=== 断言通过 ===')
-                return {
-                    "status": True,
-                    "message": message
-                }
-            else:
-                logger.error('=== 断言失败 ===')
-                return {
-                    "status": False,
-                    "message": message
-                }
+        logger.info('=== 断言:{} ==='.format(self.assert_description))
+        logger.info('=== 键值:{} ==='.format({self.assert_key: self.this_val}))
+        message = '{}:{} {} {}:{}'.format(
+            self.this_val,
+            type(self.this_val),
+            self.rule,
+            self.expect_val,
+            type(self.expect_val)
+        )
+        logger.info(message)
 
-        except BaseException as e:
-            return False, str(e)
+        if self.assert_main(this_val=self.this_val, rule=self.rule, expect_val=self.expect_val):
+            logger.success('=== 断言通过 ===')
+            return {
+                "status": True,
+                "message": message
+            }
+        else:
+            logger.error('=== 断言失败 ===')
+            return {
+                "status": False,
+                "message": message
+            }
 
     def assert_field_main(self):
         """
@@ -192,7 +196,7 @@ class AssertMain:
         def __ass_dict_result():
             """
             查询结果为一个dict,检验key:value
-            ps:如果该方法报错,是参数在入库的时候接口没有做好检验或者手动修改了数据库的数据
+            ps:如果该方法报错,问题会出现在 参数在入库的时候接口没有做好检验 或 者手动修改了数据库的数据
             """
             for ass in self.assert_list:
                 # print(ass)
@@ -200,20 +204,17 @@ class AssertMain:
                 # print(__key)
                 __result_key = query_result.get(__key)
                 # print(__result_key)
-
-                this_val = __result_key
-                __rule = self.rule_dict.get(ass.get('rule'), '')
+                __rule = ass.get('rule')
                 __expect_val = ass.get('expect_val')
+
                 logger.info('=== 断言:{} ==='.format(self.assert_description))
                 logger.info('=== 字段:{} ==='.format(__key))
-                message = '{}:{} [{}.{}] {}:{}'.format(
-                    this_val, type(this_val), ass.get('rule'), __rule, __expect_val, type(__expect_val)
+                message = '{}:{} [{}] {}:{}'.format(
+                    __result_key, type(__result_key), __rule, __expect_val, type(__expect_val)
                 )
                 logger.info(message)
-                __assert_bool = getattr(this_val, __rule)(__expect_val)
-                # print(__assert_bool)
 
-                if isinstance(__assert_bool, bool) and __assert_bool:
+                if self.assert_main(this_val=__result_key, rule=__rule, expect_val=__expect_val):
                     logger.success('=== 断言通过 ===')
                     ass_field_success.append(message)
                 else:
@@ -257,7 +258,7 @@ if __name__ == '__main__':
             "message": "index"
         }
         resp_ass_dict = {
-            "rule": "=",
+            "rule": "__eq__",
             "assert_key": "code",
             "expect_val": 200,
             "is_expression": 0,
@@ -282,13 +283,13 @@ if __name__ == '__main__':
                     "assert_key": "id",
                     "expect_val": 1,
                     "expect_val_type": "1",
-                    "rule": "="
+                    "rule": "__eq__"
                 },
                 {
                     "assert_key": "case_name",
                     "expect_val": "测试用例B1",
                     "expect_val_type": "2",
-                    "rule": "="
+                    "rule": "__eq__"
                 }
             ],
             "db_id": 1,
@@ -302,5 +303,6 @@ if __name__ == '__main__':
         field_ass_result = new_ass.assert_field_main()
 
 
-    test_field_ass()
+    # test_resp_ass()
+    # test_field_ass()
     # print(ReturnDB(db_id=1).main().select("""select * from ExilicTestPlatform.exilic_test_case where id=1;"""))
