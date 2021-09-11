@@ -124,7 +124,15 @@ class RespAssertionRuleApi(MethodView):
                 "assert_key": "code",
                 "expect_val": "200",
                 "expect_val_type": "1",
-                "rule": "=",
+                "rule": "==",
+                "is_expression": 0,
+                "python_val_exp": "okc.get('a').get('b').get('c')[0]"
+            },
+            {
+                "assert_key": "code",
+                "expect_val": "200",
+                "expect_val_type": "1",
+                "rule": ">=",
                 "is_expression": 0,
                 "python_val_exp": "okc.get('a').get('b').get('c')[0]"
             },
@@ -132,7 +140,7 @@ class RespAssertionRuleApi(MethodView):
                 "assert_key": "message",
                 "expect_val": "index",
                 "expect_val_type": "2",
-                "rule": "=",
+                "rule": "==",
                 "is_expression": 0,
                 "python_val_exp": "okc.get('a').get('b').get('c')[0]"
             }
@@ -179,7 +187,7 @@ class RespAssertionRuleApi(MethodView):
             if not check_bool:
                 return api_result(code=400, message='检验对象错误', data=a)
 
-            rule = rule_save_dict.get(a.get('rule'))
+            rule = rule_dict.get(a.get('rule'))
             if not rule:
                 return api_result(code=400, message='规则参数错误:{}'.format(a.get('rule')))
 
@@ -191,6 +199,7 @@ class RespAssertionRuleApi(MethodView):
             expect_val = a.get('expect_val')
             expect_val_type = expect_val_type_dict.get(str(a.get('expect_val_type')))
             try:
+                a['rule'] = rule
                 a['expect_val'] = expect_val_type(expect_val)
                 new_ass_json.append(a)
             except BaseException as e:
@@ -227,7 +236,7 @@ class RespAssertionRuleApi(MethodView):
             if not check_bool:
                 return api_result(code=400, message='检验对象错误', data=a)
 
-            rule = rule_save_dict.get(a.get('rule'))
+            rule = rule_dict.get(a.get('rule'))
             if not rule:
                 return api_result(code=400, message='规则参数错误:{}'.format(a.get('rule')))
 
@@ -239,6 +248,7 @@ class RespAssertionRuleApi(MethodView):
             expect_val = a.get('expect_val')
             expect_val_type = expect_val_type_dict.get(str(a.get('expect_val_type')))
             try:
+                a['rule'] = rule
                 a['expect_val'] = expect_val_type(expect_val)
                 new_ass_json.append(a)
             except BaseException as e:

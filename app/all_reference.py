@@ -19,7 +19,7 @@ from flask.views import MethodView
 from flask import abort, render_template, request, g
 
 from ExtendRegister.db_register import db
-from common.libs.data_dict import rule_save_dict, expect_val_type_dict
+from common.libs.data_dict import rule_save_dict, expect_val_type_dict, rule_dict
 from common.libs.db import project_db, R
 from common.libs.api_result import api_result
 from common.libs.customException import ab_code, ab_code_2
