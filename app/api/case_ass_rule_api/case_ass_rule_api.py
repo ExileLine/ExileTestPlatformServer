@@ -81,7 +81,12 @@ def check_field_ass(aj_list):
         }
 
         for ass_obj in assert_list:
-            print(ass_obj)
+
+            rule = rule_dict.get(ass_obj.get('rule'))
+
+            if not rule:
+                return __result(status=False, message='规则参数错误:{}'.format(ass_obj.get('rule')))
+
             if not isinstance(ass_obj, dict):
                 return __result(status=False, message='assert_list 中的对象:{} 类型错误:{}'.format(ass_obj, type(ass_obj)))
 
@@ -91,6 +96,7 @@ def check_field_ass(aj_list):
             expect_val = ass_obj.get('expect_val')
             expect_val_type = expect_val_type_dict.get(str(ass_obj.get('expect_val_type')))
             try:
+                ass_obj['rule'] = rule
                 ass_obj['expect_val'] = expect_val_type(expect_val)
                 current_assert_list.append(ass_obj)
             except BaseException as e:
@@ -188,16 +194,19 @@ class RespAssertionRuleApi(MethodView):
                 return api_result(code=400, message='检验对象错误', data=a)
 
             rule = rule_dict.get(a.get('rule'))
+
             if not rule:
                 return api_result(code=400, message='规则参数错误:{}'.format(a.get('rule')))
 
             is_expression = a.get('is_expression')
             is_rule_source_bool = bool(str(is_expression) in ['0', '1'])
+
             if not is_rule_source_bool:
                 return api_result(code=400, message='规则参数错误:{}'.format(is_expression))
 
             expect_val = a.get('expect_val')
             expect_val_type = expect_val_type_dict.get(str(a.get('expect_val_type')))
+
             try:
                 a['rule'] = rule
                 a['expect_val'] = expect_val_type(expect_val)
@@ -237,16 +246,19 @@ class RespAssertionRuleApi(MethodView):
                 return api_result(code=400, message='检验对象错误', data=a)
 
             rule = rule_dict.get(a.get('rule'))
+
             if not rule:
                 return api_result(code=400, message='规则参数错误:{}'.format(a.get('rule')))
 
             is_expression = a.get('is_expression')
             is_rule_source_bool = bool(str(is_expression) in ['0', '1'])
+
             if not is_rule_source_bool:
                 return api_result(code=400, message='规则参数错误:{}'.format(is_expression))
 
             expect_val = a.get('expect_val')
             expect_val_type = expect_val_type_dict.get(str(a.get('expect_val_type')))
+
             try:
                 a['rule'] = rule
                 a['expect_val'] = expect_val_type(expect_val)
@@ -304,13 +316,13 @@ class FieldAssertionRuleApi(MethodView):
                         "assert_key": "id",
                         "expect_val": 1,
                         "expect_val_type": "1",
-                        "rule": "="
+                        "rule": "=="
                     },
                     {
                         "assert_key": "case_name",
                         "expect_val": "测试用例B1",
                         "expect_val_type": "2",
-                        "rule": "="
+                        "rule": "=="
                     }
                 ]
             }
