@@ -48,54 +48,15 @@ class RuleTestApi(MethodView):
     """
 
     def post(self):
-        """1"""
+        """取值规程调试"""
         data = request.get_json()
-        rule_str = data.get('rule_str', "")
-        data_self = data.get('data_self', {})
-        data_type = data.get('data_type', {})
-        print(rule_str)
-        print(data_self)
+        val_exp = data.get('val_exp', "")
+        data_source = data.get('data_source', {})
 
-        if isinstance(data_self, dict):
-            d = data_self
-            rs = rule_str.split('.')
-            rs[0] = 'd'
-            new_rule_str = '.'.join(rs)
-        elif isinstance(data_self, list):
-            d = data_self
-            rs = rule_str.split("[")
-            rs[0] = 'd'
-            new_rule_str = '['.join(rs)
-        elif isinstance(data_self, str):
-            # todo 切片,函数,正则
-            # d = data_self
-            # rs = rule_str.split("[")
-            # rs[0] = 'd'
-            new_rule_str = rule_str
+        result = execute_code(code=val_exp, data=data_source)
 
-        else:
-            return api_result(code=400, message='取值参数主体类型应该为:JSON,Dict,List,Str')
-
-        print("exec:{}".format(new_rule_str))
-
-        try:
-            _locals = locals()
-            # print(globals())
-            # print(_locals)
-            exec("""rule_result={}""".format(new_rule_str), globals(), _locals)
-            rule_result = _locals['rule_result']
-        except BaseException as e:
-            return api_result(code=400, message='取值规则语法错误:{}:,错误原因:{}'.format(rule_str, str(e)))
-
-        if rule_result:
-            resp_data = {
-                "bool": True,
-                "result_data": rule_result
-            }
-            return api_result(code=200, message='取值规则正确', data=resp_data)
-        else:
-            resp_data = {
-                "bool": False,
-                "result_data": None
-            }
-            return api_result(code=400, message='未找到对应的值,请检查取值规则', data=resp_data)
+        return api_result(
+            code=200 if result.get('bool') else 400,
+            message=result.get('message'),
+            data=result.get('result_data')
+        )

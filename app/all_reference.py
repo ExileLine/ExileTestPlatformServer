@@ -26,3 +26,4 @@ from common.libs.customException import ab_code, ab_code_2
 from common.libs.public_func import check_keys, json_format
 from common.libs.auth import Token, check_user, AdminRefreshCache
 from common.libs.query_related import page_size, general_query, query_case_zip
+from common.libs.execute_code import execute_code
