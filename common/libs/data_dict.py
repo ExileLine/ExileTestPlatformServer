@@ -29,6 +29,16 @@ expect_val_type_dict = {
     '5': json.dumps
 }
 
+"""
+eq     :equal（等于）
+gt     :greater than（大于）
+ge     :greater and equal（大于等于）
+lt     :less than（小于）
+le     :less and equal（小于等于）
+ne     :not equal (不等于)
+contains: in
+"""
+
 rule_dict = {
     '==': '__eq__',
     '>': '__gt__',

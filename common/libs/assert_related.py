@@ -69,13 +69,7 @@ class ReturnDB:
 
 class AssertMain:
     """
-    eq     :equal（等于）
-    gt     :greater than（大于）
-    ge     :greater and equal（大于等于）
-    lt     :less than（小于）
-    le     :less and equal（小于等于）
-    ne     :not equal (不等于)
-    contains: in
+    断言类
     """
 
     def __init__(self, resp_json=None, resp_headers=None, assert_description=None, assert_key=None, rule=None,
