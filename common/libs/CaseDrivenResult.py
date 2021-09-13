@@ -477,130 +477,28 @@ if __name__ == '__main__':
                                 "is_expression": 0,
                                 "python_val_exp": "okc.get('a').get('b').get('c')[0]",
                                 "rule": "__eq__"
-                            }
-                        ],
-                        "assert_description": "Resp通用断言123",
-                        "create_time": "2021-09-11 17:03:39",
-                        "create_timestamp": 1631351018,
-                        "creator": "调试",
-                        "creator_id": 1,
-                        "id": 20,
-                        "is_deleted": 0,
-                        "modifier": None,
-                        "modifier_id": None,
-                        "remark": "remark",
-                        "status": 1,
-                        "update_time": "2021-09-11 17:03:39",
-                        "update_timestamp": None
-                    }
-                ]
-            },
-            {
-                "case_data_info": {
-                    "create_time": "2021-09-01 20:34:39",
-                    "create_timestamp": 1630499057,
-                    "creator": "调试",
-                    "creator_id": 1,
-                    "data_name": "数据99999",
-                    "id": 12,
-                    "is_deleted": 0,
-                    "modifier": None,
-                    "modifier_id": None,
-                    "remark": None,
-                    "request_body": {},
-                    "request_body_type": 1,
-                    "request_headers": {},
-                    "request_params": {},
-                    "status": 1,
-                    "update_time": "2021-09-01 20:34:40",
-                    "update_timestamp": None,
-                    "update_var_list": [
-                        {
-                            "3": "更新"
-                        }
-                    ],
-                    "var_list": [
-                        "user_id",
-                        "username"
-                    ]
-                },
-                "case_field_ass_info": [
-                    {
-                        "ass_json": [
-                            {
-                                "assert_list": [
-                                    {
-                                        "assert_key": "id",
-                                        "expect_val": 1,
-                                        "expect_val_type": "1",
-                                        "rule": "__eq__"
-                                    },
-                                    {
-                                        "assert_key": "case_name",
-                                        "expect_val": "测试用例B1",
-                                        "expect_val_type": "2",
-                                        "rule": "__eq__"
-                                    }
-                                ],
-                                "db_id": 1,
-                                "query": "select id,case_name FROM ExilicTestPlatform.exilic_test_case WHERE id=1;"
-                            }
-                        ],
-                        "assert_description": "A通用字段校验",
-                        "create_time": "2021-09-11 17:18:10",
-                        "create_timestamp": 1631351884,
-                        "creator": "调试",
-                        "creator_id": 1,
-                        "id": 33,
-                        "is_deleted": 0,
-                        "modifier": None,
-                        "modifier_id": None,
-                        "remark": "remark",
-                        "status": 1,
-                        "update_time": "2021-09-11 17:18:11",
-                        "update_timestamp": None
-                    }
-                ],
-                "case_resp_ass_info": [
-                    {
-                        "ass_json": [
-                            {
-                                "assert_key": "code",
-                                "expect_val": 200,
-                                "expect_val_type": "1",
-                                "is_expression": 0,
-                                "python_val_exp": "okc.get('a').get('b').get('c')[0]",
-                                "rule": "__eq__"
-                            },
-                            {
-                                "assert_key": "code",
-                                "expect_val": 200,
-                                "expect_val_type": "1",
-                                "is_expression": 0,
-                                "python_val_exp": "okc.get('a').get('b').get('c')[0]",
-                                "rule": "__ge__"
                             },
                             {
                                 "assert_key": "message",
                                 "expect_val": "index",
                                 "expect_val_type": "2",
-                                "is_expression": 0,
-                                "python_val_exp": "okc.get('a').get('b').get('c')[0]",
+                                "is_expression": 1,
+                                "python_val_exp": "okc.get('message')",
                                 "rule": "__eq__"
                             }
                         ],
                         "assert_description": "Resp通用断言123",
-                        "create_time": "2021-09-11 17:03:39",
-                        "create_timestamp": 1631351018,
+                        "create_time": "2021-09-13 12:49:07",
+                        "create_timestamp": 1631508310,
                         "creator": "调试",
                         "creator_id": 1,
-                        "id": 20,
+                        "id": 21,
                         "is_deleted": 0,
                         "modifier": None,
                         "modifier_id": None,
                         "remark": "remark",
                         "status": 1,
-                        "update_time": "2021-09-11 17:03:39",
+                        "update_time": "2021-09-13 12:49:08",
                         "update_timestamp": None
                     }
                 ]
@@ -619,7 +517,6 @@ if __name__ == '__main__':
             "remark": "remark",
             "request_method": "GET",
             "request_url": "http://127.0.0.1:7272/api",
-            # "request_url": "/api",
             "status": 1,
             "update_time": "2021-09-01 20:27:32",
             "update_timestamp": None
