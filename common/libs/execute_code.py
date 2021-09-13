@@ -17,7 +17,7 @@ def execute_code(code, data):
 
     if isinstance(__obj, dict):
         rs = code.split('.')
-        print(rs)
+        # print(rs)
         rs[0] = '__obj'
         new_rule_str = '.'.join(rs)
     elif isinstance(__obj, list):
@@ -33,7 +33,7 @@ def execute_code(code, data):
     else:
         raise TypeError("取值参数类型应该为:JSON,Dict,List,Str 而不是: {}".format(type(__obj)))
 
-    print("exec:{}".format(new_rule_str))
+    # print("exec:{}".format(new_rule_str))
 
     try:
         _locals = locals()

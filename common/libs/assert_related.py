@@ -9,6 +9,7 @@ import redis
 from loguru import logger
 
 from common.libs.db import MyPyMysql
+from common.libs.execute_code import execute_code
 from app.models.test_case_config.models import TestDatabases
 
 
@@ -111,11 +112,12 @@ class AssertMain:
         用键获取需要断言的值
         :return:
         """
-        # print(self.is_expression)
-        # print(self.python_val_exp)
         if self.is_expression:  # 公式取值
-            pass
-            # TODO 公式取值
+            result_json = execute_code(code=self.python_val_exp, data=self.resp_json)
+            result = result_json.get('result_data')
+            logger.info("=== 公式取值结果: {} ===".format(result))
+            self.this_val = result
+
         else:  # 直接常规取值:紧限于返回值的第一层键值对如:{"code":200,"message":"ok"}
             self.this_val = self.resp_json.get(self.assert_key)
 
@@ -265,6 +267,14 @@ if __name__ == '__main__':
             "python_val_exp": "okc.get('a').get('b').get('c')[0]",
             "expect_val_type": "1"
         }
+        resp_ass_dict = {
+            "rule": "__eq__",
+            "assert_key": "code",
+            "expect_val": 200,
+            "is_expression": 1,
+            "python_val_exp": "okc.get('code')",
+            "expect_val_type": "1"
+        }
         new_ass = AssertMain(
             resp_json=resp_json,
             resp_headers=resp_headers,
@@ -303,6 +313,6 @@ if __name__ == '__main__':
         field_ass_result = new_ass.assert_field_main()
 
 
-    # test_resp_ass()
+    test_resp_ass()
     # test_field_ass()
     # print(ReturnDB(db_id=1).main().select("""select * from ExilicTestPlatform.exilic_test_case where id=1;"""))
