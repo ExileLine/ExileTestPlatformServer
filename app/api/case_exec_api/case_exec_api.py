@@ -8,18 +8,8 @@
 from concurrent.futures import ThreadPoolExecutor
 
 from app.all_reference import *
-from app.models.test_case.models import TestCase
 
 executor = ThreadPoolExecutor(10)
-
-
-def _case_exec(**kwargs):
-    """1"""
-    print('yyx')
-    print(time.time())
-    time.sleep(5)
-    print(kwargs)
-    print(time.time())
 
 
 class CaseExecApi(MethodView):
@@ -33,5 +23,13 @@ class CaseExecApi(MethodView):
 
     def post(self):
         """用例执行"""
-        executor.submit(_case_exec, **{"key": "val"})
-        return api_result(code=200, message='操作成功', data=case)
+
+        data = request.get_json()
+        case_id = data.get('case_id')
+        result = query_case_zip(case_id=case_id)
+        if not result:
+            return api_result(code=400, message='用例id:{}不存在'.format(case_id))
+
+        cdr = CaseDrivenResult(case=result)
+        executor.submit(cdr.main)
+        return api_result(code=200, message='操作成功,请前往日志查看执行结果')
