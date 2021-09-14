@@ -522,6 +522,38 @@ if __name__ == '__main__':
             "update_timestamp": None
         }
     }
-    cdr = CaseDrivenResult(case=demo)
+    demo1 = {
+        'case_info': {'id': 14, 'create_time': '2021-09-01 20:27:32', 'create_timestamp': 1630499057,
+                      'update_time': '2021-09-01 20:27:32', 'update_timestamp': None, 'is_deleted': 0, 'status': 1,
+                      'case_name': '测试indexApi', 'request_method': 'GET',
+                      'request_url': 'http://127.0.0.1:7272/api', 'creator': '调试', 'creator_id': 1,
+                      'modifier': None, 'modifier_id': None, 'remark': 'remark'}, 'bind_info': [{'case_data_info': {
+            'id': 12, 'create_time': '2021-09-01 20:34:39', 'create_timestamp': 1630499057,
+            'update_time': '2021-09-01 20:34:40', 'update_timestamp': None, 'is_deleted': 0, 'status': 1,
+            'data_name': '数据99999', 'request_params': {}, 'request_headers': {}, 'request_body': {},
+            'request_body_type': 1,
+            'var_list': ['user_id', 'username'], 'update_var_list': [{'3': '更新'}], 'creator': '调试', 'creator_id': 1,
+            'modifier': None, 'modifier_id': None, 'remark': None}, 'case_resp_ass_info': [
+            {'id': 21, 'create_time': '2021-09-13 12:49:07', 'create_timestamp': 1631508310,
+             'update_time': '2021-09-13 12:49:08', 'update_timestamp': None, 'is_deleted': 0, 'status': 1,
+             'assert_description': 'Resp通用断言123', 'ass_json': [
+                {'rule': '__eq__', 'assert_key': 'code', 'expect_val': 200, 'is_expression': 0,
+                 'python_val_exp': "okc.get('a').get('b').get('c')[0]", 'expect_val_type': '1'},
+                {'rule': '__ge__', 'assert_key': 'code', 'expect_val': 200, 'is_expression': 0,
+                 'python_val_exp': "okc.get('a').get('b').get('c')[0]", 'expect_val_type': '1'},
+                {'rule': '__eq__', 'assert_key': 'message', 'expect_val': 'index', 'is_expression': 0,
+                 'python_val_exp': "okc.get('a').get('b').get('c')[0]", 'expect_val_type': '2'},
+                {'rule': '__eq__', 'assert_key': 'message', 'expect_val': 'index', 'is_expression': 1,
+                 'python_val_exp': "okc.get('message')", 'expect_val_type': '2'}], 'creator': '调试', 'creator_id': 1,
+             'modifier': None, 'modifier_id': None, 'remark': 'remark'}], 'case_field_ass_info': [
+            {'id': 33, 'create_time': '2021-09-11 17:18:10', 'create_timestamp': 1631351884,
+             'update_time': '2021-09-11 17:18:11', 'update_timestamp': None, 'is_deleted': 0, 'status': 1,
+             'assert_description': 'A通用字段校验', 'ass_json': [
+                {'db_id': 1, 'query': 'select id,case_name FROM ExilicTestPlatform.exilic_test_case WHERE id=1;',
+                 'assert_list': [{'rule': '__eq__', 'assert_key': 'id', 'expect_val': 1, 'expect_val_type': '1'},
+                                 {'rule': '__eq__', 'assert_key': 'case_name', 'expect_val': '测试用例B1',
+                                  'expect_val_type': '2'}]}], 'creator': '调试', 'creator_id': 1, 'modifier': None,
+             'modifier_id': None, 'remark': 'remark'}]}]}
+    cdr = CaseDrivenResult(case=demo1)
     cdr.main()
     # cdr.go_test()

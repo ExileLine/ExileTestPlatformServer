@@ -137,6 +137,7 @@ if __name__ == '__main__':
 
     app = create_app()
     with app.app_context():
+        print('=== test general_query ===')
         result_data = general_query(
             model=TestVariable,
             field_list=['id', 'var_name'],
@@ -146,3 +147,6 @@ if __name__ == '__main__':
             size=20
         )
         print(result_data)
+
+        print('=== test query_case_zip ===')
+        print(query_case_zip(case_id=14))
