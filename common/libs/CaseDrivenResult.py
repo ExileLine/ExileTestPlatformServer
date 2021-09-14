@@ -55,6 +55,8 @@ class CaseDrivenResult:
 
     """
 
+    # TODO field 前置查询 {"before_query":"select xxx from xxx....","before_field":"username"}
+
     def __init__(self, case):
         self.case = case
         self.case_info = self.case.get('case_info', {})
