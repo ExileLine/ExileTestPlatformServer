@@ -49,44 +49,12 @@ class CaseApi(MethodView):
     def get(self, case_id):
         """用例详情"""
 
-        query_case = TestCase.query.get(case_id)
+        result = query_case_zip(case_id=case_id)
 
-        if not query_case:
+        if not result:
             return api_result(code=400, message='用例id:{}不存在'.format(case_id))
 
-        query_binds = TestCaseDataAssBind.query.filter_by(case_id=case_id, is_deleted=0).all()
-
-        bind_info_list = []
-
-        result_data = {
-            "case_info": query_case.to_json(),
-            "bind_info": bind_info_list
-        }
-
-        if not query_binds:
-            return api_result(code=200, message='操作成功', data=result_data)
-
-        for bind in query_binds:
-            data_id = bind.data_id
-            ass_resp_ids = [] if not bind.ass_resp_id_list else bind.ass_resp_id_list
-            ass_field_ids = [] if not bind.ass_field_id_list else bind.ass_field_id_list
-
-            query_data = TestCaseData.query.get(data_id)
-            query_ass_resp = TestCaseAssResponse.query.filter(TestCaseAssResponse.id.in_(ass_resp_ids)).all()
-            query_ass_field = TestCaseAssField.query.filter(TestCaseAssField.id.in_(ass_field_ids)).all()
-
-            case_data_info = query_data.to_json()
-            case_resp_ass_info = [resp.to_json() for resp in query_ass_resp] if query_ass_resp else []
-            case_field_ass_info = [field.to_json() for field in query_ass_field] if query_ass_field else []
-
-            bind_info = {
-                "case_data_info": case_data_info,
-                "case_resp_ass_info": case_resp_ass_info,
-                "case_field_ass_info": case_field_ass_info
-            }
-            bind_info_list.append(bind_info)
-
-        return api_result(code=200, message='操作成功', data=result_data)
+        return api_result(code=200, message='操作成功', data=result)
 
     def post(self):
         """用例新增"""
