@@ -19,6 +19,7 @@ from .api.case_ass_rule_api.case_ass_rule_api import RespAssertionRuleApi, Field
     RespAssertionRulePageApi, FieldAssertionRulePageApi
 from .api.rule_test_api.rule_test_api import RuleTestApi
 from .api.case_exec_api.case_exec_api import CaseExecApi
+from .api.case_scenario_api.case_scenario_api import CaseScenarioApi, CaseScenarioPageApi
 
 api = Blueprint('api', __name__)
 
@@ -55,6 +56,10 @@ api.add_url_rule('/field_ass_rule_page', view_func=FieldAssertionRulePageApi.as_
 api.add_url_rule('/case_bind_data', view_func=CaseBindDataApi.as_view('case_bind_data'))
 api.add_url_rule('/case_bind_resp_ass', view_func=CaseBindRespAssApi.as_view('case_bind_resp_ass'))
 api.add_url_rule('/case_bind_field_ass', view_func=CaseBindFieldAssApi.as_view('case_bind_field_ass'))
+
+api.add_url_rule('/case_scenario', view_func=CaseScenarioApi.as_view('case_scenario'))
+api.add_url_rule('/case_scenario/<scenario_id>', view_func=CaseScenarioApi.as_view('case_scenario_detail'))
+api.add_url_rule('/case_scenario_page', view_func=CaseScenarioPageApi.as_view('case_scenario_page'))
 
 api.add_url_rule('/rule_test', view_func=RuleTestApi.as_view('rule_test'))
 
