@@ -6,7 +6,7 @@
 # @Software: PyCharm
 
 from app.all_reference import *
-from app.models.test_case.models import TestCaseAssResponse, TestCaseAssField
+from app.models.test_case_assert.models import TestCaseAssResponse, TestCaseAssField
 
 
 # 旧数据结构,暂时保留

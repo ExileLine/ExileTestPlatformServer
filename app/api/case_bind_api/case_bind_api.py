@@ -6,7 +6,8 @@
 # @Software: PyCharm
 
 from app.all_reference import *
-from app.models.test_case.models import TestCase, TestCaseData, TestCaseDataAssBind
+from app.models.test_case.models import TestCase, TestCaseData
+from app.models.test_case_assert.models import TestCaseDataAssBind
 
 
 class CaseBindDataApi(MethodView):

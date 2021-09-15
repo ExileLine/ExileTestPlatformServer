@@ -6,8 +6,7 @@
 # @Software: PyCharm
 
 from app.all_reference import *
-from app.models.test_case.models import TestCase, TestCaseData, TestCaseDataAssBind, TestCaseAssResponse, \
-    TestCaseAssField
+from app.models.test_case.models import TestCase
 from app.models.test_variable.models import TestVariable
 
 
