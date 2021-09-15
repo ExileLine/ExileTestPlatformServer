@@ -5,11 +5,13 @@
 # @File    : query_related.py
 # @Software: PyCharm
 
+
 from sqlalchemy import or_, and_
 from flask_sqlalchemy.model import DefaultMeta
 
-from app.models.test_case.models import TestCase, TestCaseData, TestCaseDataAssBind, TestCaseAssResponse, \
-    TestCaseAssField
+from common.libs.set_app_context import set_app_context
+from app.models.test_case.models import TestCase, TestCaseData
+from app.models.test_case_assert.models import TestCaseDataAssBind, TestCaseAssResponse, TestCaseAssField
 
 
 def page_size(page=None, size=None, **kwargs):
@@ -26,6 +28,7 @@ def page_size(page=None, size=None, **kwargs):
     return page, size
 
 
+@set_app_context
 def query_case_zip(case_id):
     """组装查询用例"""
 
@@ -69,6 +72,7 @@ def query_case_zip(case_id):
     return result_data
 
 
+@set_app_context
 def general_query(model, field_list, query_list, is_deleted, page, size):
     """
     通用分页模糊查询
@@ -132,21 +136,16 @@ def general_query(model, field_list, query_list, is_deleted, page, size):
 
 
 if __name__ == '__main__':
-    from ApplicationExample import create_app
     from app.models.test_variable.models import TestVariable
 
-    app = create_app()
-    with app.app_context():
-        print('=== test general_query ===')
-        result_data = general_query(
-            model=TestVariable,
-            field_list=['id', 'var_name'],
-            query_list=['', ''],
-            is_deleted=False,
-            page=1,
-            size=20
-        )
-        print(result_data)
+    result_data = general_query(
+        model=TestVariable,
+        field_list=['id', 'var_name'],
+        query_list=['', ''],
+        is_deleted=False,
+        page=1,
+        size=20
+    )
+    print(result_data)
 
-        print('=== test query_case_zip ===')
-        print(query_case_zip(case_id=14))
+    print(query_case_zip(case_id=14))
