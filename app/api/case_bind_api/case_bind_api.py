@@ -5,7 +5,7 @@
 # @File    : case_bind_api.py
 # @Software: PyCharm
 
-from app.all_reference import *
+from all_reference import *
 from app.models.test_case.models import TestCase, TestCaseData
 from app.models.test_case_assert.models import TestCaseDataAssBind
 

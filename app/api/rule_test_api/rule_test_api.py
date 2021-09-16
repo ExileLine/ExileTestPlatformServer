@@ -5,7 +5,7 @@
 # @File    : rule_test_api.py
 # @Software: PyCharm
 
-from app.all_reference import *
+from all_reference import *
 
 
 class RuleTestApi(MethodView):

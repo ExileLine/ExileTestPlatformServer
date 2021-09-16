@@ -6,7 +6,7 @@
 # @Software: PyCharm
 
 
-from app.all_reference import *
+from all_reference import *
 from app.models.test_variable.models import TestVariable
 
 var_type_dict = {

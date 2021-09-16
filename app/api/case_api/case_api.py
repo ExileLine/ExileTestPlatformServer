@@ -5,7 +5,7 @@
 # @File    : case_api.py
 # @Software: PyCharm
 
-from app.all_reference import *
+from all_reference import *
 from app.models.test_case.models import TestCase
 from app.models.test_variable.models import TestVariable
 

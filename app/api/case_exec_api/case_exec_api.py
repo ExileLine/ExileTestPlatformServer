@@ -7,8 +7,9 @@
 
 from concurrent.futures import ThreadPoolExecutor
 
-from app.all_reference import *
+from all_reference import *
 from app.models.test_case_scenario.models import TestCaseScenario
+
 
 executor = ThreadPoolExecutor(10)
 

@@ -5,7 +5,7 @@
 # @File    : case_env_api.py
 # @Software: PyCharm
 
-from app.all_reference import *
+from all_reference import *
 from app.models.test_env.models import TestEnv
 
 

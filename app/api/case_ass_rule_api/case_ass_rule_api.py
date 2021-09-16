@@ -5,7 +5,7 @@
 # @File    : case_ass_rule_api.py
 # @Software: PyCharm
 
-from app.all_reference import *
+from all_reference import *
 from app.models.test_case_assert.models import TestCaseAssResponse, TestCaseAssField
 
 

@@ -5,7 +5,7 @@
 # @File    : case_data_api.py
 # @Software: PyCharm
 
-from app.all_reference import *
+from all_reference import *
 from app.models.test_case.models import TestCaseData
 from app.api.case_api.case_api import check_var
 

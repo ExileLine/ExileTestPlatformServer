@@ -5,9 +5,7 @@
 # @File    : index_api.py
 # @Software: PyCharm
 
-import time
-
-from app.all_reference import *
+from all_reference import *
 
 
 class IndexApi(MethodView):
