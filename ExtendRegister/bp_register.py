@@ -6,7 +6,7 @@
 # @Software: PyCharm
 
 
-from app import api
+from app.api import api
 
 from flask import Blueprint
 

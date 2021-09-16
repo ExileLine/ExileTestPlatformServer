@@ -7,7 +7,7 @@
 
 from flask import request, g
 
-from app import api
+from app.api import api
 from common.libs.public_func import print_logs
 
 

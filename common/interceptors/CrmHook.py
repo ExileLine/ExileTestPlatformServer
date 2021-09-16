@@ -11,7 +11,7 @@ import json
 from flask import request, g
 from loguru import logger
 
-from app import api
+from app.api import api
 from app.models.admin.models import Admin
 from common.libs.auth import check_user, R, AdminRefreshCache
 from common.libs.public_func import print_logs
