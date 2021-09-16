@@ -17,6 +17,29 @@ from common.libs.public_func import json_format
 from common.libs.assert_related import AssertMain
 
 
+# TODO 需要重构
+
+class TestLoader:
+    """测试用例加载"""
+
+    def __init__(self):
+        pass
+
+
+class TestExecute:
+    """测试执行"""
+
+    def __init__(self):
+        pass
+
+
+class TestResult:
+    """测试结果"""
+
+    def __init__(self):
+        pass
+
+
 class CaseDrivenResult:
     """
     main
@@ -56,6 +79,9 @@ class CaseDrivenResult:
     """
 
     # TODO field 前置查询 {"before_query":"select xxx from xxx....","before_field":"username"}
+    # TODO
+    #  "case_list":[],
+    #  "data_driven": False
 
     def __init__(self, case):
         self.case = case
@@ -557,5 +583,6 @@ if __name__ == '__main__':
                                   'expect_val_type': '2'}]}], 'creator': '调试', 'creator_id': 1, 'modifier': None,
              'modifier_id': None, 'remark': 'remark'}]}]}
     cdr = CaseDrivenResult(case=demo1)
-    cdr.main()
+    print(type(cdr))
+    # cdr.main()
     # cdr.go_test()
