@@ -16,6 +16,7 @@ class TestCase(BaseModel):
     case_name = db.Column(db.String(255), nullable=False, comment='用户名称')
     request_method = db.Column(db.String(255), nullable=False, comment='请求方式:GET;POST;PUT;DELETE')
     request_url = db.Column(db.String(2048), nullable=False, comment='请求URL')
+    is_pass = db.Column(db.Integer, default=0, comment='0-不跳过;1-跳过')
     creator = db.Column(db.String(32), comment='创建人')
     creator_id = db.Column(BIGINT(20, unsigned=True), comment='创建人id')
     modifier = db.Column(db.String(32), comment='更新人')
@@ -45,6 +46,3 @@ class TestCaseData(BaseModel):
 
     def __repr__(self):
         return 'TestCaseData 模型对象-> ID:{} 数据名称:{}'.format(self.id, self.data_name)
-
-
-
