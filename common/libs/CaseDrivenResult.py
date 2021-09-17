@@ -17,27 +17,359 @@ from common.libs.public_func import json_format
 from common.libs.assert_related import AssertMain
 
 
-# TODO 需要重构
-
 class TestLoader:
     """测试用例加载"""
 
-    def __init__(self):
-        pass
+    def __init__(self, test_obj):
+
+        self.case_list = test_obj.get('case_list', [])
+
+        if not isinstance(self.case_list, list) or not self.case_list:
+            raise TypeError('TestLoader.__init__.case_list 类型错误')
+
+        self.case_list = self.case_list
+        self.data_driven = self.data_driven
+
+    def main(self):
+        """main"""
+        # TODO data_driven 控制是否执行数据驱动
+        for index, case in enumerate(self.case_list, 1):
+            logger.info('=== start case: {} ==='.format(index))
+            test_execute = TestExecute(case=case)
+            test_execute.main()
+            logger.info('=== end case: {} ==='.format(index))
 
 
 class TestExecute:
     """测试执行"""
 
-    def __init__(self):
-        pass
+    def __init__(self, case, data_driven=False):
+        self.case = case
+        self.case_info = self.case.get('case_info', {})
+        self.bind_info = self.case.get('bind_info', [])
+
+        self.base_url = self.case_info.get('base_url')
+        self.case_name = self.case_info.get('case_name')
+        self.request_url = self.case_info.get('request_url')
+        self.request_method = self.case_info.get('request_method')
+        self.update_var_list = []
+
+        self.resp_json = {}
+        self.resp_headers = {}
+
+        self.data_driven = data_driven
+        self.test_loader = TestResult()
+
+    @staticmethod
+    def show_log(url, headers, req_json, resp_headers, resp_json):
+        """测试用例日志打印"""
+        logger.info('test url\n{}'.format(url))
+        json_format(headers, msg='test headers')
+        json_format(req_json, msg='test req_json')
+        json_format(resp_headers, msg='test resp_headers')
+        json_format(resp_json, msg='test resp_json')
+
+    @staticmethod
+    def var_conversion(before_var):
+        """变量转换参数"""
+
+        before_var_init = before_var
+        if isinstance(before_var_init, (list, dict)):
+            before_var = json.dumps(before_var, ensure_ascii=False)
+
+        result_list = re.findall('\\$\\{([^}]*)', before_var)
+
+        if result_list:
+            err_var_list = []
+            current_dict = {}
+            for res in result_list:
+                sql = """select var_value from exilic_test_variable where var_name='{}';""".format(res)
+                query_result = project_db.select(sql=sql, only=True)
+                if query_result:
+                    current_dict[res] = json.loads(query_result.get('var_value'))
+                else:
+                    err_var_list.append(res)
+            if current_dict:
+                current_str = before_var
+                for k, v in current_dict.items():
+                    old_var = "${%s}" % (k)
+                    new_var = v
+                    current_str = current_str.replace(old_var, new_var)
+                if isinstance(before_var_init, (list, dict)):
+                    current_str = json.loads(current_str)
+                # print(current_str)
+                return current_str
+            else:
+                logger.info('===未找到变量:{}对应的参数==='.format(err_var_list))
+                return before_var_init
+        else:
+            return before_var_init
+
+    @staticmethod
+    def check_resp_ass_keys(assert_list):
+        """
+        检查resp断言对象参数类型是否正确
+        assert_list: ->list 规则列表
+        """
+
+        cl = ["assert_key", "expect_val", "expect_val_type", "is_expression", "python_val_exp", "rule"]
+
+        if not isinstance(assert_list, list) or not assert_list:
+            logger.info("assert_list:类型错误{}".format(assert_list))
+            return False
+
+        for ass in assert_list:
+            if not check_keys(ass, *cl):
+                logger.error("缺少需要的键值对:{}".format(ass))
+                return False
+        return True
+
+    @staticmethod
+    def check_field_ass_keys(assert_list):
+        """
+        检查field断言对象参数类型是否正确
+        assert_list: ->list 规则列表
+        """
+
+        cl = ["assert_key", "expect_val", "expect_val_type", "rule"]
+
+        if not isinstance(assert_list, list) or not assert_list:
+            logger.info("assert_list:类型错误{}".format(assert_list))
+            return False
+
+        for ass in assert_list:
+            child_assert_list = ass.get('assert_list')
+            for ass_child in child_assert_list:
+                if not check_keys(ass_child, *cl):
+                    logger.error("缺少需要的键值对:{}".format(ass))
+                    return False
+        return True
+
+    def execute_resp_ass(self, resp_ass_list, assert_description):
+        """
+        执行Resp断言
+        resp_ass_list demo
+            [
+                {
+                    "assert_key": "code",
+                    "expect_val": "200",
+                    "expect_val_type": "1",
+                    "is_expression": 0,
+                    "python_val_exp": "okc.get('a').get('b').get('c')[0]",
+                    "rule": "__eq__"
+                },
+                {
+                    "assert_key": "message",
+                    "expect_val": "index",
+                    "expect_val_type": "1",
+                    "is_expression": 0,
+                    "python_val_exp": "okc.get('a').get('b').get('c')[0]",
+                    "rule": "__eq__"
+                }
+            ]
+        """
+        for resp_ass_dict in resp_ass_list:
+            # print(resp_ass_dict)
+            new_resp_ass = AssertMain(
+                resp_json=self.resp_json,
+                resp_headers=self.resp_headers,
+                assert_description=assert_description,
+                **resp_ass_dict
+            )
+            resp_ass_result = new_resp_ass.assert_resp_main()
+            # print(resp_ass_result)
+            if resp_ass_result.get('status'):  # [bool,str]
+                self.test_loader.resp_ass_success += 1
+                # self.resp_ass_success += 1
+            else:
+                self.test_loader.resp_ass_fail += 1
+                # self.resp_ass_fail += 1
+
+    def execute_field_ass(self, field_ass_list, assert_description):
+        """
+        执行Field断言
+        """
+
+        for field_ass_dict in field_ass_list:
+            # print(field_ass_dict)
+            new_field_ass = AssertMain(
+                assert_description=assert_description,
+                **field_ass_dict
+            )
+
+            field_ass_result = new_field_ass.assert_field_main()
+
+            self.test_loader.field_ass_success += field_ass_result.get('success')
+            self.test_loader.field_ass_fail += field_ass_result.get('fail')
+            # self.field_ass_success += field_ass_result.get('success')
+            # self.field_ass_fail += field_ass_result.get('fail')
+
+    @classmethod
+    def current_request(cls, method=None, **kwargs):
+        """
+        构造请求
+        :param method: 请求方式
+        :param kwargs: 请求体以及扩展参数
+        :return:
+        """
+
+        if hasattr(requests, method):
+            response = getattr(requests, method)(**kwargs, verify=False)
+            cls.current_resp_json = response.json()
+            cls.current_resp_headers = response.headers
+            cls.show_log(
+                kwargs.get('url'),
+                kwargs.get('headers'),
+                kwargs.get('json', kwargs.get('data', kwargs.get('params'))),
+                resp_json=cls.current_resp_json,
+                resp_headers=cls.current_resp_headers
+            )
+        else:
+            response = {
+                "error": "requests 没有 {} 方法".format(method)
+            }
+            cls.current_resp_json = response
+            cls.show_log(
+                kwargs.get('url'),
+                kwargs.get('headers'),
+                kwargs.get('json', kwargs.get('data', kwargs.get('params'))),
+                resp_json=cls.current_resp_json,
+                resp_headers={}
+            )
+        return response
+
+    def assemble_data_send(self, case_data_info):
+        """
+        组装数据发送并且更新变量
+        :return:
+        """
+        request_body = case_data_info.get('request_body')
+        request_headers = case_data_info.get('request_headers')
+        request_body_type = str(case_data_info.get('request_body_type'))
+        self.update_var_list = case_data_info.get('update_var_list')
+
+        req_type_dict = {
+            "1": {"data": request_body},
+            "2": {"json": request_body},
+            "3": {"data": request_body}
+        }
+
+        url = self.base_url + self.request_url if self.base_url else self.request_url
+
+        before_send = {
+            "url": url,
+            "headers": request_headers,
+        }
+        req_json_data = req_type_dict.get(request_body_type)
+        before_send.update(req_json_data)
+
+        send = self.var_conversion(before_send)
+
+        resp = self.current_request(method=self.request_method.lower(), **send)
+        self.resp_json = resp.json()
+        self.resp_headers = resp.headers
+        json_format(self.resp_json, '用例:{} -> resp_json'.format(self.case_name))
+        json_format(self.resp_headers, '用例:{} -> resp_headers'.format(self.case_name))
+
+    def resp_check_ass_execute(self, case_resp_ass_info):
+        """
+        检查 resp 断言规则并执行断言
+        :return:
+        """
+        if case_resp_ass_info:
+            for resp_ass in case_resp_ass_info:  # 遍历断言规则逐一校验
+                resp_ass_list = resp_ass.get('ass_json')
+                assert_description = resp_ass.get('assert_description')
+                # print(resp_ass_list)
+                if self.check_resp_ass_keys(assert_list=resp_ass_list):  # 响应检验
+                    # self.resp_ass_count = len(resp_ass_list)
+                    self.test_loader.resp_ass_count = len(resp_ass_list)
+                    self.execute_resp_ass(resp_ass_list=resp_ass_list, assert_description=assert_description)
+                else:
+                    logger.error('=== check_ass_keys error ===')
+                    return False
+        else:
+            logger.info('=== case_resp_ass_info is [] ===')
+            return False
+
+    def field_check_ass_execute(self, case_field_ass_info):
+        """
+        检查 field 断言规则并执行断言
+        :return:
+        """
+        # if self.resp_ass_fail == 0:  # 所有断言规则通过
+        if self.test_loader.resp_ass_fail == 0:  # 所有断言规则通过
+            self.update_var()  # 更新变量
+            for field_ass in case_field_ass_info:
+                field_ass_list = field_ass.get('ass_json')
+                assert_description = field_ass.get('assert_description')
+                # print(field_ass_list)
+                if self.check_field_ass_keys(assert_list=field_ass_list):  # 数据库校验
+                    for field_ass_child in field_ass_list:
+                        assert_list = field_ass_child.get('assert_list')
+                        self.field_ass_count = len(assert_list)
+                    self.execute_field_ass(
+                        field_ass_list=field_ass_list,
+                        assert_description=assert_description
+                    )
+                else:
+                    return False
+
+        else:
+            logger.info('=== 断言规则没有100%通过,不更新变量以及不进行数据库校验 ===')
+
+    def update_var(self):
+        """更新变量"""
+        if self.update_var_list:
+            for up in self.update_var_list:
+                current_list = [item for item in up.items()][0]
+                id = current_list[0]
+                var_value = current_list[1]
+                sql = """UPDATE exilic_test_variable SET var_value='{}' WHERE id='{}';""".format(
+                    json.dumps(var_value, ensure_ascii=False), id)
+                logger.success('=== update sql === 【 {} 】'.format(sql))
+                project_db.update_data(sql)
+        else:
+            logger.info('=== 更新变量列表为空不需要更新变量===')
+
+    def main(self):
+        """main"""
+
+        if self.bind_info:
+
+            for bind in self.bind_info:
+                case_data_info = bind.get('case_data_info', {})
+                case_resp_ass_info = bind.get('case_resp_ass_info', [])
+                case_field_ass_info = bind.get('case_field_ass_info', [])
+
+                self.assemble_data_send(case_data_info=case_data_info)
+
+                self.resp_check_ass_execute(case_resp_ass_info=case_resp_ass_info)
+
+                self.field_check_ass_execute(case_field_ass_info=case_field_ass_info)
+
+        else:
+            logger.info('=== 未配置请求参数 ===')
+
+    def __str__(self):
+        return '\n'.join(["{}:{}".format(k, v) for k, v in self.__dict__.items()])
 
 
 class TestResult:
     """测试结果"""
 
     def __init__(self):
-        pass
+        self.resp_ass_count = 0
+        self.resp_ass_success = 0
+        self.resp_ass_fail = 0
+        self.resp_ass_success_rate = 0
+        self.resp_ass_fail_rate = 0
+
+        self.field_ass_count = 0
+        self.field_ass_success = 0
+        self.field_ass_fail = 0
+        self.field_ass_success_rate = 0
+        self.field_ass_fail_rate = 0
 
 
 class CaseDrivenResult:
@@ -582,7 +914,15 @@ if __name__ == '__main__':
                                  {'rule': '__eq__', 'assert_key': 'case_name', 'expect_val': '测试用例B1',
                                   'expect_val_type': '2'}]}], 'creator': '调试', 'creator_id': 1, 'modifier': None,
              'modifier_id': None, 'remark': 'remark'}]}]}
-    cdr = CaseDrivenResult(case=demo1)
-    print(type(cdr))
+    # cdr = CaseDrivenResult(case=demo1)
     # cdr.main()
-    # cdr.go_test()
+
+    demo2 = {
+        "case_list": [
+            demo,
+            demo1
+        ],
+        "data_driven": False
+    }
+
+    TestLoader(test_obj=demo2).main()
