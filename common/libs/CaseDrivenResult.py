@@ -23,12 +23,12 @@ class TestLoader:
     def __init__(self, test_obj):
 
         self.case_list = test_obj.get('case_list', [])
+        self.data_driven = test_obj.get('data_driven')
 
         if not isinstance(self.case_list, list) or not self.case_list:
             raise TypeError('TestLoader.__init__.case_list 类型错误')
 
         self.case_list = self.case_list
-        self.data_driven = self.data_driven
 
     def main(self):
         """main"""
