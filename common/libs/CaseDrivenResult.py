@@ -372,6 +372,13 @@ class TestResult:
         self.field_ass_fail_rate = 0
 
 
+"""
+*.CaseDrivenResult:仅支持单用例执行,并且不能解耦数据驱动的执行.
+*.已经使用上述的:TestLoader,TestExecute,TestResult 解决并取代之.
+*.为保留最初的实现思路该类不使用,并且暂时不会删除.
+"""
+
+
 class CaseDrivenResult:
     """
     main
