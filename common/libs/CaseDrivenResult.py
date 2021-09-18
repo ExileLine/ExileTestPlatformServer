@@ -17,6 +17,10 @@ from common.libs.public_func import json_format
 from common.libs.assert_related import AssertMain
 
 
+# TODO field 前置查询 {"before_query":"select xxx from xxx....","before_field":"username"}
+# TODO 日志记录 mysql 或者 redis 中
+# TODO 生成报告
+
 class TestLoader:
     """测试用例加载"""
 
@@ -40,7 +44,45 @@ class TestLoader:
 
 
 class TestExecute:
-    """测试执行"""
+    """
+    测试执行
+    1.测试对象解包:
+        TestLoader.__init__.main()
+
+    TestExecute.main() √
+    1.转换参数:
+        TestExecute.assemble_data_send()√
+            TestExecute.var_conversion() √
+
+    2.发出请求:
+        TestExecute.assemble_data_send() √
+            TestExecute.current_request() √
+
+    3.resp断言前置检查:
+        TestExecute.resp_check_ass_execute() √
+        TestExecute.check_resp_ass_keys() √
+
+    4.resp断言执行:
+        TestExecute.resp_check_ass_execute() √
+        TestExecute.execute_resp_ass() -> AssertMain.assert_resp_main() √
+
+    5.更新变量:
+        TestExecute.field_check_ass_execute() √
+            TestExecute.update_var() √
+
+    6.field断言前置检查:
+        TestExecute.field_check_ass_execute() √
+            TestExecute.check_field_ass_keys() √
+
+    7.field断言执行:
+        TestExecute.field_check_ass_execute() √
+            TestExecute.execute_field_ass() -> AssertMain.assert_field_main() √
+
+    8.日志记录:
+
+    9.生成报告:
+
+    """
 
     def __init__(self, case, data_driven=False):
         self.case = case
@@ -421,11 +463,6 @@ class CaseDrivenResult:
     8.生成报告:
 
     """
-
-    # TODO field 前置查询 {"before_query":"select xxx from xxx....","before_field":"username"}
-    # TODO
-    #  "case_list":[],
-    #  "data_driven": False
 
     def __init__(self, case):
         self.case = case
