@@ -12,6 +12,7 @@ flask-restful = "*"
 pymysql = "*"
 loguru = "*"
 redis = "*"
+shortuuid = "*"
 
 [dev-packages]
 
