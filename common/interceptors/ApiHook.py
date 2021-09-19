@@ -19,6 +19,11 @@ from common.libs.customException import ab_code_2
 def before_request_api():
     logger.info('api_before_request')
     print_logs()
+
+    white_list = ['/api/login']
+    if request.path in white_list:
+        return
+
     if '/api' in request.path:
         is_token = request.headers.get('Token', None)  # 是否存在token
         logger.info('headers是否存在key:token -> {}'.format(is_token))
