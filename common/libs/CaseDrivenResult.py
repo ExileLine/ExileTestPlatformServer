@@ -5,6 +5,7 @@
 # @File    : CaseDrivenResult.py
 # @Software: PyCharm
 
+import io
 import re
 import json
 import requests
@@ -33,9 +34,12 @@ class TestLoader:
             raise TypeError('TestLoader.__init__.case_list 类型错误')
 
         self.case_list = self.case_list
+        # TODO 补充
+        self.output_buffer = io.StringIO()  # 每次创建一个新的 StringIO 空间
 
     def main(self):
         """main"""
+
         for index, case in enumerate(self.case_list, 1):
             logger.info('=== start case: {} ==='.format(index))
             test_execute = TestExecute(case=case, data_driven=self.data_driven)
