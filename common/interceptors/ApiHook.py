@@ -29,7 +29,7 @@ def before_request_api():
         logger.info('headers是否存在key:token -> {}'.format(is_token))
 
         # TODO 开发阶段使用的万能鉴权
-        if is_token == 'yangyuexiong':
+        if is_token in ['yangyuexiong', None]:
             g.app_user = Admin.query.get(1)
             return
 
