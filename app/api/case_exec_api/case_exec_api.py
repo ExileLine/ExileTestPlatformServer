@@ -70,6 +70,6 @@ class CaseExecApi(MethodView):
             "case_list": send_test_case_list,
             "data_driven": data_driven
         }
-        test_loader = TestLoader(test_obj=test_obj)
-        executor.submit(test_loader.main)
+        main_test = MainTest(test_obj=test_obj)
+        executor.submit(main_test.main)
         return api_result(code=200, message='操作成功,请前往日志查看执行结果')

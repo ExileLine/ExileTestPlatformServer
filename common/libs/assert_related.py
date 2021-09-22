@@ -6,10 +6,10 @@
 # @Software: PyCharm
 
 import redis
-from loguru import logger
 
 from common.libs.db import MyPyMysql
 from common.libs.execute_code import execute_code
+from common.libs.StringIOLog import sio
 from app.models.test_case_config.models import TestDatabases
 
 
@@ -61,7 +61,7 @@ class ReturnDB:
             "redis": self.get_redis
         }
         if self.check_db() and self.db_type:
-            logger.info("=== 测试需要连接的db配置: {} - {} ===".format(self.db_connection, type(self.db_connection)))
+            sio.log("=== 测试需要连接的db配置: {} - {} ===".format(self.db_connection, type(self.db_connection)))
             return db_dict.get(self.db_type.lower())()
         else:
             return None
@@ -75,7 +75,6 @@ class AssertMain:
     def __init__(self, resp_json=None, resp_headers=None, assert_description=None, assert_key=None, rule=None,
                  expect_val=None, expect_val_type=None, is_expression=None, python_val_exp=None, db_id=None, query=None,
                  assert_list=None):
-
         self.resp_json = resp_json
         self.resp_headers = resp_headers
 
@@ -99,7 +98,7 @@ class AssertMain:
             try:
                 self.test_db = ReturnDB(db_id=self.db_id).main()
             except BaseException as e:
-                logger.error("=== 连接:{}-db 失败:{} === ".format(self.db_type, str(e)))
+                sio.log("=== 连接:{}-db 失败:{} === ".format(self.db_type, str(e)), status='error')
 
     def set_this_val(self):
         """
@@ -109,7 +108,7 @@ class AssertMain:
         if self.is_expression:  # 公式取值
             result_json = execute_code(code=self.python_val_exp, data=self.resp_json)
             result = result_json.get('result_data')
-            logger.info("=== 公式取值结果: {} ===".format(result))
+            sio.log("=== 公式取值结果: {} ===".format(result))
             self.this_val = result
 
         else:  # 直接常规取值:紧限于返回值的第一层键值对如:{"code":200,"message":"ok"}
@@ -149,8 +148,8 @@ class AssertMain:
         """
         self.set_this_val()
 
-        logger.info('=== 断言:{} ==='.format(self.assert_description))
-        logger.info('=== 键值:{} ==='.format({self.assert_key: self.this_val}))
+        sio.log('=== 断言:{} ==='.format(self.assert_description))
+        sio.log('=== 键值:{} ==='.format({self.assert_key: self.this_val}))
         message = '{}:{} {} {}:{}'.format(
             self.this_val,
             type(self.this_val),
@@ -158,16 +157,16 @@ class AssertMain:
             self.expect_val,
             type(self.expect_val)
         )
-        logger.info(message)
+        sio.log(message)
 
         if self.assert_main(this_val=self.this_val, rule=self.rule, expect_val=self.expect_val):
-            logger.success('=== 断言通过 ===')
+            sio.log('=== 断言通过 ===', status='success')
             return {
                 "status": True,
                 "message": message
             }
         else:
-            logger.error('=== 断言失败 ===')
+            sio.log('=== 断言失败 ===', status="error")
             return {
                 "status": False,
                 "message": message
@@ -184,7 +183,7 @@ class AssertMain:
         # TODO 后续兼容其他数据库
         #  例如: Oracle、DB2、SQL Server、Redis, Mongodb, ES 等
         query_result = self.test_db.select(self.query, only=True)
-        logger.success("=== 测试数据查询结果: {} ===".format(query_result))
+        sio.log("=== 测试数据查询结果: {} ===".format(query_result), status='success')
 
         ass_field_success = []
         ass_field_fail = []
@@ -203,18 +202,18 @@ class AssertMain:
                 __rule = ass.get('rule')
                 __expect_val = ass.get('expect_val')
 
-                logger.info('=== 断言:{} ==='.format(self.assert_description))
-                logger.info('=== 字段:{} ==='.format(__key))
+                sio.log('=== 断言:{} ==='.format(self.assert_description))
+                sio.log('=== 字段:{} ==='.format(__key))
                 message = '{}:{} [{}] {}:{}'.format(
                     __result_key, type(__result_key), __rule, __expect_val, type(__expect_val)
                 )
-                logger.info(message)
+                sio.log(message)
 
                 if self.assert_main(this_val=__result_key, rule=__rule, expect_val=__expect_val):
-                    logger.success('=== 断言通过 ===')
+                    sio.log('=== 断言通过 ===', status='success')
                     ass_field_success.append(message)
                 else:
-                    logger.error('=== 断言失败 ===')
+                    sio.log('=== 断言通过 ===', status='error')
                     ass_field_fail.append(message)
 
             return {
@@ -308,5 +307,5 @@ if __name__ == '__main__':
 
 
     test_resp_ass()
-    # test_field_ass()
+    test_field_ass()
     # print(ReturnDB(db_id=1).main().select("""select * from ExilicTestPlatform.exilic_test_case where id=1;"""))

@@ -7,6 +7,7 @@
 
 
 import io
+import sys
 from shortuuid import uuid
 from loguru import logger
 
@@ -16,16 +17,23 @@ class T:
     def __init__(self):
         self.output = io.StringIO()
 
-    def a(self):
-        self.output.write(uuid() + '\n')
+    def log(self, msg, status='info'):
+        getattr(logger, status)(str(msg))
+        self.output.write(str(msg) + '\n')
 
     def get_output(self):
         print(self.output.getvalue())
 
 
 if __name__ == '__main__':
-    t = T()
-    t.a()
-    t.a()
-    t.a()
-    t.get_output()
+    # t = T()
+    # t.log(123)
+    # t.log(456)
+    # t.log(789, status='success')
+    # t.get_output()
+
+    out_put1 = io.StringIO()
+
+    out_put1.write('123')
+    print(out_put1.getvalue())
+
