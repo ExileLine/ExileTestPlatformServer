@@ -9,7 +9,7 @@ from concurrent.futures import ThreadPoolExecutor
 
 from all_reference import *
 from app.models.test_case_scenario.models import TestCaseScenario
-from common.libs.StringIOLog import sio
+from common.libs.StringIOLog import StringIOLog
 
 executor = ThreadPoolExecutor(10)
 
@@ -67,12 +67,12 @@ class CaseExecApi(MethodView):
             case_list = result.to_json().get('case_list')
             send_test_case_list = [query_case_zip(case_id=case_id) for case_id in case_list]
 
+        sio = StringIOLog()
         test_obj = {
             "case_list": send_test_case_list,
-            "data_driven": data_driven
+            "data_driven": data_driven,
+            "sio": sio
         }
-        logger.info('=== stringio init ===')
-        sio.get_stringio()
         main_test = MainTest(test_obj=test_obj)
         executor.submit(main_test.main)
-        return api_result(code=200, message='操作成功,请前往日志查看执行结果')
+        return api_result(code=200, message='操作成功,请前往日志查看执行结果', data=[id(sio)])

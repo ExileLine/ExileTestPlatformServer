@@ -24,8 +24,7 @@ class StringIOLog:
         """获取 stringio 值"""
         self.output_value = self.output.getvalue()
         # print(self.output_value)
-        self.output = io.StringIO()
+        # self.output = io.StringIO()
+        self.output.truncate(0)
+        self.output.seek(0)
         return self.output_value
-
-
-sio = StringIOLog()

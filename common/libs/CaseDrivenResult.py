@@ -12,11 +12,12 @@ import time
 import datetime
 
 import requests
+from loguru import logger
 
 from common.libs.db import project_db, R
 from common.libs.public_func import check_keys
 from common.libs.assert_related import AssertMain
-from common.libs.StringIOLog import sio
+from common.libs.StringIOLog import StringIOLog
 
 
 class TestResult:
@@ -95,12 +96,12 @@ class MainTest:
     """
 
     # TODO field 前置查询 {"before_query":"select xxx from xxx....","before_field":"username"}
-
     # TODO 生成报告
 
     def __init__(self, test_obj):
         self.case_list = test_obj.get('case_list', [])
         self.data_driven = test_obj.get('data_driven')
+        self.sio = test_obj.get('sio', StringIOLog())
 
         if not isinstance(self.case_list, list) or not self.case_list:
             raise TypeError('TestLoader.__init__.case_list 类型错误')
@@ -108,30 +109,27 @@ class MainTest:
         self.case_list = self.case_list
         self.test_result = TestResult()
 
-        self.return_result = []
+        self.case_result_list = []
 
-    @staticmethod
-    def json_format(d, msg=None):
+    def json_format(self, d, msg=None):
         """json格式打印"""
         try:
             output = '{}\n'.format(msg) + json.dumps(
                 d, sort_keys=True, indent=4, separators=(', ', ': '), ensure_ascii=False
             )
-            sio.log(output)
+            self.sio.log(output)
         except BaseException as e:
-            sio.log('{}\n{}'.format(msg, d))
+            self.sio.log('{}\n{}'.format(msg, d))
 
-    @classmethod
-    def show_log(cls, url, headers, req_json, resp_headers, resp_json):
+    def show_log(self, url, headers, req_json, resp_headers, resp_json):
         """测试用例日志打印"""
-        sio.log('test url\n{}'.format(url))
-        cls.json_format(headers, msg='test headers')
-        cls.json_format(req_json, msg='test req_json')
-        cls.json_format(resp_headers, msg='test resp_headers')
-        cls.json_format(resp_json, msg='test resp_json')
+        self.sio.log('test url\n{}'.format(url))
+        self.json_format(headers, msg='test headers')
+        self.json_format(req_json, msg='test req_json')
+        self.json_format(resp_headers, msg='test resp_headers')
+        self.json_format(resp_json, msg='test resp_json')
 
-    @staticmethod
-    def var_conversion(before_var):
+    def var_conversion(self, before_var):
         """变量转换参数"""
 
         before_var_init = before_var
@@ -161,13 +159,12 @@ class MainTest:
                 # print(current_str)
                 return current_str
             else:
-                sio.log('===未找到变量:{}对应的参数==='.format(err_var_list))
+                self.sio.log('===未找到变量:{}对应的参数==='.format(err_var_list))
                 return before_var_init
         else:
             return before_var_init
 
-    @staticmethod
-    def check_resp_ass_keys(assert_list):
+    def check_resp_ass_keys(self, assert_list):
         """
         检查resp断言对象参数类型是否正确
         assert_list: ->list 规则列表
@@ -176,17 +173,16 @@ class MainTest:
         cl = ["assert_key", "expect_val", "expect_val_type", "is_expression", "python_val_exp", "rule"]
 
         if not isinstance(assert_list, list) or not assert_list:
-            sio.log("assert_list:类型错误{}".format(assert_list))
+            self.sio.log("assert_list:类型错误{}".format(assert_list))
             return False
 
         for ass in assert_list:
             if not check_keys(ass, *cl):
-                sio.log("缺少需要的键值对:{}".format(ass), status='error')
+                self.sio.log("缺少需要的键值对:{}".format(ass), status='error')
                 return False
         return True
 
-    @staticmethod
-    def check_field_ass_keys(assert_list):
+    def check_field_ass_keys(self, assert_list):
         """
         检查field断言对象参数类型是否正确
         assert_list: ->list 规则列表
@@ -195,14 +191,14 @@ class MainTest:
         cl = ["assert_key", "expect_val", "expect_val_type", "rule"]
 
         if not isinstance(assert_list, list) or not assert_list:
-            sio.log("assert_list:类型错误{}".format(assert_list))
+            self.sio.log("assert_list:类型错误{}".format(assert_list))
             return False
 
         for ass in assert_list:
             child_assert_list = ass.get('assert_list')
             for ass_child in child_assert_list:
                 if not check_keys(ass_child, *cl):
-                    sio.log("缺少需要的键值对:{}".format(ass), status='error')
+                    self.sio.log("缺少需要的键值对:{}".format(ass), status='error')
                     return False
         return True
 
@@ -232,6 +228,7 @@ class MainTest:
         for resp_ass_dict in resp_ass_list:
             # print(resp_ass_dict)
             new_resp_ass = AssertMain(
+                sio=self.sio,
                 resp_json=self.resp_json,
                 resp_headers=self.resp_headers,
                 assert_description=assert_description,
@@ -252,6 +249,7 @@ class MainTest:
         for field_ass_dict in field_ass_list:
             # print(field_ass_dict)
             new_field_ass = AssertMain(
+                sio=self.sio,
                 assert_description=assert_description,
                 **field_ass_dict
             )
@@ -261,8 +259,7 @@ class MainTest:
             self.test_result.field_ass_success += field_ass_result.get('success')
             self.test_result.field_ass_fail += field_ass_result.get('fail')
 
-    @classmethod
-    def current_request(cls, method=None, **kwargs):
+    def current_request(self, method=None, **kwargs):
         """
         构造请求
         :param method: 请求方式
@@ -272,25 +269,25 @@ class MainTest:
 
         if hasattr(requests, method):
             response = getattr(requests, method)(**kwargs, verify=False)
-            cls.current_resp_json = response.json()
-            cls.current_resp_headers = response.headers
-            cls.show_log(
+            self.current_resp_json = response.json()
+            self.current_resp_headers = response.headers
+            self.show_log(
                 kwargs.get('url'),
                 kwargs.get('headers'),
                 kwargs.get('json', kwargs.get('data', kwargs.get('params'))),
-                resp_json=cls.current_resp_json,
-                resp_headers=cls.current_resp_headers
+                resp_json=self.current_resp_json,
+                resp_headers=self.current_resp_headers
             )
         else:
             response = {
                 "error": "requests 没有 {} 方法".format(method)
             }
-            cls.current_resp_json = response
-            cls.show_log(
+            self.current_resp_json = response
+            self.show_log(
                 kwargs.get('url'),
                 kwargs.get('headers'),
                 kwargs.get('json', kwargs.get('data', kwargs.get('params'))),
-                resp_json=cls.current_resp_json,
+                resp_json=self.current_resp_json,
                 resp_headers={}
             )
         return response
@@ -343,10 +340,10 @@ class MainTest:
                     self.test_result.resp_ass_count = len(resp_ass_list)
                     self.execute_resp_ass(resp_ass_list=resp_ass_list, assert_description=assert_description)
                 else:
-                    sio.log('=== check_ass_keys error ===', status='error')
+                    self.sio.log('=== check_ass_keys error ===', status='error')
                     return False
         else:
-            sio.log('=== case_resp_ass_info is [] ===')
+            self.sio.log('=== case_resp_ass_info is [] ===')
             return False
 
     def field_check_ass_execute(self, case_field_ass_info):
@@ -373,7 +370,7 @@ class MainTest:
                     return False
 
         else:
-            sio.log('=== 断言规则没有100%通过,不更新变量以及不进行数据库校验 ===')
+            self.sio.log('=== 断言规则没有100%通过,不更新变量以及不进行数据库校验 ===')
 
     def update_var(self):
         """更新变量"""
@@ -384,15 +381,15 @@ class MainTest:
                 var_value = current_list[1]
                 sql = """UPDATE exilic_test_variable SET var_value='{}' WHERE id='{}';""".format(
                     json.dumps(var_value, ensure_ascii=False), id)
-                sio.log('=== update sql === 【 {} 】'.format(sql), status='success')
+                self.sio.log('=== update sql === 【 {} 】'.format(sql), status='success')
                 project_db.update_data(sql)
         else:
-            sio.log('=== 更新变量列表为空不需要更新变量===')
+            self.sio.log('=== 更新变量列表为空不需要更新变量===')
 
     def main(self):
         """main"""
         for case_index, case in enumerate(self.case_list, 1):
-            sio.log('=== start case: {} ==='.format(case_index))
+            self.sio.log('=== start case: {} ==='.format(case_index))
             case_info = case.get('case_info', {})
             bind_info = case.get('bind_info', [])
 
@@ -412,7 +409,7 @@ class MainTest:
 
                 for index, bind in enumerate(bind_info, 1):
 
-                    sio.log("=== 数据驱动:{} ===".format(index))
+                    self.sio.log("=== 数据驱动:{} ===".format(index))
                     case_data_info = bind.get('case_data_info', {})
                     case_resp_ass_info = bind.get('case_resp_ass_info', [])
                     case_field_ass_info = bind.get('case_field_ass_info', [])
@@ -424,31 +421,32 @@ class MainTest:
                     self.field_check_ass_execute(case_field_ass_info=case_field_ass_info)
 
                     if not self.data_driven:
-                        sio.log("=== data_driven is false 只执行基础参数与断言 ===")
+                        self.sio.log("=== data_driven is false 只执行基础参数与断言 ===")
                         break
 
             else:
-                sio.log('=== 未配置请求参数 ===')
+                self.sio.log('=== 未配置请求参数 ===')
 
-            sio.log('=== end case: {} ===\n\n'.format(case_index))
+            self.sio.log('=== end case: {} ===\n\n'.format(case_index))
 
-        test_log = sio.get_stringio()
-
-        # TODO 日志记录 mysql 或者 redis 中
+            add_case = {
+                "case_id": self.case_id,
+                "case_name": self.case_name,
+                "case_log": self.sio.get_stringio(),
+            }
+            self.case_result_list.append(add_case)
 
         case_summary = self.test_result.get_test_result()
         save_key = "test_log_{}".format(str(int(time.time())))
-        add_case = {
-            # "case_id": self.case_id,
-            # "case_name": self.case_name,
+        return_case_result = {
             "uuid": save_key,
+            "case_result_list": self.case_result_list,
+            "result_summary": case_summary,
             "create_time": str(datetime.datetime.now()),
-            "case_log": test_log,
-            "case_summary": case_summary
         }
-        self.json_format(add_case)
-
-        R.set(save_key, json.dumps(add_case))
+        self.json_format(return_case_result)
+        R.set(save_key, json.dumps(return_case_result))
+        logger.success('=== save redis ok ===')
 
     def __str__(self):
         return '\n'.join(["{}:{}".format(k, v) for k, v in self.__dict__.items()])
