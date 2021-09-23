@@ -6,7 +6,7 @@
 # @Software: PyCharm
 
 
-from common.libs.CaseDrivenResult import CaseDrivenResult
+from common.libs.CaseDrivenResult import MainTest
 
 if __name__ == '__main__':
     d1 = "前面${username}后面"
@@ -19,14 +19,14 @@ if __name__ == '__main__':
     d5 = {'url': 'http://127.0.0.1:7272/api', 'headers': {}, 'data': {}}
     d6 = {'url': 'http://127.0.0.1:7272/api', 'headers': {}, 'data': {"key": "${user_id}"}}
     d7 = {'url': 'http://127.0.0.1:7272/api', 'headers': {}, 'data': {"key": "${aaa}"}}
-    print(CaseDrivenResult.var_conversion(d1))
-    print(CaseDrivenResult.var_conversion(d2))
-    print(CaseDrivenResult.var_conversion(d3))
-    print(CaseDrivenResult.var_conversion(d4))
+    print(MainTest.var_conversion(d1))
+    print(MainTest.var_conversion(d2))
+    print(MainTest.var_conversion(d3))
+    print(MainTest.var_conversion(d4))
 
-    result5 = CaseDrivenResult.var_conversion(d5)
-    result6 = CaseDrivenResult.var_conversion(d6)
-    result7 = CaseDrivenResult.var_conversion(d7)
+    result5 = MainTest.var_conversion(d5)
+    result6 = MainTest.var_conversion(d6)
+    result7 = MainTest.var_conversion(d7)
     print(result5, type(result5))
     print(result6, type(result6))
     print(result7, type(result7))
