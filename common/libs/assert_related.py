@@ -25,12 +25,11 @@ class ReturnDB:
     def check_db(self):
         """检查是否存在该db的连接配置"""
 
-        # <----------调试代码---------->
+        # 在接口被调用时开启新的线程执行,所以仍然需要开启上下文
         from ApplicationExample import create_app
         app = create_app()
         with app.app_context():
             query_db = TestDatabases.query.get(self.db_id)
-        # <----------调试代码---------->
 
         if query_db:
             db_obj = query_db.to_json()
@@ -162,14 +161,27 @@ class AssertMain:
         )
         self.sio.log(message)
 
-        if self.assert_main(this_val=self.this_val, rule=self.rule, expect_val=self.expect_val):
-            self.sio.log('=== 断言通过 ===', status='success')
-            return {
-                "status": True,
-                "message": message
-            }
-        else:
-            self.sio.log('=== 断言失败 ===', status="error")
+        try:
+            if self.assert_main(this_val=self.this_val, rule=self.rule, expect_val=self.expect_val):
+                self.sio.log('=== 断言通过 ===', status='success')
+                return {
+                    "status": True,
+                    "message": message
+                }
+            else:
+                self.sio.log('=== 断言失败 ===', status="error")
+                return {
+                    "status": False,
+                    "message": message
+                }
+        except BaseException as e:
+            self.sio.log('数据异常:{}'.format(str(e)), status='error')
+            self.sio.log('这种情况一般会因为以下两种原因导致:', status='error')
+            self.sio.log('1.查看数据库确认该数据是否有被手动修改过.', status='error')
+            self.sio.log(
+                '2.查看: case_ass_rule_api.py 中的 RespAssertionRuleApi 中的逻辑是否被修改.',
+                status='error')
+            self.sio.log('=== 断言异常 ===', status="error")
             return {
                 "status": False,
                 "message": message
@@ -212,12 +224,22 @@ class AssertMain:
                 )
                 self.sio.log(message)
 
-                if self.assert_main(this_val=__result_key, rule=__rule, expect_val=__expect_val):
-                    self.sio.log('=== 断言通过 ===', status='success')
-                    ass_field_success.append(message)
-                else:
-                    self.sio.log('=== 断言通过 ===', status='error')
-                    ass_field_fail.append(message)
+                try:
+                    if self.assert_main(this_val=__result_key, rule=__rule, expect_val=__expect_val):
+                        self.sio.log('=== 断言通过 ===', status='success')
+                        ass_field_success.append(message)
+                    else:
+                        self.sio.log('=== 断言通过 ===', status='error')
+                        ass_field_fail.append(message)
+
+                except BaseException as e:
+                    self.sio.log('数据异常:{}'.format(str(e)), status='error')
+                    self.sio.log('这种情况一般会因为以下两种原因导致:', status='error')
+                    self.sio.log('1.查看数据库确认该数据是否有被手动修改过.', status='error')
+                    self.sio.log(
+                        '2.查看: case_ass_rule_api.py 中的 FieldAssertionRuleApi 中的逻辑是否被修改.',
+                        status='error')
+                    self.sio.log('=== 断言异常 ===', status="error")
 
             return {
                 "success": len(ass_field_success),
