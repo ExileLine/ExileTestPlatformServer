@@ -41,6 +41,14 @@ class TestResult:
 
         :return:
         """
+
+        self.resp_ass_count = self.resp_ass_success + self.resp_ass_fail
+        self.field_ass_count = self.field_ass_success + self.field_ass_fail
+        self.resp_ass_success_rate = "{}%".format(round(self.resp_ass_success / self.resp_ass_count, 2) * 100)
+        self.resp_ass_fail_rate = "{}%".format(round(self.resp_ass_fail / self.resp_ass_count, 2) * 100)
+        self.field_ass_success_rate = "{}%".format(round(self.field_ass_success / self.field_ass_count, 2) * 100)
+        self.field_ass_fail_rate = "{}%".format(round(self.field_ass_fail / self.field_ass_count, 2) * 100)
+
         d = {
             "resp_ass_count": self.resp_ass_count,
             "resp_ass_success": self.resp_ass_success,
@@ -337,8 +345,6 @@ class MainTest:
                 assert_description = resp_ass.get('assert_description')
                 # print(resp_ass_list)
                 if self.check_resp_ass_keys(assert_list=resp_ass_list):  # 响应检验
-                    # self.resp_ass_count = len(resp_ass_list)
-                    self.test_result.resp_ass_count = len(resp_ass_list)
                     self.execute_resp_ass(resp_ass_list=resp_ass_list, assert_description=assert_description)
                 else:
                     self.sio.log('=== check_ass_keys error ===', status='error')
@@ -361,7 +367,6 @@ class MainTest:
                 if self.check_field_ass_keys(assert_list=field_ass_list):  # 数据库校验
                     for field_ass_child in field_ass_list:
                         assert_list = field_ass_child.get('assert_list')
-                        self.field_ass_count = len(assert_list)
                     self.execute_field_ass(
                         field_ass_list=field_ass_list,
                         assert_description=assert_description
