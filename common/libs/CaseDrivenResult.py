@@ -388,6 +388,7 @@ class MainTest:
 
     def main(self):
         """main"""
+
         for case_index, case in enumerate(self.case_list, 1):
             self.sio.log('=== start case: {} ==='.format(case_index))
             case_info = case.get('case_info', {})
@@ -406,23 +407,31 @@ class MainTest:
             self.resp_headers = {}
 
             if bind_info:
-
                 for index, bind in enumerate(bind_info, 1):
 
-                    self.sio.log("=== 数据驱动:{} ===".format(index))
-                    case_data_info = bind.get('case_data_info', {})
-                    case_resp_ass_info = bind.get('case_resp_ass_info', [])
-                    case_field_ass_info = bind.get('case_field_ass_info', [])
+                    try:
+                        self.sio.log("=== 数据驱动:{} ===".format(index))
+                        case_data_info = bind.get('case_data_info', {})
+                        case_resp_ass_info = bind.get('case_resp_ass_info', [])
+                        case_field_ass_info = bind.get('case_field_ass_info', [])
 
-                    self.assemble_data_send(case_data_info=case_data_info)
+                        self.assemble_data_send(case_data_info=case_data_info)
 
-                    self.resp_check_ass_execute(case_resp_ass_info=case_resp_ass_info)
+                        self.resp_check_ass_execute(case_resp_ass_info=case_resp_ass_info)
 
-                    self.field_check_ass_execute(case_field_ass_info=case_field_ass_info)
+                        self.field_check_ass_execute(case_field_ass_info=case_field_ass_info)
 
-                    if not self.data_driven:
-                        self.sio.log("=== data_driven is false 只执行基础参数与断言 ===")
-                        break
+                        if not self.data_driven:
+                            self.sio.log("=== data_driven is false 只执行基础参数与断言 ===")
+                            break
+
+                    except BaseException as e:
+                        self.sio.log('数据异常:{}'.format(str(e)), status='error')
+                        self.sio.log('这种情况一般会因为以下两种原因导致:', status='error')
+                        self.sio.log('1.查看数据库确认该数据是否有被手动修改过.', status='error')
+                        self.sio.log(
+                            '2.查看: case_ass_rule_api.py 中的 RespAssertionRuleApi 与 FieldAssertionRuleApi 中的逻辑是否被修改.',
+                            status='error')
 
             else:
                 self.sio.log('=== 未配置请求参数 ===')
@@ -444,7 +453,7 @@ class MainTest:
             "result_summary": case_summary,
             "create_time": str(datetime.datetime.now()),
         }
-        self.json_format(return_case_result)
+        # self.json_format(return_case_result)
         R.set(save_key, json.dumps(return_case_result))
         logger.success('=== save redis ok ===')
 
@@ -526,7 +535,7 @@ if __name__ == '__main__':
                         "ass_json": [
                             {
                                 "assert_key": "code",
-                                "expect_val": 200,
+                                "expect_val": "200",
                                 "expect_val_type": "1",
                                 "is_expression": 0,
                                 "python_val_exp": "okc.get('a').get('b').get('c')[0]",
@@ -660,6 +669,6 @@ if __name__ == '__main__':
             demo,
             demo1
         ],
-        "data_driven": False
+        "data_driven": True
     }
     MainTest(test_obj=demo2).main()
