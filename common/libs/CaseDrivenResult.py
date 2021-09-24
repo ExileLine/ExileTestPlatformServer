@@ -119,6 +119,10 @@ class MainTest:
         self.current_case_resp_ass_error = 0
         self.case_result_list = []
 
+        self.create_time = str(datetime.datetime.now())
+        self.start_time = time.time()
+        self.end_time = 0
+
     def json_format(self, d, msg=None):
         """json格式打印"""
         try:
@@ -442,12 +446,16 @@ class MainTest:
             self.case_result_list.append(add_case)
 
         case_summary = self.test_result.get_test_result()
+        self.end_time = time.time()
         save_key = "test_log_{}".format(str(int(time.time())))
         return_case_result = {
             "uuid": save_key,
             "case_result_list": self.case_result_list,
             "result_summary": case_summary,
-            "create_time": str(datetime.datetime.now()),
+            "create_time": self.create_time,
+            "start_time": self.start_time,
+            "end_time": self.end_time,
+            "total_time": self.end_time - self.start_time
         }
         # self.json_format(return_case_result)
         R.set(save_key, json.dumps(return_case_result))
