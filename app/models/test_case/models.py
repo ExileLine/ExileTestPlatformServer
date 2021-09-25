@@ -24,6 +24,10 @@ class TestCase(BaseModel):
     modifier_id = db.Column(BIGINT(20, unsigned=True), comment='更新人id')
     remark = db.Column(db.String(255), comment='备注')
 
+    def add_total_execution(self):
+        self.total_execution = self.total_execution + 1
+        self.save()
+
     def __repr__(self):
         return 'TestCase 模型对象-> ID:{} 用例名称:{}'.format(self.id, self.case_name)
 

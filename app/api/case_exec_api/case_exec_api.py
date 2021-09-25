@@ -8,6 +8,7 @@
 from concurrent.futures import ThreadPoolExecutor
 
 from all_reference import *
+from app.models.test_case.models import TestCase
 from app.models.test_case_scenario.models import TestCaseScenario
 from common.libs.StringIOLog import StringIOLog
 
@@ -57,6 +58,8 @@ class CaseExecApi(MethodView):
             result = query_case_zip(case_id=execute_id)
             if not result:
                 return api_result(code=400, message='用例id:{}不存在'.format(execute_id))
+
+            TestCase.query.get(execute_id).add_total_execution()
             send_test_case_list = [result]
 
         if execute_type == "scenario":
@@ -65,7 +68,20 @@ class CaseExecApi(MethodView):
                 return api_result(code=400, message='场景id:{}不存在'.format(execute_id))
 
             case_list = result.to_json().get('case_list')
-            send_test_case_list = [query_case_zip(case_id=case_id) for case_id in case_list]
+
+            if not case_list:  # 防止手动修改数据导致,在场景创建的接口中有对应的校验
+                return api_result(code=400, message='场景id:{}用例为空'.format(execute_id))
+
+            send_test_case_list = []
+            for case_id in case_list:
+                result = query_case_zip(case_id=case_id)
+                if not result:
+                    return api_result(code=400, message='场景中,用例id:{}不存在'.format(case_id))
+                send_test_case_list.append(result)
+
+            update_case = TestCase.query.filter(TestCase.id.in_(case_list)).all()
+            for u in update_case:
+                u.add_total_execution()
 
         sio = StringIOLog()
         test_obj = {
