@@ -105,6 +105,7 @@ class MainTest:
 
     # TODO field 前置查询 {"before_query":"select xxx from xxx....","before_field":"username"}
     # TODO 生成报告
+    # TODO sio优化
 
     def __init__(self, test_obj):
         self.case_list = test_obj.get('case_list', [])
