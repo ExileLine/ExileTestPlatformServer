@@ -4,8 +4,12 @@
 
 ##### 系统架构图
 
-![系统架构图](ExileTestPlatform整体架构.png)
+![系统架构图](docs/ExileTestPlatform整体架构.png)
 
+
+##### 业务流程图
+
+![业务流程图](docs/ExileTestPlatform业务流程.png)
 
 
 ##### 接口清单
