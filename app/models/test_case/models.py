@@ -36,7 +36,7 @@ class TestCaseData(BaseModel):
     __tablename__ = 'exilic_test_case_data'
     __table_args__ = {'comment': '测试用例参数'}
 
-    data_name = db.Column(db.String(255), nullable=False, comment='用户名称')
+    data_name = db.Column(db.String(255), nullable=False, comment='数据名称')
     request_params = db.Column(db.JSON, comment='请求参数')
     request_headers = db.Column(db.JSON, comment='headers')
     request_body = db.Column(db.JSON, comment='body')
