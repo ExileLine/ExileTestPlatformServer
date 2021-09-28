@@ -321,7 +321,7 @@ class MainTest:
             "2": {"json": request_body},
             "3": {"data": request_body}
         }
-
+        # TODO self.base_url 之前被改坏了
         url = self.base_url + self.request_url if self.base_url else self.request_url
 
         before_send = {
