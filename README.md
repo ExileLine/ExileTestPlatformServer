@@ -1,18 +1,33 @@
 # ExileTestPlatformServer(in development...)
 # 放逐测试平台(开发中...)
 
+### 前言
+`ExileTestPlatform`待补充
 
-##### 系统架构图
+### 项目文档
+- 文档地址：https://github.com/yangyuexiong
 
+### 项目介绍
+`ExileTestPlatform`待补充
+
+### 项目演示
+- 前端项目地址：https://github.com/yangyuexiong/ExileTestPlatformWeb
+
+- 项目演示地址：待补充
+
+### 系统架构图
 ![系统架构图](docs/ExileTestPlatform整体架构.png)
 
-
-##### 业务流程图
-
+### 业务流程图
 ![业务流程图](docs/ExileTestPlatform业务流程.png)
 
+### 数据库表设计
+待补充
 
-##### 接口清单
+### 项目结构
+- 参考我的Flask最佳实践：https://github.com/yangyuexiong/Flask_BestPractices
+
+### 接口清单
 
 |ID| 接口名称              | 请求方式   | 功能描述    |备注|
 |---|--------------------|-----------|--------|--------
