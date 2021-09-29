@@ -2,10 +2,10 @@
 # 放逐测试平台(开发中...)
 
 ### 前言
-`ExileTestPlatform`待补充
+待补充
 
 ### 项目文档
-- 文档地址：https://github.com/yangyuexiong
+- 文档地址：https://github.com/yangyuexiong/ExileTestPlatformServer
 
 ### 项目介绍
 `ExileTestPlatform`待补充
@@ -13,7 +13,7 @@
 ### 项目演示
 - 前端项目地址：https://github.com/yangyuexiong/ExileTestPlatformWeb
 
-- 项目演示地址：待补充
+- 项目演示地址：`待补充`
 
 ### 系统架构图
 ![系统架构图](docs/ExileTestPlatform整体架构.png)
@@ -22,7 +22,33 @@
 ![业务流程图](docs/ExileTestPlatform业务流程.png)
 
 ### 数据库表设计
-待补充
+![数据库表设计](docs/ExileTestPlatform数据库表设计.png)
+
+### 后端技术
+|技术|说明|官网|
+|----------------------------------------|-------------------|---------------------------------------------- |
+|Flask2.0|BIO MVC框架(2.0.2版本加入async异步)|https://flask.palletsprojects.com|
+|Flask-SQLAlchemy|ORM|http://www.pythondoc.com/flask-sqlalchemy/quickstart.html|
+|Flask-Migrate|Alembic处理Flask应用程序的SQLAlchemy数据库迁移|https://flask-migrate.readthedocs.io/en/latest|
+|Flask-CORS|用于处理跨源资源共享(CORS)的Flask扩展，使跨源AJAX|https://pypi.org/project/Flask-Cors|
+|PyMySQL|纯Python MySQL客户端库。PyMySQL的目标是成为MySQLdb的替代品，并在CPython、PyPy、IronPython和Jython上工作|https://pypi.org/project/PyMySQL/0.6.1|
+|requests|Python HTTP库|https://docs.python-requests.org/en/latest/user/install|
+|loguru|美化Python日志记录|https://pypi.org/project/loguru|
+|Redis|缓存|https://redis.io|
+|MySQl|关系型数据库|https://www.mysql.com|
+
+
+### 前端技术
+|技术|说明|官网|
+|----------|--------------------- | -------------------------------------- |
+|Vue3|前端框架|https://vuejs.org|
+|Vue-router|路由框架|https://router.vuejs.org|
+|Vuex|全局状态管理框架|https://vuex.vuejs.org|
+|Element|前端UI框架|https://element.eleme.io|
+|Axios|前端HTTP框架|https://github.com/axios/axios|
+|v-charts|基于Echarts的图表框架|https://v-charts.js.org|
+|Js-cookie|cookie管理工具|https://github.com/js-cookie/js-cookie|
+|nprogress|进度条控件|https://github.com/rstacruz/nprogress|
 
 ### 项目结构
 - 参考我的Flask最佳实践：https://github.com/yangyuexiong/Flask_BestPractices
