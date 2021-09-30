@@ -108,8 +108,10 @@ class MainTest:
     # TODO sio优化
 
     def __init__(self, test_obj):
+        self.base_url = test_obj.get('base_url', None)
         self.case_list = test_obj.get('case_list', [])
         self.data_driven = test_obj.get('data_driven')
+        self.execute_type = test_obj.get('execute_type')
         self.sio = test_obj.get('sio', StringIOLog())
 
         if not isinstance(self.case_list, list) or not self.case_list:
@@ -321,8 +323,8 @@ class MainTest:
             "2": {"json": request_body},
             "3": {"data": request_body}
         }
-        # TODO self.base_url 之前被改坏了
-        url = self.base_url + self.request_url if self.base_url else self.request_url
+
+        url = self.base_url + self.request_url if self.base_url else self.request_base_url + self.request_url
 
         before_send = {
             "url": url,
@@ -408,8 +410,8 @@ class MainTest:
             self.case_id = case_info.get('id')
             self.case_name = case_info.get('case_name')
 
-            self.base_url = case_info.get('base_url')
             self.case_name = case_info.get('case_name')
+            self.request_base_url = case_info.get('request_base_url')
             self.request_url = case_info.get('request_url')
             self.request_method = case_info.get('request_method')
             self.update_var_list = []

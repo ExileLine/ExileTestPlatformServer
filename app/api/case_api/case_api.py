@@ -61,8 +61,10 @@ class CaseApi(MethodView):
         data = request.get_json()
         case_name = data.get('case_name')
         request_method = data.get('request_method')
+        request_base_url = data.get('request_base_url')
         request_url = data.get('request_url')
         var_list = data.get('var_list', [])
+        is_shared = data.get('is_shared', 0)
         remark = data.get('remark')
 
         _bool, _msg = check_var(var_list=var_list)
@@ -82,14 +84,14 @@ class CaseApi(MethodView):
         new_test_case = TestCase(
             case_name=case_name,
             request_method=request_method_result,
+            request_base_url=request_base_url,
             request_url=request_url,
+            is_shared=is_shared,
             remark=remark,
             creator='调试',
             creator_id=1,
         )
         new_test_case.save()
-        # db.session.add(new_test_case)
-        # db.session.commit()
         return api_result(code=201, message='创建成功')
 
     def put(self):
@@ -99,8 +101,10 @@ class CaseApi(MethodView):
         case_id = data.get('case_id')
         case_name = data.get('case_name')
         request_method = data.get('request_method')
+        request_base_url = data.get('request_base_url')
         request_url = data.get('request_url')
         var_list = data.get('var_list', [])
+        is_shared = data.get('is_shared', 0)
         remark = data.get('remark')
 
         query_case = TestCase.query.get(case_id)
@@ -119,7 +123,9 @@ class CaseApi(MethodView):
 
         query_case.case_name = case_name
         query_case.request_method = request_method
+        query_case.request_base_url = request_base_url
         query_case.request_url = request_url
+        query_case.is_shared = is_shared
         query_case.remark = remark
         query_case.modifier = "调试"
         query_case.modifier_id = 1

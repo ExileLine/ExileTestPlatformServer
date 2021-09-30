@@ -9,11 +9,14 @@ from concurrent.futures import ThreadPoolExecutor
 
 from all_reference import *
 from app.models.test_case.models import TestCase
+from app.models.test_env.models import TestEnv
 from app.models.test_case_scenario.models import TestCaseScenario
 from common.libs.StringIOLog import StringIOLog
 
 executor = ThreadPoolExecutor(10)
 
+
+# TODO 用户调试调用接口requests
 
 class CaseExecApi(MethodView):
     """
@@ -33,6 +36,7 @@ class CaseExecApi(MethodView):
             "execute_id": 14,
             "execute_type": "case",
             "data_driven": False
+            "base_url_id": 1
         }
 
         场景执行
@@ -40,6 +44,7 @@ class CaseExecApi(MethodView):
             "execute_id": 3,
             "execute_type": "scenario",
             "data_driven": false
+            "base_url_id": 1
         }
         :return:
         """
@@ -48,8 +53,14 @@ class CaseExecApi(MethodView):
         execute_id = data.get('execute_id')
         execute_type = data.get('execute_type')
         data_driven = data.get('data_driven', False)
+        base_url_id = data.get('base_url_id', None)
 
         send_test_case_list = []
+
+        query_base_url = TestEnv.query.get(base_url_id)
+
+        if not query_base_url:
+            return api_result(code=400, message='base_url_id:{}不存在'.format(base_url_id))
 
         if execute_type not in execute_type_em:
             return api_result(code=400, message='execute_type:{}不存在'.format(execute_type))
@@ -85,6 +96,8 @@ class CaseExecApi(MethodView):
 
         sio = StringIOLog()
         test_obj = {
+            "base_url": query_base_url.env_url,
+            "execute_type": execute_type,
             "case_list": send_test_case_list,
             "data_driven": data_driven,
             "sio": sio
