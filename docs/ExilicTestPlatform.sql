@@ -4,7 +4,7 @@
 -- https://tableplus.com/
 --
 -- Database: ExilicTestPlatform
--- Generation Time: 2021-09-27 15:08:11.8840
+-- Generation Time: 2021-09-30 18:26:43.2380
 -- -------------------------------------------------------------
 
 
@@ -19,11 +19,6 @@
 /*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
 /*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
 
-
-CREATE TABLE `alembic_version` (
-  `version_num` varchar(32) COLLATE utf8mb4_bin NOT NULL,
-  PRIMARY KEY (`version_num`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
 
 CREATE TABLE `exilic_ass_bind` (
   `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT COMMENT 'id',
@@ -242,8 +237,10 @@ CREATE TABLE `exilic_test_case` (
   `remark` varchar(255) COLLATE utf8mb4_bin DEFAULT NULL COMMENT '备注',
   `is_pass` int(11) DEFAULT NULL COMMENT '0-不跳过;1-跳过',
   `total_execution` int(11) DEFAULT NULL COMMENT '执行次数总计',
+  `is_shared` int(11) DEFAULT NULL COMMENT '0-仅创建者执行;1-共享执行',
+  `request_base_url` varchar(255) COLLATE utf8mb4_bin NOT NULL COMMENT '请求BaseURL',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=18 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin COMMENT='测试用例';
+) ENGINE=InnoDB AUTO_INCREMENT=20 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin COMMENT='测试用例';
 
 CREATE TABLE `exilic_test_case_data` (
   `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT COMMENT 'id',
@@ -253,7 +250,7 @@ CREATE TABLE `exilic_test_case_data` (
   `update_timestamp` bigint(20) unsigned DEFAULT NULL COMMENT '更新时间(时间戳)',
   `is_deleted` tinyint(3) unsigned DEFAULT '0' COMMENT '0正常;其他:已删除',
   `status` tinyint(3) unsigned DEFAULT '1' COMMENT '状态',
-  `data_name` varchar(255) COLLATE utf8mb4_bin NOT NULL COMMENT '用户名称',
+  `data_name` varchar(255) COLLATE utf8mb4_bin NOT NULL COMMENT '数据名称',
   `request_params` json DEFAULT NULL COMMENT '请求参数',
   `request_headers` json DEFAULT NULL COMMENT 'headers',
   `request_body` json DEFAULT NULL COMMENT 'body',

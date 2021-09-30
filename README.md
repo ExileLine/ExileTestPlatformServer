@@ -2,13 +2,15 @@
 # 放逐测试平台(开发中...)
 
 ### 前言
-待补充
+作者是前豌豆思维测试小弟，豌豆测试平台开发者，单人充当产品，设计，开发，测试，运维，内部运营推广等6个角色，旧测试平台就不在这里展示了。
+
+因各种因素导致最后测试平台落地的结果并不理想，但在整个过程中受益匪浅并有所总结，而我还是想做出一个能让大部测试人员都认可并真正能提高工作效率的测试平台，从而有了这个放逐测试平台，既然不能服务于一个公司那么就流放到整个测试社区，让更多的测试人员对此平台进行检验，因此取名放逐。
 
 ### 项目文档
 - 文档地址：https://github.com/yangyuexiong/ExileTestPlatformServer
 
 ### 项目介绍
-`ExileTestPlatform`待补充
+`ExileTestPlatform`项目目前主要基于测试人员对测试用例配置环境，参数，变量，响应断言规则，数据库断言规则后，实施测试的接口测试平台(后续兼容UI测试)。
 
 ### 项目演示
 - 前端项目地址：https://github.com/yangyuexiong/ExileTestPlatformWeb
@@ -22,6 +24,8 @@
 ![业务流程图](docs/ExileTestPlatform业务流程.png)
 
 ### 数据库表设计
+- [SQL文件：ExilicTestPlatform.sql](./docs/ExilicTestPlatform.sql)
+
 ![数据库表设计](docs/ExileTestPlatform数据库表设计.png)
 
 ### 后端技术
@@ -55,8 +59,8 @@
 
 ### 接口清单
 
-|ID| 接口名称              | 请求方式   | 功能描述    |备注|
-|---|--------------------|-----------|--------|--------
+|ID|接口名称|请求方式|功能描述|备注|
+|---|--------------------|-----------|--------|--------|
 |1|/api|GET|index|
 |2|/api/tourist|GET|获取游客账号|
 |3|/api/login|POST|登录|
@@ -99,6 +103,7 @@
 |40|/api/case_bind_field_ass|POST|数据库字段断言规则绑定|
 |41|/api/case_exec|POST|用例执行|根据参数控制
 |42|/api/case_exec|POST|场景执行|根据参数控制
+|43|/api/case_send|POST|调试请求|像Postman一样
 |43|/api/rule_test|POST|取值规则调试|
 |44|/api/case_page|POST|用例分页模糊查询|
 |45|/api/case_var_page|POST|用例变量分页模糊查询|
@@ -108,3 +113,7 @@
 |49|/api/case_env_page|POST|测试环境分页模糊查询|
 |50|/api/case_db_page|POST|用例测试数据库分页模糊查询|
 |51|/api/case_scenario_page|POST|用例场景分页模糊查询|
+
+### 项目部署
+- 前端：待补充
+- 后端：参考我的Flask最佳实践：https://github.com/yangyuexiong/Flask_BestPractices
