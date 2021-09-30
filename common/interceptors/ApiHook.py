@@ -4,20 +4,24 @@
 # @Email   : yang6333yyx@126.com
 # @File    : ApiHook.py
 # @Software: PyCharm
+import time
 
+import shortuuid
 from loguru import logger
 from flask import request, g
 
 from app.api import api
 from app.models.admin.models import Admin
-from common.libs.public_func import print_logs
+from common.libs.public_func import print_logs, json_format
 from common.libs.auth import check_user
 from common.libs.customException import ab_code_2
 
 
 @api.before_request
 def before_request_api():
+    g.log_uuid = "{}_{}".format(str(int(time.time())), shortuuid.uuid())
     logger.info('api_before_request')
+    logger.info('request log_uuid:{}'.format(g.log_uuid))
     print_logs()
 
     white_list = ['/api/login']
@@ -39,3 +43,12 @@ def before_request_api():
         token = request.headers.get('token', '')  # 提取token
         logger.info('{}'.format(token))
         check_user(token=token, model=Admin)  # 通过 token 查找 user,将 user 存放在全局 g 对象中
+
+
+@api.after_request
+def after_request_api(response):
+    logger.info('after_request_api')
+    logger.info('response log_uuid:{}'.format(g.log_uuid))
+    logger.info('=== response ===')
+    response.headers['log_uuid'] = g.log_uuid
+    return response
