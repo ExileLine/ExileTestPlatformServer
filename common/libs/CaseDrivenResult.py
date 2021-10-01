@@ -36,6 +36,8 @@ class TestResult:
         self.field_ass_success_rate = 0
         self.field_ass_fail_rate = 0
 
+        # TODO 错误数,错误率
+
     def get_test_result(self):
         """
 
@@ -98,6 +100,7 @@ class MainTest:
             MainTest.execute_field_ass() -> AssertMain.assert_field_main() √
 
     8.日志记录:
+        MainTest.main()
 
     9.生成报告:
 

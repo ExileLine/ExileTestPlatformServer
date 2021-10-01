@@ -13,6 +13,7 @@ pymysql = "*"
 loguru = "*"
 redis = "*"
 shortuuid = "*"
+cryptography = "*"
 
 [dev-packages]
 
