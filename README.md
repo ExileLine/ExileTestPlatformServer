@@ -1,5 +1,5 @@
-# ExileTestPlatformServer(in development...)
-# 放逐测试平台(开发中...)
+# ExileTestPlatformServer
+# 放逐测试平台
 
 ### 前言
 作者是前豌豆思维测试小弟，豌豆测试平台开发者，单人充当产品，设计，开发，测试，运维，内部运营推广等6个角色，旧测试平台就不在这里展示了。
