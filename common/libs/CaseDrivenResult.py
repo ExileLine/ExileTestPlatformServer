@@ -446,8 +446,10 @@ class MainTest:
                         self.test_result.req_success += 1
                         self.assemble_data_send(case_data_info=case_data_info)
                     except BaseException as e:
-                        self.sio.log("=== 请求失败:{} ===".format(str(e)))
+                        self.sio.log("=== 请求失败:{} ===".format(str(e)), status="error")
                         self.test_result.req_error += 1
+                        self.sio.log("=== 跳过断言 ===")
+                        continue
 
                     self.resp_check_ass_execute(case_resp_ass_info=case_resp_ass_info)
 
