@@ -24,6 +24,12 @@ class TestResult:
     """测试结果"""
 
     def __init__(self):
+        self.req_count = 0
+        self.req_success = 0
+        self.req_error = 0
+        self.req_success_rate = 0
+        self.req_error_rate = 0
+
         self.resp_ass_count = 0
         self.resp_ass_success = 0
         self.resp_ass_fail = 0
@@ -36,14 +42,14 @@ class TestResult:
         self.field_ass_success_rate = 0
         self.field_ass_fail_rate = 0
 
-        # TODO 错误数,错误率
-
     def get_test_result(self):
         """
 
         :return:
         """
-
+        self.req_count = self.req_success + self.req_error
+        self.req_success_rate = "{}%".format(round(self.req_success / self.req_count, 2) * 100)
+        self.req_error_rate = "{}%".format(round(self.req_error / self.req_count, 2) * 100)
         self.resp_ass_count = self.resp_ass_success + self.resp_ass_fail
         self.field_ass_count = self.field_ass_success + self.field_ass_fail
         self.resp_ass_success_rate = "{}%".format(round(self.resp_ass_success / self.resp_ass_count, 2) * 100)
@@ -52,6 +58,12 @@ class TestResult:
         self.field_ass_fail_rate = "{}%".format(round(self.field_ass_fail / self.field_ass_count, 2) * 100)
 
         d = {
+            "req_count": self.req_count,
+            "req_success": self.req_success,
+            "req_error": self.req_error,
+            "req_success_rate": self.req_success_rate,
+            "req_error_rate": self.req_error_rate,
+
             "resp_ass_count": self.resp_ass_count,
             "resp_ass_success": self.resp_ass_success,
             "resp_ass_fail": self.resp_ass_fail,
@@ -430,7 +442,12 @@ class MainTest:
                     case_resp_ass_info = bind.get('case_resp_ass_info', [])
                     case_field_ass_info = bind.get('case_field_ass_info', [])
 
-                    self.assemble_data_send(case_data_info=case_data_info)
+                    try:
+                        self.test_result.req_success += 1
+                        self.assemble_data_send(case_data_info=case_data_info)
+                    except BaseException as e:
+                        self.sio.log("=== 请求失败:{} ===".format(str(e)))
+                        self.test_result.req_error += 1
 
                     self.resp_check_ass_execute(case_resp_ass_info=case_resp_ass_info)
 
@@ -605,18 +622,32 @@ if __name__ == '__main__':
             "modifier_id": None,
             "remark": "remark",
             "request_method": "GET",
-            "request_url": "http://127.0.0.1:7272/api",
+            "request_base_url": "http://127.0.0.1:72721",
+            "request_url": "/api",
             "status": 1,
             "update_time": "2021-09-01 20:27:32",
             "update_timestamp": None
         }
     }
     demo2_error_feild_ass = {
-        'case_info': {'id': 14, 'create_time': '2021-09-01 20:27:32', 'create_timestamp': 1630499057,
-                      'update_time': '2021-09-01 20:27:32', 'update_timestamp': None, 'is_deleted': 0, 'status': 1,
-                      'case_name': '测试indexApi', 'request_method': 'GET',
-                      'request_url': 'http://127.0.0.1:7272/api', 'creator': '调试', 'creator_id': 1,
-                      'modifier': None, 'modifier_id': None, 'remark': 'remark'},
+        'case_info': {
+            'id': 14,
+            'create_time': '2021-09-01 20:27:32',
+            'create_timestamp': 1630499057,
+            'update_time': '2021-09-01 20:27:32',
+            'update_timestamp': None,
+            'is_deleted': 0,
+            'status': 1,
+            'case_name': '测试indexApi',
+            'request_method': 'GET',
+            "request_base_url": "http://127.0.0.1:7272",
+            'request_url': '/api',
+            'creator': '调试',
+            'creator_id': 1,
+            'modifier': None,
+            'modifier_id': None,
+            'remark': 'remark'
+        },
         'bind_info': [
             {
                 'case_data_info': {
