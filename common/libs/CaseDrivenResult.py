@@ -425,7 +425,6 @@ class MainTest:
             self.case_id = case_info.get('id')
             self.case_name = case_info.get('case_name')
 
-            self.case_name = case_info.get('case_name')
             self.request_base_url = case_info.get('request_base_url')
             self.request_url = case_info.get('request_url')
             self.request_method = case_info.get('request_method')
