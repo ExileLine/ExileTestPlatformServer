@@ -18,6 +18,8 @@ class TestVariable(BaseModel):
     var_type = db.Column(TINYINT(3, unsigned=True), comment='变量值的类型:Str;Int;Json;JsonStr;List;ListStr')
     var_source = db.Column(TINYINT(3, unsigned=True), comment='值来源:1-resp_data;2-resp_header')
     var_get_key = db.Column(db.String(255), comment='值对应的key(用于关系变量获取)')
+    last_func = db.Column(db.String(255), comment='上次最后使用的函数')
+    last_func_var = db.Column(db.String(255), comment='上次最后函数使用的值')
     creator = db.Column(db.String(32), comment='创建人')
     creator_id = db.Column(BIGINT(20, unsigned=True), comment='创建人id')
     modifier = db.Column(db.String(32), comment='更新人')
