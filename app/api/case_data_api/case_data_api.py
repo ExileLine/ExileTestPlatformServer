@@ -52,6 +52,7 @@ class CaseReqDataApi(MethodView):
                 request_body=d.get('request_body'),
                 request_body_type=d.get('request_body_type'),
                 var_list=var_list,
+                update_var_list=d.get('update_var_list', []),
                 creator='调试',
                 creator_id=1
             )
@@ -71,7 +72,7 @@ class CaseReqDataApi(MethodView):
         if isinstance(req_data_json, dict):
             _check_bool = check_keys(
                 req_data_json, 'data_name', 'request_params', 'request_headers', 'request_body', 'request_body_type',
-                'var_list'
+                'var_list', 'update_var_list'
             )
         else:
             _check_bool = False
@@ -103,6 +104,7 @@ class CaseReqDataApi(MethodView):
             query_test_case.request_body = d.get('request_body'),
             query_test_case.request_body_type = d.get('request_body_type'),
             query_test_case.var_list = var_list,
+            query_test_case.update_var_list = d.get('update_var_list')
             query_test_case.modifier = "调试"
             query_test_case.modifier_id = 1
             db.session.commit()
