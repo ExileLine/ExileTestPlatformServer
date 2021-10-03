@@ -18,4 +18,5 @@ class IndexApi(MethodView):
 
     def post(self):
         data = request.get_json()
-        return api_result(code=200, message='index post', data=data)
+        d = data
+        return api_result(code=200, message='index', data=d)

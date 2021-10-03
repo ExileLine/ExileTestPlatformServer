@@ -316,25 +316,22 @@ class MainTest:
 
         if hasattr(requests, method):
             response = getattr(requests, method)(**kwargs, verify=False)
-            self.current_resp_json = response.json()
-            self.current_resp_headers = response.headers
             self.show_log(
                 kwargs.get('url'),
                 kwargs.get('headers'),
                 kwargs.get('json', kwargs.get('data', kwargs.get('params'))),
-                resp_json=self.current_resp_json,
-                resp_headers=self.current_resp_headers
+                resp_json=response.json(),
+                resp_headers=response.headers
             )
         else:
             response = {
                 "error": "requests 没有 {} 方法".format(method)
             }
-            self.current_resp_json = response
             self.show_log(
                 kwargs.get('url'),
                 kwargs.get('headers'),
                 kwargs.get('json', kwargs.get('data', kwargs.get('params'))),
-                resp_json=self.current_resp_json,
+                resp_json=response,
                 resp_headers={}
             )
         return response
@@ -365,8 +362,12 @@ class MainTest:
         before_send.update(req_json_data)
 
         send = self.var_conversion(before_send)
+        self.sio.log('=== send: {} ==='.format(send))
 
-        resp = self.current_request(method=self.request_method.lower(), **send)
+        method = self.request_method.lower()
+        self.sio.log('=== method: {} ==='.format(method))
+
+        resp = self.current_request(method=method, **send)
         self.resp_json = resp.json()
         self.resp_headers = resp.headers
         self.json_format(self.resp_json, '用例:{} -> resp_json'.format(self.case_name))
@@ -386,7 +387,7 @@ class MainTest:
                     self.execute_resp_ass(resp_ass_list=resp_ass_list, assert_description=assert_description)
                 else:
                     self.sio.log('=== check_ass_keys error ===', status='error')
-                    return False
+                    # return False
         else:
             self.sio.log('=== case_resp_ass_info is [] ===')
             return False
@@ -837,20 +838,247 @@ if __name__ == '__main__':
                         "UUID": "${UUID}",
                         "token": "${token}"
                     },
-                    "request_body_type": 1,
+                    "request_body_type": 2,
                     "request_headers": {},
                     "request_params": {},
                     "status": 1,
                     "update_time": "2021-10-03 13:58:55",
                     "update_timestamp": None,
-                    "update_var_list": [{"3": "更新okccccc"}],
+                    "update_var_list": [
+                        {
+                            "3": "更新"
+                        }
+                    ],
                     "var_list": [
                         "user_id",
                         "username"
                     ]
                 },
-                "case_field_ass_info": [],
-                "case_resp_ass_info": []
+                "case_field_ass_info": [
+                    {
+                        "ass_json": [
+                            {
+                                "assert_list": [
+                                    {
+                                        "assert_key": "id",
+                                        "expect_val": 1,
+                                        "expect_val_type": "1",
+                                        "rule": "__eq__"
+                                    },
+                                    {
+                                        "assert_key": "case_name",
+                                        "expect_val": "测试用例B1",
+                                        "expect_val_type": "2",
+                                        "rule": "__eq__"
+                                    }
+                                ],
+                                "db_id": 1,
+                                "query": "select id,case_name FROM ExilicTestPlatform.exilic_test_case WHERE id=1;"
+                            }
+                        ],
+                        "assert_description": "A通用字段校验",
+                        "create_time": "2021-09-11 17:18:10",
+                        "create_timestamp": 1631351884,
+                        "creator": "调试",
+                        "creator_id": 1,
+                        "id": 33,
+                        "is_deleted": 0,
+                        "modifier": None,
+                        "modifier_id": None,
+                        "remark": "remark",
+                        "status": 1,
+                        "update_time": "2021-09-11 17:18:11",
+                        "update_timestamp": None
+                    }
+                ],
+                "case_resp_ass_info": [
+                    {
+                        "ass_json": [
+                            {
+                                "assert_key": "code",
+                                "expect_val": 200,
+                                "expect_val_type": "1",
+                                "is_expression": 0,
+                                "python_val_exp": "okc.get('a').get('b').get('c')[0]",
+                                "rule": "__eq__"
+                            },
+                            {
+                                "assert_key": "code",
+                                "expect_val": 200,
+                                "expect_val_type": "1",
+                                "is_expression": 0,
+                                "python_val_exp": "okc.get('a').get('b').get('c')[0]",
+                                "rule": "__ge__"
+                            },
+                            {
+                                "assert_key": "message",
+                                "expect_val": "index",
+                                "expect_val_type": "2",
+                                "is_expression": 0,
+                                "python_val_exp": "okc.get('a').get('b').get('c')[0]",
+                                "rule": "__eq__"
+                            }
+                        ],
+                        "assert_description": "通用断言9",
+                        "create_time": "2021-08-08 17:49:53",
+                        "create_timestamp": 1628416141,
+                        "creator": "调试",
+                        "creator_id": 1,
+                        "id": 1,
+                        "is_deleted": 0,
+                        "modifier": "调试",
+                        "modifier_id": 1,
+                        "remark": "remark123",
+                        "status": 1,
+                        "update_time": "2021-09-11 17:04:00",
+                        "update_timestamp": 1631351018
+                    },
+                    {
+                        "ass_json": [
+                            {
+                                "assert_key": "code",
+                                "assert_val": "200",
+                                "assert_val_type": "1",
+                                "expect_val": "333",
+                                "is_rule_source": 0,
+                                "python_val_exp": "okc.get('a').get('b').get('c')[0]",
+                                "rule": "="
+                            },
+                            {
+                                "assert_key": "mesg",
+                                "assert_val": "操作成功",
+                                "assert_val_type": "2",
+                                "expect_val": "aaa",
+                                "is_rule_source": 0,
+                                "python_val_exp": "okc.get('a').get('b').get('c')[0]",
+                                "rule": "="
+                            },
+                            {
+                                "assert_key": "code",
+                                "assert_val": "200",
+                                "assert_val_type": "1",
+                                "expect_val": "333",
+                                "is_rule_source": 0,
+                                "python_val_exp": "okc.get('a').get('b').get('c')[0]",
+                                "rule": "="
+                            }
+                        ],
+                        "assert_description": "通用断言1",
+                        "create_time": "2021-08-09 17:56:02",
+                        "create_timestamp": 1628502956,
+                        "creator": "调试",
+                        "creator_id": 1,
+                        "id": 2,
+                        "is_deleted": 0,
+                        "modifier": None,
+                        "modifier_id": None,
+                        "remark": "remark",
+                        "status": 1,
+                        "update_time": "2021-08-09 17:56:02",
+                        "update_timestamp": None
+                    },
+                    {
+                        "ass_json": [
+                            {
+                                "assert_key": "code",
+                                "assert_val": "200",
+                                "assert_val_type": "1",
+                                "expect_val": "333",
+                                "is_rule_source": 0,
+                                "python_val_exp": "okc.get('a').get('b').get('c')[0]",
+                                "rule": "="
+                            },
+                            {
+                                "assert_key": "mesg",
+                                "assert_val": "操作成功",
+                                "assert_val_type": "2",
+                                "expect_val": "aaa",
+                                "is_rule_source": 0,
+                                "python_val_exp": "okc.get('a').get('b').get('c')[0]",
+                                "rule": "="
+                            },
+                            {
+                                "assert_key": "code",
+                                "assert_val": "200",
+                                "assert_val_type": "1",
+                                "expect_val": "333",
+                                "is_rule_source": 0,
+                                "python_val_exp": "okc.get('a').get('b').get('c')[0]",
+                                "rule": "="
+                            }
+                        ],
+                        "assert_description": "通用断言1",
+                        "create_time": "2021-08-09 18:00:26",
+                        "create_timestamp": 1628503223,
+                        "creator": "调试",
+                        "creator_id": 1,
+                        "id": 3,
+                        "is_deleted": 0,
+                        "modifier": None,
+                        "modifier_id": None,
+                        "remark": "remark",
+                        "status": 1,
+                        "update_time": "2021-08-09 18:00:26",
+                        "update_timestamp": None
+                    },
+                    {
+                        "ass_json": [
+                            {
+                                "assert_key": "code",
+                                "expect_val": 200,
+                                "expect_val_type": "1",
+                                "is_expression": 0,
+                                "python_val_exp": "okc.get('a').get('b').get('c')[0]",
+                                "rule": "__eq__"
+                            },
+                            {
+                                "assert_key": "code",
+                                "expect_val": 200,
+                                "expect_val_type": "1",
+                                "is_expression": 0,
+                                "python_val_exp": "okc.get('a').get('b').get('c')[0]",
+                                "rule": "__ge__"
+                            },
+                            {
+                                "assert_key": "message",
+                                "expect_val": "index",
+                                "expect_val_type": "2",
+                                "is_expression": 0,
+                                "python_val_exp": "okc.get('a').get('b').get('c')[0]",
+                                "rule": "__eq__"
+                            },
+                            {
+                                "assert_key": "message",
+                                "expect_val": "index",
+                                "expect_val_type": "2",
+                                "is_expression": 1,
+                                "python_val_exp": "okc.get('message')",
+                                "rule": "__eq__"
+                            },
+                            {
+                                "assert_key": "message",
+                                "expect_val": "yangyuexiongyyx",
+                                "expect_val_type": "2",
+                                "is_expression": 1,
+                                "python_val_exp": "okc.get('data').get('token')",
+                                "rule": "__eq__"
+                            }
+                        ],
+                        "assert_description": "Resp通用断言yyx",
+                        "create_time": "2021-10-03 14:34:38",
+                        "create_timestamp": 1633242718,
+                        "creator": "调试",
+                        "creator_id": 1,
+                        "id": 23,
+                        "is_deleted": 0,
+                        "modifier": None,
+                        "modifier_id": None,
+                        "remark": "remark",
+                        "status": 1,
+                        "update_time": "2021-10-03 14:34:38",
+                        "update_timestamp": None
+                    }
+                ]
             }
         ],
         "case_info": {
@@ -870,9 +1098,9 @@ if __name__ == '__main__':
             "request_method": "POST",
             "request_url": "/api/index",
             "status": 1,
-            "total_execution": 2,
-            "update_time": "2021-10-03 14:02:06",
-            "update_timestamp": 1633240360
+            "total_execution": 6,
+            "update_time": "2021-10-03 14:42:09",
+            "update_timestamp": 1633243280
         }
     }
 
