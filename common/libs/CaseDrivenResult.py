@@ -10,6 +10,7 @@ import re
 import json
 import time
 import datetime
+import shortuuid
 
 import requests
 from loguru import logger
@@ -18,6 +19,14 @@ from common.libs.db import project_db, R
 from common.libs.public_func import check_keys
 from common.libs.assert_related import AssertMain
 from common.libs.StringIOLog import StringIOLog
+
+var_func_dict = {
+    "Date": str(datetime.datetime.now().date()),
+    "Time": str(datetime.datetime.now().time()),
+    "DateTime": str(datetime.datetime.now()),
+    "TimeStamp": str(int(time.time())),
+    "UUID": shortuuid.uuid()[0:10] + str(int(time.time())) + shortuuid.uuid()[0:10]
+}
 
 
 class TestResult:
@@ -52,10 +61,15 @@ class TestResult:
         self.req_error_rate = "{}%".format(round(self.req_error / self.req_count, 2) * 100)
         self.resp_ass_count = self.resp_ass_success + self.resp_ass_fail
         self.field_ass_count = self.field_ass_success + self.field_ass_fail
-        self.resp_ass_success_rate = "{}%".format(round(self.resp_ass_success / self.resp_ass_count, 2) * 100)
-        self.resp_ass_fail_rate = "{}%".format(round(self.resp_ass_fail / self.resp_ass_count, 2) * 100)
-        self.field_ass_success_rate = "{}%".format(round(self.field_ass_success / self.field_ass_count, 2) * 100)
-        self.field_ass_fail_rate = "{}%".format(round(self.field_ass_fail / self.field_ass_count, 2) * 100)
+
+        self.resp_ass_success_rate = 0 if self.resp_ass_success == 0 else "{}%".format(
+            round(self.resp_ass_success / self.resp_ass_count, 2) * 100)
+        self.resp_ass_fail_rate = 0 if self.resp_ass_fail == 0 else "{}%".format(
+            round(self.resp_ass_fail / self.resp_ass_count, 2) * 100)
+        self.field_ass_success_rate = 0 if self.field_ass_success == 0 else "{}%".format(
+            round(self.field_ass_success / self.field_ass_count, 2) * 100)
+        self.field_ass_fail_rate = 0 if self.field_ass_fail == 0 else "{}%".format(
+            round(self.field_ass_fail / self.field_ass_count, 2) * 100)
 
         d = {
             "req_count": self.req_count,
@@ -176,6 +190,8 @@ class MainTest:
                 query_result = project_db.select(sql=sql, only=True)
                 if query_result:
                     current_dict[res] = json.loads(query_result.get('var_value'))
+                elif var_func_dict.get(res):
+                    current_dict[res] = var_func_dict.get(res)
                 else:
                     err_var_list.append(res)
             if current_dict:
@@ -799,11 +815,73 @@ if __name__ == '__main__':
         ]
     }
 
-    demo_all = {
-        "case_list": [
-            demo1_error_resp_ass,
-            demo2_error_feild_ass
+    demo2 = {
+        "bind_info": [
+            {
+                "case_data_info": {
+                    "create_time": "2021-10-03 13:58:54",
+                    "create_timestamp": 1633240360,
+                    "creator": "调试",
+                    "creator_id": 1,
+                    "data_name": "index测试数据",
+                    "id": 15,
+                    "is_deleted": 0,
+                    "modifier": None,
+                    "modifier_id": None,
+                    "remark": None,
+                    "request_body": {
+                        "Date": "${Date}",
+                        "DateTime": "${DateTime}",
+                        "Time": "${Time}",
+                        "TimeStamp": "${TimeStamp}",
+                        "UUID": "${UUID}",
+                        "token": "${token}"
+                    },
+                    "request_body_type": 1,
+                    "request_headers": {},
+                    "request_params": {},
+                    "status": 1,
+                    "update_time": "2021-10-03 13:58:55",
+                    "update_timestamp": None,
+                    "update_var_list": [{"3": "更新okccccc"}],
+                    "var_list": [
+                        "user_id",
+                        "username"
+                    ]
+                },
+                "case_field_ass_info": [],
+                "case_resp_ass_info": []
+            }
         ],
+        "case_info": {
+            "case_name": "测试index-post",
+            "create_time": "2021-10-03 13:53:39",
+            "create_timestamp": 1633240360,
+            "creator": "调试",
+            "creator_id": 1,
+            "id": 20,
+            "is_deleted": 0,
+            "is_pass": 0,
+            "is_shared": 0,
+            "modifier": None,
+            "modifier_id": None,
+            "remark": "remark",
+            "request_base_url": "http://127.0.0.1:7272",
+            "request_method": "POST",
+            "request_url": "/api/index",
+            "status": 1,
+            "total_execution": 2,
+            "update_time": "2021-10-03 14:02:06",
+            "update_timestamp": 1633240360
+        }
+    }
+
+    demo_all = {
+        # "case_list": [
+        #     demo1_error_resp_ass,
+        #     demo2_error_feild_ass
+        # ],
+        "case_list": [demo2],
         "data_driven": True
     }
     MainTest(test_obj=demo_all).main()
