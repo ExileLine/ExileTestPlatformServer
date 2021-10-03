@@ -15,3 +15,7 @@ class IndexApi(MethodView):
 
     def get(self):
         return api_result(code=200, message='index', data=time.time())
+
+    def post(self):
+        data = request.get_json()
+        return api_result(code=200, message='index post', data=data)

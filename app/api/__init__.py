@@ -25,7 +25,7 @@ from .case_scenario_api.case_scenario_api import CaseScenarioApi, CaseScenarioPa
 
 api = Blueprint('api', __name__)
 
-api.add_url_rule('/', view_func=IndexApi.as_view('index_api'))
+api.add_url_rule('/index', view_func=IndexApi.as_view('index_api'))
 
 api.add_url_rule('/login', view_func=LoginApi.as_view('login_api'))
 
