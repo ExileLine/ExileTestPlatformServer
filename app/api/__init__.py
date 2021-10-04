@@ -24,6 +24,7 @@ from .case_exec_api.case_exec_api import CaseExecApi, CaseReqTestApi
 from .case_scenario_api.case_scenario_api import CaseScenarioApi, CaseScenarioPageApi
 
 api = Blueprint('api', __name__)
+crm = Blueprint('crm', __name__)
 
 api.add_url_rule('/index', view_func=IndexApi.as_view('index_api'))
 

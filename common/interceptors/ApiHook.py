@@ -4,6 +4,7 @@
 # @Email   : yang6333yyx@126.com
 # @File    : ApiHook.py
 # @Software: PyCharm
+
 import time
 
 import shortuuid
@@ -34,7 +35,8 @@ def before_request_api():
 
         # TODO 开发阶段使用的万能鉴权
         if is_token in ['yangyuexiong', None]:
-            g.app_user = Admin.query.get(1)
+            user = Admin.query.get(1)
+            g.app_user = user
             return
 
         if not is_token:

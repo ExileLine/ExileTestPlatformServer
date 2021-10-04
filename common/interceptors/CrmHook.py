@@ -11,14 +11,14 @@ import json
 from flask import request, g
 from loguru import logger
 
-from app.api import api
+from app.api import crm
 from app.models.admin.models import Admin
 from common.libs.auth import check_user, R, AdminRefreshCache
 from common.libs.public_func import print_logs
 from common.libs.customException import ab_code_2
 
 
-@api.before_request
+@crm.before_request
 def before_request_cms():
     logger.info('cms_before_request')
     # logger.debug('cms_before_request')
