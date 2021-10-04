@@ -217,8 +217,8 @@ class RespAssertionRuleApi(MethodView):
         new_ass_resp = TestCaseAssResponse(
             assert_description=assert_description,
             ass_json=new_ass_json,
-            creator='调试',
-            creator_id=1,
+            creator=g.app_user.username,
+            creator_id=g.app_user.id,
             remark=remark
         )
         new_ass_resp.save()
@@ -272,8 +272,8 @@ class RespAssertionRuleApi(MethodView):
             query_ass_resp.assert_description = assert_description
             query_ass_resp.ass_json = new_ass_json
             query_ass_resp.remark = remark
-            query_ass_resp.modifier = "调试"
-            query_ass_resp.modifier_id = 1
+            query_ass_resp.modifier = g.app_user.username
+            query_ass_resp.modifier_id = g.app_user.id
             db.session.commit()
             return api_result(code=203, message='编辑成功')
 
@@ -288,8 +288,8 @@ class RespAssertionRuleApi(MethodView):
 
         if query_ass_resp:
             query_ass_resp.is_deleted = query_ass_resp.id
-            query_ass_resp.modifier = "调试"
-            query_ass_resp.modifier_id = 1
+            query_ass_resp.modifier = g.app_user.username
+            query_ass_resp.modifier_id = g.app_user.id
             db.session.commit()
             return api_result(code=204, message='删除成功')
 
@@ -369,8 +369,8 @@ class FieldAssertionRuleApi(MethodView):
         new_ass_field = TestCaseAssField(
             assert_description=assert_description,
             ass_json=_ass_json,
-            creator='调试',
-            creator_id=1,
+            creator=g.app_user.username,
+            creator_id=g.app_user.id,
             remark=remark
         )
         new_ass_field.save()
@@ -404,8 +404,8 @@ class FieldAssertionRuleApi(MethodView):
         query_ass_field.assert_description = assert_description
         query_ass_field.ass_json = _ass_json
         query_ass_field.remark = remark
-        query_ass_field.modifier = "调试"
-        query_ass_field.modifier_id = 1
+        query_ass_field.modifier = g.app_user.username
+        query_ass_field.modifier_id = g.app_user.id
         db.session.commit()
         return api_result(code=203, message='编辑成功')
 
@@ -418,8 +418,8 @@ class FieldAssertionRuleApi(MethodView):
 
         if query_ass_field:
             query_ass_field.is_deleted = query_ass_field.id
-            query_ass_field.modifier = "调试"
-            query_ass_field.modifier_id = 1
+            query_ass_field.modifier = g.app_user.username
+            query_ass_field.modifier_id = g.app_user.id
             db.session.commit()
             return api_result(code=204, message='删除成功')
 
