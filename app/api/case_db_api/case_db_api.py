@@ -52,8 +52,8 @@ class CaseDBApi(MethodView):
             db_type=db_type,
             db_connection=db_connection,
             remark=remark,
-            creator='调试',
-            creator_id=1
+            creator=g.app_user.username,
+            creator_id=g.app_user.id
         )
         new_mysql.save()
         return api_result(code=201, message='创建成功')
@@ -82,8 +82,8 @@ class CaseDBApi(MethodView):
             query_db.db_type = db_type
             query_db.db_connection = db_connection
             query_db.remark = remark
-            query_db.modifier = "调试"
-            query_db.modifier_id = 1
+            query_db.modifier = g.app_user.username
+            query_db.modifier_id = g.app_user.id
             db.session.commit()
             return api_result(code=203, message='编辑成功')
         else:
@@ -101,8 +101,8 @@ class CaseDBApi(MethodView):
             return api_result(code=400, message='用例变量id:{}数据不存在'.format(db_id))
 
         query_db.is_deleted = query_db.id
-        query_db.modifier = "调试"
-        query_db.modifier_id = 1
+        query_db.modifier = g.app_user.username
+        query_db.modifier_id = g.app_user.id
         db.session.commit()
         return api_result(code=204, message='删除成功')
 
