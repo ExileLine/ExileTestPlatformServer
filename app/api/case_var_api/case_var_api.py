@@ -79,8 +79,8 @@ class CaseVarApi(MethodView):
                 var_source=var_source_dict.get(var_source),
                 var_get_key=var_get_key,
                 remark=remark,
-                creator='调试',
-                creator_id=1
+                creator=g.app_user.username,
+                creator_id=g.app_user.id
             )
             new_var.save()
             return api_result(code=201, message='创建成功')
@@ -114,8 +114,8 @@ class CaseVarApi(MethodView):
             query_var.var_source = var_source_dict.get(var_source)
             query_var.var_get_key = var_get_key
             query_var.remark = remark
-            query_var.modifier = "调试"
-            query_var.modifier_id = 1
+            query_var.modifier = g.app_user.username
+            query_var.modifier_id = g.app_user.id
             db.session.commit()
             return api_result(code=203, message='编辑成功')
         else:
@@ -133,8 +133,8 @@ class CaseVarApi(MethodView):
             return api_result(code=400, message='用例变量id:{}数据不存在'.format(var_id))
 
         query_var.is_deleted = query_var.id
-        query_var.modifier = "调试"
-        query_var.modifier_id = 1
+        query_var.modifier = g.app_user.username
+        query_var.modifier_id = g.app_user.id
         db.session.commit()
         return api_result(code=204, message='删除成功')
 
