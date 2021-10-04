@@ -37,8 +37,8 @@ class CaseBindDataApi(MethodView):
             new_bind = TestCaseDataAssBind(
                 case_id=case_id,
                 data_id=data_id,
-                creator='调试',
-                creator_id=1
+                creator=g.app_user.username,
+                creator_id=g.app_user.id
             )
             db.session.add(new_bind)
             db.session.commit()
@@ -67,8 +67,8 @@ class CaseBindDataApi(MethodView):
         query_bind.is_deleted = query_bind.id
         query_bind.ass_resp_id_list = []
         query_bind.ass_field_id_list = []
-        query_bind.modifier = "调试"
-        query_bind.modifier_id = 1
+        query_bind.modifier = g.app_user.username
+        query_bind.modifier_id = g.app_user.id
         db.session.commit()
         return api_result(code=203, message='状态更新成功,解除绑定成功')
 
@@ -95,8 +95,8 @@ class CaseBindRespAssApi(MethodView):
             return api_result(code=400, message='已删除is_deleted:{}'.format(query_bind.is_deleted))
 
         query_bind.ass_resp_id_list = ass_resp_ids
-        query_bind.modifier = "调试"
-        query_bind.modifier_id = 1
+        query_bind.modifier = g.app_user.username
+        query_bind.modifier_id = g.app_user.id
         db.session.commit()
         return api_result(code=201, message='Resp检验规则绑定成功')
 
@@ -123,7 +123,7 @@ class CaseBindFieldAssApi(MethodView):
             return api_result(code=400, message='已删除is_deleted:{}'.format(query_bind.is_deleted))
 
         query_bind.ass_field_id_list = ass_field_ids
-        query_bind.modifier = "调试"
-        query_bind.modifier_id = 1
+        query_bind.modifier = g.app_user.username
+        query_bind.modifier_id = g.app_user.id
         db.session.commit()
         return api_result(code=201, message='Field检验规则绑定成功')
