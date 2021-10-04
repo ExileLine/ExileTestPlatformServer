@@ -53,8 +53,8 @@ class CaseReqDataApi(MethodView):
                 request_body_type=d.get('request_body_type'),
                 var_list=var_list,
                 update_var_list=d.get('update_var_list', []),
-                creator='调试',
-                creator_id=1
+                creator=g.app_user.username,
+                creator_id=g.app_user.id
             )
             db.session.add(new_case_data)
 
@@ -105,8 +105,8 @@ class CaseReqDataApi(MethodView):
             query_test_case.request_body_type = d.get('request_body_type'),
             query_test_case.var_list = var_list,
             query_test_case.update_var_list = d.get('update_var_list')
-            query_test_case.modifier = "调试"
-            query_test_case.modifier_id = 1
+            query_test_case.modifier = g.app_user.username
+            query_test_case.modifier_id = g.app_user.id
             db.session.commit()
 
             return api_result(code=203, message='编辑成功')
@@ -123,8 +123,8 @@ class CaseReqDataApi(MethodView):
             return api_result(code=400, message='用例req数据id:{}数据不存在'.format(req_data_id))
 
         query_req_case_data.is_deleted = query_req_case_data.id
-        query_req_case_data.modifier = "调试"
-        query_req_case_data.modifier_id = 1
+        query_req_case_data.modifier = g.app_user.username
+        query_req_case_data.modifier_id = g.app_user.id
         db.session.commit()
         return api_result(code=204, message='删除成功')
 
