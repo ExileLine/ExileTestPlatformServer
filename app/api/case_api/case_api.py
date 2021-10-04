@@ -88,11 +88,11 @@ class CaseApi(MethodView):
             request_url=request_url,
             is_shared=is_shared,
             remark=remark,
-            creator='调试',
-            creator_id=1,
+            creator=g.app_user.username,
+            creator_id=g.app_user.id,
         )
         new_test_case.save()
-        return api_result(code=201, message='创建成功')
+        return api_result(code=201, message='创建成功',data=[])
 
     def put(self):
         """用例编辑"""
@@ -127,8 +127,8 @@ class CaseApi(MethodView):
         query_case.request_url = request_url
         query_case.is_shared = is_shared
         query_case.remark = remark
-        query_case.modifier = "调试"
-        query_case.modifier_id = 1
+        query_case.modifier = g.app_user.username
+        query_case.modifier_id = g.app_user.id
         db.session.commit()
         return api_result(code=203, message='编辑成功')
 
@@ -144,8 +144,8 @@ class CaseApi(MethodView):
             return api_result(code=400, message='用例id:{}数据不存在'.format(case_id))
 
         query_case.is_deleted = query_case.id
-        query_case.modifier = "调试"
-        query_case.modifier_id = 1
+        query_case.modifier = g.app_user.username
+        query_case.modifier_id = g.app_user.id
         db.session.commit()
         return api_result(code=204, message='删除成功')
 
