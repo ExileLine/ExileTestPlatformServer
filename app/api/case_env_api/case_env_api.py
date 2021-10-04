@@ -45,8 +45,8 @@ class CaseEnvApi(MethodView):
             env_url=env_url,
             env_name=env_name,
             remark=remark,
-            creator='调试',
-            creator_id=1
+            creator=g.app_user.username,
+            creator_id=g.app_user.id
         )
         new_env.save()
         return api_result(code=201, message='创建成功')
@@ -72,8 +72,8 @@ class CaseEnvApi(MethodView):
         query_env.env_url = env_url
         query_env.env_name = env_name
         query_env.remark = remark
-        query_env.modifier = "调试"
-        query_env.modifier_id = 1
+        query_env.modifier = g.app_user.username
+        query_env.modifier_id = g.app_user.id
         db.session.commit()
         return api_result(code=203, message='编辑成功')
 
@@ -89,8 +89,8 @@ class CaseEnvApi(MethodView):
             return api_result(code=400, message='环境id:{}数据不存在'.format(env_id))
 
         query_env.is_deleted = query_env.id
-        query_env.modifier = "调试"
-        query_env.modifier_id = 1
+        query_env.modifier = g.app_user.username
+        query_env.modifier_id = g.app_user.id
         db.session.commit()
         return api_result(code=204, message='删除成功')
 
