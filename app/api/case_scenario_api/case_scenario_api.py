@@ -57,8 +57,8 @@ class CaseScenarioApi(MethodView):
         new_scenario = TestCaseScenario(
             scenario_title=scenario_title,
             case_list=case_list,
-            creator='调试',
-            creator_id=1
+            creator=g.app_user.username,
+            creator_id=g.app_user.id
         )
         new_scenario.save()
         return api_result(code=201, message='创建成功')
@@ -85,8 +85,8 @@ class CaseScenarioApi(MethodView):
 
         query_scenario.scenario_title = scenario_title
         query_scenario.case_list = case_list
-        query_scenario.modifier = "调试"
-        query_scenario.modifier_id = 1
+        query_scenario.modifier = g.app_user.username
+        query_scenario.modifier_id = g.app_user.id
         db.session.commit()
         return api_result(code=203, message='编辑成功')
 
@@ -101,8 +101,8 @@ class CaseScenarioApi(MethodView):
             return api_result(code=400, message='场景id:{}数据不存在'.format(scenario_id))
 
         query_scenario.is_deleted = query_scenario.id
-        query_scenario.modifier = "调试"
-        query_scenario.modifier_id = 1
+        query_scenario.modifier = g.app_user.username
+        query_scenario.modifier_id = g.app_user.id
         db.session.commit()
         return api_result(code=204, message='删除成功')
 
