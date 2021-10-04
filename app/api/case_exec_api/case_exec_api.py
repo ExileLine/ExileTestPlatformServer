@@ -10,6 +10,7 @@ from concurrent.futures import ThreadPoolExecutor
 from all_reference import *
 from app.models.test_case.models import TestCase
 from app.models.test_env.models import TestEnv
+from app.models.test_logs.models import TestLogs
 from app.models.test_case_scenario.models import TestCaseScenario
 from common.libs.StringIOLog import StringIOLog
 
@@ -140,4 +141,10 @@ class CaseExecApi(MethodView):
         }
         main_test = MainTest(test_obj=test_obj)
         executor.submit(main_test.main)
+        tl = TestLogs(
+            log_type=execute_type,
+            creator=g.app_user.username,
+            creator_id=g.app_user.id
+        )
+        tl.save()
         return api_result(code=200, message='操作成功,请前往日志查看执行结果', data=[id(sio)])
