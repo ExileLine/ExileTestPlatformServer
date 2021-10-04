@@ -129,6 +129,7 @@ class CaseExecApi(MethodView):
             for u in update_case:
                 u.add_total_execution()
 
+        # TODO 执行记录
         sio = StringIOLog()
         test_obj = {
             "base_url": query_base_url.env_url,
