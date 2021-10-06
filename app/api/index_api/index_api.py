@@ -6,6 +6,7 @@
 # @Software: PyCharm
 
 from all_reference import *
+import asyncio
 
 
 class IndexApi(MethodView):
@@ -13,10 +14,11 @@ class IndexApi(MethodView):
     index_api
     """
 
-    def get(self):
+    async def get(self):
+        await asyncio.sleep(1)
         return api_result(code=200, message='index', data=[time.time(), g.app_user.id, g.app_user.username])
 
-    def post(self):
+    async def post(self):
         data = request.get_json()
         d = data
         return api_result(code=200, message='index', data=d)

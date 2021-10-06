@@ -4,7 +4,7 @@ verify_ssl = true
 name = "pypi"
 
 [packages]
-flask = {extras = ["async"], version = "*"}
+flask = {extras = ["async"], version = "2.0.2"}
 requests = "*"
 flask-cors = "*"
 flask-migrate = "*"

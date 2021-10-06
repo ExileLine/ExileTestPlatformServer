@@ -112,7 +112,8 @@
 |48|/api/case_req_data_page|POST|用例请求参数分页模糊查询|
 |49|/api/case_env_page|POST|测试环境分页模糊查询|
 |50|/api/case_db_page|POST|用例测试数据库分页模糊查询|
-|51|/api/case_scenario_page|POST|用例场景分页模糊查询|
+|51|/api/case_logs_page|POST|操作日志与执行日志分页模糊查询|
+|52|/api/case_scenario_page|POST|用例场景分页模糊查询|
 
 ### 项目部署
 - 前端：待补充
