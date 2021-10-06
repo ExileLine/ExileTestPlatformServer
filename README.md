@@ -59,6 +59,8 @@
 
 ### 接口清单
 
+- [Postman文件](docs/ExilicTestPlatform.postman_collection.json)
+
 |ID|接口名称|请求方式|功能描述|备注|
 |---|--------------------|-----------|--------|--------|
 |1|/api|GET|index|

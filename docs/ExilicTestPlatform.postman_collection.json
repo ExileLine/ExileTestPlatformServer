@@ -1,0 +1,1509 @@
+{
+	"info": {
+		"_postman_id": "d7295854-5047-489c-8671-cf888b9a1136",
+		"name": "ExilicTestPlatform",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "游客",
+			"item": [
+				{
+					"name": "获取游客账号",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/tourist",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"tourist"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "平台登录",
+			"item": [
+				{
+					"name": "登录",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"username\": \"user_00003\",\n    \"password\": \"h9yZCG\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/api/login",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"login"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "退出",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "token",
+								"value": "7694a270YYxba08YYx11ebYYx9da4YYxacde48001122",
+								"type": "text",
+								"disabled": true
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/login",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"login"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "测试环境",
+			"item": [
+				{
+					"name": "测试环境详情",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/case_env/1",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"case_env",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "新增测试环境",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"env_url\": \"www.okc.com\",\n    \"env_name\": \"测试环境\",\n    \"remark\": \"remark123\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/api/case_env",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"case_env"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "编辑测试环境",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"env_id\": \"4\",\n    \"env_url\": \"www.okc123.com\",\n    \"env_name\": \"测试环境123\",\n    \"remark\": \"remark123\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/api/case_env",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"case_env"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "删除测试环境",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"env_id\": \"4\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/api/case_env",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"case_env"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "用例相关",
+			"item": [
+				{
+					"name": "用例详情(用例,数据,变量,resp断言,field断言,bind)",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "token",
+								"value": "yangyuexiong",
+								"type": "text"
+							},
+							{
+								"key": "token",
+								"value": "4745257cYYx1916YYx11ecYYxbcccYYxacde48001122",
+								"type": "text",
+								"disabled": true
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{base_url}}/api/case/20",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"case",
+								"20"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "新增用例",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "token",
+								"value": "yangyuexiong",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"case_name\": \"测试index-post-test\",\n    \"request_method\": \"POST\",\n    \"request_base_url\":\"http://127.0.0.1:7272\",\n    \"request_url\": \"/api/index\",\n    \"var_list\": [],\n    \"is_shared\": 0,\n    \"remark\": \"remark\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/api/case",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"case"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "编辑用例",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"case_id\": 1,\n    \"case_name\": \"测试用例B1\",\n    \"request_method\": \"Get\",\n    \"request_base_url\":\"http://127.0.0.1:7272\",\n    \"request_url\": \"/api\",\n    \"request_params\": \"request_params\",\n    \"request_headers\": \"request_headers\",\n    \"request_body\": \"request_body\",\n    \"var_list\": [],\n    \"is_shared\": 0,\n    \"remark\": \"remark\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/api/case",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"case"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "删除用例",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"case_id\": 2\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/api/case",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"case"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "用例场景",
+			"item": [
+				{
+					"name": "场景详情",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"scenario_id\": 1\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/api/case_scenario/1",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"case_scenario",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "新增场景",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"scenario_title\": \"场景A3\",\n    \"case_list\": [1,2]\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/api/case_scenario",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"case_scenario"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "编辑场景",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"scenario_id\": 1,\n    \"scenario_title\": \"场景A1\",\n    \"case_list\": [\n        1,\n        2,\n        3\n    ]\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/api/case_scenario",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"case_scenario"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "删除场景",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"scenario_id\": 1\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/api/case_scenario",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"case_scenario"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "用例Req数据相关",
+			"item": [
+				{
+					"name": "获取用例Req数据",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/case_req_data/2",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"case_req_data",
+								"2"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "新增用例Req数据",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"data_list\": [\n        {\n            \"data_name\": \"index测试数据\",\n            \"request_params\": {},\n            \"request_headers\": {},\n            \"request_body\": {\n                \"token\": \"${token}\",\n                \"Date\": \"${Date}\",\n                \"Time\": \"${Time}\",\n                \"DateTime\": \"${DateTime}\",\n                \"TimeStamp\": \"${TimeStamp}\",\n                \"UUID\": \"${UUID}\"\n            },\n            \"request_body_type\": 1,\n            \"var_list\": [\n                \"user_id\",\n                \"username\"\n            ],\n            \"update_var_list\": [{\"3\": \"更新\"}]\n        },\n        {\n            \"data_name\": \"数据2\",\n            \"request_params\": {},\n            \"request_headers\": {},\n            \"request_body\": {\n                \"user_id\": \"${user_id}\"\n            },\n            \"request_body_type\": 2,\n            \"var_list\": [\n                \"找不到的变量\"\n            ]\n        }\n    ]\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/api/case_req_data",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"case_req_data"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "编辑用例Req数据",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"req_data_id\": 2,\n    \"req_data_json\": {\n        \"data_name\": \"数据99\",\n        \"request_params\": {\n            \"y\": \"y\"\n        },\n        \"request_headers\": {\n            \"0\": \"0\"\n        },\n        \"request_body\": {\n            \"1\": \"1\"\n        },\n        \"request_body_type\": 1,\n        \"var_list\": [],\n        \"update_var_list\": [\n            {\n                \"3\": \"更新\"\n            }\n        ]\n    }\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/api/case_req_data",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"case_req_data"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "删除用例Req数据",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"req_data_id\": 2\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/api/case_req_data",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"case_req_data"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "变量相关",
+			"item": [
+				{
+					"name": "获取变量详情",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/case_var/1",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"case_var",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "新增变量",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"var_name\": \"变量1\",\n    \"var_value\": \"123okc\",\n    \"var_type\": \"Str\",\n    \"var_source\": \"resp_data\",\n    \"var_get_key\": \"\",\n    \"remark\": \"remark\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/api/case_var",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"case_var"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "编辑变量",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"var_id\": \"1\",\n    \"var_name\": \"token\",\n    \"var_value\": \"yangyuexiong\",\n    \"var_type\": \"Str\",\n    \"var_source\": \"resp_data\",\n    \"var_get_key\": \"\",\n    \"remark\": \"remark\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/api/case_var",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"case_var"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "删除变量",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"var_id\": \"1\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/api/case_var",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"case_var"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "用例数据库相关",
+			"item": [
+				{
+					"name": "获取db详情",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/case_db/1",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"case_db",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "新增db",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"本地的mysql\",\n    \"db_type\": \"mysql\",\n    \"db_connection\": {\n        \"user\": \"root\",\n        \"password\": \"12345678\",\n        \"host\": \"127.0.0.1\",\n        \"port\": 3306\n    },\n    \"remark\": \"remark\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/api/case_db",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"case_db"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "编辑变量",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"db_id\": \"2\",\n    \"name\": \"yyx的Redis\",\n    \"db_type\": \"redis\",\n    \"db_connection\": {\n        \"host\": \"127.0.0.1\",\n        \"port\": 6379,\n        \"password\": \"123456\",\n        \"db\": \"1\"\n    },\n    \"remark\": \"remark\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/api/case_db",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"case_db"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "删除变量",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"db_id\": \"1\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/api/case_db",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"case_db"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "断言规则Resp",
+			"item": [
+				{
+					"name": "获取resp断言规则明细",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/resp_ass_rule/1",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"resp_ass_rule",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "新增resp断言规则",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"assert_description\": \"Resp通用断言123\",\n    \"remark\": \"remark\",\n    \"ass_json\": [\n        {\n            \"assert_key\": \"code\",\n            \"expect_val\": \"200\",\n            \"expect_val_type\": \"1\",\n            \"rule\": \"==\",\n            \"is_expression\": 0,\n            \"python_val_exp\": \"okc.get('a').get('b').get('c')[0]\"\n        },\n        {\n            \"assert_key\": \"code\",\n            \"expect_val\": \"200\",\n            \"expect_val_type\": \"1\",\n            \"rule\": \">=\",\n            \"is_expression\": 0,\n            \"python_val_exp\": \"okc.get('a').get('b').get('c')[0]\"\n        },\n        {\n            \"assert_key\": \"message\",\n            \"expect_val\": \"index\",\n            \"expect_val_type\": \"2\",\n            \"rule\": \"==\",\n            \"is_expression\": 0,\n            \"python_val_exp\": \"okc.get('a').get('b').get('c')[0]\"\n        },\n        {\n            \"assert_key\": \"message\",\n            \"expect_val\": \"index\",\n            \"expect_val_type\": \"2\",\n            \"rule\": \"==\",\n            \"is_expression\": 1,\n            \"python_val_exp\": \"okc.get('message')\"\n        },\n        {\n            \"assert_key\": \"message\",\n            \"expect_val\": \"yangyuexiongyyx\",\n            \"expect_val_type\": \"2\",\n            \"rule\": \"==\",\n            \"is_expression\": 1,\n            \"python_val_exp\": \"okc.get('token')\"\n        }\n    ]\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/api/resp_ass_rule",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"resp_ass_rule"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "编辑resp断言规则",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"ass_resp_id\": 1,\n    \"assert_description\": \"通用断言9\",\n    \"remark\": \"remark123\",\n    \"ass_json\": [\n        {\n            \"assert_key\": \"code\",\n            \"expect_val\": \"200\",\n            \"expect_val_type\": \"1\",\n            \"rule\": \"==\",\n            \"is_expression\": 0,\n            \"python_val_exp\": \"okc.get('a').get('b').get('c')[0]\"\n        },\n        {\n            \"assert_key\": \"code\",\n            \"expect_val\": \"200\",\n            \"expect_val_type\": \"1\",\n            \"rule\": \">=\",\n            \"is_expression\": 0,\n            \"python_val_exp\": \"okc.get('a').get('b').get('c')[0]\"\n        },\n        {\n            \"assert_key\": \"message\",\n            \"expect_val\": \"index\",\n            \"expect_val_type\": \"2\",\n            \"rule\": \"==\",\n            \"is_expression\": 0,\n            \"python_val_exp\": \"okc.get('a').get('b').get('c')[0]\"\n        }\n    ]\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/api/resp_ass_rule",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"resp_ass_rule"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "删除resp断言规则",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"ass_resp_id\": 2\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/api/resp_ass_rule",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"resp_ass_rule"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "断言规则Field",
+			"item": [
+				{
+					"name": "获取field断言规则明细",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{base_url}}/api/field_ass_rule/12",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"field_ass_rule",
+								"12"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "新增field断言规则",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"assert_description\": \"A通用字段校验\",\n    \"remark\": \"remark\",\n    \"ass_json\": [\n        {\n            \"db_id\": 1,\n            \"query\": \"select id,case_name FROM ExilicTestPlatform.exilic_test_case WHERE id=1;\",\n            \"assert_list\": [\n                {\n                    \"assert_key\": \"id\",\n                    \"expect_val\": \"1\",\n                    \"expect_val_type\": \"1\",\n                    \"rule\": \"==\"\n                },\n                {\n                    \"assert_key\": \"case_name\",\n                    \"expect_val\": \"测试用例B1\",\n                    \"expect_val_type\": \"2\",\n                    \"rule\": \"==\"\n                }\n            ]\n        }\n    ]\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/api/field_ass_rule",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"field_ass_rule"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "编辑field断言规则",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"ass_field_id\": 1,\n    \"assert_description\": \"A通用字段校验\",\n    \"remark\": \"remark\",\n    \"ass_json\": [\n        {\n            \"db_id\": 1,\n            \"query\": \"select id FROM exilic_test_case WHERE id=1;\",\n            \"assert_list\": [\n                {\n                    \"assert_key\": \"id\",\n                    \"expect_val\": \"1\",\n                    \"expect_val_type\": \"1\",\n                    \"rule\": \"==\"\n                },\n                {\n                    \"assert_key\": \"case_name\",\n                    \"expect_val\": \"测试用例B1\",\n                    \"expect_val_type\": \"2\",\n                    \"rule\": \"==\"\n                }\n            ]\n        }\n    ]\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/api/field_ass_rule",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"field_ass_rule"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "删除field断言规则",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"ass_field_id\": 12\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/api/field_ass_rule",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"field_ass_rule"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "用例req参数操作",
+			"item": [
+				{
+					"name": "用例req参数绑定",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"case_id\": 20,\n    \"data_id\": 15\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/api/case_bind_data",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"case_bind_data"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "用例req参数解绑",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"case_id\": 1,\n    \"data_id\": 2\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/api/case_bind_data",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"case_bind_data"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Resp断言规则绑定",
+			"item": [
+				{
+					"name": "Resp断言规则绑定",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"bind_id\": \"7\",\n    \"ass_resp_ids\": [\n        1,\n        2,\n        3,\n        23\n    ]\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/api/case_bind_resp_ass",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"case_bind_resp_ass"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Field断言规则绑定",
+			"item": [
+				{
+					"name": "Field断言规则绑定",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"bind_id\": \"1\",\n    \"ass_field_ids\": [\n        1,\n        2,\n        3\n    ]\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/api/case_bind_field_ass",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"case_bind_field_ass"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "分页模糊查询",
+			"item": [
+				{
+					"name": "用例分页模糊查询",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"case_id\": \"\",\n    \"case_name\": \"\",\n    \"page\": 1,\n    \"size\": 20,\n    \"is_deleted\": false\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/api/case_page",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"case_page"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "用例变量分页模糊查询",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"var_id\": \"\",\n    \"var_name\": \"\",\n    \"page\": 1,\n    \"size\": \"\",\n    \"is_deleted\": false\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/api/case_var_page",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"case_var_page"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "返回值断言规则分页模糊查询",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"resp_ass_id\": \"\",\n    \"assert_description\": \"\",\n    \"page\": 1,\n    \"size\": \"\",\n    \"is_deleted\": true\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/api/resp_ass_rule_page",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"resp_ass_rule_page"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "字段断言规则分页模糊查询",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"field_ass_id\": \"\",\n    \"assert_description\": \"999\",\n    \"page\": 1,\n    \"size\": \"\",\n    \"is_deleted\": false\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/api/field_ass_rule_page",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"field_ass_rule_page"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "用例req数据分页模糊查询",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"data_id\": \"1\",\n    \"data_name\": \"A\",\n    \"page\": 1,\n    \"size\": \"\",\n    \"is_deleted\": false\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/api/case_req_data_page",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"case_req_data_page"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "测试环境分页模糊查询",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"env_id\": \"\",\n    \"env_url\": \"pre\",\n    \"env_name\": \"\",\n    \"page\": 1,\n    \"size\": \"\",\n    \"is_deleted\": false\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/api/case_env_page",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"case_env_page"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "用例db分页模糊查询",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"db_id\": \"\",\n    \"db_type\": \"mysql\",\n    \"name\": \"\",\n    \"page\": 1,\n    \"size\": \"\",\n    \"is_deleted\": false\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/api/case_db_page",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"case_db_page"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "用例场景分页模糊查询",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"scenario_id\": \"\",\n    \"scenario_title\": \"A\",\n    \"name\": \"\",\n    \"page\": 1,\n    \"size\": \"\",\n    \"is_deleted\": false\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/api/case_scenario_page",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"case_scenario_page"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "操作日志与执行日志分页模糊查询",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"creater\": \"\",\n    \"creater_id\": \"1\",\n    \"name\": \"\",\n    \"page\": 1,\n    \"size\": \"\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/api/case_logs_page",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"case_logs_page"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "执行相关",
+			"item": [
+				{
+					"name": "用例调试",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"base_url\": \"http://127.0.0.1:7272\",\n    \"method\": \"get\",\n    \"url\": \"/api\",\n    \"headers\": {},\n    \"req_type\": \"params\",\n    \"body\": {}\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/api/case_send",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"case_send"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "用例执行",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"execute_id\": 20,\n    \"execute_type\": \"case\",\n    \"data_driven\": true,\n    \"base_url_id\":1\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/api/case_exec",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"case_exec"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "场景执行",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"execute_id\": 3,\n    \"execute_type\": \"scenario\",\n    \"data_driven\": false\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/api/case_exec",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"case_exec"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "index",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "token",
+						"value": "yangyuexiong",
+						"type": "text",
+						"disabled": true
+					}
+				],
+				"url": {
+					"raw": "{{base_url}}/api/index",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"index"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "index2",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"Date\": \"2021-10-03\", \n    \"DateTime\": \"2021-10-03 14:41:21.050626\", \n    \"Time\": \"14:41:21.050622\", \n    \"TimeStamp\": \"1633243281\", \n    \"UUID\": \"e52rhokp9w1633243281RU6itVwQiC\", \n    \"token\": \"yangyuexiongyyx\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{base_url}}/api/index",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"index"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "规则调试",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"val_exp\": \"okc.get('a').get('b').get('c')\",\n    \"data_source\": {\n        \"a\": {\n            \"b\": {\n                \"c\": [\n                    \"abc\",\n                    2,\n                    3\n                ]\n            }\n        }\n    }\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{base_url}}/api/rule_test",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"rule_test"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
