@@ -18,6 +18,8 @@
 - 项目演示地址：`待补充`
 
 ### 系统架构图
+- 无法查看图片可以前往码云：https://gitee.com/yangyuexiong/ExileTestPlatformServer
+
 ![系统架构图](docs/ExileTestPlatform整体架构.png)
 
 ### 业务流程图
