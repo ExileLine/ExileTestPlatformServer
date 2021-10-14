@@ -9,6 +9,24 @@
 from common.libs.BaseModel import *
 
 
+class TestExecuteLogs(BaseModel):
+    __tablename__ = 'exilic_test_execute_logs'
+    __table_args__ = {'comment': '用例执行记录表'}
+
+    execute_id = db.Column(BIGINT(20, unsigned=True), comment='用例id/场景id')
+    execute_name = db.Column(db.String(255), nullable=False, comment='用例名称/场景名称')
+    execute_type = db.Column(db.String(255), nullable=False, comment='执行类型')
+    redis_key = db.Column(db.String(255), nullable=False, comment='Redis的key')
+    creator = db.Column(db.String(32), comment='创建人')
+    creator_id = db.Column(BIGINT(20, unsigned=True), comment='创建人id')
+    remark = db.Column(db.String(255), comment='备注')
+
+    def __repr__(self):
+        return 'TestExecuteLogs 模型对象-> ID:{} execute_id:{} execute_name:{} execute_type:{} redis_key:{}'.format(
+            self.id, self.execute_id, self.execute_name, self.execute_type, self.redis_key
+        )
+
+
 class TestLogs(BaseModel):
     __tablename__ = 'exilic_test_logs'
     __table_args__ = {'comment': '日志记录表'}
