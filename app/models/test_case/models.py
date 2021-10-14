@@ -27,6 +27,7 @@ class TestCase(BaseModel):
     remark = db.Column(db.String(255), comment='备注')
 
     def add_total_execution(self):
+        """执行次数增加"""
         self.total_execution = self.total_execution + 1
         self.save()
 
