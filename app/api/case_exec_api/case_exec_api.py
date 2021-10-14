@@ -65,7 +65,6 @@ class CaseExecApi(MethodView):
 
     def post(self):
         """
-        用例执行
 
         用例执行
         {
@@ -91,6 +90,7 @@ class CaseExecApi(MethodView):
         data_driven = data.get('data_driven', False)
         base_url_id = data.get('base_url_id', None)
 
+        execute_name = None
         send_test_case_list = []
 
         query_base_url = TestEnv.query.get(base_url_id)
@@ -106,6 +106,7 @@ class CaseExecApi(MethodView):
             if not result:
                 return api_result(code=400, message='用例id:{}不存在'.format(execute_id))
 
+            execute_name = result.get('case_info').get('case_name')
             TestCase.query.get(execute_id).add_total_execution()
             send_test_case_list = [result]
 
@@ -114,6 +115,7 @@ class CaseExecApi(MethodView):
             if not result:
                 return api_result(code=400, message='场景id:{}不存在'.format(execute_id))
 
+            execute_name = result.to_json().get('scenario_title')
             case_list = result.to_json().get('case_list')
 
             if not case_list:  # 防止手动修改数据导致,在场景创建的接口中有对应的校验
@@ -132,8 +134,12 @@ class CaseExecApi(MethodView):
 
         sio = StringIOLog()
         test_obj = {
-            "base_url": query_base_url.env_url,
+            "execute_id": execute_id,
+            "execute_name": execute_name,
             "execute_type": execute_type,
+            "execute_user_id": g.app_user.id,
+            "execute_username": g.app_user.username,
+            "base_url": query_base_url.env_url,
             "case_list": send_test_case_list,
             "data_driven": data_driven,
             "sio": sio

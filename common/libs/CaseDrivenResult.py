@@ -133,14 +133,17 @@ class MainTest:
     """
 
     # TODO field 前置查询 {"before_query":"select xxx from xxx....","before_field":"username"}
-    # TODO 生成报告
     # TODO sio优化
 
     def __init__(self, test_obj):
         self.base_url = test_obj.get('base_url', None)
         self.case_list = test_obj.get('case_list', [])
         self.data_driven = test_obj.get('data_driven')
+        self.execute_id = test_obj.get('execute_id')
+        self.execute_name = test_obj.get('execute_name')
         self.execute_type = test_obj.get('execute_type')
+        self.execute_user_id = test_obj.get('execute_user_id')
+        self.execute_username = test_obj.get('execute_username')
         self.sio = test_obj.get('sio', StringIOLog())
 
         if not isinstance(self.case_list, list) or not self.case_list:
@@ -430,6 +433,26 @@ class MainTest:
         else:
             self.sio.log('=== 更新变量列表为空不需要更新变量===')
 
+    def save_logs(self, log_id):
+        """
+
+        :param log_id: 日志id
+        :return:
+        """
+
+        sql = """INSERT INTO `ExilicTestPlatform`.`exilic_test_execute_logs` (`is_deleted`, `create_time`, `create_timestamp`,  `execute_id`, `execute_name`, `execute_type`, `redis_key`, `creator`, `creator_id`) VALUES (0,'{}','{}','{}','{}','{}','{}','{}','{}');""".format(
+            self.create_time.split('.')[0],
+            int(self.end_time),
+            self.execute_id,
+            self.execute_name,
+            self.execute_type,
+            log_id,
+            self.execute_username,
+            self.execute_user_id
+        )
+        project_db.create_data(sql)
+        logger.success('=== save_logs ok ===')
+
     def main(self):
         """main"""
 
@@ -501,6 +524,8 @@ class MainTest:
         # self.json_format(return_case_result)
         R.set(save_key, json.dumps(return_case_result))
         logger.success('=== save redis ok ===')
+
+        self.save_logs(log_id=save_key)
 
     def __str__(self):
         return '\n'.join(["{}:{}".format(k, v) for k, v in self.__dict__.items()])
