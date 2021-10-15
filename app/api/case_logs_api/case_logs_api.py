@@ -12,7 +12,7 @@ from app.models.test_logs.models import TestLogs
 
 class CaseLogsPageApi(MethodView):
     """
-    操作日志与执行日志分页模糊查询
+    操作日志分页模糊查询
     """
 
     def post(self):

@@ -17,12 +17,14 @@ from .case_data_api.case_data_api import CaseReqDataApi, CaseReqDataPageApi
 from .case_var_api.case_var_api import CaseVarApi, CaseVarPageApi
 from .case_db_api.case_db_api import CaseDBApi, CaseDBPageApi
 from .case_logs_api.case_logs_api import CaseLogsPageApi
+from .case_execute_logs_api.case_execute_logs_api import CaseExecuteLogsPageApi
 from .case_bind_api.case_bind_api import CaseBindDataApi, CaseBindRespAssApi, CaseBindFieldAssApi
 from .case_ass_rule_api.case_ass_rule_api import RespAssertionRuleApi, FieldAssertionRuleApi, \
     RespAssertionRulePageApi, FieldAssertionRulePageApi
 from .rule_test_api.rule_test_api import RuleTestApi
 from .case_exec_api.case_exec_api import CaseExecApi, CaseReqTestApi
 from .case_scenario_api.case_scenario_api import CaseScenarioApi, CaseScenarioPageApi
+from .case_report_api.case_report_api import CaseRepostApi
 
 api = Blueprint('api', __name__)
 crm = Blueprint('crm', __name__)
@@ -54,6 +56,7 @@ api.add_url_rule('/case_db/<db_id>', view_func=CaseDBApi.as_view('case_db_detail
 api.add_url_rule('/case_db_page', view_func=CaseDBPageApi.as_view('case_db_page'))
 
 api.add_url_rule('/case_logs_page', view_func=CaseLogsPageApi.as_view('case_logs_page'))
+api.add_url_rule('/case_execute_logs_page', view_func=CaseExecuteLogsPageApi.as_view('case_execute_logs_page'))
 
 api.add_url_rule('/resp_ass_rule', view_func=RespAssertionRuleApi.as_view('resp_ass_rule'))
 api.add_url_rule('/resp_ass_rule/<ass_resp_id>', view_func=RespAssertionRuleApi.as_view('resp_ass_rule_detail'))
@@ -72,6 +75,6 @@ api.add_url_rule('/case_scenario/<scenario_id>', view_func=CaseScenarioApi.as_vi
 api.add_url_rule('/case_scenario_page', view_func=CaseScenarioPageApi.as_view('case_scenario_page'))
 
 api.add_url_rule('/rule_test', view_func=RuleTestApi.as_view('rule_test'))
-
 api.add_url_rule('/case_send', view_func=CaseReqTestApi.as_view('case_send'))
 api.add_url_rule('/case_exec', view_func=CaseExecApi.as_view('case_exec'))
+api.add_url_rule('/case_report', view_func=CaseRepostApi.as_view('case_report'))
