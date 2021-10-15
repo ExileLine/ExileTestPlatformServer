@@ -1312,7 +1312,7 @@
 					"response": []
 				},
 				{
-					"name": "操作日志与执行日志分页模糊查询",
+					"name": "操作日志分页模糊查询",
 					"request": {
 						"method": "POST",
 						"header": [],
@@ -1333,6 +1333,33 @@
 							"path": [
 								"api",
 								"case_logs_page"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "执行日志分页模糊查询",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"execute_id\": \"\",\n    \"execute_name\":\"\",\n    \"execute_type\":\"\",\n    \"page\": 1,\n    \"size\": \"\",\n    \"creater\": \"\",\n    \"creater_id\": \"1\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/api/case_execute_logs_page",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"case_execute_logs_page"
 							]
 						}
 					},
@@ -1404,7 +1431,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"execute_id\": 3,\n    \"execute_type\": \"scenario\",\n    \"data_driven\": false\n}",
+							"raw": "{\n    \"execute_id\": 3,\n    \"execute_type\": \"scenario\",\n    \"data_driven\": false,\n    \"base_url_id\": 1\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -1419,6 +1446,33 @@
 							"path": [
 								"api",
 								"case_exec"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "用例/场景最新执行日志",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"execute_id\": \"3\", \n    \"execute_type\": \"scenario\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/api/case_execute_logs",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"case_execute_logs"
 							]
 						}
 					},
@@ -1500,6 +1554,33 @@
 					"path": [
 						"api",
 						"rule_test"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "生成测试报告",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"log_id\": \"5\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{base_url}}/api/case_report",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"case_report"
 					]
 				}
 			},

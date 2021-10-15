@@ -69,14 +69,14 @@
 |2|/api/tourist|GET|获取游客账号|
 |3|/api/login|POST|登录|
 |4|/api/login|DELETE|退出|
-|5|/api/case_env/{id}|GET|测试环境详情  |
-|6|/api/case_env|POST|新增测试环境  |
-|7|/api/case_env|PUT|编辑测试环境  |
-|8|/api/case_env|DELETE|删除测试环境  |
-|9|/api/case/{id}|GET|用例详情  |
+|5|/api/case_env/{id}|GET|测试环境详情|
+|6|/api/case_env|POST|新增测试环境|
+|7|/api/case_env|PUT|编辑测试环境|
+|8|/api/case_env|DELETE|删除测试环境|
+|9|/api/case/{id}|GET|用例详情|
 |10|/api/case|POST|新增用例|
 |11|/api/case|PUT|编辑用例 |
-|12|/api/case|DELETE|删除用例  |
+|12|/api/case|DELETE|删除用例|
 |13|/api/case_scenario/{id}|GET|场景详情|
 |14|/api/case_scenario|POST|新增场景例|
 |15|/api/case_scenario|PUT|编辑场景|
@@ -116,8 +116,11 @@
 |48|/api/case_req_data_page|POST|用例请求参数分页模糊查询|
 |49|/api/case_env_page|POST|测试环境分页模糊查询|
 |50|/api/case_db_page|POST|用例测试数据库分页模糊查询|
-|51|/api/case_logs_page|POST|操作日志与执行日志分页模糊查询|
-|52|/api/case_scenario_page|POST|用例场景分页模糊查询|
+|51|/api/case_logs_page|POST|操作日志分页模糊查询|
+|52|/api/case_execute_logs|POST|用例/场景最新执行日志|
+|53|/api/case_execute_logs_page|POST|执行日志分页模糊查询|
+|54|/api/case_scenario_page|POST|用例场景分页模糊查询|
+|55|/api/case_report|POST|生成测试报告|
 
 ### 项目部署
 - 前端：待补充
