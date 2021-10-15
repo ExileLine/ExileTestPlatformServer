@@ -10,6 +10,30 @@ from all_reference import *
 from app.models.test_logs.models import TestExecuteLogs
 
 
+class CaseExecuteLogsApi(MethodView):
+    """
+    用例/场景最新日志
+    """
+
+    def post(self):
+        data = request.get_json()
+        execute_id = data.get('execute_id')
+        execute_type = data.get('execute_type')
+        current_get_dict = {
+            "case": "case_first_log:{}".format(execute_id),
+            "scenario": "scenario_first_log:{}".format(execute_id)
+        }
+        key = current_get_dict.get(execute_type)
+        if not key:
+            return api_result(code=400, message='执行类型错误')
+
+        result = R.get(key)
+        if not result:
+            return api_result(code=200, message='操作成功', data={})
+
+        return api_result(code=200, message='操作成功', data=json.loads(result))
+
+
 class CaseExecuteLogsPageApi(MethodView):
     """
     执行日志分页模糊查询

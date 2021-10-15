@@ -521,8 +521,15 @@ class MainTest:
             "end_time": self.end_time,
             "total_time": self.end_time - self.start_time
         }
-        # self.json_format(return_case_result)
         R.set(save_key, json.dumps(return_case_result))
+
+        current_save_dict = {
+            "case": "case_first_log:{}".format(self.execute_id),
+            "scenario": "scenario_first_log:{}".format(self.execute_id)
+        }
+        save_obj_first = current_save_dict.get(self.execute_type)
+        R.set(save_obj_first, json.dumps(return_case_result))
+
         logger.success('=== save redis ok ===')
 
         self.save_logs(log_id=save_key)
