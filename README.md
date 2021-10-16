@@ -1,36 +1,47 @@
 # ExileTestPlatformServer
+
 # 放逐测试平台
 
 ### 前言
+
 作者是前豌豆思维测试小弟，豌豆测试平台开发者，单人充当产品，设计，开发，测试，运维，内部运营推广等6个角色，旧测试平台就不在这里展示了。
 
 因各种因素导致最后测试平台落地的结果并不理想，但在整个过程中受益匪浅并有所总结，而我还是想做出一个能让大部测试人员都认可并真正能提高工作效率的测试平台，从而有了这个放逐测试平台，既然不能服务于一个公司那么就流放到整个测试社区，让更多的测试人员对此平台进行检验，因此取名放逐。
 
 ### 项目文档
+
 - 文档地址：https://github.com/yangyuexiong/ExileTestPlatformServer
 
 ### 项目介绍
+
 `ExileTestPlatform`项目目前主要基于测试人员对测试用例配置环境，参数，变量，响应断言规则，数据库断言规则后，实施测试的接口测试平台(后续兼容UI测试)。
 
 ### 项目演示
+
 - 前端项目地址：https://github.com/yangyuexiong/ExileTestPlatformWeb
 
 - 项目演示地址：`待补充`
 
 ### 系统架构图
+
 - 无法查看图片可以前往码云：https://gitee.com/yangyuexiong/ExileTestPlatformServer
 
 ![系统架构图](docs/ExileTestPlatform整体架构.png)
 
 ### 业务流程图
+
 ![业务流程图](docs/ExileTestPlatform业务流程.png)
 
 ### 数据库表设计
+
 - [SQL文件：ExilicTestPlatform.sql](./docs/ExilicTestPlatform.sql)
 
 ![数据库表设计](docs/ExileTestPlatform数据库表设计.png)
 
 ### 后端技术
+
+- 当前使用的是Python相关技术栈，后续新增golang，java等语言相关技术栈实现相同的功能，尽可以满足不同语言的开发人员进行二次开发
+
 |技术|说明|官网|
 |----------------------------------------|-------------------|---------------------------------------------- |
 |Flask2.0|BIO MVC框架(2.0.2版本加入async异步)|https://flask.palletsprojects.com|
@@ -43,8 +54,8 @@
 |Redis|缓存|https://redis.io|
 |MySQl|关系型数据库|https://www.mysql.com|
 
-
 ### 前端技术
+
 |技术|说明|官网|
 |----------|--------------------- | -------------------------------------- |
 |Vue3|前端框架|https://vuejs.org|
@@ -57,6 +68,7 @@
 |nprogress|进度条控件|https://github.com/rstacruz/nprogress|
 
 ### 项目结构
+
 - 参考我的Flask最佳实践：https://github.com/yangyuexiong/Flask_BestPractices
 
 ### 接口清单
@@ -123,5 +135,6 @@
 |55|/api/case_report|POST|生成测试报告|
 
 ### 项目部署
+
 - 前端：待补充
 - 后端：参考我的Flask最佳实践：https://github.com/yangyuexiong/Flask_BestPractices
