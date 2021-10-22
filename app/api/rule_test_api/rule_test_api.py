@@ -52,9 +52,7 @@ class RuleTestApi(MethodView):
         data = request.get_json()
         val_exp = data.get('val_exp', "")
         data_source = data.get('data_source', {})
-
         result = execute_code(code=val_exp, data=data_source)
-        # TODO 调试错误的记录Redis
         return api_result(
             code=200 if result.get('bool') else 400,
             message=result.get('message'),
