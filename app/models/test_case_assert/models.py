@@ -62,3 +62,13 @@ class TestCaseDataAssBind(BaseModel):
         return 'TestCaseDataAssBind 模型对象-> ID:{} 数据id:{} resp断言规则list:{} field断言规则list:{}'.format(
             self.id, self.data_id, self.ass_resp_id_list, self.ass_field_id_list
         )
+
+
+class TestCaseBefore(BaseModel):
+    __tablename__ = 'exilic_case_before'
+    __table_args__ = {'comment': '用例前置'}
+
+
+class TestCaseAfter(BaseModel):
+    __tablename__ = 'exilic_case_after'
+    __table_args__ = {'comment': '用例后置'}
