@@ -65,10 +65,10 @@ class TestCaseDataAssBind(BaseModel):
 
 
 class TestCaseBefore(BaseModel):
-    __tablename__ = 'exilic_case_before'
+    __tablename__ = 'exilic_test_case_before'
     __table_args__ = {'comment': '用例前置'}
 
 
 class TestCaseAfter(BaseModel):
-    __tablename__ = 'exilic_case_after'
+    __tablename__ = 'exilic_test_case_after'
     __table_args__ = {'comment': '用例后置'}
