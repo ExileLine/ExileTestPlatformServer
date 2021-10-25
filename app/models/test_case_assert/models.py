@@ -68,7 +68,11 @@ class TestCaseBefore(BaseModel):
     __tablename__ = 'exilic_test_case_before'
     __table_args__ = {'comment': '用例前置'}
 
+    before_sql = db.Column(db.String(1024), comment='sql')
+
 
 class TestCaseAfter(BaseModel):
     __tablename__ = 'exilic_test_case_after'
     __table_args__ = {'comment': '用例后置'}
+
+    after_sql = db.Column(db.String(1024), comment='sql')
