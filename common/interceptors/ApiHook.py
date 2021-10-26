@@ -13,7 +13,7 @@ from flask import request, g
 
 from app.api import api
 from app.models.admin.models import Admin
-from common.libs.public_func import print_logs, json_format
+from common.libs.public_func import print_logs
 from common.libs.auth import check_user
 from common.libs.customException import ab_code_2
 
