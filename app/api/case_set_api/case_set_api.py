@@ -30,12 +30,15 @@ class CaseSetApi(MethodView):
         data = request.get_json()
         user_id = data.get('user_id', 0)
         case_id_list = data.get('case_id_list', [])
+        scenario_id_list = data.get('scenario_id_list', [])
 
-        if not check_keys(data, "user_id", "case_id_list") or not isinstance(case_id_list, list):
+        if not check_keys(data, "user_id", "case_id_list") or not isinstance(case_id_list, list) or not isinstance(
+                scenario_id_list, list):
             return ab_code(400)
 
         user = Admin.query.get(user_id)
         case_id_list = list(map(func, case_id_list))
+        scenario_id_list = list(map(func, scenario_id_list))
 
         if not user:
             return api_result(code=400, message="用户不存在:{}".format(user_id))
@@ -44,6 +47,7 @@ class CaseSetApi(MethodView):
 
         if query_case_set:
             query_case_set.case_id_list = case_id_list
+            query_case_set.scenario_id_list = scenario_id_list
             query_case_set.modifier = g.app_user.username
             query_case_set.modifier_id = g.app_user.id
             db.session.commit()
@@ -51,6 +55,7 @@ class CaseSetApi(MethodView):
             case_set = TestCaseSet(
                 user_id=user_id,
                 case_id_list=case_id_list,
+                scenario_id_list=scenario_id_list,
                 creator=g.app_user.username,
                 creator_id=g.app_user.id
             )
@@ -67,5 +72,5 @@ if __name__ == '__main__':
             return ab_code(400)
 
 
-    list_result = list(map(func, [1, 2, 3, 4, "5"]))
+    list_result = list(map(func, []))
     print(list_result)

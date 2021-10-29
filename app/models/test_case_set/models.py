@@ -15,6 +15,7 @@ class TestCaseSet(BaseModel):
 
     user_id = db.Column(BIGINT(20, unsigned=True), comment='用户id')
     case_id_list = db.Column(db.JSON, comment='用例id列表')
+    scenario_id_list = db.Column(db.JSON, comment='场景id列表')
     creator = db.Column(db.String(32), comment='创建人')
     creator_id = db.Column(BIGINT(20, unsigned=True), comment='创建人id')
     modifier = db.Column(db.String(32), comment='更新人')
