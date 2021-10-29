@@ -25,6 +25,7 @@ from .rule_test_api.rule_test_api import RuleTestApi
 from .case_exec_api.case_exec_api import CaseExecApi, CaseReqTestApi
 from .case_scenario_api.case_scenario_api import CaseScenarioApi, CaseScenarioPageApi
 from .case_report_api.case_report_api import CaseRepostApi
+from .case_set_api.case_set_api import CaseSetApi
 
 api = Blueprint('api', __name__)
 crm = Blueprint('crm', __name__)
@@ -79,3 +80,4 @@ api.add_url_rule('/rule_test', view_func=RuleTestApi.as_view('rule_test'))
 api.add_url_rule('/case_send', view_func=CaseReqTestApi.as_view('case_send'))
 api.add_url_rule('/case_exec', view_func=CaseExecApi.as_view('case_exec'))
 api.add_url_rule('/case_report', view_func=CaseRepostApi.as_view('case_report'))
+api.add_url_rule('/case_set', view_func=CaseSetApi.as_view('case_set'))
