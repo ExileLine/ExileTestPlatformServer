@@ -109,7 +109,8 @@ class CaseEnvPageApi(MethodView):
         env_url = data.get('env_url')
         env_name = data.get('env_name')
         is_deleted = data.get('is_deleted', False)
-        page, size = page_size(**data)
+        page = data.get('page')
+        size = data.get('size')
 
         sql = """
         SELECT * 

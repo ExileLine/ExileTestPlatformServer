@@ -142,7 +142,8 @@ class CaseReqDataPageApi(MethodView):
         data_id = data.get('data_id')
         data_name = data.get('data_name')
         is_deleted = data.get('is_deleted', False)
-        page, size = page_size(**data)
+        page = data.get('page')
+        size = data.get('size')
 
         sql = """
         SELECT * 

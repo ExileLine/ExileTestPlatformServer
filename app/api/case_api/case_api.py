@@ -92,7 +92,7 @@ class CaseApi(MethodView):
             creator_id=g.app_user.id,
         )
         new_test_case.save()
-        return api_result(code=201, message='创建成功',data=[])
+        return api_result(code=201, message='创建成功', data=[])
 
     def put(self):
         """用例编辑"""
@@ -163,7 +163,8 @@ class CasePageApi(MethodView):
         case_id = data.get('case_id')
         case_name = data.get('case_name')
         is_deleted = data.get('is_deleted', False)
-        page, size = page_size(**data)
+        page = data.get('page')
+        size = data.get('size')
 
         sql = """
         SELECT * 

@@ -61,16 +61,3 @@ class CaseSetApi(MethodView):
             )
             case_set.save()
         return api_result(code=200, message='操作成功')
-
-
-if __name__ == '__main__':
-    def func(x):
-        try:
-            x = int(x)
-            return x
-        except BaseException:
-            return ab_code(400)
-
-
-    list_result = list(map(func, []))
-    print(list_result)

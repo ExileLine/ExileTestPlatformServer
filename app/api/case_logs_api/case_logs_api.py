@@ -19,7 +19,8 @@ class CaseLogsPageApi(MethodView):
         data = request.get_json()
         user_id = data.get('user_id')
         username = data.get('username')
-        page, size = page_size(**data)
+        page = data.get('page')
+        size = data.get('size')
 
         sql = """
         SELECT * 

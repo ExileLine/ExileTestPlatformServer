@@ -120,7 +120,8 @@ class CaseScenarioPageApi(MethodView):
         scenario_id = data.get('scenario_id')
         scenario_title = data.get('scenario_title')
         is_deleted = data.get('is_deleted', False)
-        page, size = page_size(**data)
+        page = data.get('page')
+        size = data.get('size')
 
         sql = """
         SELECT * 

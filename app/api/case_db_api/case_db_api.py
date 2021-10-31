@@ -121,7 +121,8 @@ class CaseDBPageApi(MethodView):
         name = data.get('name')
         db_type = data.get('db_type')
         is_deleted = data.get('is_deleted', False)
-        page, size = page_size(**data)
+        page = data.get('page')
+        size = data.get('size')
 
         sql = """
         SELECT * 

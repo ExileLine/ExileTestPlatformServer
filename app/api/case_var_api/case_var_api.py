@@ -152,7 +152,8 @@ class CaseVarPageApi(MethodView):
         var_id = data.get('var_id')
         var_name = data.get('var_name')
         is_deleted = data.get('is_deleted', False)
-        page, size = page_size(**data)
+        page = data.get('page')
+        size = data.get('size')
 
         sql = """
         SELECT * 

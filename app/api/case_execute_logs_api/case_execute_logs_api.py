@@ -46,7 +46,8 @@ class CaseExecuteLogsPageApi(MethodView):
         execute_type = data.get('execute_type')
         creator = data.get('creator')
         creator_id = data.get('creator_id')
-        page, size = page_size(**data)
+        page = data.get('page')
+        size = data.get('size')
 
         sql = """
         SELECT * 

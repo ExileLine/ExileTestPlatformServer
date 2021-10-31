@@ -439,7 +439,8 @@ class RespAssertionRulePageApi(MethodView):
         resp_ass_id = data.get('resp_ass_id')
         assert_description = data.get('assert_description')
         is_deleted = data.get('is_deleted', False)
-        page, size = page_size(**data)
+        page = data.get('page')
+        size = data.get('size')
 
         sql = """
         SELECT * 
@@ -475,7 +476,8 @@ class FieldAssertionRulePageApi(MethodView):
         field_ass_id = data.get('field_ass_id')
         assert_description = data.get('assert_description')
         is_deleted = data.get('is_deleted', False)
-        page, size = page_size(**data)
+        page = data.get('page')
+        size = data.get('size')
 
         sql = """
         SELECT * 

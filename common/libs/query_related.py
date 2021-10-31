@@ -23,7 +23,7 @@ def page_size(page=None, size=None, **kwargs):
     :return:
     """
     page = page if page and isinstance(page, int) else int(kwargs.get('page', 0))
-    size = size if size and isinstance(size, int) else int(kwargs.get('size', 20))
+    size = size if size and isinstance(size, int) else int(kwargs.get('size', 10))
     page = (page - 1) * size if page != 0 else 0
     return page, size
 
@@ -136,16 +136,31 @@ def general_query(model, field_list, query_list, is_deleted, page, size):
 
 
 if __name__ == '__main__':
-    from app.models.test_variable.models import TestVariable
+    def test_query_case():
+        from app.models.test_case.models import TestCase
+        result_data = general_query(
+            model=TestCase,
+            field_list=['id', 'case_name'],
+            query_list=['', ''],
+            is_deleted=False,
+            page=1,
+            size=10
+        )
+        print(result_data)
 
-    result_data = general_query(
-        model=TestVariable,
-        field_list=['id', 'var_name'],
-        query_list=['', ''],
-        is_deleted=False,
-        page=1,
-        size=20
-    )
-    print(result_data)
 
-    print(query_case_zip(case_id=14))
+    def test_query_variable():
+        from app.models.test_variable.models import TestVariable
+
+        result_data = general_query(
+            model=TestVariable,
+            field_list=['id', 'var_name'],
+            query_list=['', ''],
+            is_deleted=False,
+            page=1,
+            size=20
+        )
+        print(result_data)
+
+    # print(query_case_zip(case_id=14))
+    # test_query_case()
