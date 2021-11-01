@@ -162,6 +162,7 @@ class CasePageApi(MethodView):
         data = request.get_json()
         case_id = data.get('case_id')
         case_name = data.get('case_name')
+        creator_id = data.get('creator_id')
         is_deleted = data.get('is_deleted', False)
         page = data.get('page')
         size = data.get('size')
@@ -178,8 +179,8 @@ class CasePageApi(MethodView):
 
         result_data = general_query(
             model=TestCase,
-            field_list=['id', 'case_name'],
-            query_list=[case_id, case_name],
+            field_list=['id', 'case_name', 'creator_id'],
+            query_list=[case_id, case_name, creator_id],
             is_deleted=is_deleted,
             page=page,
             size=size

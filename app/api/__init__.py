@@ -10,7 +10,7 @@ from flask import Blueprint
 
 from .index_api.index_api import IndexApi
 from .login_api.login_api import LoginApi
-from .user_api.user_api import TouristApi
+from .user_api.user_api import TouristApi, UserPageApi
 from .case_env_api.case_env_api import CaseEnvApi, CaseEnvPageApi
 from .case_api.case_api import CaseApi, CasePageApi
 from .case_data_api.case_data_api import CaseReqDataApi, CaseReqDataPageApi
@@ -35,6 +35,7 @@ api.add_url_rule('/index', view_func=IndexApi.as_view('index_api'))
 api.add_url_rule('/login', view_func=LoginApi.as_view('login_api'))
 
 api.add_url_rule('/tourist', view_func=TouristApi.as_view('tourist_api'))
+api.add_url_rule('/user_page', view_func=UserPageApi.as_view('user_page'))
 
 api.add_url_rule('/case_env', view_func=CaseEnvApi.as_view('case_env'))
 api.add_url_rule('/case_env/<env_id>', view_func=CaseEnvApi.as_view('case_env_detail'))
