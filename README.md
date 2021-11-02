@@ -132,7 +132,9 @@
 |52|/api/case_execute_logs|POST|用例/场景最新执行日志|
 |53|/api/case_execute_logs_page|POST|执行日志分页模糊查询|
 |54|/api/case_scenario_page|POST|用例场景分页模糊查询|
-|55|/api/case_report|POST|生成测试报告|
+|55|/api/user_page|POST|用户分页模糊查询|
+|56|/api/case_report|POST|生成测试报告|
+|57|/api/case_set|POST|用户用例收藏(标记)|
 
 ### 项目部署
 
