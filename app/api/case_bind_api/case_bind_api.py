@@ -10,6 +10,77 @@ from app.models.test_case.models import TestCase, TestCaseData
 from app.models.test_case_assert.models import TestCaseDataAssBind
 
 
+class CaseBindApi(MethodView):
+    """
+    用例绑定-数据-断言-变量Api
+    """
+
+    def post(self):
+        """用例绑定-数据-断言-变量(新增)"""
+
+        data = request.get_json()
+        case_id = data.get('case_id')
+        data_list = data.get('data_list', [])
+
+        query_case = TestCase.query.get(case_id)
+        if not query_case:
+            return api_result(code=400, message="用例: {} 不存在".format(case_id))
+
+        if not data_list:
+            case_bind = TestCaseDataAssBind(
+                case_id=case_id,
+                data_id=None,
+                ass_resp_id_list=[],
+                ass_field_id_list=[],
+                creator=g.app_user.username,
+                creator_id=g.app_user.id
+            )
+            case_bind.save()
+            return api_result(code=201, message="操作成功")
+
+        # TODO 检查这些ID
+        for d in data_list:
+            case_bind = TestCaseDataAssBind(
+                case_id=case_id,
+                data_id=d.get('data_id'),
+                ass_resp_id_list=d.get('ass_resp_id_list', []),
+                ass_field_id_list=d.get('ass_field_id_list', []),
+                creator=g.app_user.username,
+                creator_id=g.app_user.id
+            )
+            case_bind.save()
+        return api_result(code=201, message="操作成功")
+
+    def put(self):
+        """用例绑定-数据-断言-变量(编辑)"""
+        data = request.get_json()
+        case_id = data.get('case_id')
+        data_list = data.get('data_list', [])
+
+        # TODO 多条bind数据处理
+        if data_list:
+            for index, d in enumerate(data_list, 1):
+                data_id = d.get('data_id')
+                query_bind_all = TestCaseDataAssBind.query.filter_by(case_id=case_id, data_id=data_id).all()
+
+                if not query_bind_all:
+                    return api_result(code=400, message="用例-参数: {}-{} 不存在".format(case_id, data_id))
+
+                if len(query_bind_all) == 1:
+                    query_bind = query_bind_all[-1]
+                    query_bind.ass_resp_id_list = d.get('ass_resp_id_list', [])
+                    query_bind.ass_field_id_list = d.get('ass_field_id_list', [])
+                    query_bind.modifier = g.app_user.username
+                    query_bind.modifier_id = g.app_user.id
+
+            try:
+                db.session.commit()
+            except BaseException as e:
+                db.session.rollback()
+
+        return api_result(code=203, message="操作成功")
+
+
 class CaseBindDataApi(MethodView):
     """
     用例配置数据Api
