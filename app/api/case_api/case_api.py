@@ -92,13 +92,14 @@ class CaseApi(MethodView):
             creator_id=g.app_user.id,
         )
         new_test_case.save()
-        return api_result(code=201, message='创建成功', data=[])
+        data['id'] = new_test_case.id
+        return api_result(code=201, message='创建成功', data=data)
 
     def put(self):
         """用例编辑"""
 
         data = request.get_json()
-        case_id = data.get('case_id')
+        case_id = data.get('id')
         case_name = data.get('case_name')
         request_method = data.get('request_method')
         request_base_url = data.get('request_base_url')
