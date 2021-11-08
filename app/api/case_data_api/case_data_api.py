@@ -9,6 +9,16 @@ from all_reference import *
 from app.models.test_case.models import TestCaseData
 from app.api.case_api.case_api import check_var, check_update_var
 
+p = [
+    ("data_name", "数据名称"),
+    ("request_headers", "headers"),
+    ("request_params", "params"),
+    ("request_body", "body"),
+    ("request_body_type", "请求参数类型"),
+    ("var_list", "变量"),
+    ("update_var_list", "关系变量")
+]
+
 
 class CaseReqDataApi(MethodView):
     """
@@ -43,6 +53,10 @@ class CaseReqDataApi(MethodView):
             is_public = d.get('is_public', True)
             _bool, _msg = check_var(var_list=var_list)
 
+            check_bool, check_msg = RequestParamKeysCheck(d, p).ck()
+            if not check_bool:
+                return api_result(code=400, message=check_msg)
+
             if not _bool:
                 return api_result(code=400, message=_msg)
 
@@ -74,11 +88,9 @@ class CaseReqDataApi(MethodView):
         if not isinstance(req_data_json, dict):
             return api_result(code=400, message="req_data_json 错误")
 
-        if not check_keys(
-                req_data_json, 'data_name', 'request_params', 'request_headers', 'request_body', 'request_body_type',
-                'var_list', 'update_var_list'
-        ):
-            return ab_code(400)
+        check_bool, check_msg = RequestParamKeysCheck(req_data_json, p).ck()
+        if not check_bool:
+            return api_result(code=400, message=check_msg)
 
         query_test_case_data = TestCaseData.query.get(req_data_id)
 
@@ -91,6 +103,7 @@ class CaseReqDataApi(MethodView):
         if not _var_list_bool:
             return api_result(code=400, message=_var_list_msg)
 
+        # TODO
         # update_var_list = req_data_json.get('update_var_list')
         # _update_var_list_bool, _update_var_list_msg = check_update_var(update_var_list=update_var_list)
         #
