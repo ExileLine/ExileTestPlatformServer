@@ -51,6 +51,8 @@ def query_case_zip(case_id):
 
     for bind in query_binds:
         data_id = bind.data_id
+        if not data_id:
+            continue
         ass_resp_ids = [] if not bind.ass_resp_id_list else bind.ass_resp_id_list
         ass_field_ids = [] if not bind.ass_field_id_list else bind.ass_field_id_list
 
