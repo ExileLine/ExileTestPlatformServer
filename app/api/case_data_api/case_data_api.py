@@ -7,7 +7,7 @@
 
 from all_reference import *
 from app.models.test_case.models import TestCaseData
-from app.api.case_api.case_api import check_var
+from app.api.case_api.case_api import check_var, check_update_var
 
 
 class CaseReqDataApi(MethodView):
@@ -40,6 +40,7 @@ class CaseReqDataApi(MethodView):
 
         for d in data_list:
             var_list = d.get('var_list')
+            is_public = d.get('is_public', True)
             _bool, _msg = check_var(var_list=var_list)
 
             if not _bool:
@@ -53,6 +54,7 @@ class CaseReqDataApi(MethodView):
                 request_body_type=d.get('request_body_type'),
                 var_list=var_list,
                 update_var_list=d.get('update_var_list', []),
+                is_public=is_public if isinstance(is_public, bool) else True,
                 creator=g.app_user.username,
                 creator_id=g.app_user.id
             )
@@ -84,10 +86,16 @@ class CaseReqDataApi(MethodView):
             return api_result(code=400, message='用例req数据id:{}数据不存在'.format(req_data_id))
 
         var_list = req_data_json.get('var_list')
-        _bool, _msg = check_var(var_list=var_list)
+        _var_list_bool, _var_list_msg = check_var(var_list=var_list)
 
-        if not _bool:
-            return api_result(code=400, message=_msg)
+        if not _var_list_bool:
+            return api_result(code=400, message=_var_list_msg)
+
+        # update_var_list = req_data_json.get('update_var_list')
+        # _update_var_list_bool, _update_var_list_msg = check_update_var(update_var_list=update_var_list)
+        #
+        # if not _update_var_list_bool:
+        #     return api_result(code=400, message=_update_var_list_msg)
 
         data_name = req_data_json.get('data_name')
 
@@ -95,13 +103,16 @@ class CaseReqDataApi(MethodView):
             if TestCaseData.query.filter_by(data_name=data_name).all():
                 return api_result(code=400, message='测试数据名称:{} 已经存在'.format(data_name))
 
+        is_public = req_data_json.get('is_public')
+
         query_test_case_data.data_name = data_name
         query_test_case_data.request_headers = req_data_json.get('request_headers')
         query_test_case_data.request_params = req_data_json.get('request_params')
         query_test_case_data.request_body = req_data_json.get('request_body')
         query_test_case_data.request_body_type = req_data_json.get('request_body_type')
         query_test_case_data.var_list = var_list
-        query_test_case_data.update_var_list = req_data_json.get('update_var_list')
+        query_test_case_data.update_var_list = update_var_list
+        query_test_case_data.is_public = is_public if isinstance(is_public, bool) else True,
         query_test_case_data.modifier = g.app_user.username
         query_test_case_data.modifier_id = g.app_user.id
         db.session.commit()
