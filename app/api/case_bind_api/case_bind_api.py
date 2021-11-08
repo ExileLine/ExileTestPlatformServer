@@ -72,11 +72,14 @@ class CaseBindApi(MethodView):
                     query_bind.ass_field_id_list = d.get('ass_field_id_list', [])
                     query_bind.modifier = g.app_user.username
                     query_bind.modifier_id = g.app_user.id
+        else:
+            query_bind_all = TestCaseDataAssBind.query.filter_by(case_id=case_id).first()
+            query_bind_all.data_id = None
 
-            try:
-                db.session.commit()
-            except BaseException as e:
-                db.session.rollback()
+        try:
+            db.session.commit()
+        except BaseException as e:
+            db.session.rollback()
 
         return api_result(code=203, message="操作成功")
 
