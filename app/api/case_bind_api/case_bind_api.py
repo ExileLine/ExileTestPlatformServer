@@ -27,15 +27,6 @@ class CaseBindApi(MethodView):
             return api_result(code=400, message="用例: {} 不存在".format(case_id))
 
         if not data_list:
-            case_bind = TestCaseDataAssBind(
-                case_id=case_id,
-                data_id=None,
-                ass_resp_id_list=[],
-                ass_field_id_list=[],
-                creator=g.app_user.username,
-                creator_id=g.app_user.id
-            )
-            case_bind.save()
             return api_result(code=201, message="操作成功")
 
         # TODO 检查这些ID
@@ -57,24 +48,32 @@ class CaseBindApi(MethodView):
         case_id = data.get('case_id')
         data_list = data.get('data_list', [])
 
-        # TODO 多条bind数据处理
         if data_list:
-            for index, d in enumerate(data_list, 1):
+            for d in data_list:
                 data_id = d.get('data_id')
-                query_bind_all = TestCaseDataAssBind.query.filter_by(case_id=case_id, data_id=data_id).all()
+                query_bind = TestCaseDataAssBind.query.filter_by(case_id=case_id, data_id=data_id).first()
 
-                if not query_bind_all:
-                    return api_result(code=400, message="用例-参数: {}-{} 不存在".format(case_id, data_id))
-
-                if len(query_bind_all) == 1:
-                    query_bind = query_bind_all[-1]
+                if not query_bind:
+                    new_bind = TestCaseDataAssBind(
+                        case_id=case_id,
+                        data_id=data_id,
+                        ass_resp_id_list=d.get('ass_resp_id_list', []),
+                        ass_field_id_list=d.get('ass_field_id_list', []),
+                        creator=g.app_user.username,
+                        creator_id=g.app_user.id
+                    )
+                    db.session.add(new_bind)
+                else:
                     query_bind.ass_resp_id_list = d.get('ass_resp_id_list', [])
                     query_bind.ass_field_id_list = d.get('ass_field_id_list', [])
                     query_bind.modifier = g.app_user.username
                     query_bind.modifier_id = g.app_user.id
+
         else:
-            query_bind_all = TestCaseDataAssBind.query.filter_by(case_id=case_id).first()
-            query_bind_all.data_id = None
+
+            query_bind = TestCaseDataAssBind.query.filter_by(case_id=case_id).all()
+            for i in query_bind:
+                i.is_deleted = i.id
 
         try:
             db.session.commit()
