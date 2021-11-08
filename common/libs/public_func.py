@@ -51,7 +51,8 @@ def json_format(d, msg=None):
 
 class RequestParamKeysCheck:
     """
-    入参检验
+    入参检验必须要传递的kay
+
     req_json:
 
         d = {
