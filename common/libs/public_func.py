@@ -85,13 +85,6 @@ class RequestParamKeysCheck:
         self.req_json = req_json
         self.key_list = key_list
 
-    @staticmethod
-    def __check_keys(dic, *keys):
-        for k in keys:
-            if k[0] not in dic.keys():
-                return False, "缺少参数:{}".format(k[1])
-        return True, "pass"
-
     def ck(self):
         """ck"""
         if self.req_json and self.key_list:
