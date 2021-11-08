@@ -66,50 +66,47 @@ class CaseReqDataApi(MethodView):
         """用例req数据编辑"""
 
         data = request.get_json()
-        req_data_id = data.get('req_data_id')
+        req_data_id = data.get('id')
         req_data_json = data.get('req_data_json', {})
 
-        if isinstance(req_data_json, dict):
-            _check_bool = check_keys(
+        if not isinstance(req_data_json, dict):
+            return api_result(code=400, message="req_data_json 错误")
+
+        if not check_keys(
                 req_data_json, 'data_name', 'request_params', 'request_headers', 'request_body', 'request_body_type',
                 'var_list', 'update_var_list'
-            )
-        else:
-            _check_bool = False
-
-        if not _check_bool:
+        ):
             return ab_code(400)
 
-        query_test_case = TestCaseData.query.get(req_data_id)
+        query_test_case_data = TestCaseData.query.get(req_data_id)
 
-        if not query_test_case:
+        if not query_test_case_data:
             return api_result(code=400, message='用例req数据id:{}数据不存在'.format(req_data_id))
 
-        for d in [req_data_json]:
-            var_list = d.get('var_list')
-            _bool, _msg = check_var(var_list=var_list)
+        var_list = req_data_json.get('var_list')
+        _bool, _msg = check_var(var_list=var_list)
 
-            if not _bool:
-                return api_result(code=400, message=_msg)
+        if not _bool:
+            return api_result(code=400, message=_msg)
 
-            data_name = d.get('data_name')
+        data_name = req_data_json.get('data_name')
 
-            if query_test_case.data_name != data_name:
-                if TestCaseData.query.filter_by(data_name=data_name).all():
-                    return api_result(code=400, message='测试数据名称:{} 已经存在'.format(data_name))
+        if query_test_case_data.data_name != data_name:
+            if TestCaseData.query.filter_by(data_name=data_name).all():
+                return api_result(code=400, message='测试数据名称:{} 已经存在'.format(data_name))
 
-            query_test_case.data_name = data_name,
-            query_test_case.request_params = d.get('request_params'),
-            query_test_case.request_headers = d.get('request_headers'),
-            query_test_case.request_body = d.get('request_body'),
-            query_test_case.request_body_type = d.get('request_body_type'),
-            query_test_case.var_list = var_list,
-            query_test_case.update_var_list = d.get('update_var_list')
-            query_test_case.modifier = g.app_user.username
-            query_test_case.modifier_id = g.app_user.id
-            db.session.commit()
+        query_test_case_data.data_name = data_name
+        query_test_case_data.request_headers = req_data_json.get('request_headers')
+        query_test_case_data.request_params = req_data_json.get('request_params')
+        query_test_case_data.request_body = req_data_json.get('request_body')
+        query_test_case_data.request_body_type = req_data_json.get('request_body_type')
+        query_test_case_data.var_list = var_list
+        query_test_case_data.update_var_list = req_data_json.get('update_var_list')
+        query_test_case_data.modifier = g.app_user.username
+        query_test_case_data.modifier_id = g.app_user.id
+        db.session.commit()
 
-            return api_result(code=203, message='编辑成功')
+        return api_result(code=203, message='编辑成功')
 
     def delete(self):
         """用例req数据删除"""
