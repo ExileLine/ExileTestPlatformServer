@@ -10,7 +10,8 @@
 
 ### 项目文档
 
-- 文档地址：https://github.com/yangyuexiong/ExileTestPlatformServer
+- 文档地址-GitHub：https://github.com/yangyuexiong/ExileTestPlatformServer
+- 文档地址-码云：https://gitee.com/yangyuexiong/ExileTestPlatformServer
 
 ### 项目介绍
 
@@ -18,9 +19,9 @@
 
 ### 项目演示
 
-- 前端项目地址：https://github.com/yangyuexiong/ExileTestPlatformWeb
-
 - 项目演示地址：`待补充`
+- 前端项目地址-GitHub：https://github.com/yangyuexiong/ExileTestPlatformWeb
+- 前端项目地址-码云：https://gitee.com/yangyuexiong/ExileTestPlatformWeb
 
 ### 系统架构图
 
@@ -69,7 +70,8 @@
 
 ### 项目结构
 
-- 参考我的Flask最佳实践：https://github.com/yangyuexiong/Flask_BestPractices
+- 参考我的-Flask最佳实践-GitHub：https://github.com/yangyuexiong/Flask_BestPractices
+- 参考我的-Flask最佳实践-码云：https://gitee.com/yangyuexiong/Flask_BestPractices
 
 ### 接口清单
 
