@@ -135,6 +135,7 @@
 |55|/api/user_page|POST|用户分页模糊查询|
 |56|/api/case_report|POST|生成测试报告|
 |57|/api/case_set|POST|用户用例收藏(标记)|
+|58|/api/case_bind|POST|用例(参数/断言/变量)统一绑定|
 
 ### 项目部署
 

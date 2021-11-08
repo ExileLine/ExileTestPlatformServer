@@ -20,6 +20,7 @@ class TestCase(BaseModel):
     is_pass = db.Column(db.Integer, default=0, comment='0-不跳过;1-跳过')
     is_shared = db.Column(db.Integer, default=0, comment='0-仅创建者执行;1-共享执行')
     total_execution = db.Column(db.Integer, default=0, comment='执行次数总计')
+    is_public = db.Column(TINYINT(1, unsigned=True), default=1, comment='是否公共使用:0-否;1-是')
     creator = db.Column(db.String(32), comment='创建人')
     creator_id = db.Column(BIGINT(20, unsigned=True), comment='创建人id')
     modifier = db.Column(db.String(32), comment='更新人')
