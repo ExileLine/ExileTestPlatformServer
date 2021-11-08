@@ -50,6 +50,14 @@ def check_method(current_method):
         return False
 
 
+p = [
+    ("case_name", "用例名称"),
+    ("request_method", "请求方式"),
+    ("request_base_url", "base url"),
+    ("request_url", "url")
+]
+
+
 class CaseApi(MethodView):
     """
     用例Api
@@ -81,6 +89,10 @@ class CaseApi(MethodView):
         is_shared = data.get('is_shared', 0)
         is_public = data.get('is_public', True)
         remark = data.get('remark')
+
+        check_bool, check_msg = RequestParamKeysCheck(data, p).ck()
+        if not check_bool:
+            return api_result(code=400, message=check_msg)
 
         _bool, _msg = check_var(var_list=var_list)
         request_method_result = check_method(current_method=request_method)
@@ -124,6 +136,10 @@ class CaseApi(MethodView):
         is_shared = data.get('is_shared', 0)
         is_public = data.get('is_public', True)
         remark = data.get('remark')
+
+        check_bool, check_msg = RequestParamKeysCheck(data, p).ck()
+        if not check_bool:
+            return api_result(code=400, message=check_msg)
 
         query_case = TestCase.query.get(case_id)
 
