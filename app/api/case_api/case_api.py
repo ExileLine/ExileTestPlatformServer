@@ -28,6 +28,20 @@ def check_var(var_list):
     return True, 'pass'
 
 
+def check_update_var(update_var_list):
+    """检查需要更新的变量是否存在"""
+
+    def __func(x):
+        if isinstance(x, dict):
+            return x.get('id')
+
+    if update_var_list:
+        update_var_id_list = list(set(map(__func, update_var_list)))
+        print(update_var_id_list)
+
+    return True, 'pass'
+
+
 def check_method(current_method):
     """检查method"""
     if current_method.upper() in ['GET', 'POST', 'PUT', 'DELETE']:
@@ -65,6 +79,7 @@ class CaseApi(MethodView):
         request_url = data.get('request_url')
         var_list = data.get('var_list', [])
         is_shared = data.get('is_shared', 0)
+        is_public = data.get('is_public', True)
         remark = data.get('remark')
 
         _bool, _msg = check_var(var_list=var_list)
@@ -87,6 +102,7 @@ class CaseApi(MethodView):
             request_base_url=request_base_url,
             request_url=request_url,
             is_shared=is_shared,
+            is_public=is_public if isinstance(is_public, bool) else True,
             remark=remark,
             creator=g.app_user.username,
             creator_id=g.app_user.id,
@@ -106,6 +122,7 @@ class CaseApi(MethodView):
         request_url = data.get('request_url')
         var_list = data.get('var_list', [])
         is_shared = data.get('is_shared', 0)
+        is_public = data.get('is_public', True)
         remark = data.get('remark')
 
         query_case = TestCase.query.get(case_id)
@@ -127,6 +144,7 @@ class CaseApi(MethodView):
         query_case.request_base_url = request_base_url
         query_case.request_url = request_url
         query_case.is_shared = is_shared
+        query_case.is_public = is_public if isinstance(is_public, bool) else True
         query_case.remark = remark
         query_case.modifier = g.app_user.username
         query_case.modifier_id = g.app_user.id
