@@ -65,6 +65,7 @@ class CaseVarApi(MethodView):
         var_type = data.get('var_type')
         var_source = data.get('var_source')
         var_get_key = data.get('var_get_key')
+        is_public = data.get('is_public', True)
         remark = data.get('remark')
 
         query_var = TestVariable.query.filter_by(var_name=var_name).first()
@@ -78,6 +79,7 @@ class CaseVarApi(MethodView):
                 var_type=var_type_dict.get(var_type.lower()),
                 var_source=var_source_dict.get(var_source),
                 var_get_key=var_get_key,
+                is_public=is_public if isinstance(is_public, bool) else True,
                 remark=remark,
                 creator=g.app_user.username,
                 creator_id=g.app_user.id
@@ -99,6 +101,7 @@ class CaseVarApi(MethodView):
         var_type = data.get('var_type')
         var_source = data.get('var_source')
         var_get_key = data.get('var_get_key')
+        is_public = data.get('is_public', True)
         remark = data.get('remark')
 
         query_var_filter = TestVariable.query.filter_by(var_name=var_name).first()
@@ -113,6 +116,7 @@ class CaseVarApi(MethodView):
             query_var.var_type = var_type_dict.get(var_type.lower())
             query_var.var_source = var_source_dict.get(var_source)
             query_var.var_get_key = var_get_key
+            query_var.is_public = is_public if isinstance(is_public, bool) else True
             query_var.remark = remark
             query_var.modifier = g.app_user.username
             query_var.modifier_id = g.app_user.id
