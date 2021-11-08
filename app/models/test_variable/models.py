@@ -20,6 +20,7 @@ class TestVariable(BaseModel):
     var_get_key = db.Column(db.String(255), comment='值对应的key(用于关系变量获取)')
     last_func = db.Column(db.String(255), comment='上次最后使用的函数')
     last_func_var = db.Column(db.String(255), comment='上次最后函数使用的值')
+    is_public = db.Column(TINYINT(1, unsigned=True), default=1, comment='是否公共使用:0-否;1-是')
     creator = db.Column(db.String(32), comment='创建人')
     creator_id = db.Column(BIGINT(20, unsigned=True), comment='创建人id')
     modifier = db.Column(db.String(32), comment='更新人')
