@@ -10,6 +10,7 @@ import decimal
 import time
 from datetime import datetime
 
+from flask import g
 from sqlalchemy import text
 from sqlalchemy.dialects.mysql import BIGINT, TINYINT
 
@@ -138,3 +139,39 @@ class BaseModel(db.Model):
         except BaseException as e:
             db.session.rollback()
             raise TypeError('delete error {}'.format(str(e)))
+
+
+class BusinessModel:
+    """
+    业务通用字段
+    """
+    creator = db.Column(db.String(32), comment='创建人')
+    creator_id = db.Column(BIGINT(20, unsigned=True), comment='创建人id')
+    modifier = db.Column(db.String(32), comment='更新人')
+    modifier_id = db.Column(BIGINT(20, unsigned=True), comment='更新人id')
+    remark = db.Column(db.String(255), comment='备注')
+
+    def create_rich(self, creator=None, creator_id=None, remark=None, is_commit=None):
+        """写入操作字段补充"""
+        self.creator = creator if creator else g.app_user.username
+        self.creator_id = creator_id if creator_id else g.app_user.id
+        self.remark = remark
+        if is_commit:
+            try:
+                db.session.add(self)
+                db.session.commit()
+            except BaseException as e:
+                db.session.rollback()
+                raise TypeError('create_rich error {}'.format(str(e)))
+
+    def update_rich(self, modifier=None, modifier_id=None, remark=None, is_commit=None):
+        """更新操作字段补充"""
+        self.creator = modifier if modifier else g.app_user.username
+        self.creator_id = modifier_id if modifier_id else g.app_user.id
+        self.remark = remark
+        if is_commit:
+            try:
+                db.session.commit()
+            except BaseException as e:
+                db.session.rollback()
+                raise TypeError('update_rich error {}'.format(str(e)))
