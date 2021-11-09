@@ -46,5 +46,6 @@ if __name__ == '__main__':
     print('父进程id:{}'.format(os.getppid()))
     print('子进程id:{}'.format(os.getpid()))
     print('线程id:{}'.format(threading.get_ident()))
+    # print(app.url_map)
     print('<', '-' * 66, '>')
     main()
