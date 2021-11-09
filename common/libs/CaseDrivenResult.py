@@ -19,6 +19,7 @@ from common.libs.db import project_db, R
 from common.libs.public_func import check_keys
 from common.libs.assert_related import AssertMain
 from common.libs.StringIOLog import StringIOLog
+from common.libs.execute_code import execute_code
 
 var_func_dict = {
     "Date": str(datetime.datetime.now().date()),
@@ -421,12 +422,40 @@ class MainTest:
 
     def update_var(self):
         """更新变量"""
+
+        var_source_dict = {
+            "resp_data": self.resp_json,
+            "resp_headers": self.resp_headers
+        }
+
         if self.update_var_list:
             for up in self.update_var_list:
+                """
+                {
+                    "id": 3,
+                    "var_name": "变量1",
+                    "var_value": "更新",
+                    "var_source": "resp_data",
+                    "expression": "obj.get('code')",
+                    "is_expression":0,
+                    "var_get_key": "code"
+                }
+                """
                 id = up.get('id')
-                var_value = up.get('var_value')
+                var_source = up.get('var_source')
+                var_get_key = up.get('var_get_key')
+                expression = up.get('expression')
+                is_expression = up.get('is_expression', 0)
+                data = var_source_dict.get(var_source)
+
+                if bool(is_expression):
+                    result_json = execute_code(code=expression, data=data)
+                    update_val_result = result_json.get('result_data')
+                else:
+                    update_val_result = data.get(var_get_key)
+
                 sql = """UPDATE exilic_test_variable SET var_value='{}' WHERE id='{}';""".format(
-                    json.dumps(var_value, ensure_ascii=False), id)
+                    json.dumps(update_val_result, ensure_ascii=False), id)
                 self.sio.log('=== update sql === 【 {} 】'.format(sql), status='success')
                 project_db.update_data(sql)
         else:
