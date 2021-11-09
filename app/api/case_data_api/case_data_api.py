@@ -104,7 +104,7 @@ class CaseReqDataApi(MethodView):
             return api_result(code=400, message=_var_list_msg)
 
         # TODO
-        # update_var_list = req_data_json.get('update_var_list')
+        update_var_list = req_data_json.get('update_var_list')
         # _update_var_list_bool, _update_var_list_msg = check_update_var(update_var_list=update_var_list)
         #
         # if not _update_var_list_bool:
