@@ -107,9 +107,10 @@ if __name__ == '__main__':
                             "id": 3,
                             "var_name": "变量1",
                             "var_value": "更新",
-                            "expression": "obj.get('code')",
                             "var_source": "resp_data",
-                            "var_get_key": "var_get_key"
+                            "expression": "obj.get('message')",
+                            "is_expression": 0,
+                            "var_get_key": "code"
                         }
                     ],
                     "var_list": [
