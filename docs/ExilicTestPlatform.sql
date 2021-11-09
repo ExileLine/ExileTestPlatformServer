@@ -4,7 +4,7 @@
 -- https://tableplus.com/
 --
 -- Database: ExilicTestPlatform
--- Generation Time: 2021-10-15 10:08:43.8210
+-- Generation Time: 2021-11-09 16:03:43.8320
 -- -------------------------------------------------------------
 
 
@@ -239,8 +239,33 @@ CREATE TABLE `exilic_test_case` (
   `total_execution` int(11) DEFAULT NULL COMMENT '执行次数总计',
   `is_shared` int(11) DEFAULT NULL COMMENT '0-仅创建者执行;1-共享执行',
   `request_base_url` varchar(255) COLLATE utf8mb4_bin NOT NULL COMMENT '请求BaseURL',
+  `is_public` tinyint(1) unsigned DEFAULT NULL COMMENT '是否公共使用:0-否;1-是',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=22 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin COMMENT='测试用例';
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin COMMENT='测试用例';
+
+CREATE TABLE `exilic_test_case_after` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT COMMENT 'id',
+  `create_time` datetime DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间(结构化时间)',
+  `create_timestamp` bigint(20) unsigned DEFAULT NULL COMMENT '创建时间(时间戳)',
+  `update_time` datetime DEFAULT NULL COMMENT '更新时间(结构化时间)',
+  `update_timestamp` bigint(20) unsigned DEFAULT NULL COMMENT '更新时间(时间戳)',
+  `is_deleted` bigint(20) unsigned DEFAULT NULL COMMENT '0正常;其他:已删除',
+  `status` tinyint(3) unsigned DEFAULT '1' COMMENT '状态',
+  `after_sql` varchar(1024) COLLATE utf8mb4_bin DEFAULT NULL COMMENT 'sql',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin COMMENT='用例后置';
+
+CREATE TABLE `exilic_test_case_before` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT COMMENT 'id',
+  `create_time` datetime DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间(结构化时间)',
+  `create_timestamp` bigint(20) unsigned DEFAULT NULL COMMENT '创建时间(时间戳)',
+  `update_time` datetime DEFAULT NULL COMMENT '更新时间(结构化时间)',
+  `update_timestamp` bigint(20) unsigned DEFAULT NULL COMMENT '更新时间(时间戳)',
+  `is_deleted` bigint(20) unsigned DEFAULT NULL COMMENT '0正常;其他:已删除',
+  `status` tinyint(3) unsigned DEFAULT '1' COMMENT '状态',
+  `before_sql` varchar(1024) COLLATE utf8mb4_bin DEFAULT NULL COMMENT 'sql',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin COMMENT='用例前置';
 
 CREATE TABLE `exilic_test_case_data` (
   `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT COMMENT 'id',
@@ -262,8 +287,9 @@ CREATE TABLE `exilic_test_case_data` (
   `modifier_id` bigint(20) unsigned DEFAULT NULL COMMENT '更新人id',
   `remark` varchar(255) COLLATE utf8mb4_bin DEFAULT NULL COMMENT '备注',
   `update_var_list` json DEFAULT NULL COMMENT '更新变量列表',
+  `is_public` tinyint(1) unsigned DEFAULT NULL COMMENT '是否公共使用:0-否;1-是',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=23 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin COMMENT='测试用例参数';
+) ENGINE=InnoDB AUTO_INCREMENT=36 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin COMMENT='测试用例参数';
 
 CREATE TABLE `exilic_test_case_scenario` (
   `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT COMMENT 'id',
@@ -282,6 +308,25 @@ CREATE TABLE `exilic_test_case_scenario` (
   `remark` varchar(255) COLLATE utf8mb4_bin DEFAULT NULL COMMENT '备注',
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin COMMENT='测试用例场景';
+
+CREATE TABLE `exilic_test_case_set` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT COMMENT 'id',
+  `create_time` datetime DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间(结构化时间)',
+  `create_timestamp` bigint(20) unsigned DEFAULT NULL COMMENT '创建时间(时间戳)',
+  `update_time` datetime DEFAULT NULL COMMENT '更新时间(结构化时间)',
+  `update_timestamp` bigint(20) unsigned DEFAULT NULL COMMENT '更新时间(时间戳)',
+  `is_deleted` bigint(20) unsigned DEFAULT NULL COMMENT '0正常;其他:已删除',
+  `status` tinyint(3) unsigned DEFAULT '1' COMMENT '状态',
+  `user_id` bigint(20) unsigned DEFAULT NULL COMMENT '用户id',
+  `case_id_list` json DEFAULT NULL COMMENT '用例id列表',
+  `creator` varchar(32) COLLATE utf8mb4_bin DEFAULT NULL COMMENT '创建人',
+  `creator_id` bigint(20) unsigned DEFAULT NULL COMMENT '创建人id',
+  `modifier` varchar(32) COLLATE utf8mb4_bin DEFAULT NULL COMMENT '更新人',
+  `modifier_id` bigint(20) unsigned DEFAULT NULL COMMENT '更新人id',
+  `remark` varchar(255) COLLATE utf8mb4_bin DEFAULT NULL COMMENT '备注',
+  `scenario_id_list` json DEFAULT NULL COMMENT '场景id列表',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin COMMENT='用户用例收藏';
 
 CREATE TABLE `exilic_test_databases` (
   `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT COMMENT 'id',
@@ -336,7 +381,7 @@ CREATE TABLE `exilic_test_execute_logs` (
   `creator_id` bigint(20) unsigned DEFAULT NULL COMMENT '创建人id',
   `remark` varchar(255) COLLATE utf8mb4_bin DEFAULT NULL COMMENT '备注',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin COMMENT='用例执行记录表';
+) ENGINE=InnoDB AUTO_INCREMENT=17 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin COMMENT='用例执行记录表';
 
 CREATE TABLE `exilic_test_logs` (
   `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT COMMENT 'id',
@@ -351,7 +396,7 @@ CREATE TABLE `exilic_test_logs` (
   `creator_id` bigint(20) unsigned DEFAULT NULL COMMENT '创建人id',
   `remark` varchar(255) COLLATE utf8mb4_bin DEFAULT NULL COMMENT '备注',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=15 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin COMMENT='日志记录表';
+) ENGINE=InnoDB AUTO_INCREMENT=21 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin COMMENT='日志记录表';
 
 CREATE TABLE `exilic_test_variable` (
   `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT COMMENT 'id',
@@ -373,8 +418,11 @@ CREATE TABLE `exilic_test_variable` (
   `remark` varchar(255) COLLATE utf8mb4_bin DEFAULT NULL COMMENT '备注',
   `last_func` varchar(255) COLLATE utf8mb4_bin DEFAULT NULL COMMENT '上次最后使用的函数',
   `last_func_var` varchar(255) COLLATE utf8mb4_bin DEFAULT NULL COMMENT '上次最后函数使用的值',
+  `is_public` tinyint(1) unsigned DEFAULT NULL COMMENT '是否公共使用:0-否;1-是',
+  `expression` varchar(255) COLLATE utf8mb4_bin DEFAULT NULL COMMENT '取值表达式',
+  `is_expression` tinyint(1) unsigned DEFAULT NULL COMMENT '是否使用取值表达式:0-否;1-是',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin COMMENT='测试用例变量';
+) ENGINE=InnoDB AUTO_INCREMENT=24 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin COMMENT='测试用例变量';
 
 
 
