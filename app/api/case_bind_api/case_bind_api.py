@@ -77,11 +77,20 @@ class CaseBindApi(MethodView):
             # bj = list(set(query_bind_all_id).union(set(data_list_id)))
 
             for q in query_bind_all:
+                data_obj = list(filter(lambda n: n if n.get('data_id') == q.data_id else None, data_list))
                 if q.data_id in jj:
+                    q.ass_resp_id_list = data_obj[-1].get('ass_resp_id_list')
+                    q.ass_field_id_list = data_obj[-1].get('ass_field_id_list')
+                    q.modifier = g.app_user.username
+                    q.modifier_id = g.app_user.id
                     q.is_deleted = 0
+                    q.remark = "交集(激活)"
 
                 elif q.data_id in source_cj:
                     q.is_deleted = q.id
+                    q.modifier = g.app_user.username
+                    q.modifier_id = g.app_user.id
+                    q.remark = "源数据差集(逻辑删除)"
 
             if new_data_cj:
                 new_data_list = list(filter(lambda n: n if n.get('data_id') in new_data_cj else None, data_list))
@@ -99,7 +108,8 @@ class CaseBindApi(MethodView):
                         ass_resp_id_list=d.get('ass_resp_id_list', []),
                         ass_field_id_list=d.get('ass_field_id_list', []),
                         creator=g.app_user.username,
-                        creator_id=g.app_user.id
+                        creator_id=g.app_user.id,
+                        remark="新数据差集(创建)"
                     )
                     db.session.add(new_bind)
 
