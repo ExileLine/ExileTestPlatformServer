@@ -53,6 +53,9 @@ class CaseBindApi(MethodView):
         if not data_list:
             for i in query_bind_all:
                 i.is_deleted = i.id
+                i.modifier = g.app_user.username
+                i.modifier_id = g.app_user.id
+                i.remark = "清空参数(逻辑删除)"
             try:
                 db.session.commit()
             except BaseException as e:
