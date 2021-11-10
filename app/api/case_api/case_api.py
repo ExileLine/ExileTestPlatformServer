@@ -85,7 +85,6 @@ class CaseApi(MethodView):
         request_method = data.get('request_method')
         request_base_url = data.get('request_base_url')
         request_url = data.get('request_url')
-        var_list = data.get('var_list', [])
         is_shared = data.get('is_shared', 0)
         is_public = data.get('is_public', True)
         remark = data.get('remark')
@@ -94,11 +93,7 @@ class CaseApi(MethodView):
         if not check_bool:
             return api_result(code=400, message=check_msg)
 
-        _bool, _msg = check_var(var_list=var_list)
         request_method_result = check_method(current_method=request_method)
-
-        if not _bool:
-            return api_result(code=400, message=_msg)
 
         if not request_method_result:
             return api_result(code=400, message='请求方式:{} 不存在'.format(request_method))
@@ -132,7 +127,6 @@ class CaseApi(MethodView):
         request_method = data.get('request_method')
         request_base_url = data.get('request_base_url')
         request_url = data.get('request_url')
-        var_list = data.get('var_list', [])
         is_shared = data.get('is_shared', 0)
         is_public = data.get('is_public', True)
         remark = data.get('remark')
@@ -145,8 +139,6 @@ class CaseApi(MethodView):
 
         if not query_case:
             return api_result(code=400, message='用例id:{}数据不存在'.format(case_id))
-
-        _bool, _msg = check_var(var_list=var_list)
 
         if not _bool:
             return api_result(code=400, message=_msg)
