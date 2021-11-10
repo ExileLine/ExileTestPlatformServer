@@ -20,6 +20,42 @@ p = [
 ]
 
 
+def check_variable(before_var):
+    """检查数据可以中是否存在变量"""
+
+    before_var_init = before_var
+    if isinstance(before_var_init, (list, dict)):
+        before_var = json.dumps(before_var, ensure_ascii=False)
+
+    result_list = re.findall('\\$\\{([^}]*)', before_var)
+
+    query_done_list = []
+    query_none_list = []
+
+    result = {
+        "status": True,
+        "query_done_list": query_done_list,
+        "query_none_list": query_none_list
+    }
+
+    if not result_list:
+        return result
+
+    for res in result_list:
+        sql = """select var_value from exilic_test_variable where var_name='{}';""".format(res)
+        query_result = project_db.select(sql=sql, only=True)
+        if query_result:
+            query_done_list.append(res)
+        else:
+            query_none_list.append(res)
+
+    if query_none_list:
+        result['status'] = False
+        return result
+
+    return result
+
+
 class CaseReqDataApi(MethodView):
     """
     用例req数据Api
@@ -41,7 +77,7 @@ class CaseReqDataApi(MethodView):
 
     def post(self):
         """用例req数据新增"""
-
+        # TODO 使用变量统一获取检验
         data = request.get_json()
         data_list = data.get('data_list', [])
 
@@ -49,16 +85,15 @@ class CaseReqDataApi(MethodView):
             return ab_code(400)
 
         for d in data_list:
-            var_list = d.get('var_list')
             is_public = d.get('is_public', True)
-            _bool, _msg = check_var(var_list=var_list)
+
+            check_result = check_variable(d)
+            if not check_result.get('status'):
+                return api_result(code=400, message="参数不存在:{}".format(check_result.get('query_none_list')))
 
             check_bool, check_msg = RequestParamKeysCheck(d, p).ck()
             if not check_bool:
                 return api_result(code=400, message=check_msg)
-
-            if not _bool:
-                return api_result(code=400, message=_msg)
 
             new_case_data = TestCaseData(
                 data_name=d.get('data_name'),
@@ -66,7 +101,6 @@ class CaseReqDataApi(MethodView):
                 request_headers=d.get('request_headers'),
                 request_body=d.get('request_body'),
                 request_body_type=d.get('request_body_type'),
-                var_list=var_list,
                 update_var_list=d.get('update_var_list', []),
                 is_public=is_public if isinstance(is_public, bool) else True,
                 creator=g.app_user.username,
@@ -97,11 +131,9 @@ class CaseReqDataApi(MethodView):
         if not query_test_case_data:
             return api_result(code=400, message='用例req数据id:{}数据不存在'.format(req_data_id))
 
-        var_list = req_data_json.get('var_list')
-        _var_list_bool, _var_list_msg = check_var(var_list=var_list)
-
-        if not _var_list_bool:
-            return api_result(code=400, message=_var_list_msg)
+        check_result = check_variable(data)
+        if not check_result.get('status'):
+            return api_result(code=400, message="参数不存在:{}".format(check_result.get('query_none_list')))
 
         # TODO
         update_var_list = req_data_json.get('update_var_list')
@@ -123,7 +155,6 @@ class CaseReqDataApi(MethodView):
         query_test_case_data.request_params = req_data_json.get('request_params')
         query_test_case_data.request_body = req_data_json.get('request_body')
         query_test_case_data.request_body_type = req_data_json.get('request_body_type')
-        query_test_case_data.var_list = var_list
         query_test_case_data.update_var_list = update_var_list
         query_test_case_data.is_public = is_public if isinstance(is_public, bool) else True,
         query_test_case_data.modifier = g.app_user.username
