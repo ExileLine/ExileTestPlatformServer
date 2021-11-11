@@ -107,9 +107,6 @@ class CaseApi(MethodView):
         if not query_case:
             return api_result(code=400, message='用例id:{}数据不存在'.format(case_id))
 
-        if not _bool:
-            return api_result(code=400, message=_msg)
-
         if query_case.case_name != case_name:
             if TestCase.query.filter_by(case_name=case_name).all():
                 return api_result(code=400, message='用例名称:{} 已经存在'.format(case_name))
@@ -163,7 +160,7 @@ class CasePageApi(MethodView):
 
         sql = """
         SELECT * 
-        FROM exilic_test_case  
+        FROM exile_test_case  
         WHERE 
         id LIKE"%%" 
         and case_name LIKE"%B1%" 
