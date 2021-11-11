@@ -58,28 +58,17 @@ def check_variable(before_var):
 def check_update_var(update_var_list):
     """
     检查需要更新的变量是否存在
-    {
-        "id": 3,
-        "var_name": "变量1",
-        "var_value": "更新",
-        "var_source": "resp_data",
-        "expression": "obj.get('code')",
-        "is_expression":0,
-        "var_get_key": "code"
-    }
     """
-
     if update_var_list:
-        update_var_id_list = list(set(map(lambda x: x.get('id') if isinstance(x, dict) else None, update_var_list)))
         if len(update_var_list) == 1:
-            sql = """SELECT id FROM exilic_test_variable WHERE id = {};""".format(update_var_list[-1].get('id'))
+            sql = """SELECT id FROM exilic_test_variable WHERE id = {};""".format(update_var_list[-1])
             logger.success(sql)
         else:
-            sql = """SELECT id FROM exilic_test_variable WHERE id in {};""".format(tuple(update_var_id_list))
+            sql = """SELECT id FROM exilic_test_variable WHERE id in {};""".format(tuple(update_var_list))
             logger.success(sql)
         query_result = project_db.select(sql)
         query_result_id = list(map(lambda x: x.get('id'), query_result))
-        cj = list(set(update_var_id_list).difference(set(query_result_id)))
+        cj = list(set(update_var_list).difference(set(query_result_id)))
         if cj:
             logger.error("cj:{}".format(cj))
             return False, '更新的变量不存在:{}'.format(cj)
