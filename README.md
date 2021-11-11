@@ -35,7 +35,7 @@
 
 ### 数据库表设计
 
-- [SQL文件：ExilicTestPlatform.sql](./docs/ExileTestPlatform.sql)
+- [SQL文件：ExileTestPlatform.sql](./docs/ExileTestPlatform.sql)
 
 ![数据库表设计](docs/ExileTestPlatform数据库表设计.png)
 
