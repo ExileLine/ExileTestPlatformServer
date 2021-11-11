@@ -52,11 +52,11 @@ request_method = ["GET", "POST", "PUT", "DELETE"]
 if __name__ == '__main__':
     import random
     from common.libs.set_app_context import set_app_context
-    from app.models.test_case.models import TestCase, db
+    from app.models.test_case.models import TestCase, db, TestCaseData
 
 
     @set_app_context
-    def main():
+    def main1():
         for index, url in enumerate(api_list, 1):
             new_test_case = TestCase(
                 case_name="测试:" + url,
@@ -75,7 +75,7 @@ if __name__ == '__main__':
 
 
     @set_app_context
-    def main1():
+    def main2():
         all_case = TestCase.query.all()
         for index, case in enumerate(all_case, 1):
             case.request_method = random.choice(request_method)
@@ -84,5 +84,28 @@ if __name__ == '__main__':
         db.session.commit()
 
 
-    # main()
-    main1()
+    @set_app_context
+    def main3():
+        for index, i in enumerate(range(0, 33)):
+            tcd = TestCaseData(
+                data_name="",
+                request_headers={
+                    "token": "${token}"
+                },
+                request_params={},
+                request_body={
+                    "user_id": "${user_id}",
+                    "password": index * random.randint(111111, 333333)
+                },
+                request_body_type=1,
+                update_var_list=[],
+                remark="脚本生成:{}".format(index),
+                creator="脚本生成:{}".format(index),
+                creator_id=999999,
+            )
+            db.session.add(tcd)
+        db.session.commit()
+
+    # main1()
+    # main2()
+    # main3()
