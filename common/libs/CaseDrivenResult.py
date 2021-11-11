@@ -433,8 +433,6 @@ class MainTest:
                 """
                 {
                     "id": 3,
-                    "var_name": "变量1",
-                    "var_value": "更新",
                     "var_source": "resp_data",
                     "expression": "obj.get('code')",
                     "is_expression":0,
@@ -449,9 +447,11 @@ class MainTest:
                 data = var_source_dict.get(var_source)
 
                 if bool(is_expression):
+                    # 表达式取值
                     result_json = execute_code(code=expression, data=data)
                     update_val_result = result_json.get('result_data')
                 else:
+                    # 直接取值
                     update_val_result = data.get(var_get_key)
 
                 sql = """UPDATE exile_test_variable SET var_value='{}' WHERE id='{}';""".format(
