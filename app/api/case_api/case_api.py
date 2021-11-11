@@ -7,39 +7,6 @@
 
 from all_reference import *
 from app.models.test_case.models import TestCase
-from app.models.test_variable.models import TestVariable
-
-
-def check_var(var_list):
-    """检查使用的变量是否存在"""
-    # var_list = d.get('var_list')
-    if var_list:
-        query_var_list = TestVariable.query.filter(TestVariable.var_name.in_(var_list)).all()
-        if not query_var_list:
-            # return api_result(code=400, message='应用的变量:{}不存在,请先创建创建'.format(var_list))
-            return False, '应用的变量:{}不存在,请先创建创建'.format(var_list)
-
-        l2 = [v.var_name for v in query_var_list]
-        r = [i for i in var_list if i not in l2]
-        if r:
-            # return api_result(code=400, message='应用的变量:{}不存在,请先创建创建'.format(r))
-            return False, '应用的变量:{}不存在,请先创建创建'.format(r)
-
-    return True, 'pass'
-
-
-def check_update_var(update_var_list):
-    """检查需要更新的变量是否存在"""
-
-    def __func(x):
-        if isinstance(x, dict):
-            return x.get('id')
-
-    if update_var_list:
-        update_var_id_list = list(set(map(__func, update_var_list)))
-        print(update_var_id_list)
-
-    return True, 'pass'
 
 
 def check_method(current_method):
