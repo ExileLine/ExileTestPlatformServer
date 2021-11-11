@@ -142,4 +142,4 @@
 ### 项目部署
 
 - 前端：待补充
-- 后端：参考我的Flask最佳实践：https://github.com/yangyuexiong/Flask_BestPractices
+- 后端：https://juejin.im/post/5d08574351882563f967d5b9

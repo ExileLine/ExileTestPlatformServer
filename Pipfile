@@ -14,6 +14,7 @@ loguru = "*"
 redis = "*"
 shortuuid = "*"
 cryptography = "*"
+gunicorn = "*"
 
 [dev-packages]
 
