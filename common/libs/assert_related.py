@@ -321,7 +321,7 @@ if __name__ == '__main__':
                 }
             ],
             "db_id": 1,
-            "query": "select * FROM ExilicTestPlatform.exilic_test_case WHERE id=1;"
+            "query": "select * FROM ExilicTestPlatform.exile_test_case WHERE id=1;"
         }
 
         new_ass = AssertMain(
@@ -333,4 +333,4 @@ if __name__ == '__main__':
 
     test_resp_ass()
     test_field_ass()
-    # print(ReturnDB(db_id=1).main().select("""select * from ExilicTestPlatform.exilic_test_case where id=1;"""))
+    # print(ReturnDB(db_id=1).main().select("""select * from ExilicTestPlatform.exile_test_case where id=1;"""))

@@ -10,7 +10,7 @@ from common.libs.BaseModel import *
 
 
 class TestCase(BaseModel):
-    __tablename__ = 'exilic_test_case'
+    __tablename__ = 'exile_test_case'
     __table_args__ = {'comment': '测试用例'}
 
     case_name = db.Column(db.String(255), nullable=False, comment='用户名称')
@@ -37,7 +37,7 @@ class TestCase(BaseModel):
 
 
 class TestCaseData(BaseModel):
-    __tablename__ = 'exilic_test_case_data'
+    __tablename__ = 'exile_test_case_data'
     __table_args__ = {'comment': '测试用例参数'}
 
     data_name = db.Column(db.String(255), nullable=False, comment='数据名称')

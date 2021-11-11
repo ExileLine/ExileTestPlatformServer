@@ -10,7 +10,7 @@ from common.libs.BaseModel import *
 
 
 class TestCaseSet(BaseModel):
-    __tablename__ = 'exilic_test_case_set'
+    __tablename__ = 'exile_test_case_set'
     __table_args__ = {'comment': '用户用例收藏'}
 
     user_id = db.Column(BIGINT(20, unsigned=True), comment='用户id')

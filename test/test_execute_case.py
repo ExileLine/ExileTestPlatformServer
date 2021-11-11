@@ -39,7 +39,7 @@ if __name__ == '__main__':
                 {'id': 33, 'create_time': '2021-09-11 17:18:10', 'create_timestamp': 1631351884,
                  'update_time': '2021-09-11 17:18:11', 'update_timestamp': None, 'is_deleted': 0, 'status': 1,
                  'assert_description': 'A通用字段校验', 'ass_json': [
-                    {'db_id': 1, 'query': 'select id,case_name FROM ExilicTestPlatform.exilic_test_case WHERE id=1;',
+                    {'db_id': 1, 'query': 'select id,case_name FROM ExilicTestPlatform.exile_test_case WHERE id=1;',
                      'assert_list': [{'rule': '__eq__', 'assert_key': 'id', 'expect_val': 1, 'expect_val_type': '1'},
                                      {'rule': '__eq__', 'assert_key': 'case_name', 'expect_val': '测试用例B1',
                                       'expect_val_type': '2'}]}], 'creator': '调试', 'creator_id': 1, 'modifier': None,
@@ -66,7 +66,7 @@ if __name__ == '__main__':
                 {'id': 33, 'create_time': '2021-09-11 17:18:10', 'create_timestamp': 1631351884,
                  'update_time': '2021-09-11 17:18:11', 'update_timestamp': None, 'is_deleted': 0, 'status': 1,
                  'assert_description': 'A通用字段校验', 'ass_json': [
-                    {'db_id': 1, 'query': 'select id,case_name FROM ExilicTestPlatform.exilic_test_case WHERE id=1;',
+                    {'db_id': 1, 'query': 'select id,case_name FROM ExilicTestPlatform.exile_test_case WHERE id=1;',
                      'assert_list': [{'rule': '__eq__', 'assert_key': 'id', 'expect_val': 1, 'expect_val_type': '1'},
                                      {'rule': '__eq__', 'assert_key': 'case_name', 'expect_val': '测试用例B1',
                                       'expect_val_type': '2'}]}], 'creator': '调试', 'creator_id': 1, 'modifier': None,
@@ -137,7 +137,7 @@ if __name__ == '__main__':
                                     }
                                 ],
                                 "db_id": 1,
-                                "query": "select id,case_name FROM ExilicTestPlatform.exilic_test_case WHERE id=1;"
+                                "query": "select id,case_name FROM ExilicTestPlatform.exile_test_case WHERE id=1;"
                             }
                         ],
                         "assert_description": "A通用字段校验",

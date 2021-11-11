@@ -9,7 +9,7 @@ from common.libs.BaseModel import *
 
 
 class TestCaseAssResponse(BaseModel):
-    __tablename__ = 'exilic_ass_response'
+    __tablename__ = 'exile_ass_response'
     __table_args__ = {'comment': '断言返回值规则'}
 
     assert_description = db.Column(db.String(255), nullable=False, comment='断言描述')
@@ -27,7 +27,7 @@ class TestCaseAssResponse(BaseModel):
 
 
 class TestCaseAssField(BaseModel):
-    __tablename__ = 'exilic_ass_field'
+    __tablename__ = 'exile_ass_field'
     __table_args__ = {'comment': '断言字段规则'}
 
     assert_description = db.Column(db.String(255), nullable=False, comment='断言描述')
@@ -45,7 +45,7 @@ class TestCaseAssField(BaseModel):
 
 
 class TestCaseDataAssBind(BaseModel):
-    __tablename__ = 'exilic_ass_bind'
+    __tablename__ = 'exile_ass_bind'
     __table_args__ = {'comment': '用例断言关系绑定'}
 
     case_id = db.Column(BIGINT(20, unsigned=True), comment='用例id')
@@ -65,14 +65,14 @@ class TestCaseDataAssBind(BaseModel):
 
 
 class TestCaseBefore(BaseModel):
-    __tablename__ = 'exilic_test_case_before'
+    __tablename__ = 'exile_test_case_before'
     __table_args__ = {'comment': '用例前置'}
 
     before_sql = db.Column(db.String(1024), comment='sql')
 
 
 class TestCaseAfter(BaseModel):
-    __tablename__ = 'exilic_test_case_after'
+    __tablename__ = 'exile_test_case_after'
     __table_args__ = {'comment': '用例后置'}
 
     after_sql = db.Column(db.String(1024), comment='sql')

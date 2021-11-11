@@ -72,7 +72,7 @@ class UserPageApi(MethodView):
 
         sql = """
         SELECT * 
-        FROM exilic_auth_admin  
+        FROM exile_auth_admin  
         WHERE 
         id LIKE"%%" 
         and username LIKE"%B1%" 

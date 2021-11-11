@@ -10,7 +10,7 @@ from common.libs.BaseModel import *
 
 
 class TestCaseScenario(BaseModel):
-    __tablename__ = 'exilic_test_case_scenario'
+    __tablename__ = 'exile_test_case_scenario'
     __table_args__ = {'comment': '测试用例场景'}
 
     scenario_title = db.Column(db.String(256), comment='场景标题')

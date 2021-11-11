@@ -310,7 +310,7 @@ class FieldAssertionRuleApi(MethodView):
         "ass_json": [
             {
                 "db_id": 1,
-                "query": "select id FROM exilic_test_case WHERE id=1;",
+                "query": "select id FROM exile_test_case WHERE id=1;",
                 "assert_list": [
                     {
                         "assert_key": "id",
@@ -444,7 +444,7 @@ class RespAssertionRulePageApi(MethodView):
 
         sql = """
         SELECT * 
-        FROM exilic_ass_response  
+        FROM exile_ass_response  
         WHERE 
         id LIKE"%%" 
         and assert_description LIKE"%B1%" 
@@ -481,7 +481,7 @@ class FieldAssertionRulePageApi(MethodView):
 
         sql = """
         SELECT * 
-        FROM exilic_ass_field  
+        FROM exile_ass_field  
         WHERE 
         id LIKE"%%" 
         and assert_description LIKE"%B1%" 

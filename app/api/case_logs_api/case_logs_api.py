@@ -24,7 +24,7 @@ class CaseLogsPageApi(MethodView):
 
         sql = """
         SELECT * 
-        FROM exilic_test_logs  
+        FROM exile_test_logs  
         WHERE 
         creator_id LIKE"%%" 
         and creator LIKE"%B1%" 

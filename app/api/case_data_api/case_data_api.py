@@ -41,7 +41,7 @@ def check_variable(before_var):
         return result
 
     for res in result_list:
-        sql = """select var_value from exilic_test_variable where var_name='{}';""".format(res)
+        sql = """select var_value from exile_test_variable where var_name='{}';""".format(res)
         query_result = project_db.select(sql=sql, only=True)
         if query_result:
             query_done_list.append(res)
@@ -61,10 +61,10 @@ def check_update_var(update_var_list):
     """
     if update_var_list:
         if len(update_var_list) == 1:
-            sql = """SELECT id FROM exilic_test_variable WHERE id = {};""".format(update_var_list[-1])
+            sql = """SELECT id FROM exile_test_variable WHERE id = {};""".format(update_var_list[-1])
             logger.success(sql)
         else:
-            sql = """SELECT id FROM exilic_test_variable WHERE id in {};""".format(tuple(update_var_list))
+            sql = """SELECT id FROM exile_test_variable WHERE id in {};""".format(tuple(update_var_list))
             logger.success(sql)
         query_result = project_db.select(sql)
         query_result_id = list(map(lambda x: x.get('id'), query_result))
@@ -221,7 +221,7 @@ class CaseReqDataPageApi(MethodView):
 
         sql = """
         SELECT * 
-        FROM exilic_test_case_data  
+        FROM exile_test_case_data  
         WHERE 
         id LIKE"%%" 
         and case_name LIKE"%B1%" 

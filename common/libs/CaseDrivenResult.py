@@ -190,7 +190,7 @@ class MainTest:
             err_var_list = []
             current_dict = {}
             for res in result_list:
-                sql = """select var_value from exilic_test_variable where var_name='{}';""".format(res)
+                sql = """select var_value from exile_test_variable where var_name='{}';""".format(res)
                 query_result = project_db.select(sql=sql, only=True)
                 if query_result:
                     current_dict[res] = json.loads(query_result.get('var_value'))
@@ -454,7 +454,7 @@ class MainTest:
                 else:
                     update_val_result = data.get(var_get_key)
 
-                sql = """UPDATE exilic_test_variable SET var_value='{}' WHERE id='{}';""".format(
+                sql = """UPDATE exile_test_variable SET var_value='{}' WHERE id='{}';""".format(
                     json.dumps(update_val_result, ensure_ascii=False), id)
                 self.sio.log('=== update sql === 【 {} 】'.format(sql), status='success')
                 project_db.update_data(sql)
@@ -468,7 +468,7 @@ class MainTest:
         :return:
         """
 
-        sql = """INSERT INTO `ExilicTestPlatform`.`exilic_test_execute_logs` (`is_deleted`, `create_time`, `create_timestamp`,  `execute_id`, `execute_name`, `execute_type`, `redis_key`, `creator`, `creator_id`) VALUES (0,'{}','{}','{}','{}','{}','{}','{}','{}');""".format(
+        sql = """INSERT INTO `ExilicTestPlatform`.`exile_test_execute_logs` (`is_deleted`, `create_time`, `create_timestamp`,  `execute_id`, `execute_name`, `execute_type`, `redis_key`, `creator`, `creator_id`) VALUES (0,'{}','{}','{}','{}','{}','{}','{}','{}');""".format(
             self.create_time.split('.')[0],
             int(self.end_time),
             self.execute_id,

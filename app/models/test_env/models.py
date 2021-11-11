@@ -10,7 +10,7 @@ from common.libs.BaseModel import *
 
 
 class TestEnv(BaseModel):
-    __tablename__ = 'exilic_test_env'
+    __tablename__ = 'exile_test_env'
     __table_args__ = {'comment': '测试环境'}
 
     env_url = db.Column(db.String(2048), nullable=False, comment='环境url')

@@ -125,7 +125,7 @@ class CaseScenarioPageApi(MethodView):
 
         sql = """
         SELECT * 
-        FROM exilic_test_case_scenario  
+        FROM exile_test_case_scenario  
         WHERE 
         id LIKE"%%" 
         and scenario_title LIKE"%A%" 

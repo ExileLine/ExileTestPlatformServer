@@ -9,7 +9,7 @@ from common.libs.BaseModel import *
 
 
 class TestDatabases(BaseModel):
-    __tablename__ = 'exilic_test_databases'
+    __tablename__ = 'exile_test_databases'
     __table_args__ = {'comment': '测试用例-databases'}
 
     name = db.Column(db.String(255), nullable=False, comment='名称')

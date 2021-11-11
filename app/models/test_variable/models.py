@@ -10,7 +10,7 @@ from common.libs.BaseModel import *
 
 
 class TestVariable(BaseModel):
-    __tablename__ = 'exilic_test_variable'
+    __tablename__ = 'exile_test_variable'
     __table_args__ = {'comment': '测试用例变量'}
 
     var_name = db.Column(db.String(255), nullable=False, comment='变量名称')

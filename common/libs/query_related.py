@@ -126,7 +126,7 @@ def general_query(model, field_list, query_list, is_deleted, page, size):
     result_list = []
     total = result.total
     for res in result.items:
-        case_var_json = res.to_json(*['_password']) if model.__tablename__ == 'exilic_auth_admin' else res.to_json()
+        case_var_json = res.to_json(*['_password']) if model.__tablename__ == 'exile_auth_admin' else res.to_json()
         result_list.append(case_var_json)
 
     result_data = {
