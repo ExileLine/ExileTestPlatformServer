@@ -1,7 +1,7 @@
 {
 	"info": {
 		"_postman_id": "d7295854-5047-489c-8671-cf888b9a1136",
-		"name": "ExilicTestPlatform",
+		"name": "ExileTestPlatform",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
 	},
 	"item": [
@@ -244,7 +244,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"case_name\": \"测试index-pyyvvy133\",\n    \"request_method\": \"POST\",\n    \"request_base_url\": \"http://127.0.0.1:7272\",\n    \"request_url\": \"/api/index\",\n    \"var_list\": [],\n    \"is_shared\": 0,\n    \"is_public\": true,\n    \"remark\": \"remark\"\n}",
+							"raw": "{\n    \"case_name\": \"杨跃雄测试\",\n    \"request_method\": \"POST\",\n    \"request_base_url\": \"http://127.0.0.1:7272\",\n    \"request_url\": \"/api/index\",\n    \"is_shared\": 0,\n    \"is_public\": false,\n    \"remark\": \"remark\"\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -466,7 +466,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"data_list\": [\n        {\n            \"data_name\": \"index测试数据\",\n            \"request_params\": {},\n            \"request_headers\": {},\n            \"request_body\": {\n                \"token\": \"${token}\",\n                \"Date\": \"${Date}\",\n                \"Time\": \"${Time}\",\n                \"DateTime\": \"${DateTime}\",\n                \"TimeStamp\": \"${TimeStamp}\",\n                \"UUID\": \"${UUID}\"\n            },\n            \"request_body_type\": 1,\n            \"var_list\": [\n                \"user_id\",\n                \"username\"\n            ],\n            \"update_var_list\": [\n                {\n                    \"id\": 3,\n                    \"var_name\": \"变量1\",\n                    \"var_value\": \"更新\",\n                    \"var_source\": \"resp_data\",\n                    \"var_get_key\": \"var_get_key\",\n                    \"expression\": \"obj.get('code')\"\n                }\n            ],\n            \"is_public\": false\n        },\n        {\n            \"data_name\": \"数据2\",\n            \"request_params\": {},\n            \"request_headers\": {},\n            \"request_body\": {\n                \"user_id\": \"${user_id}\"\n            },\n            \"request_body_type\": 2,\n            \"var_list\": [],\n            \"update_var_list\": [],\n            \"is_public\": \"\"\n        }\n    ]\n}",
+							"raw": "{\n    \"data_list\": [\n        {\n            \"data_name\": \"杨跃雄测试1\",\n            \"request_params\": {},\n            \"request_headers\": {},\n            \"request_body\": {\n                \"token\": \"${token}\"\n            },\n            \"request_body_type\": 1,\n            \"var_list\": [\n                \"user_id\",\n                \"username\"\n            ],\n            \"update_var_list\": [\n                3,\n                4\n            ],\n            \"is_public\": false\n        },\n        {\n            \"data_name\": \"杨跃雄测试2\",\n            \"request_params\": {},\n            \"request_headers\": {},\n            \"request_body\": {\n                \"user_id\": \"${user_id}\"\n            },\n            \"request_body_type\": 2,\n            \"var_list\": [],\n            \"update_var_list\": [],\n            \"is_public\": \"\"\n        }\n    ]\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -493,7 +493,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"id\": 1,\n    \"req_data_json\": {\n        \"data_name\": \"数据99123123\",\n        \"request_params\": {\n            \"y\": \"y11\"\n        },\n        \"request_headers\": {\n            \"0\": \"0\"\n        },\n        \"request_body\": {\n            \"1\": \"1\"\n        },\n        \"request_body_type\": 1,\n        \"var_list\": [],\n        \"update_var_list\": [\n            {\n                \"id\": 3,\n                \"var_name\": \"变量1\",\n                \"var_value\": \"更新\",\n                \"var_source\": \"resp_data\",\n                \"var_get_key\": \"var_get_key\",\n                \"expression\": \"obj.get('code')\"\n            }\n        ],\n        \"is_public\": false\n    }\n}",
+							"raw": "{\n    \"id\": 1,\n    \"req_data_json\": {\n        \"data_name\": \"数据okc\",\n        \"request_params\": {\n            \"y\": \"${token}\"\n        },\n        \"request_headers\": {\n            \"0\": \"0\"\n        },\n        \"request_body\": {\n            \"1\": \"1\"\n        },\n        \"request_body_type\": 1,\n        \"var_list\": [],\n        \"update_var_list\": [\n            1,\n            2\n        ],\n        \"is_public\": false\n    }\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -551,14 +551,14 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "{{base_url}}/api/case_var/1",
+							"raw": "{{base_url}}/api/case_var/3",
 							"host": [
 								"{{base_url}}"
 							],
 							"path": [
 								"api",
 								"case_var",
-								"1"
+								"3"
 							]
 						}
 					},
@@ -893,7 +893,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"assert_description\": \"A通用字段校验\",\n    \"remark\": \"remark\",\n    \"ass_json\": [\n        {\n            \"db_id\": 1,\n            \"query\": \"select id,case_name FROM ExilicTestPlatform.exilic_test_case WHERE id=1;\",\n            \"assert_list\": [\n                {\n                    \"assert_key\": \"id\",\n                    \"expect_val\": \"1\",\n                    \"expect_val_type\": \"1\",\n                    \"rule\": \"==\"\n                },\n                {\n                    \"assert_key\": \"case_name\",\n                    \"expect_val\": \"测试用例B1\",\n                    \"expect_val_type\": \"2\",\n                    \"rule\": \"==\"\n                }\n            ]\n        }\n    ]\n}",
+							"raw": "{\n    \"assert_description\": \"A通用字段校验\",\n    \"remark\": \"remark\",\n    \"ass_json\": [\n        {\n            \"db_id\": 1,\n            \"query\": \"select id,case_name FROM ExileTestPlatform.exile_test_case WHERE id=1;\",\n            \"assert_list\": [\n                {\n                    \"assert_key\": \"id\",\n                    \"expect_val\": \"1\",\n                    \"expect_val_type\": \"1\",\n                    \"rule\": \"==\"\n                },\n                {\n                    \"assert_key\": \"case_name\",\n                    \"expect_val\": \"测试用例B1\",\n                    \"expect_val_type\": \"2\",\n                    \"rule\": \"==\"\n                }\n            ]\n        }\n    ]\n}",
 							"options": {
 								"raw": {
 									"language": "json"

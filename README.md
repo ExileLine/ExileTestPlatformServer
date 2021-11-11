@@ -35,7 +35,7 @@
 
 ### 数据库表设计
 
-- [SQL文件：ExilicTestPlatform.sql](./docs/ExilicTestPlatform.sql)
+- [SQL文件：ExilicTestPlatform.sql](./docs/ExileTestPlatform.sql)
 
 ![数据库表设计](docs/ExileTestPlatform数据库表设计.png)
 
@@ -75,7 +75,7 @@
 
 ### 接口清单
 
-- [Postman文件](docs/ExilicTestPlatform.postman_collection.json)
+- [Postman文件](docs/ExileTestPlatform.postman_collection.json)
 
 |ID|接口名称|请求方式|功能描述|备注|
 |---|--------------------|-----------|--------|--------|
