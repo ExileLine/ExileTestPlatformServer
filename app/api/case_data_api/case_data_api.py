@@ -166,6 +166,10 @@ class CaseReqDataApi(MethodView):
         if not query_test_case_data:
             return api_result(code=400, message='用例req数据id:{}数据不存在'.format(req_data_id))
 
+        if not bool(query_test_case_data.is_public):
+            if query_test_case_data.creator_id != g.app_user.id:
+                return api_result(code=400, message='该参数未开放,只能被创建人修改!')
+
         check_result = check_variable(data)
         if not check_result.get('status'):
             return api_result(code=400, message="参数不存在:{}".format(check_result.get('query_none_list')))

@@ -233,6 +233,15 @@ class RespAssertionRuleApi(MethodView):
         ass_json = data.get('ass_json', [])
         remark = data.get('remark')
 
+        query_ass_resp = TestCaseAssResponse.query.get(ass_resp_id)
+
+        if not query_ass_resp:
+            return api_result(code=400, message='返回值断言id:{}数据不存在'.format(ass_resp_id))
+
+        if not bool(query_ass_resp.is_public):
+            if query_ass_resp.creator_id != g.app_user.id:
+                return api_result(code=400, message='该Resp断言规则未开放,只能被创建人修改!')
+
         if not isinstance(ass_json, list) or not ass_json:
             return ab_code(400)
 
@@ -266,18 +275,14 @@ class RespAssertionRuleApi(MethodView):
             except BaseException as e:
                 return api_result(code=400, message='参数:{} 无法转换至 类型:{}'.format(expect_val, type(expect_val_type())))
 
-        query_ass_resp = TestCaseAssResponse.query.get(ass_resp_id)
+        query_ass_resp.assert_description = assert_description
+        query_ass_resp.ass_json = new_ass_json
+        query_ass_resp.remark = remark
+        query_ass_resp.modifier = g.app_user.username
+        query_ass_resp.modifier_id = g.app_user.id
+        db.session.commit()
 
-        if query_ass_resp:
-            query_ass_resp.assert_description = assert_description
-            query_ass_resp.ass_json = new_ass_json
-            query_ass_resp.remark = remark
-            query_ass_resp.modifier = g.app_user.username
-            query_ass_resp.modifier_id = g.app_user.id
-            db.session.commit()
-            return api_result(code=203, message='编辑成功')
-
-        return api_result(code=400, message='返回值断言id:{}数据不存在'.format(ass_resp_id))
+        return api_result(code=203, message='编辑成功')
 
     def delete(self):
         """返回值断言删除"""
@@ -385,6 +390,15 @@ class FieldAssertionRuleApi(MethodView):
         ass_json = data.get('ass_json', [])
         remark = data.get('remark')
 
+        query_ass_field = TestCaseAssField.query.get(ass_field_id)
+
+        if not query_ass_field:
+            return api_result(code=400, message='字段断言id:{}数据不存在'.format(ass_field_id))
+
+        if not bool(query_ass_field.is_public):
+            if query_ass_field.creator_id != g.app_user.id:
+                return api_result(code=400, message='该字段断言规则未开放,只能被创建人修改!')
+
         if not isinstance(ass_json, list) or not ass_json:
             return ab_code(400)
 
@@ -396,17 +410,13 @@ class FieldAssertionRuleApi(MethodView):
         if not _bool:
             return api_result(code=400, message='{}'.format(_msg))
 
-        query_ass_field = TestCaseAssField.query.get(ass_field_id)
-
-        if not query_ass_field:
-            return api_result(code=400, message='字段断言id:{}数据不存在'.format(ass_field_id))
-
         query_ass_field.assert_description = assert_description
         query_ass_field.ass_json = _ass_json
         query_ass_field.remark = remark
         query_ass_field.modifier = g.app_user.username
         query_ass_field.modifier_id = g.app_user.id
         db.session.commit()
+
         return api_result(code=203, message='编辑成功')
 
     def delete(self):

@@ -107,6 +107,10 @@ class CaseApi(MethodView):
         if not query_case:
             return api_result(code=400, message='用例id:{}数据不存在'.format(case_id))
 
+        if not bool(query_case.is_public):
+            if query_case.creator_id != g.app_user.id:
+                return api_result(code=400, message='该用例未开放,只能被创建人修改!')
+
         if query_case.case_name != case_name:
             if TestCase.query.filter_by(case_name=case_name).all():
                 return api_result(code=400, message='用例名称:{} 已经存在'.format(case_name))

@@ -110,28 +110,34 @@ class CaseVarApi(MethodView):
         is_public = data.get('is_public', True)
         remark = data.get('remark')
 
-        query_var_filter = TestVariable.query.filter_by(var_name=var_name).first()
         query_var = TestVariable.query.get(var_id)
+
+        if not query_var:
+            return api_result(code=400, message='用例变量id:{}数据不存在'.format(var_id))
+
+        if not bool(query_var.is_public):
+            if query_var.creator_id != g.app_user.id:
+                return api_result(code=400, message='该变量未开放,只能被创建人修改!')
+
+        query_var_filter = TestVariable.query.filter_by(var_name=var_name).first()
 
         if query_var_filter and query_var.to_json().get('var_name') != var_name:
             return api_result(code=400, message='变量名称:{} 已存在'.format(var_name))
 
-        if query_var:
-            query_var.var_name = var_name
-            query_var.var_value = var_value
-            query_var.var_type = var_type_dict.get(var_type.lower())
-            query_var.var_source = var_source_dict.get(var_source)
-            query_var.var_get_key = var_get_key
-            query_var.expression = expression
-            query_var.is_expression = is_expression
-            query_var.is_public = is_public if isinstance(is_public, bool) else True
-            query_var.remark = remark
-            query_var.modifier = g.app_user.username
-            query_var.modifier_id = g.app_user.id
-            db.session.commit()
-            return api_result(code=203, message='编辑成功')
-        else:
-            return api_result(code=400, message='用例变量id:{}数据不存在'.format(var_id))
+        query_var.var_name = var_name
+        query_var.var_value = var_value
+        query_var.var_type = var_type_dict.get(var_type.lower())
+        query_var.var_source = var_source_dict.get(var_source)
+        query_var.var_get_key = var_get_key
+        query_var.expression = expression
+        query_var.is_expression = is_expression
+        query_var.is_public = is_public if isinstance(is_public, bool) else True
+        query_var.remark = remark
+        query_var.modifier = g.app_user.username
+        query_var.modifier_id = g.app_user.id
+        db.session.commit()
+
+        return api_result(code=203, message='编辑成功')
 
     def delete(self):
         """用例变量删除"""
