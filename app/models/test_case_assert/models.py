@@ -14,6 +14,7 @@ class TestCaseAssResponse(BaseModel):
 
     assert_description = db.Column(db.String(255), nullable=False, comment='断言描述')
     ass_json = db.Column(db.JSON, comment='断言')
+    is_public = db.Column(TINYINT(1, unsigned=True), default=1, comment='是否公共使用:0-否;1-是')
     creator = db.Column(db.String(32), comment='创建人')
     creator_id = db.Column(BIGINT(20, unsigned=True), comment='创建人id')
     modifier = db.Column(db.String(32), comment='更新人')
@@ -32,6 +33,7 @@ class TestCaseAssField(BaseModel):
 
     assert_description = db.Column(db.String(255), nullable=False, comment='断言描述')
     ass_json = db.Column(db.JSON, comment='断言')
+    is_public = db.Column(TINYINT(1, unsigned=True), default=1, comment='是否公共使用:0-否;1-是')
     creator = db.Column(db.String(32), comment='创建人')
     creator_id = db.Column(BIGINT(20, unsigned=True), comment='创建人id')
     modifier = db.Column(db.String(32), comment='更新人')
