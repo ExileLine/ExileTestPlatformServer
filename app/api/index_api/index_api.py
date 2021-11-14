@@ -5,18 +5,43 @@
 # @File    : index_api.py
 # @Software: PyCharm
 
-from all_reference import *
 import asyncio
+from sqlalchemy.sql import func
+
+from all_reference import *
+from app.models.admin.models import Admin
+from app.models.test_case.models import TestCase, TestCaseData
+from app.models.test_case_scenario.models import TestCaseScenario
 
 
 class IndexApi(MethodView):
     """
-    index_api
+    index Api
     """
 
     async def get(self):
-        await asyncio.sleep(1)
-        return api_result(code=200, message='index', data=[time.time(), g.app_user.id, g.app_user.username])
+        """统计"""
+
+        total_user = Admin.query.count()
+        total_case = TestCase.query.count()
+        total_case_execute = TestCase.query.with_entities(func.sum(TestCase.total_execution)).scalar()
+        total_case_data = TestCaseData.query.count()
+        total_scenario = TestCaseScenario.query.count()
+        total_scenario_execute = TestCaseScenario.query.with_entities(
+            func.sum(TestCaseScenario.total_execution)).scalar()
+
+        data = {
+            "total_user": total_user,
+            "total_case": total_case,
+            "total_case_execute": total_case_execute,
+            "total_case_data": total_case_data,
+            "total_scenario": total_scenario,
+            "total_scenario_execute": total_scenario_execute,
+            "total_execute_success": 9999,
+            "total_execute_fail": 7777
+        }
+
+        return api_result(code=200, message='index', data=data)
 
     async def post(self):
         data = request.get_json()
