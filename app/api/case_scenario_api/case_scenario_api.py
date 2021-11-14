@@ -45,6 +45,8 @@ class CaseScenarioApi(MethodView):
         data = request.get_json()
         scenario_title = data.get('scenario_title')
         case_list = data.get('case_list', [])
+        is_shared = data.get('is_shared', 0)
+        is_public = data.get('is_public', True)
 
         query_scenario = TestCaseScenario.query.filter_by(scenario_title=scenario_title).first()
 
@@ -57,6 +59,8 @@ class CaseScenarioApi(MethodView):
         new_scenario = TestCaseScenario(
             scenario_title=scenario_title,
             case_list=case_list,
+            is_shared=is_shared,
+            is_public=is_public,
             creator=g.app_user.username,
             creator_id=g.app_user.id
         )
@@ -70,6 +74,8 @@ class CaseScenarioApi(MethodView):
         scenario_id = data.get('scenario_id')
         scenario_title = data.get('scenario_title')
         case_list = data.get('case_list', [])
+        is_shared = data.get('is_shared', 0)
+        is_public = data.get('is_public', True)
 
         query_scenario = TestCaseScenario.query.get(scenario_id)
 
@@ -85,6 +91,8 @@ class CaseScenarioApi(MethodView):
 
         query_scenario.scenario_title = scenario_title
         query_scenario.case_list = case_list
+        query_scenario.is_shared = is_shared
+        query_scenario.is_public = is_public
         query_scenario.modifier = g.app_user.username
         query_scenario.modifier_id = g.app_user.id
         db.session.commit()
