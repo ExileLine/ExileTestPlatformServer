@@ -106,6 +106,9 @@ class CaseExecApi(MethodView):
             if not result:
                 return api_result(code=400, message='用例id:{}不存在'.format(execute_id))
 
+            if not bool(result.get('case_info').get('is_shared')):
+                return api_result(code=401, message='执行失败,该用例是私有的,仅创建者执行!')
+
             execute_name = result.get('case_info').get('case_name')
             TestCase.query.get(execute_id).add_total_execution()
             send_test_case_list = [result]
@@ -114,6 +117,9 @@ class CaseExecApi(MethodView):
             result = TestCaseScenario.query.get(execute_id)
             if not result:
                 return api_result(code=400, message='场景id:{}不存在'.format(execute_id))
+
+            if not bool(result.is_shared):
+                return api_result(code=401, message='执行失败,该场景是私有的,仅创建者执行!')
 
             execute_name = result.to_json().get('scenario_title')
             case_list = result.to_json().get('case_list')
