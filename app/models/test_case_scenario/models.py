@@ -15,6 +15,9 @@ class TestCaseScenario(BaseModel):
 
     scenario_title = db.Column(db.String(256), comment='场景标题')
     case_list = db.Column(db.JSON, comment='用例id列表按传参排序:[1,3,7,2...]')
+    is_shared = db.Column(db.Integer, default=0, comment='0-仅创建者执行;1-共享执行')
+    total_execution = db.Column(db.Integer, default=0, comment='执行次数总计')
+    is_public = db.Column(TINYINT(1, unsigned=True), default=1, comment='是否公共使用:0-否;1-是')
     creator = db.Column(db.String(32), comment='创建人')
     creator_id = db.Column(BIGINT(20, unsigned=True), comment='创建人id')
     modifier = db.Column(db.String(32), comment='更新人')
