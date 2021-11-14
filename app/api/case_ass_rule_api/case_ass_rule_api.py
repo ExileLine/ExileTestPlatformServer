@@ -9,43 +9,6 @@ from all_reference import *
 from app.models.test_case_assert.models import TestCaseAssResponse, TestCaseAssField
 
 
-# 旧数据结构,暂时保留
-def check_field_ass_old(aj_list):
-    """检查:断言新增的参数"""
-
-    for a in aj_list:
-        check_bool = check_keys(
-            a, 'db_name', 'table_name', 'query', 'assert_list'
-        )
-        query = a.get('query', [])
-        query_len = len(query)
-        assert_list = a.get('assert_list', [])
-        assert_list_len = len(assert_list)
-
-        if not check_bool or not isinstance(query, list) or not isinstance(assert_list, list):
-            return False, 'ass_json 参数错误'
-
-        max_len = max([query_len, assert_list_len])
-        for index, i in enumerate(range(max_len)):
-            if not query or not assert_list:
-                return True, 'pass'
-
-            if query:
-                query_obj = query.pop()
-                if not isinstance(query_obj, dict):
-                    return False, 'query 对象:{} 类型错误:{} 位置:{}'.format(query_obj, type(query_obj), index)
-                if not check_keys(query_obj, 'field_name', 'field_key', 'query_rule', 'is_sql', 'sql'):
-                    return False, 'query对象key错误,位置:{}'.format(index)
-
-            if assert_list:
-                ass_obj = assert_list.pop()
-                if not isinstance(ass_obj, dict):
-                    return False, 'assert_list对象:{} 类型错误:{} 位置:{}'.format(ass_obj, type(ass_obj), index)
-
-                if not check_keys(ass_obj, 'assert_key', 'expect_val', 'expect_val_type', 'rule'):
-                    return False, 'assert_list对象key错误,位置:{}'.format(index)
-
-
 def check_field_ass(aj_list):
     """检查:断言新增的参数"""
 
