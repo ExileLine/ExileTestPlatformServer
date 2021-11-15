@@ -29,13 +29,12 @@ class CaseBindApi(MethodView):
         if not data_list:
             return api_result(code=201, message="操作成功")
 
-        # TODO 检查这些ID
         for d in data_list:
             case_bind = TestCaseDataAssBind(
                 case_id=case_id,
                 data_id=d.get('data_id'),
-                ass_resp_id_list=d.get('ass_resp_id_list', []),
-                ass_field_id_list=d.get('ass_field_id_list', []),
+                ass_resp_id_list=d.get('ass_resp_id_list', []),  # TODO 检查 ass_resp_id_list 中的 id 是否存在
+                ass_field_id_list=d.get('ass_field_id_list', []),  # TODO 检查 ass_field_id_list 中的 id 是否存在
                 creator=g.app_user.username,
                 creator_id=g.app_user.id
             )
@@ -44,6 +43,7 @@ class CaseBindApi(MethodView):
 
     def put(self):
         """用例绑定-数据-断言-变量(编辑)"""
+
         data = request.get_json()
         case_id = data.get('case_id')
         data_list = data.get('data_list', [])
