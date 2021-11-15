@@ -39,8 +39,8 @@ class TestVariableHistory(BaseModel):
 
     var_id = db.Column(BIGINT(20, unsigned=True), comment='变量id')
     update_type = db.Column(db.String(255), comment='更新类型')
-    before_var = db.Column(db.String(255), comment='修改前的值')
-    after_var = db.Column(db.String(255), comment='修改后的值')
+    before_var = db.Column(db.JSON, comment='修改前的值')
+    after_var = db.Column(db.JSON, comment='修改后的值')
     creator = db.Column(db.String(32), comment='创建人')
     creator_id = db.Column(BIGINT(20, unsigned=True), comment='创建人id')
     modifier = db.Column(db.String(32), comment='更新人')
