@@ -31,3 +31,19 @@ class TestVariable(BaseModel):
 
     def __repr__(self):
         return 'TestVariable 模型对象-> ID:{} 变量名称:{} 变量值:{}'.format(self.id, self.var_name, self.var_value)
+
+
+class TestVariableHistory(BaseModel):
+    __tablename__ = 'exile_test_variable_history'
+    __table_args__ = {'comment': '测试用例变量更新历史'}
+
+    var_id = db.Column(BIGINT(20, unsigned=True), comment='变量id')
+    update_type = db.Column(db.String(255), comment='更新类型')
+    creator = db.Column(db.String(32), comment='创建人')
+    creator_id = db.Column(BIGINT(20, unsigned=True), comment='创建人id')
+    modifier = db.Column(db.String(32), comment='更新人')
+    modifier_id = db.Column(BIGINT(20, unsigned=True), comment='更新人id')
+    remark = db.Column(db.String(255), comment='备注')
+
+    def __repr__(self):
+        return 'TestVariableHistory 模型对象-> ID:{} 变量id:{} 更新类型:{}'.format(self.id, self.var_id, self.update_type)
