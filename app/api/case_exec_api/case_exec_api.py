@@ -88,7 +88,8 @@ class CaseExecApi(MethodView):
         execute_id = data.get('execute_id')
         execute_type = data.get('execute_type')
         data_driven = data.get('data_driven', False)
-        base_url_id = data.get('base_url_id', None)
+        base_url_id = data.get('base_url_id')
+        use_base_url = data.get('use_base_url_id', False)
 
         execute_name = None
         send_test_case_list = []
@@ -146,6 +147,7 @@ class CaseExecApi(MethodView):
             "execute_user_id": g.app_user.id,
             "execute_username": g.app_user.username,
             "base_url": query_base_url.env_url,
+            "use_base_url": use_base_url,
             "case_list": send_test_case_list,
             "data_driven": data_driven,
             "sio": sio

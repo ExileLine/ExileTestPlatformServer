@@ -137,7 +137,8 @@ class MainTest:
     # TODO sio优化
 
     def __init__(self, test_obj):
-        self.base_url = test_obj.get('base_url', None)
+        self.base_url = test_obj.get('base_url')
+        self.ues_base_url = test_obj.get('ues_base_url', False)
         self.case_list = test_obj.get('case_list', [])
         self.data_driven = test_obj.get('data_driven')
         self.execute_id = test_obj.get('execute_id')
@@ -356,7 +357,7 @@ class MainTest:
             "3": {"data": request_body}
         }
 
-        url = self.base_url + self.request_url if self.base_url else self.request_base_url + self.request_url
+        url = self.base_url + self.request_url if self.ues_base_url else self.request_base_url + self.request_url
 
         before_send = {
             "url": url,
@@ -433,6 +434,7 @@ class MainTest:
                 """
                 {
                     "id": 3,
+                    "var_value":"123",
                     "var_source": "resp_data",
                     "expression": "obj.get('code')",
                     "is_expression":0,
@@ -440,6 +442,7 @@ class MainTest:
                 }
                 """
                 id = up.get('id')
+                var_value = up.get('var_value')
                 var_source = up.get('var_source')
                 var_get_key = up.get('var_get_key')
                 expression = up.get('expression')
@@ -454,10 +457,17 @@ class MainTest:
                     # 直接取值
                     update_val_result = data.get(var_get_key)
 
-                sql = """UPDATE exile_test_variable SET var_value='{}' WHERE id='{}';""".format(
-                    json.dumps(update_val_result, ensure_ascii=False), id)
+                old_var = json.dumps(var_value, ensure_ascii=False)
+                new_var = json.dumps(update_val_result, ensure_ascii=False)
+                sql = """UPDATE exile_test_variable SET var_value='{}' WHERE id='{}';""".format(new_var, id)
                 self.sio.log('=== update sql === 【 {} 】'.format(sql), status='success')
                 project_db.update_data(sql)
+
+                sql2 = """INSERT INTO exile_test_variable_history ( `create_timestamp`, `is_deleted`, `var_id`, `update_type`, `creator`, `creator_id`, `before_var`, `after_var`) VALUES ('{}',  '0',  '{}', '执行用例更新', '{}', '{}', '{}', '{}');""".format(
+                    int(self.start_time), id, self.execute_username, self.execute_user_id, old_var, new_var
+                )
+                self.sio.log('=== update history sql === 【 {} 】'.format(sql2), status='success')
+                project_db.create_data(sql2)
         else:
             self.sio.log('=== 更新变量列表为空不需要更新变量===')
 
@@ -468,7 +478,7 @@ class MainTest:
         :return:
         """
 
-        sql = """INSERT INTO `ExilicTestPlatform`.`exile_test_execute_logs` (`is_deleted`, `create_time`, `create_timestamp`,  `execute_id`, `execute_name`, `execute_type`, `redis_key`, `creator`, `creator_id`) VALUES (0,'{}','{}','{}','{}','{}','{}','{}','{}');""".format(
+        sql = """INSERT INTO exile_test_execute_logs (`is_deleted`, `create_time`, `create_timestamp`,  `execute_id`, `execute_name`, `execute_type`, `redis_key`, `creator`, `creator_id`) VALUES (0,'{}','{}','{}','{}','{}','{}','{}','{}');""".format(
             self.create_time.split('.')[0],
             int(self.end_time),
             self.execute_id,
