@@ -171,12 +171,33 @@ class CaseVarApi(MethodView):
 
 class CaseVarHistoryApi(MethodView):
     """
-    变量历史
+    变量变更历史
     """
 
-    # TODO
-    def get(self):
+    def post(self):
         """变量变更记录"""
+
+        data = request.get_json()
+        var_id = data.get('var_id')
+        page = data.get('page')
+        size = data.get('size')
+
+        result = TestVariableHistory.query.filter_by(var_id=var_id).order_by(
+            TestVariableHistory.create_time.desc()).paginate(
+            page=int(page),
+            per_page=int(size),
+            error_out=False
+        )
+        result_list = []
+        total = result.total
+        for res in result.items:
+            result_list.append(res.to_json())
+        result_data = {
+            'records': result_list,
+            'now_page': page,
+            'total': total
+        }
+        return api_result(code=200, message='操作成功', data=result_data)
 
 
 class CaseVarPageApi(MethodView):

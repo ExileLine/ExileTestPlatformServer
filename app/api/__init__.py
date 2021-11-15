@@ -14,7 +14,7 @@ from .user_api.user_api import TouristApi, UserPageApi
 from .case_env_api.case_env_api import CaseEnvApi, CaseEnvPageApi
 from .case_api.case_api import CaseApi, CasePageApi
 from .case_data_api.case_data_api import CaseReqDataApi, CaseReqDataPageApi
-from .case_var_api.case_var_api import CaseVarApi, CaseVarPageApi
+from .case_var_api.case_var_api import CaseVarApi, CaseVarPageApi, CaseVarHistoryApi
 from .case_db_api.case_db_api import CaseDBApi, CaseDBPageApi
 from .case_logs_api.case_logs_api import CaseLogsPageApi
 from .case_execute_logs_api.case_execute_logs_api import CaseExecuteLogsApi, CaseExecuteLogsPageApi
@@ -51,6 +51,7 @@ api.add_url_rule('/case_req_data_page', view_func=CaseReqDataPageApi.as_view('ca
 
 api.add_url_rule('/case_var', view_func=CaseVarApi.as_view('case_var'))
 api.add_url_rule('/case_var/<var_id>', view_func=CaseVarApi.as_view('case_var_detail'))
+api.add_url_rule('/case_var_history', view_func=CaseVarHistoryApi.as_view('case_var_history'))
 api.add_url_rule('/case_var_page', view_func=CaseVarPageApi.as_view('case_var_page'))
 
 api.add_url_rule('/case_db', view_func=CaseDBApi.as_view('case_db'))
