@@ -39,6 +39,8 @@ class TestVariableHistory(BaseModel):
 
     var_id = db.Column(BIGINT(20, unsigned=True), comment='变量id')
     update_type = db.Column(db.String(255), comment='更新类型')
+    before_var = db.Column(db.String(255), comment='修改前的值')
+    after_var = db.Column(db.String(255), comment='修改后的值')
     creator = db.Column(db.String(32), comment='创建人')
     creator_id = db.Column(BIGINT(20, unsigned=True), comment='创建人id')
     modifier = db.Column(db.String(32), comment='更新人')
@@ -46,4 +48,6 @@ class TestVariableHistory(BaseModel):
     remark = db.Column(db.String(255), comment='备注')
 
     def __repr__(self):
-        return 'TestVariableHistory 模型对象-> ID:{} 变量id:{} 更新类型:{}'.format(self.id, self.var_id, self.update_type)
+        return 'TestVariableHistory 模型对象-> ID:{} 变量id:{} 更新类型:{} 修改前的值:{} 修改后的值:{}'.format(
+            self.id, self.var_id, self.update_type, self.before_var, self.after_var
+        )
