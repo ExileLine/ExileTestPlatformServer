@@ -7,7 +7,7 @@
 
 
 from all_reference import *
-from app.models.test_variable.models import TestVariable
+from app.models.test_variable.models import TestVariable, TestVariableHistory
 
 var_type_dict = {
     "str": 1,
@@ -111,6 +111,7 @@ class CaseVarApi(MethodView):
         remark = data.get('remark')
 
         query_var = TestVariable.query.get(var_id)
+        after_var = query_var.var_value
 
         if not query_var:
             return api_result(code=400, message='用例变量id:{}数据不存在'.format(var_id))
@@ -137,6 +138,17 @@ class CaseVarApi(MethodView):
         query_var.modifier_id = g.app_user.id
         db.session.commit()
 
+        var_history = TestVariableHistory(
+            var_id=var_id,
+            update_type="用户操作更新",
+            before_var=query_var.var_value,
+            after_var=after_var,
+            creator=g.app_user.username,
+            creator_id=g.app_user.id
+        )
+        db.session.add(var_history)
+        db.session.commit()
+
         return api_result(code=203, message='编辑成功')
 
     def delete(self):
@@ -155,6 +167,16 @@ class CaseVarApi(MethodView):
         query_var.modifier_id = g.app_user.id
         db.session.commit()
         return api_result(code=204, message='删除成功')
+
+
+class CaseVarHistoryApi(MethodView):
+    """
+    变量历史
+    """
+
+    # TODO
+    def get(self):
+        """变量变更记录"""
 
 
 class CaseVarPageApi(MethodView):
