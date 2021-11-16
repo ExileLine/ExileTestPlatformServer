@@ -7,6 +7,7 @@
 
 from all_reference import *
 from app.models.test_case_assert.models import TestCaseAssResponse, TestCaseAssField
+from app.models.test_case_config.models import TestDatabases
 
 
 def check_field_ass(aj_list):
@@ -35,6 +36,11 @@ def check_field_ass(aj_list):
 
         if not check_bool or not isinstance(assert_list, list):
             return __result(status=False, message='ass_json 参数错误')
+
+        query_db = TestDatabases.query.get(db_id)
+
+        if not query_db or query_db.is_deleted:
+            return __result(status=False, message='数据库不存在或被禁用: {}'.format(db_id))
 
         current_assert_list = []
         current_ass_obj = {
