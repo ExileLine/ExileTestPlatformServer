@@ -7,6 +7,7 @@
 
 from all_reference import *
 from app.models.test_case.models import TestCase
+from app.models.test_case_assert.models import TestCaseDataAssBind
 
 
 def check_method(current_method):
@@ -182,3 +183,53 @@ class CasePageApi(MethodView):
         )
 
         return api_result(code=200, message='操作成功', data=result_data)
+
+
+class CaseCopyApi(MethodView):
+    """
+    用例复制Api
+    POST: 用例复制
+    """
+
+    def post(self):
+        """用例复制"""
+
+        data = request.get_json()
+        case_id = data.get('case_id')
+
+        query_case = TestCase.query.get(case_id)
+
+        if not query_case:
+            return api_result(code=400, message='用例id:{}不存在'.format(case_id))
+
+        new_test_case = TestCase(
+            case_name=query_case.case_name,
+            request_method=query_case.request_method,
+            request_base_url=query_case.request_base_url,
+            request_url=query_case.request_url,
+            is_shared=query_case.is_shared,
+            is_public=query_case.is_public,
+            remark="用例: {}-{} 的复制".format(query_case.id, query_case.case_name),
+            creator=g.app_user.username,
+            creator_id=g.app_user.id,
+        )
+        new_test_case.save()
+        new_test_case_id = new_test_case.id
+
+        query_bind = TestCaseDataAssBind.query.filter_by(case_id=case_id).all()
+
+        if query_bind:
+            for index, d in enumerate(query_bind, 1):
+                new_bind = TestCaseDataAssBind(
+                    case_id=new_test_case_id,
+                    data_id=d.data_id,
+                    ass_resp_id_list=d.ass_resp_id_list,  # TODO 检查 ass_resp_id_list 中的 id 是否存在
+                    ass_field_id_list=d.ass_field_id_list,  # TODO 检查 ass_field_id_list 中的 id 是否存在
+                    creator=g.app_user.username,
+                    creator_id=g.app_user.id,
+                    remark="用例复制生成"
+                )
+                db.session.add(new_bind)
+            db.session.commit()
+
+        return api_result(code=200, message='操作成功')

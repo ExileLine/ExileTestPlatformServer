@@ -12,7 +12,7 @@ from .index_api.index_api import IndexApi
 from .login_api.login_api import LoginApi
 from .user_api.user_api import TouristApi, UserPageApi
 from .case_env_api.case_env_api import CaseEnvApi, CaseEnvPageApi
-from .case_api.case_api import CaseApi, CasePageApi
+from .case_api.case_api import CaseApi, CasePageApi, CaseCopyApi
 from .case_data_api.case_data_api import CaseReqDataApi, CaseReqDataPageApi
 from .case_var_api.case_var_api import CaseVarApi, CaseVarPageApi, CaseVarHistoryApi
 from .case_db_api.case_db_api import CaseDBApi, CaseDBPageApi
@@ -44,6 +44,7 @@ api.add_url_rule('/case_env_page', view_func=CaseEnvPageApi.as_view('case_env_pa
 api.add_url_rule('/case', view_func=CaseApi.as_view('case'))
 api.add_url_rule('/case/<case_id>', view_func=CaseApi.as_view('case_detail'))
 api.add_url_rule('/case_page', view_func=CasePageApi.as_view('case_page'))
+api.add_url_rule('/case_copy', view_func=CaseCopyApi.as_view('case_copy'))
 
 api.add_url_rule('/case_req_data', view_func=CaseReqDataApi.as_view('case_req_data'))
 api.add_url_rule('/case_req_data/<req_data_id>', view_func=CaseReqDataApi.as_view('case_req_data_detail'))
