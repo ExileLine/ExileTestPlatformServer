@@ -16,30 +16,13 @@ from common.libs.StringIOLog import StringIOLog
 class ReturnDB:
     """获取DB"""
 
-    def __init__(self, db_id=None, sio=None):
-        self.db_id = db_id
-        self.db_type = None
-        self.db_connection = None
+    def __init__(self, sio=None, db_type=None, db_connection=None):
         self.sio = sio if sio else StringIOLog()
+        self.db_type = db_type
+        self.db_connection = db_connection
 
-    def check_db(self):
-        """检查是否存在该db的连接配置"""
-
-        # 在接口被调用时开启新的线程执行,所以仍然需要开启上下文
-        from ApplicationExample import create_app
-        app = create_app()
-        with app.app_context():
-            query_db = TestDatabases.query.get(self.db_id)
-
-        if query_db:
-            db_obj = query_db.to_json()
-            db_type = db_obj.get('db_type')
-            db_connection = db_obj.get('db_connection')
-            self.db_type = db_type
-            self.db_connection = db_connection
-            return True
-        else:
-            return False
+        print(self.db_type)
+        print(self.db_connection)
 
     def get_mysql(self):
         """mysql"""
@@ -56,14 +39,20 @@ class ReturnDB:
 
     def main(self):
         """main"""
+
         db_dict = {
             "mysql": self.get_mysql,
             "redis": self.get_redis
         }
-        if self.check_db() and self.db_type:
-            self.sio.log("=== 测试需要连接的db配置: {} - {} ===".format(self.db_connection, type(self.db_connection)))
-            return db_dict.get(self.db_type.lower())()
+        self.sio.log("=== 测试需要连接的db配置: {} - {} ===".format(self.db_connection, type(self.db_connection)))
+        db_func = db_dict.get(self.db_type.lower(), None)
+
+        # TODO 连接失败需要处理
+        if db_func:
+            return db_func()
+
         else:
+            self.sio.log("=== db_dict 未找到数据库类型: {} === ".format(self.db_type), status='error')
             return None
 
 
@@ -72,52 +61,8 @@ class AssertMain:
     断言类
     """
 
-    def __init__(self, resp_json=None, resp_headers=None, assert_description=None, assert_key=None, rule=None,
-                 expect_val=None, expect_val_type=None, is_expression=None, python_val_exp=None, db_id=None, query=None,
-                 assert_list=None, sio=None):
-
-        self.sio = sio if sio else StringIOLog()
-        self.resp_json = resp_json
-        self.resp_headers = resp_headers
-
-        """resp ass"""
-        self.assert_description = assert_description
-        self.this_val = None
-        self.assert_key = assert_key
-        self.rule = rule
-        self.expect_val = expect_val
-        self.expect_val_type = expect_val_type
-        self.is_expression = is_expression
-        self.python_val_exp = python_val_exp
-
-        """field ass"""
-        self.db_id = db_id
-        self.query = query
-        self.assert_list = assert_list
-        self.db_type = None
-        self.test_db = None
-        if self.db_id:
-            try:
-                self.test_db = ReturnDB(db_id=self.db_id, sio=self.sio).main()
-            except BaseException as e:
-                self.sio.log("=== 连接:{}-db 失败:{} === ".format(self.db_type, str(e)), status='error')
-
-    def set_this_val(self):
-        """
-        用键获取需要断言的值
-        :return:
-        """
-        if self.is_expression:  # 公式取值
-            result_json = execute_code(code=self.python_val_exp, data=self.resp_json)
-            result = result_json.get('result_data')
-            self.sio.log("=== 公式取值结果: {} ===".format(result))
-            self.this_val = result
-
-        else:  # 直接常规取值:紧限于返回值的第一层键值对如:{"code":200,"message":"ok"}
-            self.this_val = self.resp_json.get(self.assert_key)
-
     @classmethod
-    def assert_main(cls, this_val, rule, expect_val):
+    def get_assert(cls, this_val, rule, expect_val):
         """
         断言
         :param this_val: 当前值
@@ -139,7 +84,43 @@ class AssertMain:
 
         return result
 
-    def assert_resp_main(self):
+    def go_test(self):
+        """调试"""
+        print('\n'.join(['%s:%s' % item for item in self.__dict__.items()]))
+
+
+class AssertResponseMain(AssertMain):
+    """Response 断言类"""
+
+    def __init__(self, sio=None, resp_json=None, resp_headers=None, assert_description=None, assert_key=None, rule=None,
+                 expect_val=None, expect_val_type=None, is_expression=None, python_val_exp=None):
+        self.sio = sio if sio else StringIOLog()
+        self.resp_json = resp_json
+        self.resp_headers = resp_headers
+        self.assert_description = assert_description
+        self.this_val = None
+        self.assert_key = assert_key
+        self.rule = rule
+        self.expect_val = expect_val
+        self.expect_val_type = expect_val_type
+        self.is_expression = is_expression
+        self.python_val_exp = python_val_exp
+
+    def set_this_val(self):
+        """
+        用键获取需要断言的值
+        :return:
+        """
+        if self.is_expression:  # 公式取值
+            result_json = execute_code(code=self.python_val_exp, data=self.resp_json)
+            result = result_json.get('result_data')
+            self.sio.log("=== 公式取值结果: {} ===".format(result))
+            self.this_val = result
+
+        else:  # 直接常规取值:紧限于返回值的第一层键值对如:{"code":200,"message":"ok"}
+            self.this_val = self.resp_json.get(self.assert_key)
+
+    def main(self):
         """
         resp断言
         :this_val: 当前值
@@ -162,7 +143,7 @@ class AssertMain:
         self.sio.log(message)
 
         try:
-            if self.assert_main(this_val=self.this_val, rule=self.rule, expect_val=self.expect_val):
+            if self.get_assert(this_val=self.this_val, rule=self.rule, expect_val=self.expect_val):
                 self.sio.log('=== 断言通过 ===', status='success')
                 return {
                     "status": True,
@@ -187,7 +168,114 @@ class AssertMain:
                 "message": message
             }
 
-    def assert_field_main(self):
+
+class AssertFieldMain(AssertMain):
+    """Field 断言类"""
+
+    def __init__(self, sio=None, resp_json=None, resp_headers=None, assert_description=None, db_id=None, query=None,
+                 assert_list=None):
+        self.sio = sio if sio else StringIOLog()
+        self.resp_json = resp_json
+        self.resp_headers = resp_headers
+        self.assert_description = assert_description
+        self.db_id = db_id
+        self.query = query
+        self.assert_list = assert_list
+        self.db_type = None
+        self.test_db = None
+
+        self.query_result_status = None
+        self.ass_field_success = []
+        self.ass_field_fail = []
+
+        # TODO 后续兼容其他数据库
+        #  例如: Oracle、DB2、SQL Server、Redis, Mongodb, ES 等
+        #  需要一个信号检测装饰器来检测是否存在该db以及sql
+
+        if self.db_id:
+            from ApplicationExample import create_app
+            app = create_app()
+            with app.app_context():
+                query_db = TestDatabases.query.get(db_id)
+
+            if not query_db or query_db.is_deleted:
+                self.sio.log("=== 数据库不存在或禁用: {} === ".format(self.db_id), status='error')
+
+            db_obj = query_db.to_json()
+
+            try:
+                self.test_db = ReturnDB(
+                    sio=self.sio,
+                    db_type=db_obj.get('db_type'),
+                    db_connection=db_obj.get('db_connection')
+                ).main()
+
+            except BaseException as e:
+                self.sio.log("=== 连接:{}-db 失败:{} === ".format(self.db_type, str(e)), status='error')
+
+        else:
+            self.sio.log("=== 数据库为空 ===".format(self.db_id), status='error')
+
+    def get_query_result(self):
+        """
+        查询数据结果集(唯一数据)
+        """
+
+        query_result = self.test_db.select(self.query, only=True)
+        self.sio.log("=== 测试数据查询结果: {} ===".format(query_result), status='success')
+        return query_result
+
+    def ass_dict_result(self, query_result):
+        """
+        查询结果为一个dict,检验key:value
+        ps:如果该方法报错,问题会出现在 参数在入库的时候接口没有做好检验 或 者手动修改了数据库的数据
+        """
+        for ass in self.assert_list:
+            # print(ass)
+            __key = ass.get('assert_key')
+            # print(__key)
+            __result_key = query_result.get(__key)
+            # print(__result_key)
+            __rule = ass.get('rule')
+            __expect_val = ass.get('expect_val')
+
+            self.sio.log('=== 断言:{} ==='.format(self.assert_description))
+            self.sio.log('=== 字段:{} ==='.format(__key))
+            message = '{}:{} [{}] {}:{}'.format(
+                __result_key, type(__result_key), __rule, __expect_val, type(__expect_val)
+            )
+            self.sio.log(message)
+
+            try:
+                if self.get_assert(this_val=__result_key, rule=__rule, expect_val=__expect_val):
+                    self.sio.log('=== 断言通过 ===', status='success')
+                    self.ass_field_success.append(message)
+                else:
+                    self.sio.log('=== 断言失败 ===', status='error')
+                    self.ass_field_fail.append(message)
+
+            except BaseException as e:
+                self.sio.log('数据异常:{}'.format(str(e)), status='error')
+                self.sio.log('这种情况一般会因为以下两种原因导致:', status='error')
+                self.sio.log('1.查看数据库确认该数据是否有被手动修改过.', status='error')
+                self.sio.log(
+                    '2.查看: case_ass_rule_api.py 中的 FieldAssertionRuleApi 中的逻辑是否被修改.',
+                    status='error')
+                self.sio.log('=== 断言异常 ===', status="error")
+
+        return {
+            "success": len(self.ass_field_success),
+            "fail": len(self.ass_field_fail),
+        }
+
+    def ass_list_result(self, query_result):
+        """
+        查询结果为一个[],检验:=,>,>=,<,<=,in,not in
+        ps:如果该方法报错,是参数在入库的时候接口没有做好检验或者手动修改了数据库的数据
+        """
+        return
+
+    def main(self):
         """
         field断言
         :this_val: 当前值
@@ -195,72 +283,14 @@ class AssertMain:
         :expect_val_type: 期望值类型
         :expect_val: 期望值
         """
-        # TODO 后续兼容其他数据库
-        #  例如: Oracle、DB2、SQL Server、Redis, Mongodb, ES 等
-        query_result = self.test_db.select(self.query, only=True)
-        self.sio.log("=== 测试数据查询结果: {} ===".format(query_result), status='success')
 
-        ass_field_success = []
-        ass_field_fail = []
+        query_result = self.get_query_result()
 
-        def __ass_dict_result():
-            """
-            查询结果为一个dict,检验key:value
-            ps:如果该方法报错,问题会出现在 参数在入库的时候接口没有做好检验 或 者手动修改了数据库的数据
-            """
-            for ass in self.assert_list:
-                # print(ass)
-                __key = ass.get('assert_key')
-                # print(__key)
-                __result_key = query_result.get(__key)
-                # print(__result_key)
-                __rule = ass.get('rule')
-                __expect_val = ass.get('expect_val')
+        result = self.ass_dict_result(query_result)
 
-                self.sio.log('=== 断言:{} ==='.format(self.assert_description))
-                self.sio.log('=== 字段:{} ==='.format(__key))
-                message = '{}:{} [{}] {}:{}'.format(
-                    __result_key, type(__result_key), __rule, __expect_val, type(__expect_val)
-                )
-                self.sio.log(message)
-
-                try:
-                    if self.assert_main(this_val=__result_key, rule=__rule, expect_val=__expect_val):
-                        self.sio.log('=== 断言通过 ===', status='success')
-                        ass_field_success.append(message)
-                    else:
-                        self.sio.log('=== 断言通过 ===', status='error')
-                        ass_field_fail.append(message)
-
-                except BaseException as e:
-                    self.sio.log('数据异常:{}'.format(str(e)), status='error')
-                    self.sio.log('这种情况一般会因为以下两种原因导致:', status='error')
-                    self.sio.log('1.查看数据库确认该数据是否有被手动修改过.', status='error')
-                    self.sio.log(
-                        '2.查看: case_ass_rule_api.py 中的 FieldAssertionRuleApi 中的逻辑是否被修改.',
-                        status='error')
-                    self.sio.log('=== 断言异常 ===', status="error")
-
-            return {
-                "success": len(ass_field_success),
-                "fail": len(ass_field_fail),
-            }
-
-        def __ass_list_result():
-            """
-            查询结果为一个[],检验:=,>,>=,<,<=,in,not in
-            ps:如果该方法报错,是参数在入库的时候接口没有做好检验或者手动修改了数据库的数据
-            """
-            return
-
-        # TODO __ass_list_result
-        result = __ass_dict_result()
+        # result = self.ass_list_result(query_result) # TODO ass_list_result
 
         return result
-
-    def go_test(self):
-        """调试"""
-        print('\n'.join(['%s:%s' % item for item in self.__dict__.items()]))
 
 
 if __name__ == '__main__':
@@ -293,13 +323,13 @@ if __name__ == '__main__':
             "python_val_exp": "okc.get('code')",
             "expect_val_type": "1"
         }
-        new_ass = AssertMain(
+        new_ass = AssertResponseMain(
             resp_json=resp_json,
             resp_headers=resp_headers,
             assert_description="Resp通用断言",
             **resp_ass_dict
         )
-        resp_ass_result = new_ass.assert_resp_main()
+        resp_ass_result = new_ass.main()
         print(resp_ass_result)
 
 
@@ -321,16 +351,16 @@ if __name__ == '__main__':
                 }
             ],
             "db_id": 1,
-            "query": "select * FROM ExilicTestPlatform.exile_test_case WHERE id=1;"
+            "query": "select * FROM ExileTestPlatform.exile_test_case WHERE id=1;"
         }
 
-        new_ass = AssertMain(
+        new_ass = AssertFieldMain(
             assert_description="Field通用断言",
             **field_ass_dict
         )
-        field_ass_result = new_ass.assert_field_main()
+        field_ass_result = new_ass.main()
 
 
-    test_resp_ass()
+    # test_resp_ass()
     test_field_ass()
     # print(ReturnDB(db_id=1).main().select("""select * from ExilicTestPlatform.exile_test_case where id=1;"""))

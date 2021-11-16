@@ -17,7 +17,7 @@ from loguru import logger
 
 from common.libs.db import project_db, R
 from common.libs.public_func import check_keys
-from common.libs.assert_related import AssertMain
+from common.libs.assert_related import AssertResponseMain, AssertFieldMain
 from common.libs.StringIOLog import StringIOLog
 from common.libs.execute_code import execute_code
 
@@ -278,14 +278,14 @@ class MainTest:
         """
         for resp_ass_dict in resp_ass_list:
             # print(resp_ass_dict)
-            new_resp_ass = AssertMain(
+            new_resp_ass = AssertResponseMain(
                 sio=self.sio,
                 resp_json=self.resp_json,
                 resp_headers=self.resp_headers,
                 assert_description=assert_description,
                 **resp_ass_dict
             )
-            resp_ass_result = new_resp_ass.assert_resp_main()
+            resp_ass_result = new_resp_ass.main()
             # print(resp_ass_result)
             if resp_ass_result.get('status'):  # [bool,str]
                 self.test_result.resp_ass_success += 1
@@ -300,13 +300,13 @@ class MainTest:
 
         for field_ass_dict in field_ass_list:
             # print(field_ass_dict)
-            new_field_ass = AssertMain(
+            new_field_ass = AssertFieldMain(
                 sio=self.sio,
                 assert_description=assert_description,
                 **field_ass_dict
             )
 
-            field_ass_result = new_field_ass.assert_field_main()
+            field_ass_result = new_field_ass.main()
 
             self.test_result.field_ass_success += field_ass_result.get('success')
             self.test_result.field_ass_fail += field_ass_result.get('fail')
@@ -459,6 +459,7 @@ class MainTest:
 
                 old_var = json.dumps(var_value, ensure_ascii=False)
                 new_var = json.dumps(update_val_result, ensure_ascii=False)
+
                 sql = """UPDATE exile_test_variable SET var_value='{}' WHERE id='{}';""".format(new_var, id)
                 self.sio.log('=== update sql === 【 {} 】'.format(sql), status='success')
                 project_db.update_data(sql)
@@ -546,6 +547,8 @@ class MainTest:
                 "case_log": self.sio.get_stringio(),
             }
             self.case_result_list.append(add_case)
+
+        logger.info('=== save redis start ===')
 
         case_summary = self.test_result.get_test_result()
         self.end_time = time.time()
