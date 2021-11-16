@@ -138,6 +138,7 @@
 |56|/api/case_report|POST|生成测试报告|
 |57|/api/case_set|POST|用户用例收藏(标记)|
 |58|/api/case_bind|POST|用例(参数/断言/变量)统一绑定|
+|59|/api/case_var_history|POST|用例变量更新历史列表查询|
 
 ### 项目部署
 
