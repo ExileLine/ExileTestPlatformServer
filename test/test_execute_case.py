@@ -368,6 +368,164 @@ if __name__ == '__main__':
         }
     }
 
+    demo3 = {
+        "bind_info": [
+            {
+                "case_data_info": {
+                    "create_time": "2021-11-11 10:58:18",
+                    "create_timestamp": 1636599498,
+                    "creator": "脚本生成:0",
+                    "creator_id": 999999,
+                    "data_name": "数据okc",
+                    "id": 1,
+                    "is_deleted": 0,
+                    "is_public": 0,
+                    "modifier": "user_00001",
+                    "modifier_id": 1,
+                    "remark": "脚本生成:0",
+                    "request_body": {},
+                    "request_body_type": 1,
+                    "request_headers": {},
+                    "request_params": {},
+                    "status": 1,
+                    "update_time": "2021-11-15 10:13:44",
+                    "update_timestamp": 1636941307,
+                    "update_var_list": [
+                        {
+                            "expression": "obj.get('message')",
+                            "id": 1,
+                            "is_expression": 0,
+                            "var_get_key": "message",
+                            "var_source": "resp_data",
+                            "var_value": "yangyuexiong123"
+                        },
+                        {
+                            "expression": "obj.get('code')",
+                            "id": 2,
+                            "is_expression": 0,
+                            "var_get_key": "code",
+                            "var_source": "resp_data",
+                            "var_value": "变量的值:1"
+                        }
+                    ],
+                    "var_list": None
+                },
+                "case_field_ass_info": [
+                    {
+                        "ass_json": [
+                            {
+                                "assert_list": [
+                                    {
+                                        "assert_key": "id",
+                                        "expect_val": 1,
+                                        "expect_val_type": "1",
+                                        "rule": "__eq__"
+                                    },
+                                    {
+                                        "assert_key": "case_name",
+                                        "expect_val": "测试用例B1",
+                                        "expect_val_type": "2",
+                                        "rule": "__eq__"
+                                    }
+                                ],
+                                "db_id": 1,
+                                "query": "select id FROM ExileTestPlatform.exile_test_case WHERE id=1;"
+                            }
+                        ],
+                        "assert_description": "调试用例执行专用field断言",
+                        "create_time": "2021-11-11 11:23:23",
+                        "create_timestamp": 1636601002,
+                        "creator": "脚本生成:0",
+                        "creator_id": 999999,
+                        "id": 1,
+                        "is_deleted": 0,
+                        "is_public": 1,
+                        "modifier": "user_00001",
+                        "modifier_id": 1,
+                        "remark": "调试用例执行专用field断言",
+                        "status": 1,
+                        "update_time": "2021-11-16 11:16:32",
+                        "update_timestamp": 1637027887
+                    }
+                ],
+                "case_resp_ass_info": [
+                    {
+                        "ass_json": [
+                            {
+                                "assert_key": "code",
+                                "expect_val": 200,
+                                "expect_val_type": "1",
+                                "is_expression": 0,
+                                "python_val_exp": "okc.get('a').get('b').get('c')[0]",
+                                "rule": "__eq__"
+                            },
+                            {
+                                "assert_key": "code",
+                                "expect_val": 200,
+                                "expect_val_type": "1",
+                                "is_expression": 1,
+                                "python_val_exp": "okc.get('code')",
+                                "rule": "__eq__"
+                            },
+                            {
+                                "assert_key": "message",
+                                "expect_val": "index",
+                                "expect_val_type": "2",
+                                "is_expression": 0,
+                                "python_val_exp": "okc.get('message')",
+                                "rule": "__eq__"
+                            },
+                            {
+                                "assert_key": "message",
+                                "expect_val": "index",
+                                "expect_val_type": "2",
+                                "is_expression": 1,
+                                "python_val_exp": "okc.get('message')",
+                                "rule": "__eq__"
+                            }
+                        ],
+                        "assert_description": "调试用例执行专用resp断言",
+                        "create_time": "2021-11-11 11:23:22",
+                        "create_timestamp": 1636601002,
+                        "creator": "脚本生成:0",
+                        "creator_id": 999999,
+                        "id": 1,
+                        "is_deleted": 0,
+                        "is_public": 1,
+                        "modifier": "user_00001",
+                        "modifier_id": 1,
+                        "remark": "调试用例执行专用resp断言",
+                        "status": 1,
+                        "update_time": "2021-11-16 11:15:52",
+                        "update_timestamp": 1637027887
+                    }
+                ]
+            }
+        ],
+        "case_info": {
+            "case_name": "用于执行-resp断言+field断言",
+            "create_time": "2021-11-16 09:55:09",
+            "create_timestamp": 1637027526,
+            "creator": "user_00001",
+            "creator_id": 1,
+            "id": 48,
+            "is_deleted": 0,
+            "is_pass": 0,
+            "is_public": 1,
+            "is_shared": 1,
+            "modifier": "user_00001",
+            "modifier_id": 1,
+            "remark": "/api/index",
+            "request_base_url": "http://0.0.0.0:7272",
+            "request_method": "POST",
+            "request_url": "/api/index",
+            "status": 1,
+            "total_execution": 7,
+            "update_time": "2021-11-16 11:37:38",
+            "update_timestamp": 1637033854
+        }
+    }
+
     test_obj = {
         "execute_id": 1,
         "execute_name": "开发者调试",
@@ -375,7 +533,7 @@ if __name__ == '__main__':
         "execute_user_id": 1,
         "execute_username": "开发者调试",
         "base_url": None,
-        "case_list": [demo2],
+        "case_list": [demo3],
         "data_driven": False,
         # "sio": sio
     }
