@@ -21,9 +21,6 @@ class ReturnDB:
         self.db_type = db_type
         self.db_connection = db_connection
 
-        print(self.db_type)
-        print(self.db_connection)
-
     def get_mysql(self):
         """mysql"""
         db = MyPyMysql(**self.db_connection, debug=True)  # MySql实例
@@ -187,6 +184,10 @@ class AssertFieldMain(AssertMain):
         self.query_result_status = None
         self.ass_field_success = []
         self.ass_field_fail = []
+        self.ass_field_error = []
+
+    def check_db(self):
+        """db连接检查"""
 
         # TODO 后续兼容其他数据库
         #  例如: Oracle、DB2、SQL Server、Redis, Mongodb, ES 等
@@ -196,22 +197,20 @@ class AssertFieldMain(AssertMain):
             from ApplicationExample import create_app
             app = create_app()
             with app.app_context():
-                query_db = TestDatabases.query.get(db_id)
+                query_db = TestDatabases.query.get(self.db_id)
 
             if not query_db or query_db.is_deleted:
                 self.sio.log("=== 数据库不存在或禁用: {} === ".format(self.db_id), status='error')
+                self.ass_field_error.append('数据库不存在或禁用')
 
-            db_obj = query_db.to_json()
+            else:
+                db_obj = query_db.to_json()
 
-            try:
                 self.test_db = ReturnDB(
                     sio=self.sio,
                     db_type=db_obj.get('db_type'),
                     db_connection=db_obj.get('db_connection')
                 ).main()
-
-            except BaseException as e:
-                self.sio.log("=== 连接:{}-db 失败:{} === ".format(self.db_type, str(e)), status='error')
 
         else:
             self.sio.log("=== 数据库为空 ===".format(self.db_id), status='error')
@@ -262,10 +261,12 @@ class AssertFieldMain(AssertMain):
                     '2.查看: case_ass_rule_api.py 中的 FieldAssertionRuleApi 中的逻辑是否被修改.',
                     status='error')
                 self.sio.log('=== 断言异常 ===', status="error")
+                self.ass_field_error.append(message)
 
         return {
             "success": len(self.ass_field_success),
             "fail": len(self.ass_field_fail),
+            "error": len(self.ass_field_error)
         }
 
     def ass_list_result(self, query_result):
@@ -284,13 +285,20 @@ class AssertFieldMain(AssertMain):
         :expect_val: 期望值
         """
 
-        query_result = self.get_query_result()
-
-        result = self.ass_dict_result(query_result)
-
-        # result = self.ass_list_result(query_result) # TODO ass_list_result
-
-        return result
+        try:
+            self.check_db()
+            query_result = self.get_query_result()
+            result = self.ass_dict_result(query_result)
+            # result = self.ass_list_result(query_result) # TODO ass_list_result
+            return result
+        except BaseException as e:
+            self.sio.log("=== {} ===".format(str(e)), status='error')
+            result = {
+                "success": len(self.ass_field_success),
+                "fail": len(self.ass_field_fail),
+                "error": len(self.ass_field_error)
+            }
+            return result
 
 
 if __name__ == '__main__':
