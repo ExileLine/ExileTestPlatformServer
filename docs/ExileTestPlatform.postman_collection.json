@@ -6,6 +6,63 @@
 	},
 	"item": [
 		{
+			"name": "首页",
+			"item": [
+				{
+					"name": "index",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "token",
+								"value": "yangyuexiong",
+								"type": "text",
+								"disabled": true
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/index",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"index"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "index2",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"Date\": \"2021-10-03\", \n    \"DateTime\": \"2021-10-03 14:41:21.050626\", \n    \"Time\": \"14:41:21.050622\", \n    \"TimeStamp\": \"1633243281\", \n    \"UUID\": \"e52rhokp9w1633243281RU6itVwQiC\", \n    \"token\": \"yangyuexiongyyx\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/api/index",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"index"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
 			"name": "游客",
 			"item": [
 				{
@@ -114,7 +171,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"env_url\": \"www.okc.com\",\n    \"env_name\": \"测试环境\",\n    \"remark\": \"remark123\"\n}",
+							"raw": "{\n    \"env_url\": \"www.metatuple.com\",\n    \"env_name\": \"测试环境\",\n    \"remark\": \"metatuple\"\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -218,14 +275,14 @@
 							"raw": ""
 						},
 						"url": {
-							"raw": "{{base_url}}/api/case/20",
+							"raw": "{{base_url}}/api/case/48",
 							"host": [
 								"{{base_url}}"
 							],
 							"path": [
 								"api",
 								"case",
-								"20"
+								"48"
 							]
 						}
 					},
@@ -317,6 +374,60 @@
 						}
 					},
 					"response": []
+				},
+				{
+					"name": "用例复制",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"case_id\": 1\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/api/case_copy",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"case_copy"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "用户用例收藏",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"user_id\": \"1\",\n    \"case_id_list\": [\n        1,\n        2,\n        \"33\"\n    ],\n    \"scenario_id_list\": [\n        \"11\",\n        \"222\"\n    ]\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/api/case_set",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"case_set"
+							]
+						}
+					},
+					"response": []
 				}
 			]
 		},
@@ -361,7 +472,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"scenario_title\": \"场景A3\",\n    \"case_list\": [1,2]\n}",
+							"raw": "{\n    \"scenario_title\": \"场景A1\",\n    \"case_list\": [\n        1,\n        2\n    ],\n    \"is_shared\": 0,\n    \"is_public\": true\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -388,7 +499,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"scenario_id\": 1,\n    \"scenario_title\": \"场景A1\",\n    \"case_list\": [\n        1,\n        2,\n        3\n    ]\n}",
+							"raw": "{\n    \"scenario_id\": 1,\n    \"scenario_title\": \"场景A1\",\n    \"case_list\": [\n        1,\n        2,\n        3\n    ],\n    \"is_shared\": 0,\n    \"is_public\": true\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -466,7 +577,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"data_list\": [\n        {\n            \"data_name\": \"杨跃雄测试1\",\n            \"request_params\": {},\n            \"request_headers\": {},\n            \"request_body\": {\n                \"token\": \"${token}\"\n            },\n            \"request_body_type\": 1,\n            \"var_list\": [\n                \"user_id\",\n                \"username\"\n            ],\n            \"update_var_list\": [\n                3,\n                4\n            ],\n            \"is_public\": false\n        },\n        {\n            \"data_name\": \"杨跃雄测试2\",\n            \"request_params\": {},\n            \"request_headers\": {},\n            \"request_body\": {\n                \"user_id\": \"${user_id}\"\n            },\n            \"request_body_type\": 2,\n            \"var_list\": [],\n            \"update_var_list\": [],\n            \"is_public\": \"\"\n        }\n    ]\n}",
+							"raw": "{\n    \"data_list\": [\n        {\n            \"data_name\": \"杨跃雄测试1\",\n            \"request_params\": {},\n            \"request_headers\": {},\n            \"request_body\": {\n                \"token\": \"${token}\"\n            },\n            \"request_body_type\": 1,\n            \"var_list\": [\n                \"user_id\",\n                \"username\"\n            ],\n            \"update_var_list\": [\n                {\n                    \"id\": 1,\n                    \"var_value\":\"123\",\n                    \"var_source\": \"resp_data\",\n                    \"expression\": \"obj.get('code')\",\n                    \"is_expression\": 0,\n                    \"var_get_key\": \"code\"\n                },\n                {\n                    \"id\": 2,\n                    \"var_value\":\"123\",\n                    \"var_source\": \"resp_data\",\n                    \"expression\": \"obj.get('code')\",\n                    \"is_expression\": 0,\n                    \"var_get_key\": \"code\"\n                }\n            ],\n            \"is_public\": false\n        },\n        {\n            \"data_name\": \"杨跃雄测试2\",\n            \"request_params\": {},\n            \"request_headers\": {},\n            \"request_body\": {\n                \"user_id\": \"${user_id}\"\n            },\n            \"request_body_type\": 2,\n            \"var_list\": [],\n            \"update_var_list\": [],\n            \"is_public\": \"\"\n        }\n    ]\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -493,7 +604,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"id\": 1,\n    \"req_data_json\": {\n        \"data_name\": \"数据okc\",\n        \"request_params\": {\n            \"y\": \"${token}\"\n        },\n        \"request_headers\": {\n            \"0\": \"0\"\n        },\n        \"request_body\": {\n            \"1\": \"1\"\n        },\n        \"request_body_type\": 1,\n        \"var_list\": [],\n        \"update_var_list\": [\n            1,\n            2\n        ],\n        \"is_public\": false\n    }\n}",
+							"raw": "{\n    \"id\": 1,\n    \"req_data_json\": {\n        \"data_name\": \"数据okc\",\n        \"request_params\": {},\n        \"request_headers\": {},\n        \"request_body\": {},\n        \"request_body_type\": 1,\n        \"var_list\": [],\n        \"update_var_list\": [\n            {\n                \"id\": 1,\n                \"var_value\": \"yangyuexiong123\",\n                \"var_source\": \"resp_data\",\n                \"expression\": \"obj.get('message')\",\n                \"is_expression\": 0,\n                \"var_get_key\": \"message\"\n            },\n            {\n                \"id\": 2,\n                \"var_value\": \"变量的值:1\",\n                \"var_source\": \"resp_data\",\n                \"expression\": \"obj.get('code')\",\n                \"is_expression\": 0,\n                \"var_get_key\": \"code\"\n            }\n        ],\n        \"is_public\": false\n    }\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -571,7 +682,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"var_name\": \"新的变量\",\n    \"var_value\": \"123okc\",\n    \"var_type\": \"Str\",\n    \"var_source\": \"resp_data\",\n    \"var_get_key\": \"code\",\n    \"expression\": \"obj.get('message')\",\n    \"is_expression\": 1,\n    \"is_public\": \"1\",\n    \"remark\": \"remark\"\n}",
+							"raw": "{\n    \"var_name\": \"新的变量123\",\n    \"var_value\": 8888,\n    \"var_type\": \"int\",\n    \"var_source\": \"resp_data\",\n    \"var_get_key\": \"code\",\n    \"expression\": \"obj.get('message')\",\n    \"is_expression\": 1,\n    \"is_public\": \"1\",\n    \"remark\": \"remark\"\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -598,7 +709,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"var_id\": \"1\",\n    \"var_name\": \"user_id\",\n    \"var_value\": \"yangyuexiong\",\n    \"var_type\": \"Str\",\n    \"var_source\": \"resp_data\",\n    \"var_get_key\": \"\",\n    \"expression\": \"obj.get('message')\",\n    \"is_expression\": 1,\n    \"is_public\": false,\n    \"remark\": \"remark\"\n}",
+							"raw": "{\n    \"var_id\": \"1\",\n    \"var_name\": \"user_id\",\n    \"var_value\": \"yangyuexiong123\",\n    \"var_type\": \"Str\",\n    \"var_source\": \"resp_data\",\n    \"var_get_key\": \"\",\n    \"expression\": \"obj.get('message')\",\n    \"is_expression\": 1,\n    \"is_public\": true,\n    \"remark\": \"remark\"\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -808,7 +919,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"ass_resp_id\": 1,\n    \"assert_description\": \"通用断言9\",\n    \"remark\": \"remark123\",\n    \"ass_json\": [\n        {\n            \"assert_key\": \"code\",\n            \"expect_val\": \"200\",\n            \"expect_val_type\": \"1\",\n            \"rule\": \"==\",\n            \"is_expression\": 0,\n            \"python_val_exp\": \"okc.get('a').get('b').get('c')[0]\"\n        },\n        {\n            \"assert_key\": \"code\",\n            \"expect_val\": \"200\",\n            \"expect_val_type\": \"1\",\n            \"rule\": \">=\",\n            \"is_expression\": 0,\n            \"python_val_exp\": \"okc.get('a').get('b').get('c')[0]\"\n        },\n        {\n            \"assert_key\": \"message\",\n            \"expect_val\": \"index\",\n            \"expect_val_type\": \"2\",\n            \"rule\": \"==\",\n            \"is_expression\": 0,\n            \"python_val_exp\": \"okc.get('a').get('b').get('c')[0]\"\n        }\n    ]\n}",
+							"raw": "{\n    \"ass_resp_id\": 1,\n    \"assert_description\": \"调试用例执行专用resp断言\",\n    \"remark\": \"调试用例执行专用resp断言\",\n    \"ass_json\": [\n        {\n            \"assert_key\": \"code\",\n            \"expect_val\": \"200\",\n            \"expect_val_type\": \"1\",\n            \"rule\": \"==\",\n            \"is_expression\": 0,\n            \"python_val_exp\": \"okc.get('a').get('b').get('c')[0]\"\n        },\n        {\n            \"assert_key\": \"code\",\n            \"expect_val\": \"200\",\n            \"expect_val_type\": \"1\",\n            \"rule\": \"==\",\n            \"is_expression\": 1,\n            \"python_val_exp\": \"okc.get('code')\"\n        },\n        {\n            \"assert_key\": \"message\",\n            \"expect_val\": \"index\",\n            \"expect_val_type\": \"2\",\n            \"rule\": \"==\",\n            \"is_expression\": 0,\n            \"python_val_exp\": \"okc.get('message')\"\n        },\n        {\n            \"assert_key\": \"message\",\n            \"expect_val\": \"index\",\n            \"expect_val_type\": \"2\",\n            \"rule\": \"==\",\n            \"is_expression\": 1,\n            \"python_val_exp\": \"okc.get('message')\"\n        }\n    ]\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -920,7 +1031,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"ass_field_id\": 1,\n    \"assert_description\": \"A通用字段校验\",\n    \"remark\": \"remark\",\n    \"ass_json\": [\n        {\n            \"db_id\": 1,\n            \"query\": \"select id FROM exilic_test_case WHERE id=1;\",\n            \"assert_list\": [\n                {\n                    \"assert_key\": \"id\",\n                    \"expect_val\": \"1\",\n                    \"expect_val_type\": \"1\",\n                    \"rule\": \"==\"\n                },\n                {\n                    \"assert_key\": \"case_name\",\n                    \"expect_val\": \"测试用例B1\",\n                    \"expect_val_type\": \"2\",\n                    \"rule\": \"==\"\n                }\n            ]\n        }\n    ]\n}",
+							"raw": "{\n    \"ass_field_id\": 1,\n    \"assert_description\": \"调试用例执行专用field断言\",\n    \"remark\": \"调试用例执行专用field断言\",\n    \"ass_json\": [\n        {\n            \"db_id\": 1,\n            \"query\": \"select id FROM ExileTestPlatform.exile_test_case WHERE id=1;\",\n            \"assert_list\": [\n                {\n                    \"assert_key\": \"id\",\n                    \"expect_val\": \"1\",\n                    \"expect_val_type\": \"1\",\n                    \"rule\": \"==\"\n                },\n                {\n                    \"assert_key\": \"case_name\",\n                    \"expect_val\": \"测试用例B1\",\n                    \"expect_val_type\": \"2\",\n                    \"rule\": \"==\"\n                }\n            ]\n        }\n    ]\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -970,7 +1081,66 @@
 			]
 		},
 		{
-			"name": "用例req参数操作",
+			"name": "用例绑定参数与断言",
+			"item": [
+				{
+					"name": "用例绑定参数与断言和关系变量(创建用例时调用)",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"case_id\": 20,\n    \"data_list\": [\n        {\n            \"data_id\":1,\n            \"ass_resp_id_list\":[1,2,3],\n            \"ass_field_id_list\":[1,2,3]\n        }\n    ]\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/api/case_bind",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"case_bind"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "用例绑定参数与断言和关系变量(编辑用例时调用)",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"case_id\": 31,\n    \"data_list\": [\n        {\n            \"data_id\": 25,\n            \"ass_resp_id_list\": [],\n            \"ass_field_id_list\": []\n        },\n        {\n            \"data_id\": 24,\n            \"ass_resp_id_list\": [],\n            \"ass_field_id_list\": []\n        },\n        {\n            \"data_id\": 23,\n            \"ass_resp_id_list\": [],\n            \"ass_field_id_list\": []\n        }\n    ]\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/api/case_bind",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"case_bind"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "用例req参数操作(暂时停用)",
 			"item": [
 				{
 					"name": "用例req参数绑定",
@@ -1029,7 +1199,7 @@
 			]
 		},
 		{
-			"name": "Resp断言规则绑定",
+			"name": "Resp断言规则绑定(暂时停用)",
 			"item": [
 				{
 					"name": "Resp断言规则绑定",
@@ -1061,7 +1231,7 @@
 			]
 		},
 		{
-			"name": "Field断言规则绑定",
+			"name": "Field断言规则绑定(暂时停用)",
 			"item": [
 				{
 					"name": "Field断言规则绑定",
@@ -1144,6 +1314,33 @@
 							"path": [
 								"api",
 								"case_var_page"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "用例变量更新历史列表查询",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"var_id\": \"1\",\n    \"page\": 1,\n    \"size\": 20\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/api/case_var_history",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"case_var_history"
 							]
 						}
 					},
@@ -1470,7 +1667,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"execute_id\": 1,\n    \"execute_type\": \"case\",\n    \"data_driven\": true,\n    \"base_url_id\":1\n}",
+							"raw": "{\n    \"execute_id\": 48,\n    \"execute_type\": \"case\",\n    \"data_driven\": true,\n    \"base_url_id\": 1,\n    \"use_base_url\": false\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -1497,7 +1694,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"execute_id\": 3,\n    \"execute_type\": \"scenario\",\n    \"data_driven\": false,\n    \"base_url_id\": 1\n}",
+							"raw": "{\n    \"execute_id\": 1,\n    \"execute_type\": \"scenario\",\n    \"data_driven\": false,\n    \"base_url_id\": 1,\n    \"use_base_url\": false\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -1543,195 +1740,67 @@
 						}
 					},
 					"response": []
+				},
+				{
+					"name": "规则调试",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"val_exp\": \"okc.get('a').get('b').get('c')\",\n    \"data_source\": {\n        \"a\": {\n            \"b\": {\n                \"c\": [\n                    \"abc\",\n                    2,\n                    3\n                ]\n            }\n        }\n    }\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/api/rule_test",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"rule_test"
+							]
+						}
+					},
+					"response": []
 				}
 			]
 		},
 		{
-			"name": "index",
-			"request": {
-				"method": "GET",
-				"header": [
-					{
-						"key": "token",
-						"value": "yangyuexiong",
-						"type": "text",
-						"disabled": true
-					}
-				],
-				"url": {
-					"raw": "{{base_url}}/api/index",
-					"host": [
-						"{{base_url}}"
-					],
-					"path": [
-						"api",
-						"index"
-					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "index2",
-			"request": {
-				"method": "POST",
-				"header": [],
-				"body": {
-					"mode": "raw",
-					"raw": "{\n    \"Date\": \"2021-10-03\", \n    \"DateTime\": \"2021-10-03 14:41:21.050626\", \n    \"Time\": \"14:41:21.050622\", \n    \"TimeStamp\": \"1633243281\", \n    \"UUID\": \"e52rhokp9w1633243281RU6itVwQiC\", \n    \"token\": \"yangyuexiongyyx\"\n}",
-					"options": {
-						"raw": {
-							"language": "json"
+			"name": "测试报告相关",
+			"item": [
+				{
+					"name": "生成测试报告",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"log_id\": \"5\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/api/case_report",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"case_report"
+							]
 						}
-					}
-				},
-				"url": {
-					"raw": "{{base_url}}/api/index",
-					"host": [
-						"{{base_url}}"
-					],
-					"path": [
-						"api",
-						"index"
-					]
+					},
+					"response": []
 				}
-			},
-			"response": []
-		},
-		{
-			"name": "规则调试",
-			"request": {
-				"method": "POST",
-				"header": [],
-				"body": {
-					"mode": "raw",
-					"raw": "{\n    \"val_exp\": \"okc.get('a').get('b').get('c')\",\n    \"data_source\": {\n        \"a\": {\n            \"b\": {\n                \"c\": [\n                    \"abc\",\n                    2,\n                    3\n                ]\n            }\n        }\n    }\n}",
-					"options": {
-						"raw": {
-							"language": "json"
-						}
-					}
-				},
-				"url": {
-					"raw": "{{base_url}}/api/rule_test",
-					"host": [
-						"{{base_url}}"
-					],
-					"path": [
-						"api",
-						"rule_test"
-					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "生成测试报告",
-			"request": {
-				"method": "POST",
-				"header": [],
-				"body": {
-					"mode": "raw",
-					"raw": "{\n    \"log_id\": \"5\"\n}",
-					"options": {
-						"raw": {
-							"language": "json"
-						}
-					}
-				},
-				"url": {
-					"raw": "{{base_url}}/api/case_report",
-					"host": [
-						"{{base_url}}"
-					],
-					"path": [
-						"api",
-						"case_report"
-					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "用户用例收藏",
-			"request": {
-				"method": "POST",
-				"header": [],
-				"body": {
-					"mode": "raw",
-					"raw": "{\n    \"user_id\": \"1\",\n    \"case_id_list\": [\n        1,\n        2,\n        \"33\"\n    ],\n    \"scenario_id_list\": [\n        \"11\",\n        \"222\"\n    ]\n}",
-					"options": {
-						"raw": {
-							"language": "json"
-						}
-					}
-				},
-				"url": {
-					"raw": "{{base_url}}/api/case_set",
-					"host": [
-						"{{base_url}}"
-					],
-					"path": [
-						"api",
-						"case_set"
-					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "用例绑定参数与断言和关系变量",
-			"request": {
-				"method": "POST",
-				"header": [],
-				"body": {
-					"mode": "raw",
-					"raw": "{\n    \"case_id\": 20,\n    \"data_list\": [\n        {\n            \"data_id\":1,\n            \"ass_resp_id_list\":[1,2,3],\n            \"ass_field_id_list\":[1,2,3]\n        }\n    ]\n}",
-					"options": {
-						"raw": {
-							"language": "json"
-						}
-					}
-				},
-				"url": {
-					"raw": "{{base_url}}/api/case_bind",
-					"host": [
-						"{{base_url}}"
-					],
-					"path": [
-						"api",
-						"case_bind"
-					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "用例绑定参数与断言和关系变量 Copy",
-			"request": {
-				"method": "PUT",
-				"header": [],
-				"body": {
-					"mode": "raw",
-					"raw": "{\n    \"case_id\": 31,\n    \"data_list\": [\n        {\n            \"data_id\": 25,\n            \"ass_resp_id_list\": [],\n            \"ass_field_id_list\": []\n        },\n        {\n            \"data_id\": 24,\n            \"ass_resp_id_list\": [],\n            \"ass_field_id_list\": []\n        },\n        {\n            \"data_id\": 23,\n            \"ass_resp_id_list\": [],\n            \"ass_field_id_list\": []\n        }\n    ]\n}",
-					"options": {
-						"raw": {
-							"language": "json"
-						}
-					}
-				},
-				"url": {
-					"raw": "{{base_url}}/api/case_bind",
-					"host": [
-						"{{base_url}}"
-					],
-					"path": [
-						"api",
-						"case_bind"
-					]
-				}
-			},
-			"response": []
+			]
 		}
 	]
 }

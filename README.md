@@ -139,6 +139,7 @@
 |57|/api/case_set|POST|用户用例收藏(标记)|
 |58|/api/case_bind|POST|用例(参数/断言/变量)统一绑定|
 |59|/api/case_var_history|POST|用例变量更新历史列表查询|
+|60|/api/case_copy|POST|用例复制|
 
 ### 项目部署
 
