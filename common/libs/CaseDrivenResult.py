@@ -49,8 +49,10 @@ class TestResult:
         self.field_ass_count = 0
         self.field_ass_success = 0
         self.field_ass_fail = 0
+        self.field_ass_error = 0
         self.field_ass_success_rate = 0
         self.field_ass_fail_rate = 0
+        self.field_ass_error_rate = 0
 
     def get_test_result(self):
         """
@@ -61,16 +63,23 @@ class TestResult:
         self.req_success_rate = "{}%".format(round(self.req_success / self.req_count, 2) * 100)
         self.req_error_rate = "{}%".format(round(self.req_error / self.req_count, 2) * 100)
         self.resp_ass_count = self.resp_ass_success + self.resp_ass_fail
-        self.field_ass_count = self.field_ass_success + self.field_ass_fail
 
         self.resp_ass_success_rate = 0 if self.resp_ass_success == 0 else "{}%".format(
             round(self.resp_ass_success / self.resp_ass_count, 2) * 100)
+
         self.resp_ass_fail_rate = 0 if self.resp_ass_fail == 0 else "{}%".format(
             round(self.resp_ass_fail / self.resp_ass_count, 2) * 100)
+
+        self.field_ass_count = self.field_ass_success + self.field_ass_fail + self.field_ass_error
+
         self.field_ass_success_rate = 0 if self.field_ass_success == 0 else "{}%".format(
             round(self.field_ass_success / self.field_ass_count, 2) * 100)
+
         self.field_ass_fail_rate = 0 if self.field_ass_fail == 0 else "{}%".format(
             round(self.field_ass_fail / self.field_ass_count, 2) * 100)
+
+        self.field_ass_error_rate = 0 if self.field_ass_error == 0 else "{}%".format(
+            round(self.field_ass_error / self.field_ass_count, 2) * 100)
 
         d = {
             "req_count": self.req_count,
@@ -88,8 +97,10 @@ class TestResult:
             "field_ass_count": self.field_ass_count,
             "field_ass_success": self.field_ass_success,
             "field_ass_fail": self.field_ass_fail,
+            "field_ass_error": self.field_ass_error,
             "field_ass_success_rate": self.field_ass_success_rate,
-            "field_ass_fail_rate": self.field_ass_fail_rate
+            "field_ass_fail_rate": self.field_ass_fail_rate,
+            "field_ass_error_rate": self.field_ass_error_rate
         }
         return d
 
@@ -310,6 +321,7 @@ class MainTest:
 
             self.test_result.field_ass_success += field_ass_result.get('success')
             self.test_result.field_ass_fail += field_ass_result.get('fail')
+            self.test_result.field_ass_error += field_ass_result.get('error')
 
     def current_request(self, method=None, **kwargs):
         """
