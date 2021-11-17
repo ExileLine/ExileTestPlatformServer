@@ -9,6 +9,9 @@
 from common.libs.db import R
 
 if __name__ == '__main__':
-    r = R.keys(pattern="test_log_*")
-    for c in r:
-        R.delete(c)
+    r1 = R.keys(pattern="test_log_*")
+    r2 = R.keys(pattern="case_first_log:*")
+    r3 = R.keys(pattern="scenario_first_log:*")
+    list(map(lambda x: R.delete(x), r1))
+    list(map(lambda x: R.delete(x), r2))
+    list(map(lambda x: R.delete(x), r3))
