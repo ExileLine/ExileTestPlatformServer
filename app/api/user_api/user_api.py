@@ -53,6 +53,28 @@ class TouristApi(MethodView):
         return api_result(code=200, message='操作成功', data=tourist_obj)
 
 
+class UserProfileApi(MethodView):
+    """
+    用户信息 Api
+    GET:
+    PUT: 编辑用户信息
+    """
+
+    def get(self, user_id):
+        """获取用户信息"""
+
+        user = Admin.query.get(user_id)
+        if not user:
+            return api_result(code=400, message="用户:{} 不存在".format(user_id))
+        return api_result(code=200, message="操作成功", data=user.to_json())
+
+    def put(self):
+        """编辑用户信息"""
+
+        data = request.get_json()
+        user_id = data.get('user_id')
+
+
 class UserPageApi(MethodView):
     """
     user page api
