@@ -73,6 +73,34 @@ class UserProfileApi(MethodView):
 
         data = request.get_json()
         user_id = data.get('user_id')
+        nickname = data.get('nickname')
+        old_password = data.get('old_password')
+        new_password = data.get('new_password')
+        raw_password = data.get('raw_password')
+        mail = data.get('mail')
+
+        user = Admin.query.get(user_id)
+
+        if not user:
+            return api_result(code=400, message="用户:{} 不存在".format(user_id))
+
+        if not user.check_password(old_password):
+            return api_result(code=400, message="旧密码错误")
+
+        if not nickname:
+            return api_result(code=400, message="昵称不能为空")
+
+        if new_password != raw_password:
+            return api_result(code=400, message="新密码不一致")
+
+        user.nickname = nickname
+        user.password = new_password
+        user.mail = mail
+        user.modifier = g.app_user.username
+        user.modifier_id = g.app_user.id
+        db.session.commit()
+
+        return api_result(code=203, message='编辑成功', data=user.to_json())
 
 
 class UserPageApi(MethodView):
