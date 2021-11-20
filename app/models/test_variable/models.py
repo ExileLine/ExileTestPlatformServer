@@ -16,7 +16,7 @@ class TestVariable(BaseModel):
     var_name = db.Column(db.String(255), nullable=False, comment='变量名称')
     var_value = db.Column(db.JSON, nullable=False, comment='变量值')
     var_type = db.Column(TINYINT(3, unsigned=True), comment='变量值的类型:Str;Int;Json;JsonStr;List;ListStr')
-    var_source = db.Column(TINYINT(3, unsigned=True), comment='值来源:1-resp_data;2-resp_header')
+    var_source = db.Column(db.String(32), comment='值来源:resp_data;resp_header')
     var_get_key = db.Column(db.String(255), comment='值对应的key(用于关系变量获取)')
     expression = db.Column(db.String(255), comment='取值表达式')
     is_expression = db.Column(TINYINT(1, unsigned=True), default=0, comment='是否使用取值表达式:0-否;1-是')
