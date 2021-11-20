@@ -65,7 +65,7 @@ def check_field_ass(aj_list):
             expect_val = ass_obj.get('expect_val')
             expect_val_type = expect_val_type_dict.get(str(ass_obj.get('expect_val_type')))
             try:
-                ass_obj['rule'] = rule
+                # ass_obj['rule'] = rule
                 ass_obj['expect_val'] = expect_val_type(expect_val)
                 current_assert_list.append(ass_obj)
             except BaseException as e:
@@ -148,6 +148,7 @@ class RespAssertionRuleApi(MethodView):
         data = request.get_json()
         assert_description = data.get('assert_description')
         ass_json = data.get('ass_json', [])
+        is_public = data.get('is_public', 1)
         remark = data.get('remark')
 
         if not isinstance(ass_json, list) or not ass_json:
@@ -177,8 +178,8 @@ class RespAssertionRuleApi(MethodView):
             expect_val_type = expect_val_type_dict.get(str(a.get('expect_val_type')))
 
             try:
-                a['rule'] = rule
-                a['expect_val'] = expect_val_type(expect_val)
+                # a['rule'] = rule
+                a['expect_val'] = expect_val_type(expect_val)  # 类型转换
                 new_ass_json.append(a)
             except BaseException as e:
                 return api_result(code=400, message='参数:{} 无法转换至 类型:{}'.format(expect_val, type(expect_val_type())))
@@ -186,6 +187,7 @@ class RespAssertionRuleApi(MethodView):
         new_ass_resp = TestCaseAssResponse(
             assert_description=assert_description,
             ass_json=new_ass_json,
+            is_public=is_public,
             creator=g.app_user.username,
             creator_id=g.app_user.id,
             remark=remark
@@ -197,9 +199,10 @@ class RespAssertionRuleApi(MethodView):
         """返回值断言编辑"""
 
         data = request.get_json()
-        ass_resp_id = data.get('ass_resp_id')
+        ass_resp_id = data.get('id')
         assert_description = data.get('assert_description')
         ass_json = data.get('ass_json', [])
+        is_public = data.get('is_public', 1)
         remark = data.get('remark')
 
         query_ass_resp = TestCaseAssResponse.query.get(ass_resp_id)
@@ -238,7 +241,7 @@ class RespAssertionRuleApi(MethodView):
             expect_val_type = expect_val_type_dict.get(str(a.get('expect_val_type')))
 
             try:
-                a['rule'] = rule
+                # a['rule'] = rule
                 a['expect_val'] = expect_val_type(expect_val)
                 new_ass_json.append(a)
             except BaseException as e:
@@ -246,6 +249,7 @@ class RespAssertionRuleApi(MethodView):
 
         query_ass_resp.assert_description = assert_description
         query_ass_resp.ass_json = new_ass_json
+        query_ass_resp.is_public = is_public
         query_ass_resp.remark = remark
         query_ass_resp.modifier = g.app_user.username
         query_ass_resp.modifier_id = g.app_user.id
@@ -327,6 +331,7 @@ class FieldAssertionRuleApi(MethodView):
         data = request.get_json()
         assert_description = data.get('assert_description')
         ass_json = data.get('ass_json', [])
+        is_public = data.get('is_public', 1)
         remark = data.get('remark')
 
         if not isinstance(ass_json, list) or not ass_json:
@@ -343,6 +348,7 @@ class FieldAssertionRuleApi(MethodView):
         new_ass_field = TestCaseAssField(
             assert_description=assert_description,
             ass_json=_ass_json,
+            is_public=is_public,
             creator=g.app_user.username,
             creator_id=g.app_user.id,
             remark=remark
@@ -354,9 +360,10 @@ class FieldAssertionRuleApi(MethodView):
         """字段断言编辑"""
 
         data = request.get_json()
-        ass_field_id = data.get('ass_field_id')
+        ass_field_id = data.get('id')
         assert_description = data.get('assert_description')
         ass_json = data.get('ass_json', [])
+        is_public = data.get('is_public', 1)
         remark = data.get('remark')
 
         query_ass_field = TestCaseAssField.query.get(ass_field_id)
@@ -381,6 +388,7 @@ class FieldAssertionRuleApi(MethodView):
 
         query_ass_field.assert_description = assert_description
         query_ass_field.ass_json = _ass_json
+        query_ass_field.is_public = is_public
         query_ass_field.remark = remark
         query_ass_field.modifier = g.app_user.username
         query_ass_field.modifier_id = g.app_user.id
