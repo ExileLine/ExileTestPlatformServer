@@ -41,8 +41,11 @@ def query_case_zip(case_id):
 
     bind_info_list = []
 
+    case_info = query_case.to_json()
+    case_info['is_public'] = bool(case_info.get('is_public'))
+    case_info['is_shared'] = bool(case_info.get('is_shared'))
     result_data = {
-        "case_info": query_case.to_json(),
+        "case_info": case_info,
         "bind_info": bind_info_list
     }
 
