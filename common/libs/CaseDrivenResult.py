@@ -149,7 +149,7 @@ class MainTest:
 
     def __init__(self, test_obj):
         self.base_url = test_obj.get('base_url')
-        self.ues_base_url = test_obj.get('ues_base_url', False)
+        self.use_base_url = test_obj.get('use_base_url')
         self.case_list = test_obj.get('case_list', [])
         self.data_driven = test_obj.get('data_driven')
         self.execute_id = test_obj.get('execute_id')
@@ -369,7 +369,7 @@ class MainTest:
             "3": {"data": request_body}
         }
 
-        url = self.base_url + self.request_url if self.ues_base_url else self.request_base_url + self.request_url
+        url = self.base_url + self.request_url if self.use_base_url else self.request_base_url + self.request_url
 
         before_send = {
             "url": url,

@@ -89,15 +89,22 @@ class CaseExecApi(MethodView):
         execute_type = data.get('execute_type')
         data_driven = data.get('data_driven', False)
         base_url_id = data.get('base_url_id')
-        use_base_url = data.get('use_base_url_id', False)
+        use_base_url = data.get('use_base_url', False)
 
         execute_name = None
         send_test_case_list = []
 
-        query_base_url = TestEnv.query.get(base_url_id)
-
-        if not query_base_url:
-            return api_result(code=400, message='base_url_id:{}不存在'.format(base_url_id))
+        if isinstance(use_base_url, bool) and use_base_url:
+            query_base_url = TestEnv.query.get(base_url_id)
+            if not query_base_url:
+                base_url = ''
+                use_base_url = False
+            else:
+                base_url = query_base_url.env_url
+                use_base_url = True
+        else:
+            base_url = ''
+            use_base_url = False
 
         if execute_type not in execute_type_em:
             return api_result(code=400, message='execute_type:{}不存在'.format(execute_type))
@@ -146,7 +153,7 @@ class CaseExecApi(MethodView):
             "execute_type": execute_type,
             "execute_user_id": g.app_user.id,
             "execute_username": g.app_user.username,
-            "base_url": query_base_url.env_url,
+            "base_url": base_url,
             "use_base_url": use_base_url,
             "case_list": send_test_case_list,
             "data_driven": data_driven,
@@ -160,4 +167,4 @@ class CaseExecApi(MethodView):
             creator_id=g.app_user.id
         )
         tl.save()
-        return api_result(code=200, message='操作成功,请前往日志查看执行结果', data=[id(sio)])
+        return api_result(code=200, message='操作成功,请前往日志查看执行结果')
