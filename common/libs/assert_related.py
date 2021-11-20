@@ -7,10 +7,11 @@
 
 import redis
 
+from app.models.test_case_config.models import TestDatabases
 from common.libs.db import MyPyMysql
 from common.libs.execute_code import execute_code
-from app.models.test_case_config.models import TestDatabases
 from common.libs.StringIOLog import StringIOLog
+from common.libs.data_dict import rule_dict
 
 
 class ReturnDB:
@@ -140,7 +141,8 @@ class AssertResponseMain(AssertMain):
         self.sio.log(message)
 
         try:
-            if self.get_assert(this_val=self.this_val, rule=self.rule, expect_val=self.expect_val):
+            rule = rule_dict.get(self.rule)  # 从字典中取出反射的规则函数
+            if self.get_assert(this_val=self.this_val, rule=rule, expect_val=self.expect_val):
                 self.sio.log('=== 断言通过 ===', status='success')
                 return {
                     "status": True,
@@ -246,7 +248,8 @@ class AssertFieldMain(AssertMain):
             self.sio.log(message)
 
             try:
-                if self.get_assert(this_val=__result_key, rule=__rule, expect_val=__expect_val):
+                rule = rule_dict.get(__rule)  # 从字典中取出反射的规则函数
+                if self.get_assert(this_val=__result_key, rule=rule, expect_val=__expect_val):
                     self.sio.log('=== 断言通过 ===', status='success')
                     self.ass_field_success.append(message)
                 else:
@@ -316,15 +319,8 @@ if __name__ == '__main__':
             "message": "index"
         }
         resp_ass_dict = {
-            "rule": "__eq__",
-            "assert_key": "code",
-            "expect_val": 200,
-            "is_expression": 0,
-            "python_val_exp": "okc.get('a').get('b').get('c')[0]",
-            "expect_val_type": "1"
-        }
-        resp_ass_dict = {
-            "rule": "__eq__",
+            # "rule": "__eq__",
+            "rule": "==",
             "assert_key": "code",
             "expect_val": 200,
             "is_expression": 1,
@@ -349,13 +345,15 @@ if __name__ == '__main__':
                     "assert_key": "id",
                     "expect_val": 1,
                     "expect_val_type": "1",
-                    "rule": "__eq__"
+                    # "rule": "__eq__",
+                    "rule": "=="
                 },
                 {
                     "assert_key": "case_name",
                     "expect_val": "测试用例B1",
                     "expect_val_type": "2",
-                    "rule": "__eq__"
+                    # "rule": "__eq__",
+                    "rule": "=="
                 }
             ],
             "db_id": 1,
@@ -368,7 +366,7 @@ if __name__ == '__main__':
         )
         field_ass_result = new_ass.main()
 
-
+    """test"""
     # test_resp_ass()
-    test_field_ass()
+    # test_field_ass()
     # print(ReturnDB(db_id=1).main().select("""select * from ExilicTestPlatform.exile_test_case where id=1;"""))
