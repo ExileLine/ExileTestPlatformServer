@@ -26,7 +26,6 @@ class TouristApi(MethodView):
         if query_tourist:
             return api_result(code=200, message='操作成功', data=json.loads(query_tourist))
 
-        code = str(Admin.query.count() + 1).zfill(5)
         username = "user_{}".format(code)
         password = shortuuid.uuid()[0:6]
         query_user = Admin.query.filter_by(username=username).first()
@@ -38,10 +37,10 @@ class TouristApi(MethodView):
             password=password,
             phone=None,
             mail=None,
-            code=code,
             creator='shell',
             creator_id='0',
             remark='游客')
+        new_admin.set_code()
         new_admin.save()
 
         tourist_obj = {
@@ -53,31 +52,31 @@ class TouristApi(MethodView):
         return api_result(code=200, message='操作成功', data=tourist_obj)
 
 
-class UserProfileApi(MethodView):
+class UserApi(MethodView):
     """
     用户信息 Api
-    GET:
-    PUT: 编辑用户信息
     """
 
     def get(self, user_id):
-        """获取用户信息"""
+        """1"""
+        return api_result(code=200, message="user api")
 
-        user = Admin.query.get(user_id)
-        if not user:
-            return api_result(code=400, message="用户:{} 不存在".format(user_id))
-        return api_result(code=200, message="操作成功", data=user.to_json())
 
-    def put(self):
-        """编辑用户信息"""
+class UserPasswordApi(MethodView):
+    """
+    用户密码 Api
+    POST: 修改密码
+    PUT: 重置密码
+    """
+
+    def post(self):
+        """修改密码"""
 
         data = request.get_json()
         user_id = data.get('user_id')
-        nickname = data.get('nickname')
         old_password = data.get('old_password')
         new_password = data.get('new_password')
         raw_password = data.get('raw_password')
-        mail = data.get('mail')
 
         user = Admin.query.get(user_id)
 
@@ -87,20 +86,83 @@ class UserProfileApi(MethodView):
         if not user.check_password(old_password):
             return api_result(code=400, message="旧密码错误")
 
-        if not nickname:
-            return api_result(code=400, message="昵称不能为空")
-
         if new_password != raw_password:
             return api_result(code=400, message="新密码不一致")
 
-        user.nickname = nickname
         user.password = new_password
+        user.modifier = g.app_user.username
+        user.modifier_id = g.app_user.id
+        db.session.commit()
+
+        return api_result(code=201, message='操作成功')
+
+    def put(self):
+        """重置密码"""
+
+        data = request.get_json()
+        user_id = data.get('user_id')
+
+        user = Admin.query.get(user_id)
+
+        if not user:
+            return api_result(code=400, message="用户:{} 不存在".format(user_id))
+
+        if g.app_user.id != 1:
+            return api_result(code=400, message="非管理员,无法重置!")
+
+        new_password = shortuuid.uuid()[0:6]
+        user.password = new_password
+        user.modifier = g.app_user.username
+        user.modifier_id = g.app_user.id
+        db.session.commit()
+        # TODO 邮件发送,短信
+        return api_result(code=203, message='操作成功', data=[new_password])
+
+
+class UserProfileApi(MethodView):
+    """
+    用户信息 Api
+    GET: 获取用户信息
+    PUT: 编辑用户信息
+    """
+
+    def get(self, user_id):
+        """获取用户信息"""
+
+        user = Admin.query.get(user_id)
+
+        if not user:
+            return api_result(code=400, message="用户:{} 不存在".format(user_id))
+        return api_result(code=200, message="操作成功", data=user.to_json(*["_password"]))
+
+    def put(self):
+        """编辑用户信息"""
+
+        data = request.get_json()
+        user_id = data.get('user_id')
+        nickname = data.get('nickname')
+        phone = data.get('phone')
+        mail = data.get('mail')
+
+        user = Admin.query.get(user_id)
+
+        if not user:
+            return api_result(code=400, message="用户:{} 不存在".format(user_id))
+
+        if user.id != g.app_user.id:
+            return api_result(code=400, message="只能修改自己的用户信息")
+
+        if not nickname:
+            return api_result(code=400, message="昵称不能为空")
+
+        user.nickname = nickname
+        user.phone = phone
         user.mail = mail
         user.modifier = g.app_user.username
         user.modifier_id = g.app_user.id
         db.session.commit()
 
-        return api_result(code=203, message='编辑成功', data=user.to_json())
+        return api_result(code=203, message='操作成功')
 
 
 class UserPageApi(MethodView):

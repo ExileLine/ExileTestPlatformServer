@@ -10,7 +10,7 @@ from flask import Blueprint
 
 from .index_api.index_api import IndexApi
 from .login_api.login_api import LoginApi
-from .user_api.user_api import TouristApi, UserPageApi
+from .user_api.user_api import TouristApi, UserApi, UserPasswordApi, UserPageApi, UserProfileApi
 from .case_env_api.case_env_api import CaseEnvApi, CaseEnvPageApi
 from .case_api.case_api import CaseApi, CasePageApi, CaseCopyApi
 from .case_data_api.case_data_api import CaseReqDataApi, CaseReqDataPageApi
@@ -35,6 +35,10 @@ api.add_url_rule('/index', view_func=IndexApi.as_view('index_api'))
 api.add_url_rule('/login', view_func=LoginApi.as_view('login_api'))
 
 api.add_url_rule('/tourist', view_func=TouristApi.as_view('tourist_api'))
+api.add_url_rule('/user', view_func=UserApi.as_view('user_api'))
+api.add_url_rule('/user_pwd', view_func=UserPasswordApi.as_view('user_pwd'))
+api.add_url_rule('/user_profile', view_func=UserProfileApi.as_view('user_profile'))
+api.add_url_rule('/user_profile/<user_id>', view_func=UserProfileApi.as_view('user_detail'))
 api.add_url_rule('/user_page', view_func=UserPageApi.as_view('user_page'))
 
 api.add_url_rule('/case_env', view_func=CaseEnvApi.as_view('case_env'))
