@@ -18,8 +18,11 @@ from app.models.test_case.models import TestCase, TestCaseData
 from app.models.test_variable.models import TestVariable
 from app.models.test_case_assert.models import TestCaseAssResponse, TestCaseAssField
 
+"""
+export FLASK_APP=ApplicationExample.py
 
-# export FLASK_APP=ApplicationExample.py
+"""
+
 
 def register_commands(app):
     @app.cli.command("hello_world", help='hello-world')
@@ -64,17 +67,17 @@ def register_commands(app):
 
         query_user = Admin.query.filter_by(username=username).first()
         if query_user:
-            print('用户:{}'.format(username))
+            print('用户:{} 已存在'.format(username))
         else:
             new_admin = Admin(
                 username=username,
                 password=password,
                 phone=None,
                 mail=None,
-                code=str(Admin.query.count() + 1).zfill(5),
                 creator='shell',
                 creator_id='0',
                 remark='manage shell')
+            new_admin.set_code()
             db.session.add(new_admin)
             db.session.commit()
             print('用户: {} 添加成功'.format(username))
