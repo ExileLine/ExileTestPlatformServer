@@ -14,10 +14,10 @@ class Admin(BaseModel):
     __tablename__ = 'exile_auth_admin'
     __table_args__ = {'comment': '后台用户表'}
     username = db.Column(db.String(32), nullable=False, unique=True, comment='用户名称(账号)')
-    nickname = db.Column(db.String(32), comment='用户昵称')
+    nickname = db.Column(db.String(32), unique=True, comment='用户昵称')
     _password = db.Column(db.String(256), nullable=False, comment='用户密码')
     phone = db.Column(db.String(64), unique=True, comment='手机号')
-    mail = db.Column(db.String(128), comment='邮箱')
+    mail = db.Column(db.String(128), unique=True, comment='邮箱')
     code = db.Column(db.String(64), unique=True, comment='用户编号')
     creator = db.Column(db.String(32), comment='创建人')
     creator_id = db.Column(BIGINT(20, unsigned=True), comment='创建人id')
@@ -36,6 +36,9 @@ class Admin(BaseModel):
     def check_password(self, raw_password):
         result = check_password_hash(self.password, raw_password)
         return result
+
+    def set_code(self):
+        self.code = str(Admin.query.count() + 1).zfill(5)
 
     def __repr__(self):
         return 'Admin 模型对象-> ID:{} 用户名:{}'.format(self.id, self.username)
