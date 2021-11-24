@@ -3,7 +3,6 @@
 # @Author  : ShaHeTop-Almighty-ares
 # @Email   : yang6333yyx@126.com
 # @File    : config.py
-# @Software: PyCharm
 
 import os
 import configparser
@@ -11,14 +10,14 @@ from datetime import timedelta
 
 import redis
 
-project_name = 'ExileTestPlatformServer'
+PROJECT_NAME = 'ExileTestPlatformServer'
 
 
 def get_config():
     """获取配置文件"""
     conf = configparser.ConfigParser()
     flask_env = os.environ.get('FLASK_ENV')
-    base_path = os.getcwd().split(project_name)[0] + '{}/config/'.format(project_name)
+    base_path = os.getcwd().split(PROJECT_NAME)[0] + '{}/config/'.format(PROJECT_NAME)
 
     default_env = {
         'config_path': base_path + 'dev.ini',
@@ -151,3 +150,5 @@ if __name__ == '__main__':
     print(config_obj['new'].RUN_HOST)
     print(config_obj['new'].RUN_PORT)
     print(config_obj['new'].DEBUG)
+    os.environ['yyx'] = 'yyyyyyyyyyyyyyy'
+    print(os.environ)
