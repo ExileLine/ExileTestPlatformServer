@@ -52,6 +52,7 @@ class TestCaseDataAssBind(BaseModel):
 
     case_id = db.Column(BIGINT(20, unsigned=True), comment='用例id')
     data_id = db.Column(BIGINT(20, unsigned=True), comment='数据id')
+    is_base = db.Column(TINYINT(1, unsigned=True), default=0, comment='基础数据')
     ass_resp_id_list = db.Column(db.JSON, comment='resp断言规则list')
     ass_field_id_list = db.Column(db.JSON, comment='field断言规则list')
     creator = db.Column(db.String(32), comment='创建人')
