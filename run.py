@@ -53,5 +53,6 @@ if __name__ == '__main__':
     export FLASK_ENV=development
     export FLASK_ENV=production
     """
+    # TODO 根据配置文件动态设置环境 os.environ['FLASK_ENV'] = "xxxx"
     show()
     main()

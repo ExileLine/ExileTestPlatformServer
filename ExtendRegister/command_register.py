@@ -31,7 +31,7 @@ def register_commands(app):
 
     @app.cli.command(help='首次进行ORM操作')
     def orm():
-
+        # TODO  删除 alembic_version
         ps = platform.system()
         if ps in ['Linux', 'Darwin']:
             os.system("rm -rf " + os.getcwd() + "/migrations")
