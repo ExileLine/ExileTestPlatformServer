@@ -227,6 +227,16 @@ class MyPyMysql:
         except BaseException as e:
             return 'select:出现错误:{}'.format(str(e) if self.debug else '')
 
+    def execute_sql(self, sql=None):
+        """execute_sql"""
+        try:
+            db = self.db_obj()
+            with db.cursor() as cur:
+                result = cur.execute(sql)
+                return result
+        except BaseException as e:
+            print(str(e))
+
 
 project_db = MyPyMysql(**DB, debug=CONFIG_OBJ.DEBUG)  # MySql实例
 
