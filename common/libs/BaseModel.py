@@ -40,12 +40,19 @@ class BaseModel(db.Model):
     is_deleted = db.Column(BIGINT(20, unsigned=True), default=0, comment='0正常;其他:已删除')
     status = db.Column(TINYINT(3, unsigned=True), server_default=text('1'), comment='状态')
 
-    def keys(self):
+    def get_columns(self):
         """
         返回所有字段对象
         :return:
         """
         return self.__table__.columns
+
+    def get_fields(self):
+        """
+        返回所有字段
+        :return:
+        """
+        return self.__dict__
 
     def __getitem__(self, item):
         return getattr(self, item)
@@ -56,12 +63,12 @@ class BaseModel(db.Model):
         :param hidden_fields: 覆盖类属性 hidden_fields
         :return:
         """
+
         hf = hidden_fields if hidden_fields and isinstance(hidden_fields, list) else self.hidden_fields
 
         model_json = {}
-        __dict = self.__dict__
 
-        for column in __dict.keys():
+        for column in self.get_fields():
             if column not in hf:  # 不需要返回的字段与值
                 if hasattr(self, column):
                     field = getattr(self, column)
