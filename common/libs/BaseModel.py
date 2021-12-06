@@ -50,17 +50,19 @@ class BaseModel(db.Model):
     def __getitem__(self, item):
         return getattr(self, item)
 
-    def to_json(self):
+    def to_json(self, hidden_fields=None):
         """
-        json转化
+        Json序列化
+        :param hidden_fields: 覆盖类属性 hidden_fields
         :return:
         """
+        hf = hidden_fields if hidden_fields and isinstance(hidden_fields, list) else self.hidden_fields
 
         model_json = {}
         __dict = self.__dict__
 
         for column in __dict.keys():
-            if column not in self.hidden_fields:  # 不需要返回的字段与值
+            if column not in hf:  # 不需要返回的字段与值
                 if hasattr(self, column):
                     field = getattr(self, column)
                     if isinstance(field, decimal.Decimal):  # Decimal -> float
