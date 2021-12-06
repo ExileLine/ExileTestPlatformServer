@@ -28,6 +28,8 @@ class BaseModel(db.Model):
     status:状态
     """
 
+    hidden_fields = []  # 不需要返回的字段与值
+
     __abstract__ = True
 
     id = db.Column(BIGINT(20, unsigned=True), primary_key=True, autoincrement=True, comment='id')
@@ -48,31 +50,26 @@ class BaseModel(db.Model):
     def __getitem__(self, item):
         return getattr(self, item)
 
-    def to_json(self, *args):
+    def to_json(self):
         """
         json转化
-        :param args: 不需要返回的字段列表
         :return:
         """
 
         model_json = {}
         __dict = self.__dict__
 
-        for column in self.keys():
-            field = __dict.get(column.name)  # 获取字段名称
-            # print(column, type(column), type(field))
-            if isinstance(field, decimal.Decimal):  # Decimal -> float
-                field = round(float(field), 2)
-            elif isinstance(field, datetime):  # datetime -> str
-                field = str(field)
-            else:
-                pass
-            model_json.update({column.name: field})
+        for column in __dict.keys():
+            if column not in self.hidden_fields:  # 不需要返回的字段与值
+                if hasattr(self, column):
+                    field = getattr(self, column)
+                    if isinstance(field, decimal.Decimal):  # Decimal -> float
+                        field = round(float(field), 2)
+                    elif isinstance(field, datetime):  # datetime -> str
+                        field = str(field)
+                    model_json[column] = field
 
-        if args:
-            for skip_field in args:
-                if model_json.get(skip_field):
-                    del model_json[skip_field]
+        del model_json['_sa_instance_state']
 
         return model_json
 

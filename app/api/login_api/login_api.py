@@ -33,7 +33,7 @@ class LoginApi(MethodView):
             """
             检查是否存在旧token并且生成新token覆盖旧token,或创建一个新的token。然后添加至返回值。
             """
-            admin_obj = admin.to_json(*['_password'])
+            admin_obj = admin.to_json()
             t = Token()
             t.check_token(user=admin.username, user_id=admin.id)
             admin_obj['token'] = t.token

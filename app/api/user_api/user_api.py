@@ -133,7 +133,7 @@ class UserProfileApi(MethodView):
 
         if not user:
             return api_result(code=400, message="用户:{} 不存在".format(user_id))
-        return api_result(code=200, message="操作成功", data=user.to_json(*["_password"]))
+        return api_result(code=200, message="操作成功", data=user.to_json())
 
     def put(self):
         """编辑用户信息"""

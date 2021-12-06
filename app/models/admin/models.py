@@ -13,6 +13,8 @@ from common.libs.BaseModel import *
 class Admin(BaseModel):
     __tablename__ = 'exile_auth_admin'
     __table_args__ = {'comment': '后台用户表'}
+    hidden_fields = ['_password']
+
     username = db.Column(db.String(32), nullable=False, unique=True, comment='用户名称(账号)')
     nickname = db.Column(db.String(32), unique=True, comment='用户昵称')
     _password = db.Column(db.String(256), nullable=False, comment='用户密码')
