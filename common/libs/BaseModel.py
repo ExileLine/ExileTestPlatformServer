@@ -157,11 +157,10 @@ class BusinessModel:
     modifier_id = db.Column(BIGINT(20, unsigned=True), comment='更新人id')
     remark = db.Column(db.String(255), comment='备注')
 
-    def create_rich(self, creator=None, creator_id=None, remark=None, is_commit=None):
+    def create_rich(self, is_commit=None, **kwargs):
         """写入操作字段补充"""
-        self.creator = creator if creator else g.app_user.username
-        self.creator_id = creator_id if creator_id else g.app_user.id
-        self.remark = remark
+        self.creator = g.app_user.username
+        self.creator_id = g.app_user.id
         if is_commit:
             try:
                 db.session.add(self)
@@ -170,11 +169,10 @@ class BusinessModel:
                 db.session.rollback()
                 raise TypeError('create_rich error {}'.format(str(e)))
 
-    def update_rich(self, modifier=None, modifier_id=None, remark=None, is_commit=None):
+    def update_rich(self, is_commit=None, **kwargs):
         """更新操作字段补充"""
-        self.creator = modifier if modifier else g.app_user.username
-        self.creator_id = modifier_id if modifier_id else g.app_user.id
-        self.remark = remark
+        self.modifier = g.app_user.username
+        self.modifier_id = g.app_user.id
         if is_commit:
             try:
                 db.session.commit()
