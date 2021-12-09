@@ -8,7 +8,7 @@
 import os
 import click
 import random
-import platform
+import shutil
 
 from sqlalchemy import or_, and_
 
@@ -34,13 +34,13 @@ def register_commands(app):
     @app.cli.command(help='首次进行ORM操作')
     def orm():
 
-        ps = platform.system()
-        if ps in ['Linux', 'Darwin']:
-            os.system("rm -rf " + os.getcwd() + "/migrations")
-        elif ps == 'Windows':
-            os.system("rd " + os.getcwd() + "/migrations")
+        migrations_path = os.getcwd() + "/migrations"
+
+        if os.path.exists(migrations_path):
+            shutil.rmtree(migrations_path)
+            print('migrations 删除')
         else:
-            print('未找到操作系统:'.format(ps))
+            print('migrations 不存在')
 
         try:
             query_table_sql = """SHOW TABLES LIKE 'alembic_version';"""
