@@ -139,10 +139,9 @@ class CaseApi(MethodView):
         if not query_case:
             return api_result(code=400, message='用例id:{}数据不存在'.format(case_id))
 
-        query_case.is_deleted = query_case.id
         query_case.modifier = g.app_user.username
         query_case.modifier_id = g.app_user.id
-        db.session.commit()
+        query_case.delete()
         return api_result(code=204, message='删除成功')
 
 
