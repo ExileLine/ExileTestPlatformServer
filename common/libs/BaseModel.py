@@ -40,6 +40,9 @@ class BaseModel(db.Model):
     is_deleted = db.Column(BIGINT(20, unsigned=True), default=0, comment='0正常;其他:已删除')
     status = db.Column(TINYINT(3, unsigned=True), server_default=text('1'), comment='状态')
 
+    def __getitem__(self, item):
+        return getattr(self, item)
+
     def get_columns(self):
         """
         返回所有字段对象
@@ -53,9 +56,6 @@ class BaseModel(db.Model):
         :return:
         """
         return self.__dict__
-
-    def __getitem__(self, item):
-        return getattr(self, item)
 
     def to_json(self, hidden_fields=None):
         """
@@ -108,39 +108,13 @@ class BaseModel(db.Model):
             db.session.rollback()
             raise TypeError('save_all error {}'.format(str(e)))
 
-    def update(self, *args, **kwargs):
-        """
-        更新
-        :param args: 不需要更新的字段列表 demo -> update(*["password"]) ...
-        :param kwargs: {字段:值} demo -> update(**{"name":"yyx"}) ...
-        :return:
-        """
-        if args:
-            args = list(args) + ['id', 'create_time']
-        else:
-            args = ['id', 'create_time']
-
-        for attr, value in kwargs.items():
-            # print(self, "【{}:{}】-【{}:{}】".format(attr, type(attr), value, type(value)))
-            if attr in self.__dict__.keys():
-                if attr not in args:
-                    new_value = json.dumps(value, ensure_ascii=False) if isinstance(value, dict) else str(value)
-                    setattr(self, attr, new_value)
-            else:
-                pass
-        try:
-            db.session.commit()
-        except BaseException as e:
-            db.session.rollback()
-            raise TypeError('update error {}'.format(str(e)))
-
     def delete(self):
         """
         逻辑删除
         :return:
         """
         try:
-            self.is_deleted = 2
+            self.is_deleted = self.id
             db.session.commit()
         except BaseException as e:
             db.session.rollback()
@@ -157,25 +131,33 @@ class BusinessModel:
     modifier_id = db.Column(BIGINT(20, unsigned=True), comment='更新人id')
     remark = db.Column(db.String(255), comment='备注')
 
-    def create_rich(self, is_commit=None, **kwargs):
-        """写入操作字段补充"""
-        self.creator = g.app_user.username
-        self.creator_id = g.app_user.id
-        if is_commit:
-            try:
-                db.session.add(self)
-                db.session.commit()
-            except BaseException as e:
-                db.session.rollback()
-                raise TypeError('create_rich error {}'.format(str(e)))
+    def save_rich(self, ex_type=None, is_commit=None, **kwargs):
+        """操作字段补充"""
 
-    def update_rich(self, is_commit=None, **kwargs):
-        """更新操作字段补充"""
-        self.modifier = g.app_user.username
-        self.modifier_id = g.app_user.id
-        if is_commit:
-            try:
-                db.session.commit()
-            except BaseException as e:
-                db.session.rollback()
-                raise TypeError('update_rich error {}'.format(str(e)))
+        t = ('create', 'update', 'delete')
+
+        if ex_type and ex_type in t:
+
+            if ex_type == t[0]:
+                self.creator = g.app_user.username
+                self.creator_id = g.app_user.id
+                db.session.add(self)
+
+            if ex_type == t[1]:
+                self.modifier = g.app_user.username
+                self.modifier_id = g.app_user.id
+
+            if ex_type == t[2]:
+                self.is_deleted = self.id if hasattr(self, 'id') and isinstance(getattr(self, 'id'), int) else "2"
+                self.remark = "逻辑删除"
+                self.modifier = g.app_user.username
+                self.modifier_id = g.app_user.id
+
+            if is_commit:
+                try:
+                    db.session.commit()
+                except BaseException as e:
+                    db.session.rollback()
+                    raise TypeError('save_rich error {}'.format(str(e)))
+        else:
+            raise KeyError('ex_type: {} 错误'.format(ex_type))
