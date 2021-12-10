@@ -162,10 +162,9 @@ class CaseVarApi(MethodView):
         if not query_var:
             return api_result(code=400, message='用例变量id:{}数据不存在'.format(var_id))
 
-        query_var.is_deleted = query_var.id
-        query_var.modifier = g.app_user.username
         query_var.modifier_id = g.app_user.id
-        db.session.commit()
+        query_var.modifier = g.app_user.username
+        query_var.delete()
         return api_result(code=204, message='删除成功')
 
 
