@@ -100,10 +100,9 @@ class CaseDBApi(MethodView):
         if not query_db:
             return api_result(code=400, message='用例变量id:{}数据不存在'.format(db_id))
 
-        query_db.is_deleted = query_db.id
-        query_db.modifier = g.app_user.username
         query_db.modifier_id = g.app_user.id
-        db.session.commit()
+        query_db.modifier = g.app_user.username
+        query_db.delete()
         return api_result(code=204, message='删除成功')
 
 
