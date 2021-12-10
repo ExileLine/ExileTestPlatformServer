@@ -211,10 +211,9 @@ class CaseReqDataApi(MethodView):
         if not query_req_case_data:
             return api_result(code=400, message='用例req数据id:{}数据不存在'.format(req_data_id))
 
-        query_req_case_data.is_deleted = query_req_case_data.id
-        query_req_case_data.modifier = g.app_user.username
         query_req_case_data.modifier_id = g.app_user.id
-        db.session.commit()
+        query_req_case_data.modifier = g.app_user.username
+        query_req_case_data.delete()
         return api_result(code=204, message='删除成功')
 
 
