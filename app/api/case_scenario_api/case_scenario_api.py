@@ -108,10 +108,9 @@ class CaseScenarioApi(MethodView):
         if not query_scenario:
             return api_result(code=400, message='场景id:{}数据不存在'.format(scenario_id))
 
-        query_scenario.is_deleted = query_scenario.id
-        query_scenario.modifier = g.app_user.username
         query_scenario.modifier_id = g.app_user.id
-        db.session.commit()
+        query_scenario.modifier = g.app_user.username
+        query_scenario.delete()
         return api_result(code=204, message='删除成功')
 
 
