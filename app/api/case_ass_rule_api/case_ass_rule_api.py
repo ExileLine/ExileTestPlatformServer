@@ -264,14 +264,13 @@ class RespAssertionRuleApi(MethodView):
         ass_resp_id = data.get('ass_resp_id')
         query_ass_resp = TestCaseAssResponse.query.get(ass_resp_id)
 
-        if query_ass_resp:
-            query_ass_resp.is_deleted = query_ass_resp.id
-            query_ass_resp.modifier = g.app_user.username
-            query_ass_resp.modifier_id = g.app_user.id
-            db.session.commit()
-            return api_result(code=204, message='删除成功')
+        if not query_ass_resp:
+            return api_result(code=400, message='返回值断言id:{}数据不存在'.format(ass_resp_id))
 
-        return api_result(code=400, message='返回值断言id:{}数据不存在'.format(ass_resp_id))
+        query_ass_resp.modifier_id = g.app_user.id
+        query_ass_resp.modifier = g.app_user.username
+        query_ass_resp.delete()
+        return api_result(code=204, message='删除成功')
 
 
 class FieldAssertionRuleApi(MethodView):
@@ -403,14 +402,13 @@ class FieldAssertionRuleApi(MethodView):
         ass_field_id = data.get('ass_field_id')
         query_ass_field = TestCaseAssField.query.get(ass_field_id)
 
-        if query_ass_field:
-            query_ass_field.is_deleted = query_ass_field.id
-            query_ass_field.modifier = g.app_user.username
-            query_ass_field.modifier_id = g.app_user.id
-            db.session.commit()
-            return api_result(code=204, message='删除成功')
+        if not query_ass_field:
+            return api_result(code=400, message='字段断言id:{}数据不存在'.format(ass_field_id))
 
-        return api_result(code=400, message='字段断言id:{}数据不存在'.format(ass_field_id))
+        query_ass_field.modifier_id = g.app_user.id
+        query_ass_field.modifier = g.app_user.username
+        query_ass_field.delete()
+        return api_result(code=204, message='删除成功')
 
 
 class RespAssertionRulePageApi(MethodView):
