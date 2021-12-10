@@ -88,10 +88,9 @@ class CaseEnvApi(MethodView):
         if not query_env:
             return api_result(code=400, message='环境id:{}数据不存在'.format(env_id))
 
-        query_env.is_deleted = query_env.id
-        query_env.modifier = g.app_user.username
         query_env.modifier_id = g.app_user.id
-        db.session.commit()
+        query_env.modifier = g.app_user.username
+        query_env.delete()
         return api_result(code=204, message='删除成功')
 
 
