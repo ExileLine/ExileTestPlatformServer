@@ -477,7 +477,7 @@ def register_commands(app):
                     var_name="变量:{}".format(index),
                     var_value="变量的值:{}".format(index),
                     var_type=random.choice([1, 2, 3, 4, 5, 6]),
-                    var_source=random.choice([1, 2]),
+                    var_source=random.choice(["resp_data", "resp_headers"]),
                     var_get_key="code",
                     expression="obj.get('message')",
                     is_expression=1,
