@@ -13,13 +13,13 @@ var_type_dict = {
     "str": 1,
     "int": 2,
     "json": 3,
-    "jsonstr": 4,
+    "json_str": 4,
     "list": 5,
-    "liststr": 6
+    "list_str": 6
 }
 var_source_dict = {
-    "resp_data": 1,
-    "resp_header": 2
+    "resp_data": "resp_data",
+    "resp_headers": "resp_headers"
 }
 
 
@@ -27,11 +27,14 @@ def check_req_var(data):
     """检查变量参数"""
     var_type = data.get('var_type')
     var_source = data.get('var_source')
+    var_type_list = list(range(1, 7))
+    var_source_list = ['resp_data', 'resp_headers']
 
-    if var_type_dict.get(var_type.lower()) and var_source_dict.get(var_source):
-        return True
-    else:
+    if var_type not in var_type_list:
         return False
+    if var_source and var_source not in var_source_list:
+        return False
+    return True
 
 
 class CaseVarApi(MethodView):
@@ -78,8 +81,8 @@ class CaseVarApi(MethodView):
             new_var = TestVariable(
                 var_name=var_name,
                 var_value=var_value,
-                var_type=var_type_dict.get(var_type.lower()),
-                var_source=var_source_dict.get(var_source),
+                var_type=var_type,
+                var_source=var_source,
                 var_get_key=var_get_key,
                 expression=expression,
                 is_expression=is_expression,
@@ -99,7 +102,7 @@ class CaseVarApi(MethodView):
         if not check_req_var(data):
             return ab_code(400)
 
-        var_id = data.get('var_id')
+        var_id = data.get('id')
         var_name = data.get('var_name')
         var_value = data.get('var_value')
         var_type = data.get('var_type')
@@ -127,8 +130,8 @@ class CaseVarApi(MethodView):
 
         query_var.var_name = var_name
         query_var.var_value = var_value
-        query_var.var_type = var_type_dict.get(var_type.lower())
-        query_var.var_source = var_source_dict.get(var_source)
+        query_var.var_type = var_type
+        query_var.var_source = var_source
         query_var.var_get_key = var_get_key
         query_var.expression = expression
         query_var.is_expression = is_expression
