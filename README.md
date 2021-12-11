@@ -19,7 +19,7 @@
 
 ### 项目演示
 
-- 项目演示地址：`待补充`
+- 项目演示地址：http://120.24.214.173/case
 - 前端项目地址-GitHub：https://github.com/yangyuexiong/ExileTestPlatformWeb
 - 前端项目地址-码云：https://gitee.com/yangyuexiong/ExileTestPlatformWeb
 
