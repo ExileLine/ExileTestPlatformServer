@@ -14,7 +14,7 @@ p = [
     ("request_params", "params"),
     ("request_body", "body"),
     ("request_body_type", "请求参数类型"),
-    ("var_list", "变量"),
+    # ("var_list", "变量"),
     ("update_var_list", "关系变量")
 ]
 
@@ -116,7 +116,7 @@ class CaseReqDataApi(MethodView):
 
         for d in data_list:
             is_public = d.get('is_public', True)
-
+            is_public = bool(is_public) if isinstance(is_public, bool) or isinstance(is_public, int) else True
             check_result = check_variable(d)
             if not check_result.get('status'):
                 return api_result(code=400, message="参数不存在:{}".format(check_result.get('query_none_list')))
@@ -137,7 +137,7 @@ class CaseReqDataApi(MethodView):
                 request_body=d.get('request_body'),
                 request_body_type=d.get('request_body_type'),
                 update_var_list=update_var_list,
-                is_public=is_public if isinstance(is_public, bool) else True,
+                is_public=is_public,
                 creator=g.app_user.username,
                 creator_id=g.app_user.id
             )
@@ -186,6 +186,7 @@ class CaseReqDataApi(MethodView):
                 return api_result(code=400, message='测试数据名称:{} 已经存在'.format(data_name))
 
         is_public = req_data_json.get('is_public')
+        is_public = bool(is_public) if isinstance(is_public, bool) or isinstance(is_public, int) else True
 
         query_test_case_data.data_name = data_name
         query_test_case_data.request_headers = req_data_json.get('request_headers')
@@ -193,7 +194,7 @@ class CaseReqDataApi(MethodView):
         query_test_case_data.request_body = req_data_json.get('request_body')
         query_test_case_data.request_body_type = req_data_json.get('request_body_type')
         query_test_case_data.update_var_list = update_var_list
-        query_test_case_data.is_public = is_public if isinstance(is_public, bool) else True,
+        query_test_case_data.is_public = is_public
         query_test_case_data.modifier = g.app_user.username
         query_test_case_data.modifier_id = g.app_user.id
         db.session.commit()
