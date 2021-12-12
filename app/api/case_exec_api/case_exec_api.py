@@ -163,7 +163,6 @@ class CaseExecApi(MethodView):
         main_test = MainTest(test_obj=test_obj)
         # executor.submit(main_test.main)
         thread = threading.Thread(target=main_test.main)
-        thread.setDaemon(True)
         thread.start()
 
         tl = TestLogs(
