@@ -40,7 +40,7 @@ def main():
 
     # Linux服务器启动
     if platform.system() == 'Linux':
-        app.run(host=app.config['RUN_HOST'], port=app.config['RUN_PORT'])
+        app.run(host=app.config['RUN_HOST'], port=app.config['RUN_PORT'], use_reloader=False)
 
     else:
         # app.run(debug=True, host='0.0.0.0', port=9999)
