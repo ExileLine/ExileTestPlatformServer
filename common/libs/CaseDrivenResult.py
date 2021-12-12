@@ -366,11 +366,13 @@ class MainTest:
         self.update_var_list = case_data_info.get('update_var_list')
 
         req_type_dict = {
-            "0": {"params": request_params},
             "1": {"data": request_body},
             "2": {"json": request_body},
             "3": {"data": request_body}
         }
+
+        method = self.request_method.lower()
+        self.sio.log('=== method: {} ==='.format(method))
 
         url = self.base_url + self.request_url if self.use_base_url else self.request_base_url + self.request_url
 
@@ -379,13 +381,14 @@ class MainTest:
             "headers": request_headers,
         }
         req_json_data = req_type_dict.get(request_body_type)
-        before_send.update(req_json_data)
+
+        if method == 'get':
+            before_send['params'] = request_params
+        else:
+            before_send.update(req_json_data)
 
         send = self.var_conversion(before_send)
         self.sio.log('=== send: {} ==='.format(send))
-
-        method = self.request_method.lower()
-        self.sio.log('=== method: {} ==='.format(method))
 
         resp = self.current_request(method=method, **send)
         self.resp_json = resp.json()
