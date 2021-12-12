@@ -67,3 +67,14 @@ class IndexApi(MethodView):
         )
         tl.save()
         return api_result(code=203, message='index')
+
+    def delete(self):
+        """4"""
+        r1 = R.keys(pattern="test_log_*")
+        r2 = R.keys(pattern="case_first_log:*")
+        r3 = R.keys(pattern="scenario_first_log:*")
+        __len = len(r1)
+        list(map(lambda x: R.delete(x), r1))
+        list(map(lambda x: R.delete(x), r2))
+        list(map(lambda x: R.delete(x), r3))
+        return api_result(code=203, message='index', data=[__len])
