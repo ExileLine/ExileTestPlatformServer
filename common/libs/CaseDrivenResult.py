@@ -570,7 +570,7 @@ class MainTest:
 
         case_summary = self.test_result.get_test_result()
         self.end_time = time.time()
-        save_key = "test_log_{}".format(str(int(time.time())))
+        save_key = "test_log_{}_".format(str(int(time.time())), shortuuid.uuid())
         return_case_result = {
             "uuid": save_key,
             "case_result_list": self.case_result_list,
