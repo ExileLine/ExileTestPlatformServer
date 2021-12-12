@@ -163,11 +163,13 @@ class CaseExecApi(MethodView):
         main_test = MainTest(test_obj=test_obj)
         # executor.submit(main_test.main)
         thread = threading.Thread(target=main_test.main)
+        thread.setDaemon(True)
         thread.start()
+
         tl = TestLogs(
             log_type=execute_type,
             creator=g.app_user.username,
             creator_id=g.app_user.id
         )
         tl.save()
-        return api_result(code=200, message='操作成功,请前往日志查看执行结果', data=[thread.ident, thread.getName()])
+        return api_result(code=200, message='操作成功,请前往日志查看执行结果', data=[])
