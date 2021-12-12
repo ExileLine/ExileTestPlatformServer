@@ -358,12 +358,15 @@ class MainTest:
         组装数据发送并且更新变量
         :return:
         """
+
+        request_params = case_data_info.get('request_params')
         request_body = case_data_info.get('request_body')
         request_headers = case_data_info.get('request_headers')
         request_body_type = str(case_data_info.get('request_body_type'))
         self.update_var_list = case_data_info.get('update_var_list')
 
         req_type_dict = {
+            "0": {"params": request_params},
             "1": {"data": request_body},
             "2": {"json": request_body},
             "3": {"data": request_body}
