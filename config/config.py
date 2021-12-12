@@ -81,6 +81,9 @@ class NewConfig(BaseConfig):
     )
     SQLALCHEMY_DATABASE_URI = DB_URI
     SQLALCHEMY_TRACK_MODIFICATIONS = True
+    SQLALCHEMY_POOL_SIZE = 100
+    SQLALCHEMY_POOL_TIMEOUT = 5
+    SQLALCHEMY_MAX_OVERFLOW = 10
 
     # redis
     redis_obj = {

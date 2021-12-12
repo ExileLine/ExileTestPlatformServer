@@ -14,7 +14,8 @@ from app.models.test_logs.models import TestLogs
 from app.models.test_case_scenario.models import TestCaseScenario
 from common.libs.StringIOLog import StringIOLog
 
-executor = ThreadPoolExecutor(10)
+
+# executor = ThreadPoolExecutor(10)
 
 
 class CaseReqTestApi(MethodView):
@@ -160,11 +161,13 @@ class CaseExecApi(MethodView):
             "sio": sio
         }
         main_test = MainTest(test_obj=test_obj)
-        executor.submit(main_test.main)
+        # executor.submit(main_test.main)
+        thread = threading.Thread(target=main_test.main)
+        thread.start()
         tl = TestLogs(
             log_type=execute_type,
             creator=g.app_user.username,
             creator_id=g.app_user.id
         )
         tl.save()
-        return api_result(code=200, message='操作成功,请前往日志查看执行结果')
+        return api_result(code=200, message='操作成功,请前往日志查看执行结果', data=[thread.ident, thread.getName()])
