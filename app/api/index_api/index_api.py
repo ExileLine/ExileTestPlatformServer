@@ -77,4 +77,6 @@ class IndexApi(MethodView):
         list(map(lambda x: R.delete(x), r1))
         list(map(lambda x: R.delete(x), r2))
         list(map(lambda x: R.delete(x), r3))
-        return api_result(code=203, message='index', data=[__len])
+        ex1 = project_db.execute_sql("""TRUNCATE exile_test_logs;""")
+        ex2 = project_db.execute_sql("""TRUNCATE exile_test_execute_logs;""")
+        return api_result(code=203, message='index', data=[__len, ex1, ex2])
