@@ -132,9 +132,9 @@ class CaseReqDataApi(MethodView):
 
             new_case_data = TestCaseData(
                 data_name=d.get('data_name'),
-                request_params=d.get('request_params'),
-                request_headers=d.get('request_headers'),
-                request_body=d.get('request_body'),
+                request_params=d.get('request_params', {}),
+                request_headers=d.get('request_headers', {}),
+                request_body=d.get('request_body', {}),
                 request_body_type=d.get('request_body_type'),
                 update_var_list=update_var_list,
                 is_public=is_public,
@@ -189,9 +189,9 @@ class CaseReqDataApi(MethodView):
         is_public = bool(is_public) if isinstance(is_public, bool) or isinstance(is_public, int) else True
 
         query_test_case_data.data_name = data_name
-        query_test_case_data.request_headers = req_data_json.get('request_headers')
-        query_test_case_data.request_params = req_data_json.get('request_params')
-        query_test_case_data.request_body = req_data_json.get('request_body')
+        query_test_case_data.request_headers = req_data_json.get('request_headers', {})
+        query_test_case_data.request_params = req_data_json.get('request_params', {})
+        query_test_case_data.request_body = req_data_json.get('request_body', {})
         query_test_case_data.request_body_type = req_data_json.get('request_body_type')
         query_test_case_data.update_var_list = update_var_list
         query_test_case_data.is_public = is_public
