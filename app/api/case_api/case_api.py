@@ -53,7 +53,7 @@ class CaseApi(MethodView):
         request_method = data.get('request_method')
         request_base_url = data.get('request_base_url')
         request_url = data.get('request_url')
-        is_shared = data.get('is_shared', 0)
+        is_shared = data.get('is_shared', True)
         is_public = data.get('is_public', True)
         remark = data.get('remark')
 
@@ -95,7 +95,7 @@ class CaseApi(MethodView):
         request_method = data.get('request_method')
         request_base_url = data.get('request_base_url')
         request_url = data.get('request_url')
-        is_shared = data.get('is_shared', 0)
+        is_shared = data.get('is_shared', True)
         is_public = data.get('is_public', True)
         remark = data.get('remark')
 
