@@ -25,10 +25,10 @@ class LoginApi(MethodView):
             admin = Admin.query.filter_by(username=username, is_deleted=0).first()
 
             if not admin:
-                return api_result(code=200, message='用户不存在或被禁用')
+                return api_result(code=400, message='用户不存在或被禁用')
 
             if not admin.check_password(password):
-                return api_result(code=200, message='账号或密码错误')
+                return api_result(code=400, message='账号或密码错误')
 
             """
             检查是否存在旧token并且生成新token覆盖旧token,或创建一个新的token。然后添加至返回值。
