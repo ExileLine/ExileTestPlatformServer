@@ -15,7 +15,7 @@ from app.api import api
 from app.models.admin.models import Admin
 from common.libs.public_func import print_logs
 from common.libs.auth import check_user
-from common.libs.customException import ab_code_2
+from common.libs.customException import method_view_ab_code as ab_code
 
 
 @api.before_request
@@ -34,13 +34,13 @@ def before_request_api():
         logger.info('headers是否存在key:token -> {}'.format(is_token))
 
         # TODO 开发阶段使用的万能鉴权
-        if is_token in ['yangyuexiong', None]:
+        if is_token == 'yangyuexiong':
             user = Admin.query.get(1)
             g.app_user = user
             return
 
         if not is_token:
-            ab_code_2(666)
+            ab_code(401)
 
         token = request.headers.get('token', '')  # 提取token
         logger.info('{}'.format(token))

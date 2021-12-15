@@ -40,7 +40,7 @@ class LoginApi(MethodView):
             return api_result(code=200, message='登录成功', data=admin_obj)
 
         else:
-            ab_code_2(1000001)
+            ab_code(1000001)
 
     def delete(self):
         # print(request.headers.get('Token'))

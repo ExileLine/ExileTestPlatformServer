@@ -15,7 +15,7 @@ from app.api import crm
 from app.models.admin.models import Admin
 from common.libs.auth import check_user, R, AdminRefreshCache
 from common.libs.public_func import print_logs
-from common.libs.customException import ab_code_2
+from common.libs.customException import method_view_ab_code as ab_code
 
 
 @crm.before_request
@@ -85,9 +85,9 @@ def before_request_cms():
             elif url_is_var_tuple_list and bool(re_result):
                 return
             else:
-                ab_code_2(1000000)
+                ab_code(1000000)
         else:
-            ab_code_2(666)
+            ab_code(666)
 
     else:
         g.app_user = None

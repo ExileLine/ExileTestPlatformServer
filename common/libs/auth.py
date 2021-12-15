@@ -12,7 +12,7 @@ from flask import g
 from loguru import logger
 
 from common.libs.db import project_db, R
-from common.libs.customException import ab_code_2
+from common.libs.customException import method_view_ab_code as ab_code
 from app.models.admin.models import Admin, Role, Permission, MidAdminAndRole, MidPermissionAndRole, ApiResource
 
 """
@@ -129,8 +129,7 @@ def check_user(token, model):
     user = R.get('token:{}'.format(token))
     if not user:  # token错误或者失效
         g.app_user = None
-        # ab_code(401)
-        ab_code_2(401)
+        ab_code(401)
     else:
         user_id = R.get(user)  # 通过手机号或其他字段获取用户id  // redis命令: get yyx
         user = model.query.get(user_id)  # 通过id查询用户->获取用户对象
