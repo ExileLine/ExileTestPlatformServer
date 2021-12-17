@@ -47,6 +47,13 @@ class RuleTestApi(MethodView):
 
     """
 
+    def get(self):
+        """调试"""
+        _locals = locals()
+        exec(f"""rule_result=exit(1)""", globals(), _locals)
+        rule_result = _locals['rule_result']
+        return api_result(code=200, message='exec test', data=rule_result)
+
     def post(self):
         """取值规程调试"""
         data = request.get_json()

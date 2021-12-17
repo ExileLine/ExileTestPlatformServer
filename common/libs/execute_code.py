@@ -17,7 +17,6 @@ def execute_code(code, data):
 
     if isinstance(__obj, dict):
         rs = code.split('.')
-        # print(rs)
         rs[0] = '__obj'
         new_rule_str = '.'.join(rs)
     elif isinstance(__obj, list):
@@ -37,15 +36,19 @@ def execute_code(code, data):
 
     try:
         _locals = locals()
-        # print(globals())
         # print(_locals)
-        exec("""rule_result={}""".format(new_rule_str), globals(), _locals)
+        # print(globals())
+        exec(f"""rule_result={new_rule_str}""", globals(), _locals)
         rule_result = _locals['rule_result']
+
+        print('数据源:', __obj)
+        print('表达式:', new_rule_str)
+        print('结果:', rule_result)
 
         if rule_result:
             resp_data = {
                 "bool": True,
-                "message": "操作成功:{}".format(new_rule_str),
+                "message": f"操作成功:{new_rule_str}",
                 "result_data": rule_result
             }
             return resp_data
@@ -60,14 +63,14 @@ def execute_code(code, data):
     except BaseException as e:
         resp_data = {
             "bool": False,
-            "message": "取值公式错误:{}".format(str(e)),
+            "message": f"取值公式错误:{str(e)}",
             "result_data": None
         }
         return resp_data
 
 
 if __name__ == '__main__':
-    c1 = "okc.get('a').get('b').get('c')[33]"
+    c1 = "okc.get('a').get('b').get('c')[0]"
     d1 = {
         "a": {
             "b": {
@@ -87,7 +90,6 @@ if __name__ == '__main__':
     print(execute_code(code=c2, data=d2))
 
     print('-' * 33)
-
 
     class A:
         pass
