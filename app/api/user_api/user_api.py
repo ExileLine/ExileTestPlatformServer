@@ -26,6 +26,7 @@ class TouristApi(MethodView):
         if query_tourist:
             return api_result(code=200, message='操作成功', data=json.loads(query_tourist))
 
+        code = str(Admin.query.count() + 1).zfill(5)  # TODO
         username = "user_{}".format(code)
         password = shortuuid.uuid()[0:6]
         query_user = Admin.query.filter_by(username=username).first()
@@ -40,7 +41,7 @@ class TouristApi(MethodView):
             creator='shell',
             creator_id='0',
             remark='游客')
-        new_admin.set_code()
+        new_admin.gen_code()
         new_admin.save()
 
         tourist_obj = {
