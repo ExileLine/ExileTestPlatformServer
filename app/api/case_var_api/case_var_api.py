@@ -119,6 +119,9 @@ class CaseVarApi(MethodView):
         if not query_var:
             return api_result(code=400, message='用例变量id:{}数据不存在'.format(var_id))
 
+        if not bool(is_public) and query_var.creator_id != g.app_user.id:
+            return api_result(code=400, message='非创建人，无法修改使用状态')
+
         if not bool(query_var.is_public):
             if query_var.creator_id != g.app_user.id:
                 return api_result(code=400, message='该变量未开放,只能被创建人修改!')

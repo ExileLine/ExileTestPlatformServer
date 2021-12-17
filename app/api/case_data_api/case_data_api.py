@@ -166,6 +166,12 @@ class CaseReqDataApi(MethodView):
         if not query_test_case_data:
             return api_result(code=400, message='用例req数据id:{}数据不存在'.format(req_data_id))
 
+        is_public = req_data_json.get('is_public')
+        is_public = bool(is_public) if isinstance(is_public, bool) or isinstance(is_public, int) else True
+
+        if not bool(is_public) and query_test_case_data.creator_id != g.app_user.id:
+            return api_result(code=400, message='非创建人，无法修改使用状态')
+
         if not bool(query_test_case_data.is_public):
             if query_test_case_data.creator_id != g.app_user.id:
                 return api_result(code=400, message='该参数未开放,只能被创建人修改!')
@@ -184,9 +190,6 @@ class CaseReqDataApi(MethodView):
         if query_test_case_data.data_name != data_name:
             if TestCaseData.query.filter_by(data_name=data_name).all():
                 return api_result(code=400, message='测试数据名称:{} 已经存在'.format(data_name))
-
-        is_public = req_data_json.get('is_public')
-        is_public = bool(is_public) if isinstance(is_public, bool) or isinstance(is_public, int) else True
 
         query_test_case_data.data_name = data_name
         query_test_case_data.request_headers = req_data_json.get('request_headers', {})

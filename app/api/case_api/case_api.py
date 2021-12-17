@@ -108,6 +108,12 @@ class CaseApi(MethodView):
         if not query_case:
             return api_result(code=400, message='用例id:{}数据不存在'.format(case_id))
 
+        if not bool(is_public) and query_case.creator_id != g.app_user.id:
+            return api_result(code=400, message='非创建人，无法修改使用状态')
+
+        if not bool(is_shared) and query_case.creator_id != g.app_user.id:
+            return api_result(code=400, message='非创建人，无法修改执行状态')
+
         if not bool(query_case.is_public):
             if query_case.creator_id != g.app_user.id:
                 return api_result(code=400, message='该用例未开放,只能被创建人修改!')

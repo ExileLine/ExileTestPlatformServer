@@ -210,6 +210,9 @@ class RespAssertionRuleApi(MethodView):
         if not query_ass_resp:
             return api_result(code=400, message='返回值断言id:{}数据不存在'.format(ass_resp_id))
 
+        if not bool(is_public) and query_ass_resp.creator_id != g.app_user.id:
+            return api_result(code=400, message='非创建人，无法修改使用状态')
+
         if not bool(query_ass_resp.is_public):
             if query_ass_resp.creator_id != g.app_user.id:
                 return api_result(code=400, message='该Resp断言规则未开放,只能被创建人修改!')
@@ -369,6 +372,9 @@ class FieldAssertionRuleApi(MethodView):
 
         if not query_ass_field:
             return api_result(code=400, message='字段断言id:{}数据不存在'.format(ass_field_id))
+
+        if not bool(is_public) and query_ass_field.creator_id != g.app_user.id:
+            return api_result(code=400, message='非创建人，无法修改使用状态')
 
         if not bool(query_ass_field.is_public):
             if query_ass_field.creator_id != g.app_user.id:
