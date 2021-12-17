@@ -25,7 +25,7 @@ def before_request_api():
     logger.info('request log_uuid:{}'.format(g.log_uuid))
     print_logs()
 
-    white_list = ['/api/login']
+    white_list = ['/api/login', '/api/tourist']
     if request.path in white_list:
         return
 
