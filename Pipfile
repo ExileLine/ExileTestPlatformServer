@@ -14,6 +14,8 @@ loguru = "*"
 redis = "*"
 shortuuid = "*"
 cryptography = "*"
+apscheduler = "*"
+flask-apscheduler = "*"
 
 [dev-packages]
 
