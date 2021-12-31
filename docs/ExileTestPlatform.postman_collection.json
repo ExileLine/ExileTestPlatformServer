@@ -6,70 +6,20 @@
 	},
 	"item": [
 		{
-			"name": "首页",
-			"item": [
-				{
-					"name": "index",
-					"request": {
-						"method": "GET",
-						"header": [
-							{
-								"key": "token",
-								"value": "yangyuexiong",
-								"type": "text",
-								"disabled": true
-							}
-						],
-						"url": {
-							"raw": "{{base_url}}/api/index",
-							"host": [
-								"{{base_url}}"
-							],
-							"path": [
-								"api",
-								"index"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "index2",
-					"request": {
-						"method": "POST",
-						"header": [],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n    \"Date\": \"2021-10-03\", \n    \"DateTime\": \"2021-10-03 14:41:21.050626\", \n    \"Time\": \"14:41:21.050622\", \n    \"TimeStamp\": \"1633243281\", \n    \"UUID\": \"e52rhokp9w1633243281RU6itVwQiC\", \n    \"token\": \"yangyuexiongyyx\"\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "{{base_url}}/api/index",
-							"host": [
-								"{{base_url}}"
-							],
-							"path": [
-								"api",
-								"index"
-							]
-						}
-					},
-					"response": []
-				}
-			]
-		},
-		{
-			"name": "游客",
+			"name": "用户",
 			"item": [
 				{
 					"name": "获取游客账号",
 					"request": {
 						"method": "GET",
-						"header": [],
+						"header": [
+							{
+								"key": "",
+								"value": "",
+								"type": "text",
+								"disabled": true
+							}
+						],
 						"url": {
 							"raw": "{{base_url}}/api/tourist",
 							"host": [
@@ -82,6 +32,112 @@
 						}
 					},
 					"response": []
+				},
+				{
+					"name": "获取用户信息",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "token",
+								"value": "yyx",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/user_profile/1",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"user_profile",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "更新用户信息",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"user_id\": \"1\",\n    \"nickname\": \"yyx\",\n    \"phone\": \"15013038819\",\n    \"mail\": \"yang@126.com\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/api/user_profile",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"user_profile"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "修改密码",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"user_id\": 1,\n    \"old_password\": \"45Hfnc\",\n    \"new_password\": \"123456\",\n    \"raw_password\": \"123456\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/api/user_pwd",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"user_pwd"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "重置密码",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"user_id\": 1\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/api/user_pwd",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"user_pwd"
+							]
+						}
+					},
+					"response": []
 				}
 			]
 		},
@@ -90,12 +146,27 @@
 			"item": [
 				{
 					"name": "登录",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var json_data = JSON.parse(responseBody)",
+									"",
+									"var token = json_data.data.token",
+									"",
+									"pm.environment.set(\"token\", token)"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
 					"request": {
 						"method": "POST",
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"username\": \"user_00003\",\n    \"password\": \"h9yZCG\"\n}",
+							"raw": "{\n    \"username\": \"yyx2\",\n    \"password\": \"123456\"\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -252,9 +323,6 @@
 			"item": [
 				{
 					"name": "用例详情(用例,数据,变量,resp断言,field断言,bind)",
-					"protocolProfileBehavior": {
-						"disableBodyPruning": true
-					},
 					"request": {
 						"method": "GET",
 						"header": [
@@ -265,24 +333,20 @@
 							},
 							{
 								"key": "token",
-								"value": "4745257cYYx1916YYx11ecYYxbcccYYxacde48001122",
+								"value": "{{token}}",
 								"type": "text",
 								"disabled": true
 							}
 						],
-						"body": {
-							"mode": "raw",
-							"raw": ""
-						},
 						"url": {
-							"raw": "{{base_url}}/api/case/48",
+							"raw": "{{base_url}}/api/case/86",
 							"host": [
 								"{{base_url}}"
 							],
 							"path": [
 								"api",
 								"case",
-								"48"
+								"86"
 							]
 						}
 					},
@@ -355,7 +419,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"case_id\": 2\n}",
+							"raw": "{\n    \"case_id\": 20\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -555,7 +619,13 @@
 					"name": "获取用例Req数据",
 					"request": {
 						"method": "GET",
-						"header": [],
+						"header": [
+							{
+								"key": "token",
+								"value": "yyx",
+								"type": "text"
+							}
+						],
 						"url": {
 							"raw": "{{base_url}}/api/case_req_data/2",
 							"host": [
@@ -604,7 +674,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"id\": 1,\n    \"req_data_json\": {\n        \"data_name\": \"数据okc\",\n        \"request_params\": {},\n        \"request_headers\": {},\n        \"request_body\": {},\n        \"request_body_type\": 1,\n        \"var_list\": [],\n        \"update_var_list\": [\n            {\n                \"id\": 1,\n                \"var_value\": \"yangyuexiong123\",\n                \"var_source\": \"resp_data\",\n                \"expression\": \"obj.get('message')\",\n                \"is_expression\": 0,\n                \"var_get_key\": \"message\"\n            },\n            {\n                \"id\": 2,\n                \"var_value\": \"变量的值:1\",\n                \"var_source\": \"resp_data\",\n                \"expression\": \"obj.get('code')\",\n                \"is_expression\": 0,\n                \"var_get_key\": \"code\"\n            }\n        ],\n        \"is_public\": false\n    }\n}",
+							"raw": "{\n    \"id\": 1,\n    \"req_data_json\": {\n        \"data_name\": \"数据okc\",\n        \"request_params\": {},\n        \"request_headers\": {},\n        \"request_body\": {},\n        \"request_body_type\": 1,\n        \"var_list\": [],\n        \"update_var_list\": [\n            {\n                \"id\": 1,\n                \"var_name\": \"yangyyx1\",\n                \"var_value\": \"yangyuexiong123\",\n                \"var_source\": \"resp_data\",\n                \"expression\": \"obj.get('message')\",\n                \"is_expression\": 0,\n                \"var_get_key\": \"message\"\n            },\n            {\n                \"id\": 2,\n                \"var_name\": \"yangyyx2\",\n                \"var_value\": \"变量的值:1\",\n                \"var_source\": \"resp_data\",\n                \"expression\": \"obj.get('code')\",\n                \"is_expression\": 1,\n                \"var_get_key\": \"code\"\n            }\n        ],\n        \"is_public\": true\n    }\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -919,7 +989,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"ass_resp_id\": 1,\n    \"assert_description\": \"调试用例执行专用resp断言\",\n    \"remark\": \"调试用例执行专用resp断言\",\n    \"ass_json\": [\n        {\n            \"assert_key\": \"code\",\n            \"expect_val\": \"200\",\n            \"expect_val_type\": \"1\",\n            \"rule\": \"==\",\n            \"is_expression\": 0,\n            \"python_val_exp\": \"okc.get('a').get('b').get('c')[0]\"\n        },\n        {\n            \"assert_key\": \"code\",\n            \"expect_val\": \"200\",\n            \"expect_val_type\": \"1\",\n            \"rule\": \"==\",\n            \"is_expression\": 1,\n            \"python_val_exp\": \"okc.get('code')\"\n        },\n        {\n            \"assert_key\": \"message\",\n            \"expect_val\": \"index\",\n            \"expect_val_type\": \"2\",\n            \"rule\": \"==\",\n            \"is_expression\": 0,\n            \"python_val_exp\": \"okc.get('message')\"\n        },\n        {\n            \"assert_key\": \"message\",\n            \"expect_val\": \"index\",\n            \"expect_val_type\": \"2\",\n            \"rule\": \"==\",\n            \"is_expression\": 1,\n            \"python_val_exp\": \"okc.get('message')\"\n        }\n    ]\n}",
+							"raw": "{\n    \"id\": 1,\n    \"assert_description\": \"调试用例执行专用resp断言\",\n    \"remark\": \"调试用例执行专用resp断言\",\n    \"ass_json\": [\n        {\n            \"assert_key\": \"code\",\n            \"expect_val\": \"200\",\n            \"expect_val_type\": \"1\",\n            \"rule\": \"==\",\n            \"is_expression\": 0,\n            \"python_val_exp\": \"okc.get('a').get('b').get('c')[0]\"\n        },\n        {\n            \"assert_key\": \"code\",\n            \"expect_val\": \"200\",\n            \"expect_val_type\": \"1\",\n            \"rule\": \"==\",\n            \"is_expression\": 1,\n            \"python_val_exp\": \"okc.get('code')\"\n        },\n        {\n            \"assert_key\": \"message\",\n            \"expect_val\": \"index\",\n            \"expect_val_type\": \"2\",\n            \"rule\": \"==\",\n            \"is_expression\": 0,\n            \"python_val_exp\": \"okc.get('message')\"\n        },\n        {\n            \"assert_key\": \"message\",\n            \"expect_val\": \"index\",\n            \"expect_val_type\": \"2\",\n            \"rule\": \"==\",\n            \"is_expression\": 1,\n            \"python_val_exp\": \"okc.get('message')\"\n        }\n    ]\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -1004,7 +1074,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"assert_description\": \"A通用字段校验\",\n    \"remark\": \"remark\",\n    \"ass_json\": [\n        {\n            \"db_id\": 1,\n            \"query\": \"select id,case_name FROM ExileTestPlatform.exile_test_case WHERE id=1;\",\n            \"assert_list\": [\n                {\n                    \"assert_key\": \"id\",\n                    \"expect_val\": \"1\",\n                    \"expect_val_type\": \"1\",\n                    \"rule\": \"==\"\n                },\n                {\n                    \"assert_key\": \"case_name\",\n                    \"expect_val\": \"测试用例B1\",\n                    \"expect_val_type\": \"2\",\n                    \"rule\": \"==\"\n                }\n            ]\n        }\n    ]\n}",
+							"raw": "{\n    \"assert_description\": \"A通用字段校验123\",\n    \"remark\": \"remark\",\n    \"ass_json\": [\n        {\n            \"db_id\": 1,\n            \"query\": \"select id,case_name FROM ExileTestPlatform.exile_test_case WHERE id=1;\",\n            \"assert_list\": [\n                {\n                    \"assert_key\": \"id\",\n                    \"expect_val\": \"1\",\n                    \"expect_val_type\": \"1\",\n                    \"rule\": \"==\"\n                },\n                {\n                    \"assert_key\": \"case_name\",\n                    \"expect_val\": \"测试用例B1\",\n                    \"expect_val_type\": \"2\",\n                    \"rule\": \"==\"\n                }\n            ]\n        }\n    ]\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -1031,7 +1101,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"ass_field_id\": 1,\n    \"assert_description\": \"调试用例执行专用field断言\",\n    \"remark\": \"调试用例执行专用field断言\",\n    \"ass_json\": [\n        {\n            \"db_id\": 1,\n            \"query\": \"select id FROM ExileTestPlatform.exile_test_case WHERE id=1;\",\n            \"assert_list\": [\n                {\n                    \"assert_key\": \"id\",\n                    \"expect_val\": \"1\",\n                    \"expect_val_type\": \"1\",\n                    \"rule\": \"==\"\n                },\n                {\n                    \"assert_key\": \"case_name\",\n                    \"expect_val\": \"测试用例B1\",\n                    \"expect_val_type\": \"2\",\n                    \"rule\": \"==\"\n                }\n            ]\n        }\n    ]\n}",
+							"raw": "{\n    \"id\": 1,\n    \"is_public\": 0,\n    \"assert_description\": \"调试用例执行专用field断言\",\n    \"remark\": \"调试用例执行专用field断言\",\n    \"ass_json\": [\n        {\n            \"db_id\": 1,\n            \"query\": \"select id,case_name FROM ExileTestPlatform.exile_test_case WHERE id=1;\",\n            \"assert_list\": [\n                {\n                    \"assert_key\": \"id\",\n                    \"expect_val\": \"1\",\n                    \"expect_val_type\": \"1\",\n                    \"rule\": \"==\"\n                },\n                {\n                    \"assert_key\": \"case_name\",\n                    \"expect_val\": \"测试用例B1\",\n                    \"expect_val_type\": \"2\",\n                    \"rule\": \"==\"\n                }\n            ]\n        }\n    ]\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -1353,7 +1423,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"resp_ass_id\": \"\",\n    \"assert_description\": \"\",\n    \"page\": 1,\n    \"size\": \"\",\n    \"is_deleted\": true\n}",
+							"raw": "{\n    \"resp_ass_id\": \"\",\n    \"assert_description\": \"\",\n    \"page\": 1,\n    \"size\": 20,\n    \"is_deleted\": false\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -1434,7 +1504,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"env_id\": \"\",\n    \"env_url\": \"pre\",\n    \"env_name\": \"\",\n    \"page\": 1,\n    \"size\": \"\",\n    \"is_deleted\": false\n}",
+							"raw": "{\n    \"env_id\": \"\",\n    \"env_url\": \"\",\n    \"env_name\": \"\",\n    \"page\": 1,\n    \"size\": 20,\n    \"is_deleted\": false\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -1461,7 +1531,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"db_id\": \"\",\n    \"db_type\": \"mysql\",\n    \"name\": \"\",\n    \"page\": 1,\n    \"size\": \"\",\n    \"is_deleted\": false\n}",
+							"raw": "{\n    \"db_id\": \"\",\n    \"db_type\": \"mysql\",\n    \"name\": \"\",\n    \"page\": 1,\n    \"size\": 20,\n    \"is_deleted\": false\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -1488,7 +1558,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"scenario_id\": \"\",\n    \"scenario_title\": \"A\",\n    \"name\": \"\",\n    \"page\": 1,\n    \"size\": \"\",\n    \"is_deleted\": false\n}",
+							"raw": "{\n    \"scenario_id\": \"\",\n    \"scenario_title\": \"A\",\n    \"name\": \"\",\n    \"page\": 1,\n    \"size\": 20,\n    \"is_deleted\": false\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -1515,7 +1585,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"creater\": \"\",\n    \"creater_id\": \"1\",\n    \"name\": \"\",\n    \"page\": 1,\n    \"size\": \"\"\n}",
+							"raw": "{\n    \"creater\": \"\",\n    \"creater_id\": \"1\",\n    \"name\": \"\",\n    \"page\": 1,\n    \"size\": 20\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -1542,7 +1612,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"execute_id\": \"\",\n    \"execute_name\":\"\",\n    \"execute_type\":\"\",\n    \"page\": 1,\n    \"size\": \"\",\n    \"creater\": \"\",\n    \"creater_id\": \"1\"\n}",
+							"raw": "{\n    \"execute_id\": \"\",\n    \"execute_name\":\"\",\n    \"execute_type\":\"\",\n    \"page\": 1,\n    \"size\": 20,\n    \"creater\": \"\",\n    \"creater_id\": \"1\"\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -1664,10 +1734,16 @@
 					"name": "用例执行",
 					"request": {
 						"method": "POST",
-						"header": [],
+						"header": [
+							{
+								"key": "token",
+								"value": "{{token}}",
+								"type": "text"
+							}
+						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"execute_id\": 48,\n    \"execute_type\": \"case\",\n    \"data_driven\": true,\n    \"base_url_id\": 1,\n    \"use_base_url\": false\n}",
+							"raw": "{\n    \"execute_id\": 86,\n    \"execute_type\": \"case\",\n    \"data_driven\": false,\n    \"base_url_id\": 0,\n    \"use_base_url\": false\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -1721,7 +1797,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"execute_id\": \"3\", \n    \"execute_type\": \"scenario\"\n}",
+							"raw": "{\n    \"execute_id\": \"44\", \n    \"execute_type\": \"case\"\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -1745,10 +1821,16 @@
 					"name": "规则调试",
 					"request": {
 						"method": "POST",
-						"header": [],
+						"header": [
+							{
+								"key": "token",
+								"value": "yyx",
+								"type": "text"
+							}
+						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"val_exp\": \"okc.get('a').get('b').get('c')\",\n    \"data_source\": {\n        \"a\": {\n            \"b\": {\n                \"c\": [\n                    \"abc\",\n                    2,\n                    3\n                ]\n            }\n        }\n    }\n}",
+							"raw": "{\n    \"val_exp\": \"obj.get('a').get('b').get('c')\",\n    \"data_source\": {\n        \"a\": {\n            \"b\": {\n                \"c\": [\n                    \"abc\",\n                    2,\n                    3\n                ]\n            }\n        }\n    }\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -1780,7 +1862,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"log_id\": \"5\"\n}",
+							"raw": "{\n    \"log_id\": \"41\"\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -1801,6 +1883,94 @@
 					"response": []
 				}
 			]
+		},
+		{
+			"name": "首页",
+			"item": []
+		},
+		{
+			"name": "index",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "token",
+						"value": "yyx",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "{{base_url}}/api/index",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"index"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "index2",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "token",
+						"value": "yyx",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"Date\": \"2021-10-03\", \n    \"DateTime\": \"2021-10-03 14:41:21.050626\", \n    \"Time\": \"14:41:21.050622\", \n    \"TimeStamp\": \"1633243281\", \n    \"UUID\": \"e52rhokp9w1633243281RU6itVwQiC\", \n    \"token\": \"yangyuexiongyyx\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{base_url}}/api/index",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"index"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "index4",
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"Date\": \"2021-10-03\", \n    \"DateTime\": \"2021-10-03 14:41:21.050626\", \n    \"Time\": \"14:41:21.050622\", \n    \"TimeStamp\": \"1633243281\", \n    \"UUID\": \"e52rhokp9w1633243281RU6itVwQiC\", \n    \"token\": \"yangyuexiongyyx\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{base_url}}/api/index",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"index"
+					]
+				}
+			},
+			"response": []
 		}
 	]
 }
