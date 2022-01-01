@@ -61,6 +61,10 @@ class CaseApi(MethodView):
         if not check_bool:
             return api_result(code=400, message=check_msg)
 
+        request_base_url = request_base_url.replace(" ", "")
+        if not request_base_url:
+            return api_result(code=400, message='环境不能为空')
+
         request_method_result = check_method(current_method=request_method)
 
         if not request_method_result:
@@ -102,6 +106,10 @@ class CaseApi(MethodView):
         check_bool, check_msg = RequestParamKeysCheck(data, p).ck()
         if not check_bool:
             return api_result(code=400, message=check_msg)
+
+        request_base_url = request_base_url.replace(" ", "")
+        if not request_base_url:
+            return api_result(code=400, message='环境不能为空')
 
         query_case = TestCase.query.get(case_id)
 
