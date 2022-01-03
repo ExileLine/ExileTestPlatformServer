@@ -39,7 +39,7 @@ class Admin(BaseModel):
         result = check_password_hash(self.password, raw_password)
         return result
 
-    def gen_code(self):
+    def set_code(self):
         self.code = str(Admin.query.count() + 1).zfill(5)
 
     def __repr__(self):

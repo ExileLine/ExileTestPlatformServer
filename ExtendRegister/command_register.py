@@ -94,7 +94,7 @@ def register_commands(app):
                 creator='shell',
                 creator_id='0',
                 remark='manage shell')
-            new_admin.gen_code()
+            new_admin.set_code()
             db.session.add(new_admin)
             db.session.commit()
             print('用户: {} 添加成功'.format(username))

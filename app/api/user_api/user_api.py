@@ -41,7 +41,7 @@ class TouristApi(MethodView):
             creator='shell',
             creator_id='0',
             remark='游客')
-        new_admin.gen_code()
+        new_admin.set_code()
         new_admin.save()
 
         tourist_obj = {
