@@ -22,6 +22,10 @@ class LoginApi(MethodView):
         if check_keys(data, 'username', 'password'):
             username = data.get('username', '')
             password = data.get('password', '')
+
+            if not username or not password:
+                return api_result(code=400, message='用户名、密码不能为空')
+
             admin = Admin.query.filter_by(username=username, is_deleted=0).first()
 
             if not admin:
