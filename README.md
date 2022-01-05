@@ -62,7 +62,7 @@
 |Vue3|前端框架|https://vuejs.org|
 |Vue-router|路由框架|https://router.vuejs.org|
 |Vuex|全局状态管理框架|https://vuex.vuejs.org|
-|Element|前端UI框架|https://element.eleme.io|
+|ElementPlus|前端UI框架|https://element.eleme.io|
 |Axios|前端HTTP框架|https://github.com/axios/axios|
 |v-charts|基于Echarts的图表框架|https://v-charts.js.org|
 |Js-cookie|cookie管理工具|https://github.com/js-cookie/js-cookie|
