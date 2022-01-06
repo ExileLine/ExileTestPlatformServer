@@ -15,7 +15,7 @@ from ExtendRegister.command_register import register_commands  # commands
 from ExtendRegister.bp_register import register_bp  # 蓝图
 from ExtendRegister.conf_register import register_config  # 配置
 from ExtendRegister.db_register import db  # db
-from ExtendRegister.apscheduler_register import scheduler  # scheduler
+# from ExtendRegister.apscheduler_register import scheduler  # scheduler
 from ExtendRegister.model_register import *  # models
 
 
