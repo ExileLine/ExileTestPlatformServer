@@ -29,12 +29,12 @@ RUN /usr/local/bin/pip3.9 install uwsgi --no-cache-dir
 # 安装Nginx
 RUN apt-get install nginx -y
 
+# 安装项目依赖包
+# --system标志，因此它会将所有软件包安装到系统 python 中，而不是安装到virtualenv. 由于docker容器不需要有virtualenvs
+# --deploy标志，因此如果您的版本Pipfile.lock已过期，您的构建将失败
+# --ignore-pipfile，所以它不会干扰我们的设置
+WORKDIR /srv/ExileTestPlatformServer
+RUN pipenv install --system --deploy --ignore-pipfile
 
-# 更新项目依赖包
-# WORKDIR /srv/ExileTestPlatformServer
-# RUN pipenv install
-
-#CMD export FLASK_ENV='production'
-#CMD pipenv shell
-#CMD pipenv run /usr/local/bin/python3.9 run.py
+CMD export FLASK_ENV='production' && /usr/local/bin/python3.9 run.py
 
