@@ -146,6 +146,8 @@ class MainTest:
 
     # TODO field 前置查询 {"before_query":"select xxx from xxx....","before_field":"username"}
     # TODO sio优化
+    # TODO yield 优化 list 消费
+    # TODO decimal.Decimal 优化统计数据
 
     def __init__(self, test_obj):
         self.base_url = test_obj.get('base_url')
