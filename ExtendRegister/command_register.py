@@ -18,6 +18,7 @@ from app.models.admin.models import Admin, Role, Permission, MidAdminAndRole, Mi
 from app.models.test_case.models import TestCase, TestCaseData
 from app.models.test_variable.models import TestVariable
 from app.models.test_case_assert.models import TestCaseAssResponse, TestCaseAssField
+from app.models.push_reminder.models import MailConfModel, DingDingConfModel
 
 """
 export FLASK_APP=ApplicationExample.py
