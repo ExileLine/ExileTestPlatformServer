@@ -14,7 +14,7 @@ class MailConfModel(BaseModel):
     __table_args__ = {'comment': '邮件推送配置表'}
 
     mail = db.Column(db.String(255), comment='邮箱')
-    mail_user = db.Column(db.String(255), comment='邮箱')
+    mail_user = db.Column(db.String(255), comment='邮箱用户')
     creator = db.Column(db.String(32), comment='创建人')
     creator_id = db.Column(BIGINT(20, unsigned=True), comment='创建人id')
     modifier = db.Column(db.String(32), comment='更新人')
