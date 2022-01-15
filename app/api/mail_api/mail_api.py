@@ -64,7 +64,7 @@ class MailApi(MethodView):
         query_mail = MailConfModel.query.get(mail_id)
 
         if not query_mail:
-            return api_result(code=400, message='邮箱id:{}数据不存在'.format(case_id))
+            return api_result(code=400, message='邮箱id:{}数据不存在'.format(mail_id))
 
         if query_mail.mail != mail:
             if MailConfModel.query.filter_by(mail=mail).all():
