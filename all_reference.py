@@ -16,7 +16,7 @@ import threading
 
 import shortuuid
 from loguru import logger
-from sqlalchemy import or_, and_
+from sqlalchemy import or_, and_, func
 from flask.views import MethodView
 from flask import abort, render_template, request, g
 

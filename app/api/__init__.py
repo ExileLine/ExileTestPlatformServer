@@ -27,6 +27,8 @@ from .case_scenario_api.case_scenario_api import CaseScenarioApi, CaseScenarioPa
 from .case_report_api.case_report_api import CaseRepostApi
 from .case_set_api.case_set_api import CaseSetApi
 from .mail_api.mail_api import MailApi, MailPageApi
+from .dingding_api.dingding_api import DingDingApi, DingDingPushPageApi
+from .platform_conf_api.platform_conf_api import PlatformConfApi
 
 api = Blueprint('api', __name__)
 crm = Blueprint('crm', __name__)
@@ -93,3 +95,8 @@ api.add_url_rule('/case_set', view_func=CaseSetApi.as_view('case_set'))
 
 api.add_url_rule('/mail_conf', view_func=MailApi.as_view('mail_conf'))
 api.add_url_rule('/mail_conf_page', view_func=MailPageApi.as_view('mail_conf_page'))
+
+api.add_url_rule('/dd_conf', view_func=DingDingApi.as_view('dd_conf'))
+api.add_url_rule('/dd_conf_page', view_func=DingDingPushPageApi.as_view('dd_conf_page'))
+
+api.add_url_rule('/platform_conf', view_func=PlatformConfApi.as_view('platform_conf'))
