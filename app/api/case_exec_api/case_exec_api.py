@@ -137,6 +137,7 @@ class CaseExecApi(MethodView):
                 return api_result(code=400, message='场景id:{}用例为空'.format(execute_id))
 
             send_test_case_list = []
+            # TODO 修改数据类型为: (case_id, priority) ->  [(2, 999),(3, 888)]
             for case_id in case_list:
                 result = query_case_zip(case_id=case_id)
                 if not result:
