@@ -1,33 +1,21 @@
-FROM debian:9
+FROM python:3.9.4
 
 MAINTAINER yyx
 
+# 更新 apt
 RUN apt-get update
-RUN echo y | apt install build-essential zlib1g-dev libncurses5-dev libgdbm-dev libnss3-dev libssl-dev libreadline-dev libffi-dev wget
+RUN apt-get -y install net-tools
 
-# Python安装
+# 更新pip
+RUN pip install --upgrade pip
+
+# 安装pipenv
+RUN pip install pipenv
+
+# 项目
 WORKDIR /srv
-RUN wget https://www.python.org/ftp/python/3.9.4/Python-3.9.4.tgz
-RUN tar -zxvf Python-3.9.4.tgz
-WORKDIR /srv/Python-3.9.4
-RUN ./configure --enable-optimizations
-RUN make
-RUN make altinstall
-RUN /usr/local/bin/pip3.9 install --upgrade pip
-RUN /usr/local/bin/pip3.9 install pipenv
-
-# 安装git,拉取项目
-RUN apt-get install git -y
-WORKDIR /srv
-RUN git clone https://gitee.com/yangyuexiong/ExileTestPlatformServer.git
-
-# 安装Uwsgi
-RUN apt-get install libpcre3
-RUN apt-get install libpcre3-dev -y
-RUN /usr/local/bin/pip3.9 install uwsgi --no-cache-dir
-
-# 安装Nginx
-RUN apt-get install nginx -y
+COPY . /srv/ExileTestPlatformServer
+RUN mkdir logs
 
 # 安装项目依赖包
 # --system标志，因此它会将所有软件包安装到系统 python 中，而不是安装到virtualenv. 由于docker容器不需要有virtualenvs
@@ -36,5 +24,10 @@ RUN apt-get install nginx -y
 WORKDIR /srv/ExileTestPlatformServer
 RUN pipenv install --system --deploy --ignore-pipfile
 
-CMD export FLASK_ENV='production' && /usr/local/bin/python3.9 run.py
+# 安装Uwsgi
+RUN apt-get install libpcre3
+RUN apt-get install libpcre3-dev -y
+RUN pip install uwsgi --no-cache-dir
 
+
+CMD export FLASK_ENV='production' && uwsgi --ini exile_uwsgi.ini

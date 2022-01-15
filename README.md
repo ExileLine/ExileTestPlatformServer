@@ -146,8 +146,19 @@
 |65|/api/case_execute_logs|POST|用例/场景最新执行日志|
 |66|/api/rule_test|POST|取值规则调试|
 |67|/api/case_report|POST|生成测试报告|
+|68|/api/mail_conf|POST|新增邮箱|
+|69|/api/mail_conf|PUT|编辑邮箱|
+|70|/api/mail_conf|DELETE|删除邮箱|
+|71|/api/mail_conf_page|POST|邮箱分页模糊查询|
+|72|/api/dd_conf|POST|新增钉钉配置|
+|73|/api/dd_conf|PUT|编辑钉钉配置|
+|74|/api/dd_conf|DELETE|删除钉钉配置|
+|75|/api/dd_conf_page|POST|钉钉配置分页模糊查询|
+|76|/api/platform_conf|GET|平台配置加载|
 
 ### 项目部署
 
 - 前端：待补充
-- 后端：https://juejin.im/post/5d08574351882563f967d5b9
+- 后端：
+  - 传统部署：https://juejin.im/post/5d08574351882563f967d5b9
+  - Docker部署：待补充
