@@ -71,7 +71,7 @@ class CaseScenarioApi(MethodView):
         """用例场景编辑"""
 
         data = request.get_json()
-        scenario_id = data.get('scenario_id')
+        scenario_id = data.get('id')
         scenario_title = data.get('scenario_title')
         case_list = data.get('case_list', [])
         is_shared = data.get('is_shared', 0)
