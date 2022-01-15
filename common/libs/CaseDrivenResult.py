@@ -148,6 +148,7 @@ class MainTest:
     # TODO sio优化
     # TODO yield 优化 list 消费
     # TODO decimal.Decimal 优化统计数据
+    # TODO 消息推送(邮件, 钉钉, 微信)
 
     def __init__(self, test_obj):
         self.base_url = test_obj.get('base_url')
