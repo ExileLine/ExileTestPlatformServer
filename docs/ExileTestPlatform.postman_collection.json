@@ -6,6 +6,95 @@
 	},
 	"item": [
 		{
+			"name": "首页",
+			"item": [
+				{
+					"name": "index",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "token",
+								"value": "yyx",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/index",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"index"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "index2",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "token",
+								"value": "yyx",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"Date\": \"2021-10-03\", \n    \"DateTime\": \"2021-10-03 14:41:21.050626\", \n    \"Time\": \"14:41:21.050622\", \n    \"TimeStamp\": \"1633243281\", \n    \"UUID\": \"e52rhokp9w1633243281RU6itVwQiC\", \n    \"token\": \"yangyuexiongyyx\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/api/index",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"index"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "index4",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"Date\": \"2021-10-03\", \n    \"DateTime\": \"2021-10-03 14:41:21.050626\", \n    \"Time\": \"14:41:21.050622\", \n    \"TimeStamp\": \"1633243281\", \n    \"UUID\": \"e52rhokp9w1633243281RU6itVwQiC\", \n    \"token\": \"yangyuexiongyyx\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/api/index",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"index"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
 			"name": "用户",
 			"item": [
 				{
@@ -166,7 +255,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"username\": \"yyx2\",\n    \"password\": \"123456\"\n}",
+							"raw": "{\n    \"username\": \"yyx\",\n    \"password\": \"123456\"\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -359,13 +448,13 @@
 						"header": [
 							{
 								"key": "token",
-								"value": "yangyuexiong",
+								"value": "yyx",
 								"type": "text"
 							}
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"case_name\": \"杨跃雄测试\",\n    \"request_method\": \"POST\",\n    \"request_base_url\": \"http://127.0.0.1:7272\",\n    \"request_url\": \"/api/index\",\n    \"is_shared\": 0,\n    \"is_public\": false,\n    \"remark\": \"remark\"\n}",
+							"raw": "{\n    \"case_name\": \"杨跃雄测试123456\",\n    \"request_method\": \"POST\",\n    \"request_base_url\": \" \",\n    \"request_url\": \"/api/index\",\n    \"is_shared\": 0,\n    \"is_public\": false,\n    \"remark\": \"remark\"\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -389,7 +478,13 @@
 					"name": "编辑用例",
 					"request": {
 						"method": "PUT",
-						"header": [],
+						"header": [
+							{
+								"key": "token",
+								"value": "yyx",
+								"type": "text"
+							}
+						],
 						"body": {
 							"mode": "raw",
 							"raw": "{\n    \"id\": 20,\n    \"case_name\": \"测试用例B1------=====\",\n    \"request_method\": \"Get\",\n    \"request_base_url\": \"http://127.0.0.1:7272\",\n    \"request_url\": \"/api\",\n    \"request_params\": \"request_params\",\n    \"request_headers\": \"request_headers\",\n    \"request_body\": \"request_body\",\n    \"var_list\": [],\n    \"is_shared\": 0,\n    \"is_public\": true,\n    \"remark\": \"remark\"\n}",
@@ -505,10 +600,16 @@
 					},
 					"request": {
 						"method": "GET",
-						"header": [],
+						"header": [
+							{
+								"key": "token",
+								"value": "yyx",
+								"type": "default"
+							}
+						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"scenario_id\": 1\n}",
+							"raw": "",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -533,7 +634,13 @@
 					"name": "新增场景",
 					"request": {
 						"method": "POST",
-						"header": [],
+						"header": [
+							{
+								"key": "token",
+								"value": "yyx",
+								"type": "default"
+							}
+						],
 						"body": {
 							"mode": "raw",
 							"raw": "{\n    \"scenario_title\": \"场景A1\",\n    \"case_list\": [\n        1,\n        2\n    ],\n    \"is_shared\": 0,\n    \"is_public\": true\n}",
@@ -563,7 +670,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"scenario_id\": 1,\n    \"scenario_title\": \"场景A1\",\n    \"case_list\": [\n        1,\n        2,\n        3\n    ],\n    \"is_shared\": 0,\n    \"is_public\": true\n}",
+							"raw": "{\n    \"id\": 1,\n    \"scenario_title\": \"场景A1\",\n    \"case_list\": [\n        1,\n        2,\n        3\n    ],\n    \"is_shared\": 0,\n    \"is_public\": true\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -1555,7 +1662,13 @@
 					"name": "用例场景分页模糊查询",
 					"request": {
 						"method": "POST",
-						"header": [],
+						"header": [
+							{
+								"key": "token",
+								"value": "yyx",
+								"type": "default"
+							}
+						],
 						"body": {
 							"mode": "raw",
 							"raw": "{\n    \"scenario_id\": \"\",\n    \"scenario_title\": \"A\",\n    \"name\": \"\",\n    \"page\": 1,\n    \"size\": 20,\n    \"is_deleted\": false\n}",
@@ -1654,6 +1767,72 @@
 							"path": [
 								"api",
 								"user_page"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "邮箱分页模糊查询",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "token",
+								"value": "yyx",
+								"type": "default"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"mail_id\": \"\",\n    \"mail\": \"\",\n    \"mail_user\": \"\",\n    \"page\": 1,\n    \"size\": 20\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/api/mail_conf_page",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"mail_conf_page"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "钉钉配置分页模糊查询",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "token",
+								"value": "yyx",
+								"type": "default"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"dd_conf_id\": \"\",\n    \"title\": \"\",\n    \"ding_talk_url\": \"\",\n    \"page\": 1,\n    \"size\": 20\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/api/dd_conf_page",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"dd_conf_page"
 							]
 						}
 					},
@@ -1794,7 +1973,13 @@
 					"name": "用例/场景最新执行日志",
 					"request": {
 						"method": "POST",
-						"header": [],
+						"header": [
+							{
+								"key": "token",
+								"value": "yyx",
+								"type": "text"
+							}
+						],
 						"body": {
 							"mode": "raw",
 							"raw": "{\n    \"execute_id\": \"44\", \n    \"execute_type\": \"case\"\n}",
@@ -1885,92 +2070,263 @@
 			]
 		},
 		{
-			"name": "首页",
-			"item": []
-		},
-		{
-			"name": "index",
-			"request": {
-				"method": "GET",
-				"header": [
-					{
-						"key": "token",
-						"value": "yyx",
-						"type": "text"
-					}
-				],
-				"url": {
-					"raw": "{{base_url}}/api/index",
-					"host": [
-						"{{base_url}}"
-					],
-					"path": [
-						"api",
-						"index"
-					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "index2",
-			"request": {
-				"method": "POST",
-				"header": [
-					{
-						"key": "token",
-						"value": "yyx",
-						"type": "text"
-					}
-				],
-				"body": {
-					"mode": "raw",
-					"raw": "{\n    \"Date\": \"2021-10-03\", \n    \"DateTime\": \"2021-10-03 14:41:21.050626\", \n    \"Time\": \"14:41:21.050622\", \n    \"TimeStamp\": \"1633243281\", \n    \"UUID\": \"e52rhokp9w1633243281RU6itVwQiC\", \n    \"token\": \"yangyuexiongyyx\"\n}",
-					"options": {
-						"raw": {
-							"language": "json"
+			"name": "消息推送相关",
+			"item": [
+				{
+					"name": "新增邮箱",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "token",
+								"value": "yyx",
+								"type": "default"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"mail_list\": [\n        {\n            \"mail\": \"y1@123.com\",\n            \"mail_user\": \"yyx\"\n        },\n        {\n            \"mail\": \"y2@123.com\",\n            \"mail_user\": \"yyx\"\n        },\n        {\n            \"mail\": \"y3@123.com\",\n            \"mail_user\": \"yyx\"\n        }\n    ]\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/api/mail_conf",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"mail_conf"
+							]
 						}
-					}
+					},
+					"response": []
 				},
-				"url": {
-					"raw": "{{base_url}}/api/index",
-					"host": [
-						"{{base_url}}"
-					],
-					"path": [
-						"api",
-						"index"
-					]
+				{
+					"name": "编辑邮箱",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "token",
+								"value": "yyx",
+								"type": "default"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"mail_id\": 2,\n    \"mail\": \"abc@123\",\n    \"mail_user\": \"new user\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/api/mail_conf",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"mail_conf"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "删除邮箱",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "token",
+								"value": "yyx",
+								"type": "default"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"mail_id\": 2\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/api/mail_conf",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"mail_conf"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "新增钉钉配置",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "token",
+								"value": "yyx",
+								"type": "default"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"title\": \"推送群\",\n    \"ding_talk_url\": \"aaaaa\",\n    \"at_mobiles\": [\n        \"13511111111\",\n        \"15022222222\"\n    ],\n    \"at_user_ids\": [\n        \"K2425\"\n    ],\n    \"at_user_ids\": false\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/api/dd_conf",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"dd_conf"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "编辑钉钉配置",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "token",
+								"value": "yyx",
+								"type": "default"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"dd_conf_id\": 1,\n    \"title\": \"推送群123456789\",\n    \"ding_talk_url\": \"aaaaaqaz\",\n    \"at_mobiles\": [\n        \"13511111111\",\n        \"15022222222\"\n    ],\n    \"at_user_ids\": [\n        \"K2425\"\n    ],\n    \"at_user_ids\": false\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/api/dd_conf",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"dd_conf"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "删除钉钉配置",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "token",
+								"value": "yyx",
+								"type": "default"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"dd_conf_id\": 3\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/api/dd_conf",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"dd_conf"
+							]
+						}
+					},
+					"response": []
 				}
-			},
-			"response": []
+			]
 		},
 		{
-			"name": "index4",
-			"request": {
-				"method": "DELETE",
-				"header": [],
-				"body": {
-					"mode": "raw",
-					"raw": "{\n    \"Date\": \"2021-10-03\", \n    \"DateTime\": \"2021-10-03 14:41:21.050626\", \n    \"Time\": \"14:41:21.050622\", \n    \"TimeStamp\": \"1633243281\", \n    \"UUID\": \"e52rhokp9w1633243281RU6itVwQiC\", \n    \"token\": \"yangyuexiongyyx\"\n}",
-					"options": {
-						"raw": {
-							"language": "json"
+			"name": "平台配置",
+			"item": [
+				{
+					"name": "获取平台配置",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/platform_conf",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"platform_conf"
+							]
 						}
-					}
+					},
+					"response": []
 				},
-				"url": {
-					"raw": "{{base_url}}/api/index",
-					"host": [
-						"{{base_url}}"
-					],
-					"path": [
-						"api",
-						"index"
-					]
+				{
+					"name": "新增平台配置",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "token",
+								"value": "yyx",
+								"type": "default"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"platform_icon\": \"\",\n    \"platform_name\": \"放逐测试平台-dev\",\n    \"platform_login_msg\": \"Sign in to Exile Test Platform\",\n    \"weights\": 999,\n    \"remark\": \"remark\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/api/platform_conf",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"platform_conf"
+							]
+						}
+					},
+					"response": []
 				}
-			},
-			"response": []
+			]
 		}
 	]
 }

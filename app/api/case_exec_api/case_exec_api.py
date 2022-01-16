@@ -138,6 +138,8 @@ class CaseExecApi(MethodView):
 
             send_test_case_list = []
             # TODO 修改数据类型为: (case_id, priority) ->  [(2, 999),(3, 888)]
+            # TODO sorted(case_list, key=lambda x: x[1], reverse=True)
+
             for case_id in case_list:
                 result = query_case_zip(case_id=case_id)
                 if not result:
