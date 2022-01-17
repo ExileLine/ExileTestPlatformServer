@@ -1,6 +1,6 @@
 FROM python:3.9.4
 
-MAINTAINER yyx
+MAINTAINER YangYueXiong
 
 # 更新 apt
 RUN apt-get update
@@ -29,5 +29,5 @@ RUN apt-get install libpcre3
 RUN apt-get install libpcre3-dev -y
 RUN pip install uwsgi --no-cache-dir
 
-
-CMD export FLASK_ENV='production' && uwsgi --ini exile_uwsgi.ini
+# 启动
+CMD export FLASK_ENV='production' && uwsgi --ini exile_uwsgi_for_docker.ini
