@@ -160,5 +160,5 @@
 
 - 前端：待补充
 - 后端：
-  - 传统部署：https://juejin.im/post/5d08574351882563f967d5b9
-  - Docker部署：待补充
+  - 本机部署：https://juejin.cn/post/6844903870250876935
+  - Docker部署：https://juejin.cn/post/7054460759526342687
