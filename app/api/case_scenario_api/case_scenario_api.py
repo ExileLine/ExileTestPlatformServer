@@ -30,10 +30,12 @@ class CaseScenarioApi(MethodView):
 
         result = query_scenario.to_json()
         case_id_list = result.get('case_list')
+        gen_case_id_list = sorted(case_id_list, key=lambda x: x.get("index"), reverse=True)
         case_obj_list = []
         if case_id_list:
-            for case in case_id_list:
-                query_case = TestCase.query.get(case)
+            for case in gen_case_id_list:
+                case_id = case.get('case_id')
+                query_case = TestCase.query.get(case_id)
                 if query_case:
                     case_obj_list.append(query_case.to_json())
             result['case_list'] = case_obj_list
