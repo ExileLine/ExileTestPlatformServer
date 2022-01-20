@@ -136,17 +136,21 @@ class CaseExecApi(MethodView):
             if not case_list:  # 防止手动修改数据导致,在场景创建的接口中有对应的校验
                 return api_result(code=400, message='场景id:{}用例为空'.format(execute_id))
 
+            gen_case_list = sorted(case_list, key=lambda x: x.get("index"), reverse=True)
+            update_case_id = []
             send_test_case_list = []
-            # TODO 修改数据类型为: (case_id, priority) ->  [(2, 999),(3, 888)]
-            # TODO sorted(case_list, key=lambda x: x[1], reverse=True)
 
-            for case_id in case_list:
+            for case in gen_case_list:
+                case_id = case.get('case_id')
                 result = query_case_zip(case_id=case_id)
                 if not result:
                     return api_result(code=400, message='场景中,用例id:{}不存在'.format(case_id))
+
+                update_case_id.append(case_id)
                 send_test_case_list.append(result)
 
-            update_case = TestCase.query.filter(TestCase.id.in_(case_list)).all()
+            update_case = TestCase.query.filter(TestCase.id.in_(update_case_id)).all()
+
             for u in update_case:
                 u.add_total_execution()
 
@@ -174,4 +178,5 @@ class CaseExecApi(MethodView):
             creator_id=g.app_user.id
         )
         tl.save()
-        return api_result(code=200, message='操作成功,请前往日志查看执行结果', data=[])
+
+        return api_result(code=200, message='操作成功,请前往日志查看执行结果')
