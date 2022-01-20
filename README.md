@@ -20,6 +20,7 @@
 ### 项目演示
 
 - 项目演示地址：http://120.24.214.173/login
+- 操作文档：`待补充`
 - 前端项目地址-GitHub：https://github.com/yangyuexiong/ExileTestPlatformWeb
 - 前端项目地址-码云：https://gitee.com/yangyuexiong/ExileTestPlatformWeb
 
@@ -160,5 +161,10 @@
 
 - 前端：待补充
 - 后端：
-  - 本机部署：https://juejin.cn/post/6844903870250876935
-  - Docker部署：https://juejin.cn/post/7054460759526342687
+  - 方法1：本机部署：https://juejin.cn/post/6844903870250876935
+  - 方法2：Docker部署：https://juejin.cn/post/7054460759526342687
+  - 方法3：执行该项目下的 `server_start.sh` (推荐)
+  
+### 备注
+
+- 文档可能存在不清晰的地方，有问题可以添加 `QQ or Wechat：417993207` 
