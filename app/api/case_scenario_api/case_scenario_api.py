@@ -35,9 +35,12 @@ class CaseScenarioApi(MethodView):
         if case_id_list:
             for case in gen_case_id_list:
                 case_id = case.get('case_id')
+                index = case.get('index')
                 query_case = TestCase.query.get(case_id)
                 if query_case:
-                    case_obj_list.append(query_case.to_json())
+                    case_obj = query_case.to_json()
+                    case_obj['index'] = index
+                    case_obj_list.append(case_obj)
             result['case_list'] = case_obj_list
         return api_result(code=200, message='操作成功', data=result)
 
