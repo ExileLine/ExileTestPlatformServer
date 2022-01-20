@@ -30,12 +30,17 @@ class CaseScenarioApi(MethodView):
 
         result = query_scenario.to_json()
         case_id_list = result.get('case_list')
-        gen_case_id_list = sorted(case_id_list, key=lambda x: x.get("index"), reverse=True)
+
+        if not case_id_list:
+            return api_result(code=400, message='异常的数据')
+
+        gen_case_id_list = sorted(case_id_list, key=lambda x: x.get("index", x.get('case_id')), reverse=True)
         case_obj_list = []
+
         if case_id_list:
             for case in gen_case_id_list:
                 case_id = case.get('case_id')
-                index = case.get('index')
+                index = case.get('index', case_id)
                 query_case = TestCase.query.get(case_id)
                 if query_case:
                     case_obj = query_case.to_json()
