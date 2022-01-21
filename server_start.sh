@@ -1,7 +1,5 @@
 #!/bin/bash
 
-cd /srv/ExileTestPlatformServer
-
 ExilePlatformUUID=`docker ps | grep exile_platform | awk '{print $1}'`;
 
 if [ $ExilePlatformUUID ]; then
