@@ -7,6 +7,9 @@ ExilePlatformUUID=`docker ps | grep exile_platform | awk '{print $1}'`;
 if [ $ExilePlatformUUID ]; then
   docker stop $ExilePlatformUUID;
   echo "stop success";
+  docker rm $ExilePlatformUUID;
+  echo "rm success";
+
 fi
 
 echo y | docker system prune
