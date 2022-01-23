@@ -110,11 +110,12 @@ class CaseReqDataApi(MethodView):
 
         data = request.get_json()
         data_list = data.get('data_list', [])
+        new_data_list = []
 
         if not isinstance(data_list, list) or not data_list:
             return ab_code(400)
 
-        for d in data_list:
+        for index, d in enumerate(data_list):
             is_public = d.get('is_public', True)
             is_public = bool(is_public) if isinstance(is_public, bool) or isinstance(is_public, int) else True
             check_result = check_variable(d)
@@ -130,22 +131,30 @@ class CaseReqDataApi(MethodView):
             if not _update_var_list_bool:
                 return api_result(code=400, message=_update_var_list_msg)
 
-            new_case_data = TestCaseData(
+            request_params = d.get('request_params', {}) or {}
+            request_headers = d.get('request_headers', {}) or {}
+            request_body = d.get('request_body', {}) or {}
+
+            new_data = TestCaseData(
                 data_name=d.get('data_name'),
-                request_params=d.get('request_params', {}),
-                request_headers=d.get('request_headers', {}),
-                request_body=d.get('request_body', {}),
+                request_params=request_params,
+                request_headers=request_headers,
+                request_body=request_body,
                 request_body_type=d.get('request_body_type'),
                 update_var_list=update_var_list,
                 is_public=is_public,
                 creator=g.app_user.username,
                 creator_id=g.app_user.id
             )
-            db.session.add(new_case_data)
-
+            db.session.add(new_data)
+            new_data_list.append(new_data)
         db.session.commit()
-
-        return api_result(code=201, message='创建成功')
+        # TODO 需要优化
+        result = []
+        for n in new_data_list:
+            n.to_json()['id'] = n.id
+            result.append(n.to_json())
+        return api_result(code=201, message='创建成功', data=result)
 
     def put(self):
         """用例req数据编辑"""
