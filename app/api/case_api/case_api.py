@@ -229,7 +229,7 @@ class CaseCopyApi(MethodView):
         new_test_case.save()
         new_test_case_id = new_test_case.id
 
-        query_bind = TestCaseDataAssBind.query.filter_by(case_id=case_id).all()
+        query_bind = TestCaseDataAssBind.query.filter_by(case_id=case_id, is_deleted=0).all()
 
         if query_bind:
             for index, d in enumerate(query_bind, 1):
