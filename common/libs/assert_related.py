@@ -277,6 +277,7 @@ class AssertFieldMain(AssertMain):
         查询结果为一个[],检验:=,>,>=,<,<=,in,not in
         ps:如果该方法报错,是参数在入库的时候接口没有做好检验或者手动修改了数据库的数据
         """
+        # TODO ass_list_result
         return
 
     def main(self):
