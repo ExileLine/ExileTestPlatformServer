@@ -201,33 +201,34 @@ class MainTest:
 
         result_list = re.findall('\\$\\{([^}]*)', before_var)
 
-        if result_list:
-            err_var_list = []
-            current_dict = {}
-            for res in result_list:
-                sql = """select var_value from exile_test_variable where var_name='{}';""".format(res)
-                query_result = project_db.select(sql=sql, only=True)
-                if query_result:
-                    current_dict[res] = json.loads(query_result.get('var_value'))
-                elif var_func_dict.get(res):
-                    current_dict[res] = var_func_dict.get(res)
-                else:
-                    err_var_list.append(res)
-            if current_dict:
-                current_str = before_var
-                for k, v in current_dict.items():
-                    old_var = "${%s}" % (k)
-                    new_var = v
-                    current_str = current_str.replace(old_var, new_var)
-                if isinstance(before_var_init, (list, dict)):
-                    current_str = json.loads(current_str)
-                # print(current_str)
-                return current_str
-            else:
-                self.sio.log('===未找到变量:{}对应的参数==='.format(err_var_list))
-                return before_var_init
-        else:
+        if not result_list:
             return before_var_init
+
+        err_var_list = []
+        current_dict = {}
+        for res in result_list:
+            sql = """select var_value from exile_test_variable where var_name='{}';""".format(res)
+            query_result = project_db.select(sql=sql, only=True)
+            if query_result:
+                current_dict[res] = json.loads(query_result.get('var_value'))
+            elif var_func_dict.get(res):
+                current_dict[res] = var_func_dict.get(res)
+            else:
+                err_var_list.append(res)
+
+        if not current_dict:
+            self.sio.log('===未找到变量:{}对应的参数==='.format(err_var_list))
+            return before_var_init
+
+        current_str = before_var
+        for k, v in current_dict.items():
+            old_var = "${%s}" % (k)
+            new_var = v
+            current_str = current_str.replace(old_var, new_var)
+        if isinstance(before_var_init, (list, dict)):
+            current_str = json.loads(current_str)
+        # print(current_str)
+        return current_str
 
     def check_resp_ass_keys(self, assert_list):
         """
@@ -404,19 +405,19 @@ class MainTest:
         检查 resp 断言规则并执行断言
         :return:
         """
-        if case_resp_ass_info:
-            for resp_ass in case_resp_ass_info:  # 遍历断言规则逐一校验
-                resp_ass_list = resp_ass.get('ass_json')
-                assert_description = resp_ass.get('assert_description')
-                # print(resp_ass_list)
-                if self.check_resp_ass_keys(assert_list=resp_ass_list):  # 响应检验
-                    self.execute_resp_ass(resp_ass_list=resp_ass_list, assert_description=assert_description)
-                else:
-                    self.sio.log('=== check_ass_keys error ===', status='error')
-                    # return False
-        else:
+        if not case_resp_ass_info:
             self.sio.log('=== case_resp_ass_info is [] ===')
             return False
+
+        for resp_ass in case_resp_ass_info:  # 遍历断言规则逐一校验
+            resp_ass_list = resp_ass.get('ass_json')
+            assert_description = resp_ass.get('assert_description')
+            # print(resp_ass_list)
+            if self.check_resp_ass_keys(assert_list=resp_ass_list):  # 响应检验
+                self.execute_resp_ass(resp_ass_list=resp_ass_list, assert_description=assert_description)
+            else:
+                self.sio.log('=== check_ass_keys error ===', status='error')
+                # return False
 
     def field_check_ass_execute(self, case_field_ass_info):
         """
@@ -450,48 +451,48 @@ class MainTest:
             "resp_headers": self.resp_headers
         }
 
-        if self.update_var_list:
-            for up in self.update_var_list:
-                """
-                {
-                    "id": 3,
-                    "var_value":"123",
-                    "var_source": "resp_data",
-                    "expression": "obj.get('code')",
-                    "is_expression":0,
-                    "var_get_key": "code"
-                }
-                """
-                id = up.get('id')
-                var_value = up.get('var_value')
-                var_source = up.get('var_source')
-                var_get_key = up.get('var_get_key')
-                expression = up.get('expression')
-                is_expression = up.get('is_expression', 0)
-                data = var_source_dict.get(var_source)
-
-                if bool(is_expression):
-                    # 表达式取值
-                    result_json = execute_code(code=expression, data=data)
-                    update_val_result = result_json.get('result_data')
-                else:
-                    # 直接取值
-                    update_val_result = data.get(var_get_key)
-
-                old_var = json.dumps(var_value, ensure_ascii=False)
-                new_var = json.dumps(update_val_result, ensure_ascii=False)
-
-                sql = """UPDATE exile_test_variable SET var_value='{}' WHERE id='{}';""".format(new_var, id)
-                self.sio.log('=== update sql === 【 {} 】'.format(sql), status='success')
-                project_db.update_data(sql)
-
-                sql2 = """INSERT INTO exile_test_variable_history ( `create_timestamp`, `is_deleted`, `var_id`, `update_type`, `creator`, `creator_id`, `before_var`, `after_var`) VALUES ('{}',  '0',  '{}', '执行用例更新', '{}', '{}', '{}', '{}');""".format(
-                    int(self.start_time), id, self.execute_username, self.execute_user_id, old_var, new_var
-                )
-                self.sio.log('=== update history sql === 【 {} 】'.format(sql2), status='success')
-                project_db.create_data(sql2)
-        else:
+        if not self.update_var_list:
             self.sio.log('=== 更新变量列表为空不需要更新变量===')
+
+        for up in self.update_var_list:
+            """
+            {
+                "id": 3,
+                "var_value":"123",
+                "var_source": "resp_data",
+                "expression": "obj.get('code')",
+                "is_expression":0,
+                "var_get_key": "code"
+            }
+            """
+            id = up.get('id')
+            var_value = up.get('var_value')
+            var_source = up.get('var_source')
+            var_get_key = up.get('var_get_key')
+            expression = up.get('expression')
+            is_expression = up.get('is_expression', 0)
+            data = var_source_dict.get(var_source)
+
+            if bool(is_expression):
+                # 表达式取值
+                result_json = execute_code(code=expression, data=data)
+                update_val_result = result_json.get('result_data')
+            else:
+                # 直接取值
+                update_val_result = data.get(var_get_key)
+
+            old_var = json.dumps(var_value, ensure_ascii=False)
+            new_var = json.dumps(update_val_result, ensure_ascii=False)
+
+            sql = """UPDATE exile_test_variable SET var_value='{}' WHERE id='{}';""".format(new_var, id)
+            self.sio.log('=== update sql === 【 {} 】'.format(sql), status='success')
+            project_db.update_data(sql)
+
+            sql2 = """INSERT INTO exile_test_variable_history ( `create_timestamp`, `is_deleted`, `var_id`, `update_type`, `creator`, `creator_id`, `before_var`, `after_var`) VALUES ('{}',  '0',  '{}', '执行用例更新', '{}', '{}', '{}', '{}');""".format(
+                int(self.start_time), id, self.execute_username, self.execute_user_id, old_var, new_var
+            )
+            self.sio.log('=== update history sql === 【 {} 】'.format(sql2), status='success')
+            project_db.create_data(sql2)
 
     def save_logs(self, log_id):
         """
@@ -533,32 +534,32 @@ class MainTest:
             self.resp_json = {}
             self.resp_headers = {}
 
-            if bind_info:
-                for index, bind in enumerate(bind_info, 1):
-
-                    self.sio.log("=== 数据驱动:{} ===".format(index))
-                    case_data_info = bind.get('case_data_info', {})
-                    case_resp_ass_info = bind.get('case_resp_ass_info', [])
-                    case_field_ass_info = bind.get('case_field_ass_info', [])
-
-                    try:
-                        self.test_result.req_success += 1
-                        self.assemble_data_send(case_data_info=case_data_info)
-                    except BaseException as e:
-                        self.sio.log("=== 请求失败:{} ===".format(str(e)), status="error")
-                        self.test_result.req_error += 1
-                        self.sio.log("=== 跳过断言 ===")
-                        continue
-
-                    self.resp_check_ass_execute(case_resp_ass_info=case_resp_ass_info)
-
-                    self.field_check_ass_execute(case_field_ass_info=case_field_ass_info)
-
-                    if not self.data_driven:
-                        self.sio.log("=== data_driven is false 只执行基础参数与断言 ===")
-                        break
-            else:
+            if not bind_info:
                 self.sio.log('=== 未配置请求参数 ===')
+
+            for index, bind in enumerate(bind_info, 1):
+
+                self.sio.log("=== 数据驱动:{} ===".format(index))
+                case_data_info = bind.get('case_data_info', {})
+                case_resp_ass_info = bind.get('case_resp_ass_info', [])
+                case_field_ass_info = bind.get('case_field_ass_info', [])
+
+                try:
+                    self.test_result.req_success += 1
+                    self.assemble_data_send(case_data_info=case_data_info)
+                except BaseException as e:
+                    self.sio.log("=== 请求失败:{} ===".format(str(e)), status="error")
+                    self.test_result.req_error += 1
+                    self.sio.log("=== 跳过断言 ===")
+                    continue
+
+                self.resp_check_ass_execute(case_resp_ass_info=case_resp_ass_info)
+
+                self.field_check_ass_execute(case_field_ass_info=case_field_ass_info)
+
+                if not self.data_driven:
+                    self.sio.log("=== data_driven is false 只执行基础参数与断言 ===")
+                    break
 
             self.sio.log('=== end case: {} ===\n\n'.format(case_index))
 
