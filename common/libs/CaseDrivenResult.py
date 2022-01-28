@@ -392,7 +392,11 @@ class MainTest:
             before_send.update(req_json_data)
 
         send = self.var_conversion(before_send)
-        self.sio.log('=== send: {} ==='.format(send))
+        self.sio.log('=== send ===')
+        self.sio.log('=== url ===')
+        self.sio.log(send.get('url'))
+        self.json_format(send.get('headers'), msg='=== headers ===')
+        self.json_format(send.get('json', send.get('data', send.get('params'))), msg='=== request ===')
 
         resp = self.current_request(method=method, **send)
         self.resp_json = resp.json()
@@ -566,7 +570,7 @@ class MainTest:
             add_case = {
                 "case_id": self.case_id,
                 "case_name": self.case_name,
-                "case_log": self.sio.get_stringio(),
+                "case_log": self.sio.get_stringio().split('\n'),
             }
             self.case_result_list.append(add_case)
 
