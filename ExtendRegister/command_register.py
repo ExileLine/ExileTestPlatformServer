@@ -20,6 +20,7 @@ from app.models.test_variable.models import TestVariable
 from app.models.test_case_assert.models import TestCaseAssResponse, TestCaseAssField
 from app.models.push_reminder.models import MailConfModel, DingDingConfModel
 from app.models.platform_conf.models import PlatformConfModel
+from app.models.ui_auto_file.models import UiAutoFile
 
 """
 export FLASK_APP=ApplicationExample.py
