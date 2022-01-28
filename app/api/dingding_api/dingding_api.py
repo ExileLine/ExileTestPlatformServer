@@ -31,7 +31,7 @@ class DingDingApi(MethodView):
         ding_talk_url = data.get('ding_talk_url')
         at_mobiles = data.get('at_mobiles', [])
         at_user_ids = data.get('at_user_ids', [])
-        is_at_all = data.get('at_user_ids', False)
+        is_at_all = data.get('is_at_all', False)
 
         if not ding_talk_url:
             return api_result(code=400, message='ding_talk_url 不能为空')
@@ -63,7 +63,7 @@ class DingDingApi(MethodView):
         ding_talk_url = data.get('ding_talk_url')
         at_mobiles = data.get('at_mobiles', [])
         at_user_ids = data.get('at_user_ids', [])
-        is_at_all = data.get('at_user_ids', False)
+        is_at_all = data.get('is_at_all', False)
 
         query_dd = DingDingConfModel.query.get(dd_conf_id)
 
