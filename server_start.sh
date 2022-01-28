@@ -7,7 +7,6 @@ if [ $ExilePlatformUUID ]; then
   echo "stop success";
   docker rm $ExilePlatformUUID;
   echo "rm success";
-
 fi
 
 echo y | docker system prune

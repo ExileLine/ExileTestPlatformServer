@@ -9,7 +9,7 @@
 from all_reference import *
 from app.models.test_case_config.models import TestDatabases
 
-db_list = ["mysql", "redis"]
+db_list = ["mysql", "redis"]  # TODO 用数据库表管理
 
 
 class CaseDBApi(MethodView):
