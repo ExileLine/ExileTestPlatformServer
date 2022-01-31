@@ -571,6 +571,7 @@ class MainTest:
                 "case_id": self.case_id,
                 "case_name": self.case_name,
                 "case_log": self.sio.get_stringio().split('\n'),
+                "error": False  # TODO 每一条日志校验是否有错误,有则设置为False
             }
             self.case_result_list.append(add_case)
 
