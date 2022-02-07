@@ -187,11 +187,11 @@ class MainTest:
 
     def show_log(self, url, headers, req_json, resp_headers, resp_json):
         """测试用例日志打印"""
-        self.sio.log('test url\n{}'.format(url))
-        self.json_format(headers, msg='=== test headers ===')
-        self.json_format(req_json, msg='=== test req_json ===')
-        self.json_format(resp_headers, msg='=== test resp_headers ===')
-        self.json_format(resp_json, msg='=== test resp_json ===')
+        self.sio.log(f'=== url ===\n{url}')
+        self.json_format(headers, msg='=== headers ===')
+        self.json_format(req_json, msg='=== request json ===')
+        self.json_format(resp_headers, msg='=== response headers ===')
+        self.json_format(resp_json, msg='=== response json ===')
 
     def var_conversion(self, before_var):
         """变量转换参数"""
@@ -394,16 +394,9 @@ class MainTest:
 
         send = self.var_conversion(before_send)
         self.sio.log('=== send ===')
-        self.sio.log('=== url ===')
-        self.sio.log(send.get('url'))
-        self.json_format(send.get('headers'), msg='=== headers ===')
-        self.json_format(send.get('json', send.get('data', send.get('params'))), msg='=== request ===')
-
         resp = self.current_request(method=method, **send)
         self.resp_json = resp.json()
         self.resp_headers = resp.headers
-        self.json_format(self.resp_json, '用例:{} -> resp_json'.format(self.case_name))
-        self.json_format(self.resp_headers, '用例:{} -> resp_headers'.format(self.case_name))
 
     def resp_check_ass_execute(self, case_resp_ass_info):
         """
@@ -602,6 +595,9 @@ class MainTest:
         logger.success('=== save redis ok ===')
 
         self.save_logs(log_id=save_key)
+
+    def main2(self):
+        """2"""
 
     def __str__(self):
         return '\n'.join(["{}:{}".format(k, v) for k, v in self.__dict__.items()])
