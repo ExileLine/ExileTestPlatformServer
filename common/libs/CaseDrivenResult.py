@@ -60,26 +60,27 @@ class TestResult:
         :return:
         """
         self.req_count = self.req_success + self.req_error
-        self.req_success_rate = "{}%".format(round(self.req_success / self.req_count, 2) * 100)
-        self.req_error_rate = "{}%".format(round(self.req_error / self.req_count, 2) * 100)
-        self.resp_ass_count = self.resp_ass_success + self.resp_ass_fail
+        if self.req_count != 0:
+            self.req_success_rate = "{}%".format(round(self.req_success / self.req_count, 2) * 100)
+            self.req_error_rate = "{}%".format(round(self.req_error / self.req_count, 2) * 100)
+            self.resp_ass_count = self.resp_ass_success + self.resp_ass_fail
 
-        self.resp_ass_success_rate = 0 if self.resp_ass_success == 0 else "{}%".format(
-            round(self.resp_ass_success / self.resp_ass_count, 2) * 100)
+            self.resp_ass_success_rate = 0 if self.resp_ass_success == 0 else "{}%".format(
+                round(self.resp_ass_success / self.resp_ass_count, 2) * 100)
 
-        self.resp_ass_fail_rate = 0 if self.resp_ass_fail == 0 else "{}%".format(
-            round(self.resp_ass_fail / self.resp_ass_count, 2) * 100)
+            self.resp_ass_fail_rate = 0 if self.resp_ass_fail == 0 else "{}%".format(
+                round(self.resp_ass_fail / self.resp_ass_count, 2) * 100)
 
-        self.field_ass_count = self.field_ass_success + self.field_ass_fail + self.field_ass_error
+            self.field_ass_count = self.field_ass_success + self.field_ass_fail + self.field_ass_error
 
-        self.field_ass_success_rate = 0 if self.field_ass_success == 0 else "{}%".format(
-            round(self.field_ass_success / self.field_ass_count, 2) * 100)
+            self.field_ass_success_rate = 0 if self.field_ass_success == 0 else "{}%".format(
+                round(self.field_ass_success / self.field_ass_count, 2) * 100)
 
-        self.field_ass_fail_rate = 0 if self.field_ass_fail == 0 else "{}%".format(
-            round(self.field_ass_fail / self.field_ass_count, 2) * 100)
+            self.field_ass_fail_rate = 0 if self.field_ass_fail == 0 else "{}%".format(
+                round(self.field_ass_fail / self.field_ass_count, 2) * 100)
 
-        self.field_ass_error_rate = 0 if self.field_ass_error == 0 else "{}%".format(
-            round(self.field_ass_error / self.field_ass_count, 2) * 100)
+            self.field_ass_error_rate = 0 if self.field_ass_error == 0 else "{}%".format(
+                round(self.field_ass_error / self.field_ass_count, 2) * 100)
 
         d = {
             "req_count": self.req_count,
@@ -187,10 +188,10 @@ class MainTest:
     def show_log(self, url, headers, req_json, resp_headers, resp_json):
         """测试用例日志打印"""
         self.sio.log('test url\n{}'.format(url))
-        self.json_format(headers, msg='test headers')
-        self.json_format(req_json, msg='test req_json')
-        self.json_format(resp_headers, msg='test resp_headers')
-        self.json_format(resp_json, msg='test resp_json')
+        self.json_format(headers, msg='=== test headers ===')
+        self.json_format(req_json, msg='=== test req_json ===')
+        self.json_format(resp_headers, msg='=== test resp_headers ===')
+        self.json_format(resp_json, msg='=== test resp_json ===')
 
     def var_conversion(self, before_var):
         """变量转换参数"""
