@@ -166,10 +166,12 @@ class MainTest:
         if not isinstance(self.case_list, list) or not self.case_list:
             raise TypeError('TestLoader.__init__.case_list 类型错误')
 
-        self.case_list = self.case_list
-        self.test_result = TestResult()
-        self.current_case_resp_ass_error = 0
-        self.case_result_list = []
+        self.case_generator = (case for case in self.case_list)
+
+        self.current_case_resp_ass_error = 0  # 响应断言标识
+        self.logs_error_switch = False  # 日志标识
+        self.test_result = TestResult()  # 测试结果
+        self.case_result_list = []  # 测试结果日志集
 
         self.create_time = str(datetime.datetime.now())
         self.start_time = time.time()
@@ -308,6 +310,7 @@ class MainTest:
             else:
                 self.test_result.resp_ass_fail += 1
                 self.current_case_resp_ass_error += 1
+                self.logs_error_switch = True
 
     def execute_field_ass(self, field_ass_list, assert_description):
         """
@@ -327,6 +330,8 @@ class MainTest:
             self.test_result.field_ass_success += field_ass_result.get('success')
             self.test_result.field_ass_fail += field_ass_result.get('fail')
             self.test_result.field_ass_error += field_ass_result.get('error')
+            if self.test_result.field_ass_error != 0:
+                self.logs_error_switch = True
 
     def current_request(self, method=None, **kwargs):
         """
@@ -515,7 +520,7 @@ class MainTest:
     def main(self):
         """main"""
 
-        for case_index, case in enumerate(self.case_list, 1):
+        for case_index, case in enumerate(self.case_generator, 1):
             self.sio.log('=== start case: {} ==='.format(case_index))
             self.current_case_resp_ass_error = 0
             case_info = case.get('case_info', {})
@@ -565,7 +570,7 @@ class MainTest:
                 "case_id": self.case_id,
                 "case_name": self.case_name,
                 "case_log": self.sio.get_stringio().split('\n'),
-                "error": False  # TODO 每一条日志校验是否有错误,有则设置为False
+                "error": self.logs_error_switch
             }
             self.case_result_list.append(add_case)
 
@@ -595,9 +600,6 @@ class MainTest:
         logger.success('=== save redis ok ===')
 
         self.save_logs(log_id=save_key)
-
-    def main2(self):
-        """2"""
 
     def __str__(self):
         return '\n'.join(["{}:{}".format(k, v) for k, v in self.__dict__.items()])
