@@ -58,7 +58,7 @@ class DingDingApi(MethodView):
         """钉钉 push 编辑"""
 
         data = request.get_json()
-        dd_conf_id = data.get('dd_conf_id')
+        dd_conf_id = data.get('id')
         title = data.get('title')
         ding_talk_url = data.get('ding_talk_url')
         at_mobiles = data.get('at_mobiles', [])
@@ -89,7 +89,7 @@ class DingDingApi(MethodView):
         """钉钉 push 删除"""
 
         data = request.get_json()
-        dd_conf_id = data.get('dd_conf_id')
+        dd_conf_id = data.get('id')
 
         query_dd = DingDingConfModel.query.get(dd_conf_id)
 
