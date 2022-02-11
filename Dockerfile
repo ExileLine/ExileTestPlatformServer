@@ -10,7 +10,8 @@ RUN apt-get update
 RUN pip install --upgrade pip
 
 # 安装pipenv
-RUN pip install pipenv
+#RUN pip install pipenv
+RUN pip install Pipenv -i https://pypi.doubanio.com/simple
 
 # 项目
 WORKDIR /srv
