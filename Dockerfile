@@ -28,7 +28,7 @@ RUN pipenv install --system --deploy --ignore-pipfile
 # 安装Uwsgi
 RUN apt-get install libpcre3
 RUN apt-get install libpcre3-dev -y
-RUN pip install uwsgi --no-cache-dir
+RUN pip install uwsgi -i https://pypi.doubanio.com/simple --no-cache-dir
 
 # 启动
 CMD export FLASK_ENV='production' && uwsgi --ini exile_uwsgi_for_docker.ini
