@@ -4,7 +4,7 @@ MAINTAINER YangYueXiong
 
 # 更新 apt
 RUN apt-get update
-RUN apt-get -y install net-tools
+# RUN apt-get -y install net-tools
 
 # 更新pip
 RUN pip install --upgrade pip
