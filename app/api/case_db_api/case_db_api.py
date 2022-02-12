@@ -5,8 +5,10 @@
 # @File    : case_db_api.py
 # @Software: PyCharm
 
+import redis
 
 from all_reference import *
+from common.libs.db import MyPyMysql
 from app.models.test_case_config.models import TestDatabases
 
 db_list = ["mysql", "redis"]  # TODO 用数据库表管理
@@ -143,3 +145,60 @@ class CaseDBPageApi(MethodView):
             size=size
         )
         return api_result(code=200, message='操作成功', data=result_data)
+
+
+class CaseDBPingApi(MethodView):
+    """
+    db ping api
+    """
+
+    def get(self, db_id):
+        """db ping"""
+
+        query_db = TestDatabases.query.get(db_id)
+
+        if not query_db:
+            return api_result(code=400, message='db_id:{}数据不存在'.format(db_id))
+
+        db_type = query_db.to_json().get('db_type', {})
+        db_connection = query_db.to_json().get('db_connection', {})
+
+        if db_type == 'mysql':
+
+            ping_db = MyPyMysql(**db_connection)
+
+            try:
+                """
+                调试
+                sql = "SELECT id,case_name FROM ExileTestPlatform.exile_test_case WHERE id=1;"
+                result = ping_db.select(sql, only=True)
+                print(result)
+                """
+                print('ping:', ping_db.db_obj().open)
+                return api_result(code=200, message='操作成功', data="Ping成功")
+            except BaseException as e:
+                return api_result(code=400, message='db 连接失败，请检查配置', data="db 连接失败，请检查配置")
+
+        elif db_type == 'redis':
+
+            # TODO 使用一个 db ping 基类优化这里
+            a = {
+                "host": "localhost",
+                "port": "6379",
+                "password": "123456",
+                "db": 0
+            }
+
+            try:
+                POOL = redis.ConnectionPool(**db_connection)
+                R = redis.Redis(connection_pool=POOL)
+                print(R.ping())
+                if R.ping():
+                    return api_result(code=200, message='操作成功', data="Ping成功")
+                else:
+                    return api_result(code=200, message='操作成功', data="Ping失败")
+
+            except BaseException as e:
+                return api_result(code=400, message='db 连接失败，请检查配置', data="db 连接失败，请检查配置")
+        else:
+            return api_result(code=400, message=f'暂未支持：{db_type}', data=f'暂未支持：{db_type}')
