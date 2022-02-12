@@ -7,11 +7,11 @@ RUN apt-get update
 # RUN apt-get -y install net-tools
 
 # 更新pip
-RUN pip install --upgrade pip
+RUN pip install --upgrade pip -i https://pypi.doubanio.com/simple
 
 # 安装pipenv
 #RUN pip install pipenv
-RUN pip install Pipenv -i https://pypi.doubanio.com/simple
+RUN pip install pipenv -i https://pypi.doubanio.com/simple
 
 # 项目
 WORKDIR /srv
