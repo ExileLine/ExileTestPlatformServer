@@ -156,6 +156,7 @@
 |74|/api/dd_conf|DELETE|删除钉钉配置|
 |75|/api/dd_conf_page|POST|钉钉配置分页模糊查询|
 |76|/api/platform_conf|GET|平台配置加载|
+|77|/api/case_db_ping/{db_id}|GET|db ping|
 
 ### 项目部署
 
