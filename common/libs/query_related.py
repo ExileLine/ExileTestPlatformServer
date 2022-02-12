@@ -78,13 +78,14 @@ def query_case_zip(case_id):
 
 
 @set_app_context
-def general_query(model, field_list, query_list, is_deleted, page, size):
+def general_query(model, field_list, query_list, is_deleted, page, size, pass_is_deleted=False):
     """
     通用分页模糊查询
     :param model: -> DefaultMeta
     :param field_list: -> list
     :param query_list: -> list
     :param is_deleted: -> int
+    :param pass_is_deleted: -> bool
     :param page: {"page":1,"size":20}
     :param size: {"page":1,"size":20}
     :return:
@@ -113,8 +114,10 @@ def general_query(model, field_list, query_list, is_deleted, page, size):
         like_list.append(_like)
 
     where_list = []
-    where_list.append(getattr(model, 'is_deleted') != 0) if is_deleted else where_list.append(
-        getattr(model, 'is_deleted') == 0)
+
+    if not pass_is_deleted:
+        where_list.append(getattr(model, 'is_deleted') != 0) if is_deleted else where_list.append(
+            getattr(model, 'is_deleted') == 0)
 
     result = getattr(model, 'query').filter(
         and_(*like_list),
