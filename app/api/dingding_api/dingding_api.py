@@ -64,6 +64,7 @@ class DingDingApi(MethodView):
         at_mobiles = data.get('at_mobiles', [])
         at_user_ids = data.get('at_user_ids', [])
         is_at_all = data.get('is_at_all', False)
+        is_deleted = data.get('is_deleted', False)
 
         query_dd = DingDingConfModel.query.get(dd_conf_id)
 
@@ -81,6 +82,7 @@ class DingDingApi(MethodView):
         query_dd.is_at_all = bool(is_at_all)
         query_dd.modifier = g.app_user.username
         query_dd.modifier_id = g.app_user.id
+        query_dd.is_deleted = is_deleted
         db.session.commit()
 
         return api_result(code=203, message='编辑成功')
@@ -117,6 +119,7 @@ class DingDingPushPageApi(MethodView):
         ding_talk_url = data.get('ding_talk_url')
         page = data.get('page')
         size = data.get('size')
+        pass_is_deleted = data.get('pass_is_deleted', True)
 
         sql = """
         SELECT * 
@@ -125,7 +128,6 @@ class DingDingPushPageApi(MethodView):
         id LIKE"%%" 
         and title LIKE"%B1%" 
         and ding_talk_url LIKE"%B1%" 
-        and is_deleted=0
         ORDER BY create_timestamp LIMIT 0,20;
         """
 
@@ -135,7 +137,8 @@ class DingDingPushPageApi(MethodView):
             query_list=[dd_conf_id, title, ding_talk_url],
             is_deleted=False,
             page=page,
-            size=size
+            size=size,
+            pass_is_deleted=pass_is_deleted
         )
 
         return api_result(code=200, message='操作成功', data=result_data)

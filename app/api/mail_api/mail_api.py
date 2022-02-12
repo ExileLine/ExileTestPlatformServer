@@ -57,9 +57,10 @@ class MailApi(MethodView):
         """邮箱编辑"""
 
         data = request.get_json()
-        mail_id = data.get('mail_id')
+        mail_id = data.get('id')
         mail = data.get('mail')
         mail_user = data.get('mail_user')
+        is_deleted = data.get('is_deleted', False)
 
         query_mail = MailConfModel.query.get(mail_id)
 
@@ -74,6 +75,7 @@ class MailApi(MethodView):
         query_mail.mail_user = mail_user
         query_mail.modifier = g.app_user.username
         query_mail.modifier_id = g.app_user.id
+        query_mail.is_deleted = is_deleted
         db.session.commit()
 
         return api_result(code=203, message='编辑成功')
@@ -110,6 +112,7 @@ class MailPageApi(MethodView):
         mail_user = data.get('mail_user')
         page = data.get('page')
         size = data.get('size')
+        pass_is_deleted = data.get('pass_is_deleted', True)
 
         sql = """
         SELECT * 
@@ -128,7 +131,8 @@ class MailPageApi(MethodView):
             query_list=[mail_id, mail, mail_user],
             is_deleted=False,
             page=page,
-            size=size
+            size=size,
+            pass_is_deleted=pass_is_deleted
         )
 
         return api_result(code=200, message='操作成功', data=result_data)

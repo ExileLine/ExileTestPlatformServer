@@ -62,7 +62,7 @@ class CaseDBApi(MethodView):
         """db编辑"""
 
         data = request.get_json()
-        db_id = data.get('db_id')
+        db_id = data.get('id')
         name = data.get('name')
         db_type = data.get('db_type')
         db_connection = data.get('db_connection')
