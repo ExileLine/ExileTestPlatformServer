@@ -17,21 +17,53 @@ class CaseExecuteLogsApi(MethodView):
 
     def post(self):
         data = request.get_json()
+        case_id = data.get('case_id')
+        scenario_id = data.get('scenario_id')
         execute_id = data.get('execute_id')
         execute_type = data.get('execute_type')
-        current_get_dict = {
-            "case": "case_first_log:{}".format(execute_id),
-            "scenario": "scenario_first_log:{}".format(execute_id)
-        }
-        key = current_get_dict.get(execute_type)
-        if not key:
-            return api_result(code=400, message='执行类型错误')
 
-        result = R.get(key)
-        if not result:
-            return api_result(code=200, message='操作成功', data={})
+        if execute_id and execute_type:
+            current_get_dict = {
+                "case": f"case_first_log:{execute_id}",
+                "scenario": f"scenario_first_log:{execute_id}"
+            }
+            key = current_get_dict.get(execute_type)
+            if not key:
+                return api_result(code=400, message='执行类型错误')
 
-        return api_result(code=200, message='操作成功', data=json.loads(result))
+            result = R.get(key)
+            if not result:
+                return api_result(code=200, message='操作成功', data={})
+
+            return api_result(code=200, message='操作成功', data=json.loads(result))
+
+        if case_id:
+            query_case_logs = TestExecuteLogs.query.filter_by(execute_id=case_id).order_by(
+                TestExecuteLogs.create_timestamp.desc()).first()
+            if not query_case_logs:
+                return api_result(code=200, message='操作成功', data={})
+
+            case_logs_obj = query_case_logs.to_json()
+            redis_key = case_logs_obj.get('redis_key')
+            result = R.get(redis_key)
+            if not result:
+                return api_result(code=200, message='操作成功', data={})
+
+            return api_result(code=200, message='操作成功', data=json.loads(result))
+
+        if scenario_id:
+            query_scenario_logs = TestExecuteLogs.query.filter_by(execute_id=scenario_id).order_by(
+                TestExecuteLogs.create_timestamp.desc()).first()
+            if not query_scenario_logs:
+                return api_result(code=200, message='操作成功', data={})
+
+            scenario_logs_obj = query_scenario_logs.to_json()
+            redis_key = scenario_logs_obj.get('redis_key')
+            result = R.get(redis_key)
+            if not result:
+                return api_result(code=200, message='操作成功', data={})
+
+            return api_result(code=200, message='操作成功', data=json.loads(result))
 
 
 class CaseExecuteLogsPageApi(MethodView):
