@@ -25,6 +25,7 @@ def before_request_api():
     logger.info('request log_uuid:{}'.format(g.log_uuid))
     print_logs()
 
+    dev_host_list = ['0.0.0.0', 'localhost']
     white_list = ['/api/login', '/api/tourist', '/api/platform_conf']
     if request.path in white_list:
         return
@@ -33,8 +34,10 @@ def before_request_api():
         is_token = request.headers.get('Token', None)  # 是否存在token
         logger.info('headers是否存在key:token -> {}'.format(is_token))
 
-        # TODO 开发阶段使用的万能鉴权
-        if is_token == 'yyx':
+        # TODO 开发环境忽略鉴权
+        if request.host.split(':')[0] in dev_host_list:
+            print('=== dev host ===')
+            print(request.host.split(':')[0])
             user = Admin.query.get(1)
             g.app_user = user
             return
