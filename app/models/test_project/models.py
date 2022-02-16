@@ -28,8 +28,8 @@ class TestProjectVersion(BaseModel):
     __tablename__ = 'exile_test_project_version'
     __table_args__ = {'comment': '项目版本迭代表'}
 
-    version_name = db.Column(db.String(128), nullable=False, unique=True, comment='版本名称')
-    version_number = db.Column(db.String(32), nullable=False, unique=True, comment='版本号')
+    version_name = db.Column(db.String(128), nullable=False, comment='版本名称')
+    version_number = db.Column(db.String(32), nullable=False, comment='版本号')
     project_id = db.Column(BIGINT(20, unsigned=True), comment='项目id')
     creator = db.Column(db.String(32), comment='创建人')
     creator_id = db.Column(BIGINT(20, unsigned=True), comment='创建人id')
