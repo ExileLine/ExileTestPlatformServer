@@ -53,6 +53,7 @@ class MidProjectVersionAndCase(BaseModel):
     creator_id = db.Column(BIGINT(20, unsigned=True), comment='创建人id')
     modifier = db.Column(db.String(32), comment='更新人')
     modifier_id = db.Column(BIGINT(20, unsigned=True), comment='更新人id')
+    remark = db.Column(db.String(255), comment='备注')
 
     def __repr__(self):
         return 'MidProjectVersionAndCase 模型对象-> ID:{} 版本迭代id:{} 用例id:{}'.format(self.id, self.version_id, self.case_id)

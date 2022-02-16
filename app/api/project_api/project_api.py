@@ -7,7 +7,8 @@
 
 
 from all_reference import *
-from app.models.test_project.models import TestProject, TestProjectVersion
+from app.models.test_case.models import TestCase
+from app.models.test_project.models import TestProject, TestProjectVersion, MidProjectVersionAndCase
 
 
 class ProjectApi(MethodView):
@@ -269,3 +270,89 @@ class ProjectVersionPageApi(MethodView):
         )
 
         return api_result(code=200, message='操作成功', data=result_data)
+
+
+class VersionBindCaseApi(MethodView):
+    """
+    版本迭代关联用例 api
+    POST: 绑定
+    """
+
+    def post(self):
+        """绑定"""
+
+        data = request.get_json()
+        version_id = data.get('version_id')
+        case_id_list = data.get('case_id_list', [])
+
+        query_version = TestProjectVersion.query.get(version_id)
+        if not query_version:
+            return api_result(code=400, message=f'版本迭代id: {version_id} 不存在')
+
+        query_project = TestProject.query.get(query_version.project_id)
+        if not query_project:
+            return api_result(code=400, message="该版本迭代缺少上级项目")
+
+        query_mid = MidProjectVersionAndCase.query.filter_by(version_id=version_id).all()
+
+        if not case_id_list:
+            for mid in query_mid:
+                mid.is_deleted = mid.id
+                mid.modifier = g.app_user.username
+                mid.modifier_id = g.app_user.id
+                mid.remark = "清空参数(逻辑删除)"
+            try:
+                db.session.commit()
+            except BaseException as e:
+                db.session.rollback()
+        else:
+            print(query_mid)
+            query_mid_case_id = list(map(lambda x: x.case_id, query_mid))
+            print(query_mid_case_id)
+            print(case_id_list)
+
+            # 交集(激活)
+            jj = list(set(query_mid_case_id).intersection(set(case_id_list)))
+            print("交集(激活)", jj)
+
+            # 源数据差集(逻辑删除)
+            source_cj = list(set(query_mid_case_id).difference(set(case_id_list)))
+            print("源数据差集(逻辑删除)", source_cj)
+
+            # 新数据差集(创建)
+            new_data_cj = list(set(case_id_list).difference(set(query_mid_case_id)))
+            print("新数据差集(创建)", new_data_cj)
+
+            for update_mid in query_mid:
+                current_case_id = update_mid.case_id
+                if current_case_id in jj:  # 交集
+                    update_mid.modifier = g.app_user.username
+                    update_mid.modifier_id = g.app_user.id
+                    update_mid.is_deleted = 0
+                    update_mid.remark = "交集(激活)"
+                elif current_case_id in source_cj:  # 差集
+                    update_mid.is_deleted = update_mid.id
+                    update_mid.modifier = g.app_user.username
+                    update_mid.modifier_id = g.app_user.id
+                    update_mid.remark = "源数据差集(逻辑删除)"
+
+            if new_data_cj:
+                for case_id in new_data_cj:
+                    query_case = TestCase.query.get(case_id)
+                    if not query_case:
+                        return api_result(code=400, message=f"用例: {case_id} 不存在")
+                    new_bind = MidProjectVersionAndCase(
+                        version_id=version_id,
+                        case_id=case_id,
+                        creator=g.app_user.username,
+                        creator_id=g.app_user.id,
+                        remark="新数据差集(创建)"
+                    )
+                    db.session.add(new_bind)
+
+            try:
+                db.session.commit()
+            except BaseException as e:
+                db.session.rollback()
+
+        return api_result(code=203, message="操作成功")
