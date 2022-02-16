@@ -30,7 +30,7 @@ from .mail_api.mail_api import MailApi, MailPageApi
 from .dingding_api.dingding_api import DingDingApi, DingDingPushPageApi
 from .platform_conf_api.platform_conf_api import PlatformConfApi
 from .ui_auto_file_api.ui_auto_file_api import UiAutoFileApi, UiAutoFilePageApi
-from .project_api.project_api import ProjectApi
+from .project_api.project_api import ProjectApi, ProjectPageApi
 
 api = Blueprint('api', __name__)
 crm = Blueprint('crm', __name__)
@@ -110,4 +110,4 @@ api.add_url_rule('/ui_auto_file_page', view_func=UiAutoFilePageApi.as_view('ui_a
 
 api.add_url_rule('/project', view_func=ProjectApi.as_view('project'))
 api.add_url_rule('/project/<project_id>', view_func=ProjectApi.as_view('project_detail'))
-api.add_url_rule('/project_page', view_func=ProjectApi.as_view('project_page'))
+api.add_url_rule('/project_page', view_func=ProjectPageApi.as_view('project_page'))

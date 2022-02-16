@@ -91,3 +91,42 @@ class ProjectApi(MethodView):
         query_project.modifier_id = g.app_user.id
         query_project.delete()
         return api_result(code=204, message='删除成功')
+
+
+class ProjectPageApi(MethodView):
+    """
+    project page api
+    POST: 项目分页模糊查询
+    """
+
+    def post(self):
+        """项目分页模糊查询"""
+
+        data = request.get_json()
+        project_id = data.get('project_id')
+        project_name = data.get('project_name')
+        creator_id = data.get('creator_id')
+        is_deleted = data.get('is_deleted', False)
+        page = data.get('page')
+        size = data.get('size')
+
+        sql = """
+        SELECT * 
+        FROM exile_test_project  
+        WHERE 
+        id LIKE"%%" 
+        and project_name LIKE"%B1%" 
+        and is_deleted=0
+        ORDER BY create_timestamp LIMIT 0,20;
+        """
+
+        result_data = general_query(
+            model=TestProject,
+            field_list=['id', 'project_name', 'creator_id'],
+            query_list=[project_id, project_name, creator_id],
+            is_deleted=is_deleted,
+            page=page,
+            size=size
+        )
+
+        return api_result(code=200, message='操作成功', data=result_data)
