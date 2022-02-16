@@ -2,7 +2,7 @@
 # @Time    : 2021/5/11 下午4:32
 # @Author  : ShaHeTop-Almighty-ares
 # @Email   : yang6333yyx@126.com
-# @File    : manage.py
+# @File    : models.py
 # @Software: PyCharm
 
 from werkzeug.security import generate_password_hash, check_password_hash
