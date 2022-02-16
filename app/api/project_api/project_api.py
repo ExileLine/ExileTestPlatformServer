@@ -28,7 +28,15 @@ class ProjectApi(MethodView):
         if not project_id:
             return api_result(code=400, message=f"项目id: {project_id} 不存在")
 
-        return api_result(code=200, message='操作成功', data=query_project.to_json())
+        query_version_list = TestProjectVersion.query.filter_by(project_id=project_id).all()
+        version_list = [version.to_json() for version in query_version_list]
+
+        result = {
+            "project_obj": query_project.to_json(),
+            "version_list": version_list
+        }
+
+        return api_result(code=200, message='操作成功', data=result)
 
     def post(self):
         """项目新增"""
