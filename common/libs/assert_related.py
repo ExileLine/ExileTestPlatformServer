@@ -14,46 +14,6 @@ from common.libs.StringIOLog import StringIOLog
 from common.libs.data_dict import rule_dict
 
 
-class ReturnDB:
-    """获取DB"""
-
-    def __init__(self, sio=None, db_type=None, db_connection=None):
-        self.sio = sio if sio else StringIOLog()
-        self.db_type = db_type
-        self.db_connection = db_connection
-
-    def get_mysql(self):
-        """mysql"""
-        db = MyPyMysql(**self.db_connection, debug=True)  # MySql实例
-        ping = db.db_obj().open
-        return db
-
-    def get_redis(self):
-        """redis"""
-        pool = redis.ConnectionPool(**self.db_connection)
-        db = redis.Redis(connection_pool=pool)  # Redis实例
-        db.ping()
-        return db
-
-    def main(self):
-        """main"""
-
-        db_dict = {
-            "mysql": self.get_mysql,
-            "redis": self.get_redis
-        }
-        self.sio.log("=== 测试需要连接的db配置: {} - {} ===".format(self.db_connection, type(self.db_connection)))
-        db_func = db_dict.get(self.db_type.lower(), None)
-
-        # TODO 连接失败需要处理
-        if db_func:
-            return db_func()
-
-        else:
-            self.sio.log("=== db_dict 未找到数据库类型: {} === ".format(self.db_type), status='error')
-            return None
-
-
 class AssertMain:
     """
     断言类
@@ -180,51 +140,92 @@ class AssertFieldMain(AssertMain):
         self.db_id = db_id
         self.query = query
         self.assert_list = assert_list
-        self.db_type = None
-        self.test_db = None
+
+        self.current_db_type = None
+        self.current_db_connection = {}
+        self.current_db_obj = None
 
         self.query_result_status = None
         self.ass_field_success = []
         self.ass_field_fail = []
         self.ass_field_error = []
 
-    def check_db(self):
-        """db连接检查"""
+        self.db_dict = {
+            "mysql": self.get_mysql,
+            "redis": self.get_redis,
+            "postgresql": self.get_postgresql,
+            "mongodb": self.get_mongodb,
+            'es': self.get_es,
+            "oracle": self.get_oracle,
+            "db2": self.get_db2
+        }
 
-        # TODO 后续兼容其他数据库
-        #  例如: Oracle、DB2、SQL Server、Redis, Mongodb, ES 等
-        #  需要一个信号检测装饰器来检测是否存在该db以及sql
+    def get_mysql(self):
+        """连接:Mysql"""
 
-        if self.db_id:
-            from ApplicationExample import create_app
-            app = create_app()
-            with app.app_context():
-                query_db = TestDatabases.query.get(self.db_id)
+        db = MyPyMysql(**self.current_db_connection, debug=True)  # MySql实例
+        ping = db.db_obj().open
+        return db
 
-            if not query_db or query_db.is_deleted:
-                self.sio.log("=== 数据库不存在或禁用: {} === ".format(self.db_id), status='error')
-                self.ass_field_error.append('数据库不存在或禁用')
+    def get_redis(self):
+        """连接:Redis"""
 
-            else:
-                db_obj = query_db.to_json()
+        pool = redis.ConnectionPool(**self.current_db_connection)
+        db = redis.Redis(connection_pool=pool)  # Redis实例
+        db.ping()
+        return db
 
-                self.test_db = ReturnDB(
-                    sio=self.sio,
-                    db_type=db_obj.get('db_type'),
-                    db_connection=db_obj.get('db_connection')
-                ).main()
+    def get_postgresql(self):
+        """连接:PostgreSQL"""
 
-        else:
-            self.sio.log("=== 数据库为空 ===".format(self.db_id), status='error')
+    def get_mongodb(self):
+        """连接:Mongodb"""
 
-    def get_query_result(self):
-        """
-        查询数据结果集(唯一数据)
-        """
+    def get_es(self):
+        """连接:ES"""
 
-        query_result = self.test_db.select(self.query, only=True)
-        self.sio.log("=== 测试数据查询结果: {} ===".format(query_result), status='success')
-        return query_result
+    def get_oracle(self):
+        """连接:Oracle"""
+
+    def get_db2(self):
+        """连接:DB2"""
+
+    def query_db_connection(self):
+        """查询db配置是否存在或者可用"""
+
+        from ApplicationExample import create_app
+        app = create_app()
+        with app.app_context():
+            query_db = TestDatabases.query.get(self.db_id)
+
+        if not query_db or query_db.is_deleted != 0:
+            self.sio.log(f"=== 数据库不存在或禁用: {self.db_id} === ", status='error')
+            self.ass_field_error.append('数据库不存在或禁用')
+            return False
+
+        db_obj = query_db.to_json()
+        self.current_db_type = db_obj.get('db_type', '')
+        self.current_db_connection = db_obj.get('db_connection')
+        return True
+
+    def ping_db_connection(self):
+        """检查db是否可以连接"""
+
+        self.current_db_obj = self.db_dict.get(self.current_db_type.lower(), None)()
+
+        if not self.current_db_obj:
+            self.sio.log(f"=== 暂时不支持: {self.current_db_type} ===", status='error')
+            self.ass_field_error.append('暂时不支持')
+            return False
+
+        self.sio.log(f"=== 测试需要连接的db配置: {self.current_db_connection} - {type(self.current_db_connection)} ===")
+
+    def execute_order(self):
+        """执行语句"""
+
+        result = self.current_db_obj.select(self.query)
+
+        return result
 
     def ass_dict_result(self, query_result):
         """
@@ -290,11 +291,15 @@ class AssertFieldMain(AssertMain):
         """
 
         try:
-            self.check_db()
-            query_result = self.get_query_result()
+            self.query_db_connection()
+            self.ping_db_connection()
+            self.execute_order()
+
+            query_result = self.execute_order()
             result = self.ass_dict_result(query_result)
             # result = self.ass_list_result(query_result) # TODO ass_list_result
             return result
+
         except BaseException as e:
             self.sio.log("=== {} ===".format(str(e)), status='error')
             result = {
@@ -366,6 +371,7 @@ if __name__ == '__main__':
             **field_ass_dict
         )
         field_ass_result = new_ass.main()
+
 
     """test"""
     # test_resp_ass()

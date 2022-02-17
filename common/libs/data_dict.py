@@ -26,7 +26,8 @@ expect_val_type_dict = {
     '3': list,
     # '4': dict("{}".format(data)),
     '4': json.loads,
-    '5': json.dumps
+    '5': json.dumps,
+    '6': bool
 }
 
 """
