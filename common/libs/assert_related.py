@@ -4,6 +4,7 @@
 # @Email   : yang6333yyx@126.com
 # @File    : assert_related.py
 # @Software: PyCharm
+import json
 
 import redis
 
@@ -103,13 +104,13 @@ class AssertResponseMain(AssertMain):
         try:
             rule = rule_dict.get(self.rule)  # 从字典中取出反射的规则函数
             if self.get_assert(this_val=self.this_val, rule=rule, expect_val=self.expect_val):
-                self.sio.log('=== 断言通过 ===', status='success')
+                self.sio.log('=== Response 断言通过 ===', status='success')
                 return {
                     "status": True,
                     "message": message
                 }
             else:
-                self.sio.log('=== 断言失败 ===', status="error")
+                self.sio.log('=== Response 断言失败 ===', status="error")
                 return {
                     "status": False,
                     "message": message
@@ -140,10 +141,12 @@ class AssertFieldMain(AssertMain):
         self.db_id = db_id
         self.query = query
         self.assert_list = assert_list
+        self.query_result = None
 
         self.current_db_type = None
         self.current_db_connection = {}
         self.current_db_obj = None
+        self.current_ass = {}
 
         self.query_result_status = None
         self.ass_field_success = []
@@ -165,15 +168,23 @@ class AssertFieldMain(AssertMain):
 
         db = MyPyMysql(**self.current_db_connection, debug=True)  # MySql实例
         ping = db.db_obj().open
-        return db
+        return {
+            "db": db,
+            "cmd": "select"
+        }
 
     def get_redis(self):
         """连接:Redis"""
 
+        self.current_db_connection.update({"decode_responses": True})  # bytes to str
         pool = redis.ConnectionPool(**self.current_db_connection)
         db = redis.Redis(connection_pool=pool)  # Redis实例
         db.ping()
-        return db
+
+        return {
+            "db": db,
+            "cmd": "execute_command"
+        }
 
     def get_postgresql(self):
         """连接:PostgreSQL"""
@@ -223,55 +234,76 @@ class AssertFieldMain(AssertMain):
     def execute_order(self):
         """执行语句"""
 
-        result = self.current_db_obj.select(self.query)
+        result_db = self.current_db_obj.get("db")
+        result_cmd = self.current_db_obj.get("cmd")
+        result_execute = getattr(result_db, result_cmd)(self.query)
+        return result_execute
 
-        return result
+    def ass_str_or_int_result(self):
+        """查询结果为一个str或者int,直接使用 self.query_result 来检验"""
 
-    def ass_dict_result(self, query_result):
+        assert_key = self.query_result
+        rule = self.current_ass.get('rule')
+        expect_val = self.current_ass.get('expect_val')
+
+        self.sio.log(f'=== 断言:{self.assert_description} ===')
+        self.sio.log(f'=== 值:{assert_key} ===')
+        message = f'{assert_key}:{type(assert_key)} [{rule}] {expect_val}:{type(expect_val)}'
+        self.sio.log(message)
+
+        try:
+            rule = rule_dict.get(rule)  # 从字典中取出反射的规则函数
+            if self.get_assert(this_val=assert_key, rule=rule, expect_val=expect_val):
+                self.sio.log('=== Field 断言通过 ===', status='success')
+                self.ass_field_success.append(message)
+            else:
+                self.sio.log('=== Field 断言失败 ===', status='error')
+                self.ass_field_fail.append(message)
+
+        except BaseException as e:
+            self.sio.log(f'数据异常:{str(e)}', status='error')
+            self.sio.log('这种情况一般会因为以下两种原因导致:', status='error')
+            self.sio.log('1.查看数据库确认该数据是否有被手动修改过.', status='error')
+            self.sio.log(
+                '2.查看: case_ass_rule_api.py 中的 FieldAssertionRuleApi 中的逻辑是否被修改.',
+                status='error')
+            self.sio.log('=== 断言异常 ===', status="error")
+            self.ass_field_error.append(message)
+
+    def ass_dict_result(self):
         """
         查询结果为一个dict,检验key:value
         ps:如果该方法报错,问题会出现在 参数在入库的时候接口没有做好检验 或 者手动修改了数据库的数据
         """
-        for ass in self.assert_list:
-            # print(ass)
-            __key = ass.get('assert_key')
-            # print(__key)
-            __result_key = query_result.get(__key)
-            # print(__result_key)
-            __rule = ass.get('rule')
-            __expect_val = ass.get('expect_val')
 
-            self.sio.log('=== 断言:{} ==='.format(self.assert_description))
-            self.sio.log('=== 字段:{} ==='.format(__key))
-            message = '{}:{} [{}] {}:{}'.format(
-                __result_key, type(__result_key), __rule, __expect_val, type(__expect_val)
-            )
-            self.sio.log(message)
+        assert_key = self.current_ass.get('assert_key')
+        var_result = self.query_result.get(assert_key)
+        rule = self.current_ass.get('rule')
+        expect_val = self.current_ass.get('expect_val')
 
-            try:
-                rule = rule_dict.get(__rule)  # 从字典中取出反射的规则函数
-                if self.get_assert(this_val=__result_key, rule=rule, expect_val=__expect_val):
-                    self.sio.log('=== 断言通过 ===', status='success')
-                    self.ass_field_success.append(message)
-                else:
-                    self.sio.log('=== 断言失败 ===', status='error')
-                    self.ass_field_fail.append(message)
+        self.sio.log('=== 断言:{} ==='.format(self.assert_description))
+        self.sio.log('=== 字段:{} ==='.format(assert_key))
+        message = f'{var_result}:{type(var_result)} [{rule}] {expect_val}:{type(expect_val)}'
+        self.sio.log(message)
 
-            except BaseException as e:
-                self.sio.log('数据异常:{}'.format(str(e)), status='error')
-                self.sio.log('这种情况一般会因为以下两种原因导致:', status='error')
-                self.sio.log('1.查看数据库确认该数据是否有被手动修改过.', status='error')
-                self.sio.log(
-                    '2.查看: case_ass_rule_api.py 中的 FieldAssertionRuleApi 中的逻辑是否被修改.',
-                    status='error')
-                self.sio.log('=== 断言异常 ===', status="error")
-                self.ass_field_error.append(message)
+        try:
+            rule = rule_dict.get(rule)  # 从字典中取出反射的规则函数
+            if self.get_assert(this_val=var_result, rule=rule, expect_val=expect_val):
+                self.sio.log('=== Field 断言通过 ===', status='success')
+                self.ass_field_success.append(message)
+            else:
+                self.sio.log('=== Field 断言失败 ===', status='error')
+                self.ass_field_fail.append(message)
 
-        return {
-            "success": len(self.ass_field_success),
-            "fail": len(self.ass_field_fail),
-            "error": len(self.ass_field_error)
-        }
+        except BaseException as e:
+            self.sio.log(f'数据异常:{str(e)}', status='error')
+            self.sio.log('这种情况一般会因为以下两种原因导致:', status='error')
+            self.sio.log('1.查看数据库确认该数据是否有被手动修改过.', status='error')
+            self.sio.log(
+                '2.查看: case_ass_rule_api.py 中的 FieldAssertionRuleApi 中的逻辑是否被修改.',
+                status='error')
+            self.sio.log('=== 断言异常 ===', status="error")
+            self.ass_field_error.append(message)
 
     def ass_list_result(self, query_result):
         """
@@ -280,6 +312,24 @@ class AssertFieldMain(AssertMain):
         """
         # TODO ass_list_result
         return
+
+    def consume_ass(self):
+        """获取断言规则"""
+
+        for ass in self.assert_list:
+            self.current_ass = ass
+
+            if self.current_db_type in ['mysql', 'postgresql']:
+                if isinstance(self.query_result, dict):
+                    self.ass_dict_result()
+
+            elif self.current_db_type in ['redis']:
+
+                if bool(self.current_ass.get('is_expression')):
+                    self.query_result = json.loads(self.query_result)
+                    self.ass_dict_result()
+                else:
+                    self.ass_str_or_int_result()
 
     def main(self):
         """
@@ -293,15 +343,17 @@ class AssertFieldMain(AssertMain):
         try:
             self.query_db_connection()
             self.ping_db_connection()
-            self.execute_order()
+            self.query_result = self.execute_order()
+            self.consume_ass()
 
-            query_result = self.execute_order()
-            result = self.ass_dict_result(query_result)
-            # result = self.ass_list_result(query_result) # TODO ass_list_result
-            return result
+            return {
+                "success": len(self.ass_field_success),
+                "fail": len(self.ass_field_fail),
+                "error": len(self.ass_field_error)
+            }
 
         except BaseException as e:
-            self.sio.log("=== {} ===".format(str(e)), status='error')
+            self.sio.log(f"=== {str(e)} ===", status='error')
             result = {
                 "success": len(self.ass_field_success),
                 "fail": len(self.ass_field_fail),
