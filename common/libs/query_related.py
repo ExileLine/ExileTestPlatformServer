@@ -5,8 +5,7 @@
 # @File    : query_related.py
 # @Software: PyCharm
 
-
-from sqlalchemy import or_, and_
+import sqlalchemy
 from flask_sqlalchemy.model import DefaultMeta
 
 from common.libs.set_app_context import set_app_context
@@ -44,6 +43,16 @@ def query_case_zip(case_id):
     case_info = query_case.to_json()
     case_info['is_public'] = bool(case_info.get('is_public'))
     case_info['is_shared'] = bool(case_info.get('is_shared'))
+    # case_info["version_id_list"] = [
+    #     {
+    #         "id": 10,
+    #         "version_name": "aaa"
+    #     },
+    #     {
+    #         "id": 2,
+    #         "version_name": "bbb"
+    #     }
+    # ]
     result_data = {
         "case_info": case_info,
         "bind_info": bind_info_list
@@ -78,34 +87,53 @@ def query_case_zip(case_id):
 
 
 @set_app_context
-def general_query(model, field_list, query_list, is_deleted, page, size, pass_is_deleted=False):
+def general_query(model, is_deleted, page, size, pass_is_deleted=False, like_rule="and_", field_list=[],
+                  query_list=[], in_field_list=None, in_value_list=None):
     """
     通用分页模糊查询
     :param model: -> DefaultMeta
-    :param field_list: -> list
-    :param query_list: -> list
-    :param is_deleted: -> int
-    :param pass_is_deleted: -> bool
+    :param field_list: -> list -> 模糊查询的字段列表 如: ['id','username']
+    :param query_list: -> list -> 模糊查询入参列表,对应表字段的位置 如: ['id','username'] 对应 [1,'yyx']
+    :param is_deleted: -> int  -> 是否逻辑删除
+    :param pass_is_deleted: -> bool -> 如果为 True 则省略 is_deleted
+    :param like_rule: -> str -> and;or; -> like规则目前仅支持使用其中一个
+    :param in_field_list: -> list -> in的字段列表 如: ['id','username']
+    :param in_value_list: -> list -> in的入参列表 如: ['id','username'] 对应 [[1,2,3],['y1','y2','y3']] => model.id.in_([1, 2, 3])
     :param page: {"page":1,"size":20}
     :param size: {"page":1,"size":20}
     :return:
 
     """
 
+    if like_rule not in ['and_', 'or_']:
+        raise TypeError('参数错误 -> like_rule 应该是 -> and_ 或者 or_')
+
     if not isinstance(model, DefaultMeta):
-        raise TypeError('model need to be flask_sqlalchemy.model.DefaultMeta type and cannot be empty')
+        raise TypeError('类型错误 -> model 应该是 -> flask_sqlalchemy.model.DefaultMeta')
 
-    if not isinstance(field_list, list) or not field_list:
-        raise TypeError('field_list need to be list type and cannot be empty')
+    if not isinstance(field_list, list):
+        raise TypeError('类型错误 -> field_list 应该是 -> list ')
 
-    if not isinstance(query_list, list) or not query_list:
-        raise TypeError('query_list need to be list type and cannot be empty')
+    if not isinstance(query_list, list):
+        raise TypeError('类型错误 -> query_list 应该是 -> list')
 
     if not isinstance(page, int) or not isinstance(size, int):
-        raise TypeError('page or size need to be int type and cannot be empty')
+        raise TypeError('类型错误 -> page 和 size 应该是 -> int')
 
     if not isinstance(is_deleted, bool):
-        raise TypeError('is_deleted need to be bool type and cannot be empty')
+        raise TypeError('类型错误 -> is_deleted 应该是 -> bool')
+
+    in_list = []
+
+    if in_field_list and isinstance(in_field_list, list) and in_value_list and isinstance(in_value_list, list):
+        for i in in_value_list:
+            if not isinstance(i, list) or not i:
+                raise TypeError('类型错误 -> in_value_list 里面的值应该是 -> list 而且不能为空')
+
+        for index, field in enumerate(in_field_list):
+            in_list.append(getattr(model, str(field)).in_(in_value_list[index]))
+
+    like_rule_func = getattr(sqlalchemy, like_rule)
 
     like_list = []
     for index, field in enumerate(field_list):
@@ -120,8 +148,9 @@ def general_query(model, field_list, query_list, is_deleted, page, size, pass_is
             getattr(model, 'is_deleted') == 0)
 
     result = getattr(model, 'query').filter(
-        and_(*like_list),
-        *where_list
+        like_rule_func(*like_list),
+        *where_list,
+        *in_list
     ).order_by(
         getattr(model, 'create_time').desc()
     ).paginate(
