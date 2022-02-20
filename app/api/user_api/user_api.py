@@ -140,7 +140,7 @@ class UserProfileApi(MethodView):
         """编辑用户信息"""
 
         data = request.get_json()
-        user_id = data.get('user_id')
+        user_id = data.get('id')
         nickname = data.get('nickname')
         phone = data.get('phone')
         mail = data.get('mail')

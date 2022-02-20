@@ -55,7 +55,7 @@ class CaseEnvApi(MethodView):
         """环境编辑"""
 
         data = request.get_json()
-        env_id = data.get('env_id')
+        env_id = data.get('id')
         env_url = data.get('env_url')
         env_name = data.get('env_name')
         remark = data.get('remark')
