@@ -26,9 +26,10 @@ class IndexApi(MethodView):
     index Api
     """
 
-    async def get(self):
+    async def get(self, version_id):
         """统计"""
 
+        print('version_id', version_id)
         total_user = Admin.query.count()
         total_case = TestCase.query.count()
         total_case_execute = TestCase.query.with_entities(func.sum(TestCase.total_execution)).scalar()
