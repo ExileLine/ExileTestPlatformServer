@@ -21,6 +21,7 @@ from app.models.test_case_assert.models import TestCaseAssResponse, TestCaseAssF
 from app.models.push_reminder.models import MailConfModel, DingDingConfModel
 from app.models.platform_conf.models import PlatformConfModel
 from app.models.ui_auto_file.models import UiAutoFile
+from app.models.test_project.models import MidProjectVersionAndCase
 
 """
 export FLASK_APP=ApplicationExample.py
@@ -584,7 +585,6 @@ def register_commands(app):
 
     @app.cli.command("fix_version_case", help='修复旧数据(只能执行一次，后续删除)')
     def fix_version_case():
-        from app.models.test_project.models import MidProjectVersionAndCase
         all_case = TestCase.query.all()
         old_case_id = [case.id for case in all_case]
         current_mid_case_id = [i.case_id for i in MidProjectVersionAndCase.query.all()]
