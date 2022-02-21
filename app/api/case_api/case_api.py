@@ -190,7 +190,6 @@ class CaseApi(MethodView):
                 q.modifier = g.app_user.username
                 q.modifier_id = g.app_user.id
                 q.remark = "源数据差集(逻辑删除)"
-                query_mid_all.remove(q)
             else:
                 remain_list.append(q.version_id)
 
