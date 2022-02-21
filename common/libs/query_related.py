@@ -11,6 +11,7 @@ from flask_sqlalchemy.model import DefaultMeta
 from common.libs.set_app_context import set_app_context
 from app.models.test_case.models import TestCase, TestCaseData
 from app.models.test_case_assert.models import TestCaseDataAssBind, TestCaseAssResponse, TestCaseAssField
+from app.models.test_project.models import TestProjectVersion, MidProjectVersionAndCase
 
 
 def page_size(page=None, size=None, **kwargs):
@@ -31,7 +32,15 @@ def page_size(page=None, size=None, **kwargs):
 def query_case_zip(case_id):
     """组装查询用例"""
 
+    # TODO 后面需要优化这个查询
+
     query_case = TestCase.query.get(case_id)
+
+    query_mid = MidProjectVersionAndCase.query.filter_by(case_id=case_id).all()
+
+    version_id_list = [mid.version_id for mid in query_mid]
+    version_model_list = TestProjectVersion.query.filter(TestProjectVersion.id.in_(version_id_list)).all()
+    version_obj_list = [v.to_json() for v in version_model_list]
 
     if not query_case:
         return False
@@ -43,16 +52,8 @@ def query_case_zip(case_id):
     case_info = query_case.to_json()
     case_info['is_public'] = bool(case_info.get('is_public'))
     case_info['is_shared'] = bool(case_info.get('is_shared'))
-    # case_info["version_id_list"] = [
-    #     {
-    #         "id": 10,
-    #         "version_name": "aaa"
-    #     },
-    #     {
-    #         "id": 2,
-    #         "version_name": "bbb"
-    #     }
-    # ]
+    case_info["version_id_list"] = version_obj_list
+
     result_data = {
         "case_info": case_info,
         "bind_info": bind_info_list
