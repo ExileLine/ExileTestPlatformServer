@@ -263,28 +263,57 @@ class CasePageApi(MethodView):
         limit = page_size(page=page, size=size)
 
         sql = f"""
-        SELECT 
-        id,
-        case_name,
-        request_method,
-        request_base_url,
-        request_url,
-        total_execution,
-        creator,
-        create_time,
-        modifier,
-        update_time
-        FROM exile_test_case 
-        WHERE id 
-        IN (SELECT MID.case_id FROM (SELECT DISTINCT case_id FROM exile_test_mid_version_case WHERE version_id in {version_id_list} AND is_deleted=0 LIMIT {limit[0]},{limit[1]}) as MID)
-        {f'AND creator_id={creator_id}' if creator_id else ''}
-        AND is_deleted={is_deleted} 
-        AND case_name LIKE"%{case_name}%"
-        ORDER BY create_timestamp DESC;
+        SELECT
+            A.id,
+            A.case_name,
+            A.request_method,
+            A.request_base_url,
+            A.request_url,
+            A.total_execution,
+            A.creator,
+            A.create_time,
+            A.create_timestamp,
+            A.modifier,
+            A.update_time,
+            A.update_timestamp
+        FROM
+            exile_test_case A
+        WHERE
+            EXISTS (
+                SELECT
+                    B.id, B.case_id, B.version_id
+                FROM
+                    exile_test_mid_version_case B
+                WHERE
+                    B.case_id = A.id 
+                    AND B.is_deleted = 0
+                    AND B.version_id in {version_id_list})
+                {f'AND creator_id={creator_id}' if creator_id else ''}
+                AND is_deleted = {is_deleted}
+                AND case_name LIKE"%{case_name}%"
+            ORDER BY
+                A.create_timestamp DESC
+            LIMIT {limit[0]},{limit[1]};
         """
 
         sql_count = f"""
-        SELECT COUNT(DISTINCT case_id) FROM exile_test_mid_version_case WHERE version_id in {version_id_list};
+        SELECT 
+            COUNT(*)
+        FROM
+            exile_test_case A
+        WHERE
+            EXISTS (
+                SELECT
+                    B.id, B.case_id, B.version_id
+                FROM
+                    exile_test_mid_version_case B
+                WHERE
+                    B.case_id = A.id
+                    AND B.is_deleted = 0 
+                    AND B.version_id in {version_id_list})
+                {f'AND creator_id={creator_id}' if creator_id else ''}
+                AND is_deleted = {is_deleted}
+                AND case_name LIKE"%{case_name}%";
         """
 
         result_list = project_db.select(sql)
@@ -293,7 +322,7 @@ class CasePageApi(MethodView):
         result_data = {
             'records': result_list,
             'now_page': page,
-            'total': result_count[0].get('COUNT(DISTINCT case_id)')
+            'total': result_count[0].get('COUNT(*)')
         }
 
         return api_result(code=200, message='操作成功', data=result_data)
