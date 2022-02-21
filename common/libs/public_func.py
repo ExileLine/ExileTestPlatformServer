@@ -97,6 +97,37 @@ class RequestParamKeysCheck:
             return True, "pass"
 
 
+class ActionSet:
+
+    @staticmethod
+    def gen_intersection(l_list, r_list):
+        """交集"""
+        jj = list(set(l_list).intersection(set(r_list)))
+        return jj
+
+    @staticmethod
+    def gen_difference(l_list, r_list):
+        """差集"""
+        cj = list(set(l_list).difference(set(r_list)))
+        return cj
+
+    @staticmethod
+    def gen_union(l_list, r_list):
+        """并集"""
+        bj = list(set(l_list).union(r_list))
+        return bj
+
+
 if __name__ == '__main__':
     d = {"a": "b"}
     print(check_keys(d, *["b"]))
+
+    l1 = [1, 2]
+    l2 = [1, 2, 5, 6]
+
+    print(ActionSet.gen_intersection(l1, l2))
+
+    print(ActionSet.gen_difference(l2, l1))
+
+    print(ActionSet.gen_union(l1, l2))
+    print(ActionSet.gen_union(l2, l1))

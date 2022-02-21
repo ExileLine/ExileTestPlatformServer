@@ -7,6 +7,7 @@
 
 from all_reference import *
 from app.models.test_case.models import TestCase
+from app.models.test_project.models import TestProject, TestProjectVersion, MidProjectVersionAndCase
 from app.models.test_case_assert.models import TestCaseDataAssBind
 
 
@@ -19,11 +20,20 @@ def check_method(current_method):
 
 
 p = [
+    ("version_id_list", "版本迭代"),
     ("case_name", "用例名称"),
     ("request_method", "请求方式"),
     ("request_base_url", "base url"),
     ("request_url", "url")
 ]
+
+
+def check_version(version_id_list):
+    for version_obj in version_id_list:
+        version_id = version_obj.get('id')
+        if not TestProjectVersion.query.get(version_id):
+            return False
+    return True
 
 
 class CaseApi(MethodView):
@@ -49,6 +59,7 @@ class CaseApi(MethodView):
         """用例新增"""
 
         data = request.get_json()
+        version_id_list = data.get('version_id_list', [])
         case_name = data.get('case_name')
         request_method = data.get('request_method')
         request_base_url = data.get('request_base_url')
@@ -60,6 +71,12 @@ class CaseApi(MethodView):
         check_bool, check_msg = RequestParamKeysCheck(data, p).ck()
         if not check_bool:
             return api_result(code=400, message=check_msg)
+
+        if not isinstance(version_id_list, list) or not version_id_list:
+            return api_result(code=400, message='版本迭代不能为空')
+
+        if not check_version(version_id_list):
+            return api_result(code=400, message='版本迭代不存在')
 
         request_base_url = request_base_url.replace(" ", "")
         if not request_base_url:
@@ -87,13 +104,28 @@ class CaseApi(MethodView):
             creator_id=g.app_user.id,
         )
         new_test_case.save()
-        data['id'] = new_test_case.id
+        case_id = new_test_case.id
+
+        for version_obj in version_id_list:
+            version_id = version_obj.get('id')
+            new_mid = MidProjectVersionAndCase(
+                version_id=version_id,
+                case_id=case_id,
+                creator=g.app_user.username,
+                creator_id=g.app_user.id
+            )
+            db.session.add(new_mid)
+        db.session.commit()
+
+        data['id'] = case_id
+
         return api_result(code=201, message='创建成功', data=data)
 
     def put(self):
         """用例编辑"""
 
         data = request.get_json()
+        version_id_list = data.get('version_id_list', [])
         case_id = data.get('id')
         case_name = data.get('case_name')
         request_method = data.get('request_method')
@@ -106,6 +138,12 @@ class CaseApi(MethodView):
         check_bool, check_msg = RequestParamKeysCheck(data, p).ck()
         if not check_bool:
             return api_result(code=400, message=check_msg)
+
+        if not isinstance(version_id_list, list) or not version_id_list:
+            return api_result(code=400, message='版本迭代不能为空')
+
+        if not check_version(version_id_list):
+            return api_result(code=400, message='版本迭代不存在')
 
         request_base_url = request_base_url.replace(" ", "")
         if not request_base_url:
@@ -139,7 +177,45 @@ class CaseApi(MethodView):
         query_case.remark = remark
         query_case.modifier = g.app_user.username
         query_case.modifier_id = g.app_user.id
+
+        new_version_id_list = [version_obj.get('id') for version_obj in version_id_list]
+
+        query_mid_all = MidProjectVersionAndCase.query.filter_by(case_id=case_id).all()
+
+        remain_list = []
+
+        for q in query_mid_all:
+            if q.version_id not in new_version_id_list:
+                q.is_deleted = q.id
+                q.modifier = g.app_user.username
+                q.modifier_id = g.app_user.id
+                q.remark = "源数据差集(逻辑删除)"
+                query_mid_all.remove(q)
+            else:
+                remain_list.append(q.version_id)
+
+        jj = ActionSet.gen_intersection(remain_list, new_version_id_list)
+        cj = ActionSet.gen_difference(new_version_id_list, remain_list)
+
+        for version_id in jj:  # 激活
+            update_mid = MidProjectVersionAndCase.query.filter_by(version_id=version_id, case_id=case_id).first()
+            update_mid.modifier = g.app_user.username
+            update_mid.modifier_id = g.app_user.id
+            update_mid.is_deleted = 0
+            update_mid.remark = '交集(激活)'
+
+        for version_id in cj:  # 创建新的
+            new_mid = MidProjectVersionAndCase(
+                version_id=version_id,
+                case_id=case_id,
+                creator=g.app_user.username,
+                creator_id=g.app_user.id,
+                remark="新数据差集(创建)"
+            )
+            db.session.add(new_mid)
+
         db.session.commit()
+
         return api_result(code=203, message='编辑成功')
 
     def delete(self):
@@ -169,31 +245,57 @@ class CasePageApi(MethodView):
         """用例分页模糊查询"""
 
         data = request.get_json()
+        project_id = data.get('project_id')
+        version_id = data.get('version_id')
         case_id = data.get('case_id')
-        case_name = data.get('case_name')
+        case_name = data.get('case_name', '')
         creator_id = data.get('creator_id')
         is_deleted = data.get('is_deleted', False)
         page = data.get('page')
         size = data.get('size')
 
-        sql = """
-        SELECT * 
-        FROM exile_test_case  
-        WHERE 
-        id LIKE"%%" 
-        and case_name LIKE"%B1%" 
-        and is_deleted=0
-        ORDER BY create_timestamp LIMIT 0,20;
+        # TODO 旧数据 version_id 为 0,后续去除
+        if not version_id:
+            query_version = TestProjectVersion.query.filter_by(project_id=project_id).all()
+            version_id_list = (0,) + tuple([version.id for version in query_version])
+        else:
+            version_id_list = (0, version_id)
+
+        limit = page_size(page=page, size=size)
+
+        sql = f"""
+        SELECT 
+        id,
+        case_name,
+        request_method,
+        request_base_url,
+        request_url,
+        total_execution,
+        creator,
+        create_time,
+        modifier,
+        update_time
+        FROM exile_test_case 
+        WHERE id 
+        IN (SELECT MID.case_id FROM (SELECT DISTINCT case_id FROM exile_test_mid_version_case WHERE version_id in {version_id_list} AND is_deleted=0 LIMIT {limit[0]},{limit[1]}) as MID)
+        {f'AND creator_id={creator_id}' if creator_id else ''}
+        AND is_deleted={is_deleted} 
+        AND case_name LIKE"%{case_name}%"
+        ORDER BY create_timestamp DESC;
         """
 
-        result_data = general_query(
-            model=TestCase,
-            field_list=['id', 'case_name', 'creator_id'],
-            query_list=[case_id, case_name, creator_id],
-            is_deleted=is_deleted,
-            page=page,
-            size=size
-        )
+        sql_count = f"""
+        SELECT COUNT(DISTINCT case_id) FROM exile_test_mid_version_case WHERE version_id in {version_id_list};
+        """
+
+        result_list = project_db.select(sql)
+        result_count = project_db.select(sql_count)
+
+        result_data = {
+            'records': result_list,
+            'now_page': page,
+            'total': result_count[0].get('COUNT(DISTINCT case_id)')
+        }
 
         return api_result(code=200, message='操作成功', data=result_data)
 

@@ -36,10 +36,12 @@ def query_case_zip(case_id):
 
     query_case = TestCase.query.get(case_id)
 
-    query_mid = MidProjectVersionAndCase.query.filter_by(case_id=case_id).all()
+    query_mid = MidProjectVersionAndCase.query.filter_by(case_id=case_id, is_deleted=0).all()
 
     version_id_list = [mid.version_id for mid in query_mid]
-    version_model_list = TestProjectVersion.query.filter(TestProjectVersion.id.in_(version_id_list)).all()
+    version_model_list = TestProjectVersion.query.filter(
+        TestProjectVersion.id.in_(version_id_list),
+        TestProjectVersion.is_deleted == 0).all()
     version_obj_list = [v.to_json() for v in version_model_list]
 
     if not query_case:
