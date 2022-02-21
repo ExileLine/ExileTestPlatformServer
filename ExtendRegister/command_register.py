@@ -582,23 +582,3 @@ def register_commands(app):
         create_var()
         create_ass_resp()
         create_ass_field()
-
-    @app.cli.command("fix_version_case", help='修复旧数据(只能执行一次，后续删除)')
-    def fix_version_case():
-        all_case = TestCase.query.all()
-        old_case_id = [case.id for case in all_case]
-        current_mid_case_id = [i.case_id for i in MidProjectVersionAndCase.query.all()]
-        print(old_case_id, len(old_case_id))
-        print(current_mid_case_id, len(current_mid_case_id))
-        new_data_cj = list(set(old_case_id).difference(set(current_mid_case_id)))
-        print("新数据差集(创建)", new_data_cj, len(new_data_cj))
-        for i in new_data_cj:
-            new_mid = MidProjectVersionAndCase(
-                version_id=0,
-                case_id=i,
-                creator='shell',
-                creator_id=0,
-                remark='旧用例数据关联 exile_test_mid_version_case 表，默认 version_id = 0'
-            )
-            db.session.add(new_mid)
-        db.session.commit()
