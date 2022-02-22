@@ -96,6 +96,8 @@ class RespAssertionRuleApi(MethodView):
         "remark": "remark",
         "ass_json": [
             {
+
+                "resp_source":"body",
                 "assert_key": "code",
                 "expect_val": "200",
                 "expect_val_type": "1",
@@ -104,6 +106,7 @@ class RespAssertionRuleApi(MethodView):
                 "python_val_exp": "okc.get('a').get('b').get('c')[0]"
             },
             {
+                "resp_source":"headers",
                 "assert_key": "code",
                 "expect_val": "200",
                 "expect_val_type": "1",
@@ -112,6 +115,7 @@ class RespAssertionRuleApi(MethodView):
                 "python_val_exp": "okc.get('a').get('b').get('c')[0]"
             },
             {
+                "resp_source":"headers",
                 "assert_key": "message",
                 "expect_val": "index",
                 "expect_val_type": "2",
@@ -123,6 +127,7 @@ class RespAssertionRuleApi(MethodView):
     }
 
     ass_json:
+        :resp_source: 返回值来源(body or headers)
         :assert_key: 返回值的键(用于简单取值)
         :expect_val: 期望值
         :expect_val_type: 期望值类型
@@ -159,7 +164,7 @@ class RespAssertionRuleApi(MethodView):
         for a in ass_json:
             check_bool = check_keys(
                 a, 'assert_key', 'expect_val_type', 'expect_val', 'rule', 'is_expression', 'python_val_exp'
-            )
+            )  # TODO 增加 resp_source
             if not check_bool:
                 return api_result(code=400, message='检验对象错误', data=a)
 
