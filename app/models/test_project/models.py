@@ -57,3 +57,22 @@ class MidProjectVersionAndCase(BaseModel):
 
     def __repr__(self):
         return 'MidProjectVersionAndCase 模型对象-> ID:{} 版本迭代id:{} 用例id:{}'.format(self.id, self.version_id, self.case_id)
+
+
+class MidProjectVersionAndScenario(BaseModel):
+    __tablename__ = 'exile_test_mid_version_scenario'
+    __table_args__ = (
+        db.Index('idx_version_scenario', 'version_id', 'scenario_id', 'is_deleted'),
+        {'comment': '版本迭代场景中间表'}
+    )
+    version_id = db.Column(BIGINT(20, unsigned=True), comment='版本迭代id')
+    scenario_id = db.Column(BIGINT(20, unsigned=True), comment='场景id')
+    creator = db.Column(db.String(32), comment='创建人')
+    creator_id = db.Column(BIGINT(20, unsigned=True), comment='创建人id')
+    modifier = db.Column(db.String(32), comment='更新人')
+    modifier_id = db.Column(BIGINT(20, unsigned=True), comment='更新人id')
+    remark = db.Column(db.String(255), comment='备注')
+
+    def __repr__(self):
+        return 'MidProjectVersionAndScenario 模型对象-> ID:{} 版本迭代id:{} 场景id:{}'.format(self.id, self.version_id,
+                                                                                    self.scenario_id)

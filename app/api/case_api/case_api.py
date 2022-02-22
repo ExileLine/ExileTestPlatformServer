@@ -7,7 +7,7 @@
 
 from all_reference import *
 from app.models.test_case.models import TestCase
-from app.models.test_project.models import TestProject, TestProjectVersion, MidProjectVersionAndCase
+from app.models.test_project.models import TestProjectVersion, MidProjectVersionAndCase
 from app.models.test_case_assert.models import TestCaseDataAssBind
 
 

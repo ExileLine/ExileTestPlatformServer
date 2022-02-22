@@ -14,4 +14,5 @@ from app.models.test_env.models import TestEnv
 from app.models.test_variable.models import TestVariable
 from app.models.test_logs.models import TestLogs, TestExecuteLogs
 from app.models.test_case_set.models import TestCaseSet
-from app.models.test_project.models import TestProject, TestProjectVersion, MidProjectVersionAndCase
+from app.models.test_project.models import TestProject, TestProjectVersion, MidProjectVersionAndCase, \
+    MidProjectVersionAndScenario
