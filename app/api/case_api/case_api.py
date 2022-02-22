@@ -373,6 +373,22 @@ class CaseCopyApi(MethodView):
                     remark="用例复制生成"
                 )
                 db.session.add(new_bind)
-            db.session.commit()
+
+        query_mid = MidProjectVersionAndCase.query.filter_by(case_id=case_id, is_deleted=0).all()
+
+        version_id_list = [mid.version_id for mid in query_mid]
+
+        if version_id_list:
+            for version_id in version_id_list:
+                new_mid = MidProjectVersionAndCase(
+                    case_id=new_test_case_id,
+                    version_id=version_id,
+                    creator=g.app_user.username,
+                    creator_id=g.app_user.id,
+                    remark="用例复制生成"
+                )
+                db.session.add(new_mid)
+
+        db.session.commit()
 
         return api_result(code=200, message='操作成功')
