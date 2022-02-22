@@ -179,4 +179,4 @@ class CaseExecApi(MethodView):
         )
         tl.save()
 
-        return api_result(code=200, message='操作成功,请前往日志查看执行结果')
+        return api_result(code=200, message='操作成功,请前往日志查看执行结果', data=send_test_case_list)
