@@ -211,28 +211,82 @@ class CaseScenarioPageApi(MethodView):
         """用例场景分页模糊查询"""
 
         data = request.get_json()
+        project_id = data.get('project_id')
+        version_id = data.get('version_id')
         scenario_id = data.get('scenario_id')
-        scenario_title = data.get('scenario_title')
+        scenario_title = data.get('scenario_title', '')
+        creator_id = data.get('creator_id')
         is_deleted = data.get('is_deleted', False)
         page = data.get('page')
         size = data.get('size')
 
-        sql = """
-        SELECT * 
-        FROM exile_test_case_scenario  
-        WHERE 
-        id LIKE"%%" 
-        and scenario_title LIKE"%A%" 
-        and is_deleted=0
-        ORDER BY create_timestamp LIMIT 0,20;
+        # TODO 旧数据 version_id 为 0,后续去除
+        if not version_id:
+            query_version = TestProjectVersion.query.filter_by(project_id=project_id).all()
+            version_id_list = (0,) + tuple([version.id for version in query_version])
+        else:
+            version_id_list = (0, version_id)
+
+        limit = page_size(page=page, size=size)
+
+        sql = f"""
+        SELECT
+            A.id,
+            A.scenario_title,
+            A.total_execution,
+            A.creator,
+            A.create_time,
+            A.create_timestamp,
+            A.modifier,
+            A.update_time,
+            A.update_timestamp
+        FROM
+            exile_test_case_scenario A
+        WHERE
+            EXISTS (
+                SELECT
+                    B.id, B.scenario_id, B.version_id
+                FROM
+                    exile_test_mid_version_scenario B
+                WHERE
+                    B.scenario_id = A.id 
+                    AND B.is_deleted = 0
+                    AND B.version_id in {version_id_list})
+                {f'AND creator_id={creator_id}' if creator_id else ''}
+                AND is_deleted = {is_deleted}
+                AND scenario_title LIKE"%{scenario_title}%"
+            ORDER BY
+                A.create_timestamp DESC
+            LIMIT {limit[0]},{limit[1]};
         """
 
-        result_data = general_query(
-            model=TestCaseScenario,
-            field_list=['id', 'scenario_title'],
-            query_list=[scenario_id, scenario_title],
-            is_deleted=is_deleted,
-            page=page,
-            size=size
-        )
+        sql_count = f"""
+        SELECT 
+            COUNT(*)
+        FROM
+            exile_test_case_scenario A
+        WHERE
+            EXISTS (
+                SELECT
+                    B.id, B.scenario_id, B.version_id
+                FROM
+                    exile_test_mid_version_scenario B
+                WHERE
+                    B.scenario_id = A.id
+                    AND B.is_deleted = 0 
+                    AND B.version_id in {version_id_list})
+                {f'AND creator_id={creator_id}' if creator_id else ''}
+                AND is_deleted = {is_deleted}
+                AND scenario_title LIKE"%{scenario_title}%";
+        """
+
+        result_list = project_db.select(sql)
+        result_count = project_db.select(sql_count)
+
+        result_data = {
+            'records': result_list,
+            'now_page': page,
+            'total': result_count[0].get('COUNT(*)')
+        }
+
         return api_result(code=200, message='操作成功', data=result_data)
