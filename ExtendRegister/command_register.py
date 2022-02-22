@@ -16,12 +16,13 @@ from common.libs.db import project_db
 from ExtendRegister.db_register import db
 from app.models.admin.models import Admin, Role, Permission, MidAdminAndRole, MidPermissionAndRole, ApiResource
 from app.models.test_case.models import TestCase, TestCaseData
+from app.models.test_case_scenario.models import TestCaseScenario
 from app.models.test_variable.models import TestVariable
 from app.models.test_case_assert.models import TestCaseAssResponse, TestCaseAssField
 from app.models.push_reminder.models import MailConfModel, DingDingConfModel
 from app.models.platform_conf.models import PlatformConfModel
 from app.models.ui_auto_file.models import UiAutoFile
-from app.models.test_project.models import MidProjectVersionAndCase
+from app.models.test_project.models import MidProjectVersionAndCase, MidProjectVersionAndScenario
 
 """
 export FLASK_APP=ApplicationExample.py
@@ -582,3 +583,46 @@ def register_commands(app):
         create_var()
         create_ass_resp()
         create_ass_field()
+
+    @app.cli.command("init_version_mid", help='修正旧用例数据以及场景数据，兼容版本迭代的中间表逻辑')
+    def init_version_mid():
+        all_case = TestCase.query.all()
+        old_case_id = [case.id for case in all_case]
+        current_mid_case_id = [i.case_id for i in MidProjectVersionAndCase.query.all()]
+        print(old_case_id, len(old_case_id))
+        print(current_mid_case_id, len(current_mid_case_id))
+        new_data_cj = list(set(old_case_id).difference(set(current_mid_case_id)))
+        print("新数据差集(创建)", new_data_cj, len(new_data_cj))
+        for i in new_data_cj:
+            new_mid = MidProjectVersionAndCase(
+                version_id=0,
+                case_id=i,
+                creator='shell',
+                creator_id=0,
+                remark='旧用例数据关联 exile_test_mid_version_case 表，默认 version_id = 0'
+            )
+            db.session.add(new_mid)
+        db.session.commit()
+
+        print('=== exile_test_mid_version_case 完成 ===')
+
+        all_scenario = TestCaseScenario.query.all()
+        old_scenario_id = [scenario.id for scenario in all_scenario]
+        current_mid_scenario_id = [i.scenario_id for i in MidProjectVersionAndScenario.query.all()]
+        print(old_scenario_id, len(old_scenario_id))
+        print(current_mid_scenario_id, len(current_mid_scenario_id))
+        new_data_cj = list(set(old_scenario_id).difference(set(current_mid_scenario_id)))
+        print("新数据差集(创建)", new_data_cj, len(new_data_cj))
+
+        for i in new_data_cj:
+            new_mid = MidProjectVersionAndScenario(
+                version_id=0,
+                scenario_id=i,
+                creator='shell',
+                creator_id=0,
+                remark='旧用例数据关联 exile_test_mid_version_scenario 表，默认 version_id = 0'
+            )
+            db.session.add(new_mid)
+        db.session.commit()
+
+        print('=== exile_test_mid_version_scenario 完成 ===')
