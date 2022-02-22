@@ -8,7 +8,6 @@
 
 from flask import Blueprint
 
-from .demo_api.demo_api import TestApi
 from .index_api.index_api import IndexApi
 from .login_api.login_api import LoginApi
 from .user_api.user_api import TouristApi, UserApi, UserPasswordApi, UserPageApi, UserProfileApi
@@ -36,8 +35,6 @@ from .project_api.project_api import ProjectApi, ProjectPageApi, ProjectVersionA
 
 api = Blueprint('api', __name__)
 crm = Blueprint('crm', __name__)
-
-api.add_url_rule('/test', view_func=TestApi.as_view('test_api'))
 
 api.add_url_rule('/index', view_func=IndexApi.as_view('index_api'))
 api.add_url_rule('/index/<version_id>', view_func=IndexApi.as_view('index_version_api'))
