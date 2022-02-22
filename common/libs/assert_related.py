@@ -246,8 +246,8 @@ class AssertFieldMain(AssertMain):
         rule = self.current_ass.get('rule')
         expect_val = self.current_ass.get('expect_val')
 
-        self.sio.log(f'=== 断言:{self.assert_description} ===')
-        self.sio.log(f'=== 值:{assert_key} ===')
+        self.sio.log(f'=== 断言:{self.assert_description} ===', status='success')
+        self.sio.log(f'=== 值:{assert_key} ===', status='success')
         message = f'{assert_key}:{type(assert_key)} [{rule}] {expect_val}:{type(expect_val)}'
         self.sio.log(message)
 
@@ -281,8 +281,8 @@ class AssertFieldMain(AssertMain):
         rule = self.current_ass.get('rule')
         expect_val = self.current_ass.get('expect_val')
 
-        self.sio.log('=== 断言:{} ==='.format(self.assert_description))
-        self.sio.log('=== 字段:{} ==='.format(assert_key))
+        self.sio.log('=== 断言:{} ==='.format(self.assert_description), status='success')
+        self.sio.log('=== 字段:{} ==='.format(assert_key), status='success')
         message = f'{var_result}:{type(var_result)} [{rule}] {expect_val}:{type(expect_val)}'
         self.sio.log(message)
 
@@ -305,23 +305,25 @@ class AssertFieldMain(AssertMain):
             self.sio.log('=== 断言异常 ===', status="error")
             self.ass_field_error.append(message)
 
-    def ass_list_result(self, query_result):
+    def ass_list_result(self):
         """
         查询结果为一个[],检验:=,>,>=,<,<=,in,not in
         ps:如果该方法报错,是参数在入库的时候接口没有做好检验或者手动修改了数据库的数据
         """
         # TODO ass_list_result
-        return
 
     def consume_ass(self):
         """获取断言规则"""
 
-        for ass in self.assert_list:
+        for index, ass in enumerate(self.assert_list):
+
             self.current_ass = ass
 
             if self.current_db_type in ['mysql', 'postgresql']:
-                if isinstance(self.query_result, dict):
-                    self.ass_dict_result()
+                # TODO 暂时支持唯一数据检验
+                if len(self.query_result) == 1 and isinstance(self.query_result, list):
+                    self.query_result = self.query_result[0]
+                self.ass_dict_result()
 
             elif self.current_db_type in ['redis']:
 

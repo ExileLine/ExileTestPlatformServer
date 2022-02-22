@@ -316,9 +316,8 @@ class MainTest:
         """
         执行Field断言
         """
+        for index, field_ass_dict in enumerate(field_ass_list):
 
-        for field_ass_dict in field_ass_list:
-            # print(field_ass_dict)
             new_field_ass = AssertFieldMain(
                 sio=self.sio,
                 assert_description=assert_description,
@@ -432,14 +431,16 @@ class MainTest:
             for field_ass in case_field_ass_info:
                 field_ass_list = field_ass.get('ass_json')
                 assert_description = field_ass.get('assert_description')
-                # print(field_ass_list)
+
                 if self.check_field_ass_keys(assert_list=field_ass_list):  # 数据库校验
                     for field_ass_child in field_ass_list:
                         assert_list = field_ass_child.get('assert_list')
+
                     self.execute_field_ass(
                         field_ass_list=field_ass_list,
                         assert_description=assert_description
                     )
+
                 else:
                     return False
 
