@@ -245,7 +245,7 @@ class RespAssertionRuleApi(MethodView):
                 'response_source'
             )
             if not check_bool:
-                return api_result(code=400, message='检验对象错误', data=a)
+                return api_result(code=400, message='请求参数错误')
 
             rule = rule_dict.get(a.get('rule'))
 
@@ -264,14 +264,16 @@ class RespAssertionRuleApi(MethodView):
                 return api_result(code=400, message='规则参数错误:{}'.format(is_expression))
 
             expect_val = a.get('expect_val')
-            expect_val_type = expect_val_type_dict.get(str(a.get('expect_val_type')))
+            expect_val_type = a.get('expect_val_type')
+            expect_val_type_func = expect_val_type_dict.get(str(expect_val_type))
 
             try:
                 # a['rule'] = rule
-                a['expect_val'] = expect_val_type(expect_val)
+                a['expect_val'] = expect_val_type_func(expect_val)
                 new_ass_json.append(a)
             except BaseException as e:
-                return api_result(code=400, message='参数:{} 无法转换至 类型:{}'.format(expect_val, type(expect_val_type())))
+                return api_result(code=400,
+                                  message='参数:{} 无法转换至 类型:{}'.format(expect_val, type(expect_val_type_func())))
 
         query_ass_resp.assert_description = assert_description
         query_ass_resp.ass_json = new_ass_json
