@@ -626,3 +626,29 @@ def register_commands(app):
         db.session.commit()
 
         print('=== exile_test_mid_version_scenario 完成 ===')
+
+    @app.cli.command("fix_ass_resp", help='修正旧响应断言数据添加默认的：response_source')
+    def fix_ass_resp():
+        def __func(l):
+            new_list = []
+            for i in l:
+                if not i.get('response_source'):
+                    d = {
+                        "response_source": "response_body"
+                    }
+                    d.update(i)
+                    new_list.append(d)
+                else:
+                    new_list.append(i)
+            return new_list
+
+        query_all = TestCaseAssResponse.query.all()
+        print(len(query_all))
+
+        for q in query_all:
+            print(q.id)
+            print(q.ass_json)
+            current_list = q.ass_json
+            new_ass_json = __func(current_list)
+            q.ass_json = new_ass_json
+        db.session.commit()
