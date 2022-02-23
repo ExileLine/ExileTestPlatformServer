@@ -7,6 +7,9 @@
 
 import json
 
+# 返回值来源
+resp_source_tuple = ("response_body", "response_headers")
+
 # RespAssertionRuleApi 新增,编辑时候使用
 rule_save_dict = {
     "=": 1,

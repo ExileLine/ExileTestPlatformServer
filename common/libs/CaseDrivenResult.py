@@ -239,7 +239,15 @@ class MainTest:
         assert_list: ->list 规则列表
         """
 
-        cl = ["assert_key", "expect_val", "expect_val_type", "is_expression", "python_val_exp", "rule"]
+        cl = [
+            "assert_key",
+            "expect_val",
+            "expect_val_type",
+            "response_source",
+            "is_expression",
+            "python_val_exp",
+            "rule"
+        ]
 
         if not isinstance(assert_list, list) or not assert_list:
             self.sio.log("assert_list:类型错误{}".format(assert_list))
@@ -280,14 +288,16 @@ class MainTest:
                     "assert_key": "code",
                     "expect_val": "200",
                     "expect_val_type": "1",
+                    "response_source": "response_body"
                     "is_expression": 0,
                     "python_val_exp": "okc.get('a').get('b').get('c')[0]",
                     "rule": "__eq__"
                 },
                 {
-                    "assert_key": "message",
-                    "expect_val": "index",
+                    "assert_key": "token",
+                    "expect_val": "12345678",
                     "expect_val_type": "1",
+                    "response_source": "response_headers"
                     "is_expression": 0,
                     "python_val_exp": "okc.get('a').get('b').get('c')[0]",
                     "rule": "__eq__"

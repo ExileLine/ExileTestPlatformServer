@@ -12,7 +12,7 @@ from app.models.test_case_config.models import TestDatabases
 from common.libs.db import MyPyMysql
 from common.libs.execute_code import execute_code
 from common.libs.StringIOLog import StringIOLog
-from common.libs.data_dict import rule_dict
+from common.libs.data_dict import rule_dict, resp_source_tuple
 
 
 class AssertMain:
@@ -52,7 +52,7 @@ class AssertResponseMain(AssertMain):
     """Response 断言类"""
 
     def __init__(self, sio=None, resp_json=None, resp_headers=None, assert_description=None, assert_key=None, rule=None,
-                 expect_val=None, expect_val_type=None, is_expression=None, python_val_exp=None):
+                 expect_val=None, response_source=None, expect_val_type=None, is_expression=None, python_val_exp=None):
         self.sio = sio if sio else StringIOLog()
         self.resp_json = resp_json
         self.resp_headers = resp_headers
@@ -61,6 +61,7 @@ class AssertResponseMain(AssertMain):
         self.assert_key = assert_key
         self.rule = rule
         self.expect_val = expect_val
+        self.response_source = response_source
         self.expect_val_type = expect_val_type
         self.is_expression = is_expression
         self.python_val_exp = python_val_exp
@@ -70,14 +71,30 @@ class AssertResponseMain(AssertMain):
         用键获取需要断言的值
         :return:
         """
-        if self.is_expression:  # 公式取值
-            result_json = execute_code(code=self.python_val_exp, data=self.resp_json)
-            result = result_json.get('result_data')
-            self.sio.log("=== 公式取值结果: {} ===".format(result))
-            self.this_val = result
 
-        else:  # 直接常规取值:紧限于返回值的第一层键值对如:{"code":200,"message":"ok"}
-            self.this_val = self.resp_json.get(self.assert_key)
+        if self.response_source not in resp_source_tuple:
+            return {
+                "status": False,
+                "message": "response 来源错误: {}".format(self.response_source)
+            }
+        if self.response_source == resp_source_tuple[0]:  # response_body
+            if self.is_expression:
+                result_json = execute_code(code=self.python_val_exp, data=self.resp_json)
+                result = result_json.get('result_data')
+                self.sio.log("=== 公式取值结果: {} ===".format(result))
+                self.this_val = result
+            else:
+                self.this_val = self.resp_json.get(self.assert_key)  # 直接常规取值:紧限于返回值的第一层键值对如:{"code":200,"message":"ok"}
+
+        if self.response_source == resp_source_tuple[1]:  # response_headers
+            if self.is_expression:
+                result_json = execute_code(code=self.python_val_exp, data=self.resp_headers)
+                result = result_json.get('result_data')
+                self.sio.log("=== 公式取值结果: {} ===".format(result))
+                self.this_val = result
+            else:
+                self.this_val = self.resp_headers.get(
+                    self.assert_key)  # 直接常规取值:紧限于返回值的第一层键值对如:{"code":200,"message":"ok"}
 
     def main(self):
         """
@@ -188,6 +205,7 @@ class AssertFieldMain(AssertMain):
 
     def get_postgresql(self):
         """连接:PostgreSQL"""
+        return
 
     def get_mongodb(self):
         """连接:Mongodb"""

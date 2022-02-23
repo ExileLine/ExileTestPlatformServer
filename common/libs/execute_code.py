@@ -5,6 +5,8 @@
 # @File    : execute_code.py
 # @Software: PyCharm
 
+from requests import structures
+
 
 def execute_code(code, data):
     """
@@ -29,6 +31,11 @@ def execute_code(code, data):
         # rs = rule_str.split("[")
         # rs[0] = 'd'
         new_rule_str = code
+    elif isinstance(__obj, structures.CaseInsensitiveDict):
+        __obj = dict(__obj)
+        rs = code.split('.')
+        rs[0] = '__obj'
+        new_rule_str = '.'.join(rs)
     else:
         raise TypeError("取值参数类型应该为:JSON,Dict,List,Str 而不是: {}".format(type(__obj)))
 
@@ -90,6 +97,7 @@ if __name__ == '__main__':
     print(execute_code(code=c2, data=d2))
 
     print('-' * 33)
+
 
     class A:
         pass

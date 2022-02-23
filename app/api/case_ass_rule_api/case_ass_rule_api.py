@@ -156,6 +156,9 @@ class RespAssertionRuleApi(MethodView):
         is_public = data.get('is_public', 1)
         remark = data.get('remark')
 
+        if not assert_description or assert_description == '':
+            return api_result(code=400, message='断言描述不能为空')
+
         if not isinstance(ass_json, list) or not ass_json:
             return ab_code(400)
 
@@ -163,12 +166,18 @@ class RespAssertionRuleApi(MethodView):
 
         for a in ass_json:
             check_bool = check_keys(
-                a, 'assert_key', 'expect_val_type', 'expect_val', 'rule', 'is_expression', 'python_val_exp'
-            )  # TODO 增加 resp_source
+                a, 'assert_key', 'expect_val_type', 'expect_val', 'rule', 'is_expression', 'python_val_exp',
+                'response_source'
+            )
             if not check_bool:
                 return api_result(code=400, message='检验对象错误', data=a)
 
             rule = rule_dict.get(a.get('rule'))
+
+            resp_source = a.get('response_source')
+
+            if resp_source not in resp_source_tuple:
+                return api_result(code=400, message='来源参数错误:{}'.format(resp_source))
 
             if not rule:
                 return api_result(code=400, message='规则参数错误:{}'.format(a.get('rule')))
@@ -215,6 +224,9 @@ class RespAssertionRuleApi(MethodView):
         if not query_ass_resp:
             return api_result(code=400, message='返回值断言id:{}数据不存在'.format(ass_resp_id))
 
+        if not assert_description or assert_description == '':
+            return api_result(code=400, message='断言描述不能为空')
+
         if not bool(is_public) and query_ass_resp.creator_id != g.app_user.id:
             return api_result(code=400, message='非创建人，无法修改使用状态')
 
@@ -229,12 +241,18 @@ class RespAssertionRuleApi(MethodView):
 
         for a in ass_json:
             check_bool = check_keys(
-                a, 'assert_key', 'expect_val_type', 'expect_val', 'rule', 'is_expression', 'python_val_exp'
+                a, 'assert_key', 'expect_val_type', 'expect_val', 'rule', 'is_expression', 'python_val_exp',
+                'response_source'
             )
             if not check_bool:
                 return api_result(code=400, message='检验对象错误', data=a)
 
             rule = rule_dict.get(a.get('rule'))
+
+            resp_source = a.get('response_source')
+
+            if resp_source not in resp_source_tuple:
+                return api_result(code=400, message='来源参数错误:{}'.format(resp_source))
 
             if not rule:
                 return api_result(code=400, message='规则参数错误:{}'.format(a.get('rule')))
