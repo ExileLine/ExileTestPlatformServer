@@ -22,7 +22,9 @@ from app.models.test_case_assert.models import TestCaseAssResponse, TestCaseAssF
 from app.models.push_reminder.models import MailConfModel, DingDingConfModel
 from app.models.platform_conf.models import PlatformConfModel
 from app.models.ui_auto_file.models import UiAutoFile
-from app.models.test_project.models import MidProjectVersionAndCase, MidProjectVersionAndScenario
+from app.models.test_project.models import TestProject, TestProjectVersion, MidProjectVersionAndCase, \
+    MidProjectVersionAndScenario
+from app.models.test_case_config.models import TestDatabases
 
 """
 export FLASK_APP=ApplicationExample.py
@@ -387,6 +389,29 @@ def register_commands(app):
     def create_test_data():
         request_method = ["GET", "POST", "PUT", "DELETE"]
 
+        def create_project_version():
+            new_project = TestProject(
+                project_name='初始化项目',
+                remark="脚本生成",
+                creator="shell",
+                creator_id=999999,
+            )
+            db.session.add(new_project)
+            db.session.commit()
+            project_id = new_project.id
+
+            for index, i in enumerate(range(0, 5), 1):
+                new_version = TestProjectVersion(
+                    version_name=f"版本迭代:{index}",
+                    version_number=f"v1.{index}",
+                    project_id=project_id,
+                    remark="脚本生成",
+                    creator="shell",
+                    creator_id=999999,
+                )
+                db.session.add(new_version)
+            db.session.commit()
+
         def create_case():
             api_list = [
                 '/api/case_execute_logs_page',
@@ -455,6 +480,21 @@ def register_commands(app):
                 case.modifier_id = 888888
             db.session.commit()
 
+        def set_case_version():
+            all_case = TestCase.query.all()
+            all_version_id = [v.id for v in TestProjectVersion.query.all()]
+
+            for case in all_case:
+                mid = MidProjectVersionAndCase(
+                    version_id=random.choice(all_version_id),
+                    case_id=case.id,
+                    remark="脚本生成",
+                    creator="shell",
+                    creator_id=999999
+                )
+                db.session.add(mid)
+            db.session.commit()
+
         def create_case_data():
             for index, i in enumerate(range(0, 33)):
                 tcd = TestCaseData(
@@ -469,9 +509,9 @@ def register_commands(app):
                     },
                     request_body_type=1,
                     update_var_list=[],
-                    remark="脚本生成:{}".format(index),
-                    creator="脚本生成:{}".format(index),
-                    creator_id=999999,
+                    remark="脚本生成",
+                    creator="shell",
+                    creator_id=999999
                 )
                 db.session.add(tcd)
             db.session.commit()
@@ -481,16 +521,44 @@ def register_commands(app):
                 tv = TestVariable(
                     var_name="变量:{}".format(index),
                     var_value="变量的值:{}".format(index),
-                    var_type=random.choice([1, 2, 3, 4, 5, 6]),
+                    var_type=random.choice(list(range(1, 13))),
                     var_source=random.choice(["resp_data", "resp_headers"]),
                     var_get_key="code",
                     expression="obj.get('message')",
                     is_expression=1,
-                    remark="脚本生成:{}".format(index),
-                    creator="脚本生成:{}".format(index),
+                    remark="脚本生成",
+                    creator="shell",
                     creator_id=999999
                 )
                 db.session.add(tv)
+            db.session.commit()
+
+        def create_db():
+            mysql_db = TestDatabases(
+                name='测试环境:mysql',
+                db_type='mysql',
+                db_connection={"host": "127.0.0.1", "password": "12345678", "port": 3306, "user": "root"},
+                remark="脚本生成",
+                creator="shell",
+                creator_id=999999,
+            )
+            redis_db = TestDatabases(
+                name='测试环境:redis',
+                db_type='redis',
+                db_connection={"db": 3, "host": "127.0.0.1", "password": "1234567890000", "port": 3308},
+                remark="脚本生成",
+                creator="shell",
+                creator_id=999999,
+            )
+            es_db = TestDatabases(
+                name='测试环境:ES',
+                db_type='redis',
+                db_connection={},
+                remark="脚本生成",
+                creator="shell",
+                creator_id=999999,
+            )
+            db.session.add_all([mysql_db, redis_db, es_db])
             db.session.commit()
 
         def create_ass_resp():
@@ -499,6 +567,7 @@ def register_commands(app):
                     assert_description="业务逻辑断言:{}".format(index),
                     ass_json=[
                         {
+                            "response_source": "response_body",
                             "assert_key": "code",
                             "expect_val": "200",
                             "expect_val_type": "1",
@@ -507,14 +576,16 @@ def register_commands(app):
                             "python_val_exp": "okc.get('a').get('b').get('c')[0]"
                         },
                         {
-                            "assert_key": "code",
-                            "expect_val": "200",
-                            "expect_val_type": "1",
+                            "response_source": "response_headers",
+                            "assert_key": "log_uuid",
+                            "expect_val": "qwertyuiop",
+                            "expect_val_type": "2",
                             "rule": ">=",
                             "is_expression": 0,
                             "python_val_exp": "okc.get('a').get('b').get('c')[0]"
                         },
                         {
+                            "response_source": "response_body",
                             "assert_key": "message",
                             "expect_val": "index",
                             "expect_val_type": "2",
@@ -523,6 +594,7 @@ def register_commands(app):
                             "python_val_exp": "okc.get('a').get('b').get('c')[0]"
                         },
                         {
+                            "response_source": "response_body",
                             "assert_key": "message",
                             "expect_val": "index",
                             "expect_val_type": "2",
@@ -531,6 +603,7 @@ def register_commands(app):
                             "python_val_exp": "okc.get('message')"
                         },
                         {
+                            "response_source": "response_body",
                             "assert_key": "message",
                             "expect_val": "yangyuexiongyyx",
                             "expect_val_type": "2",
@@ -539,8 +612,8 @@ def register_commands(app):
                             "python_val_exp": "okc.get('token')"
                         }
                     ],
-                    remark="脚本生成:{}".format(index),
-                    creator="脚本生成:{}".format(index),
+                    remark="脚本生成",
+                    creator="shell",
                     creator_id=999999
                 )
                 db.session.add(ar)
@@ -570,17 +643,20 @@ def register_commands(app):
                             ]
                         }
                     ],
-                    remark="脚本生成:{}".format(index),
-                    creator="脚本生成:{}".format(index),
+                    remark="脚本生成",
+                    creator="shell",
                     creator_id=999999
                 )
                 db.session.add(af)
             db.session.commit()
 
+        create_project_version()
         create_case()
         update_case()
+        set_case_version()
         create_case_data()
         create_var()
+        create_db()
         create_ass_resp()
         create_ass_field()
 
