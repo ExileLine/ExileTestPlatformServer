@@ -389,6 +389,18 @@ def register_commands(app):
     def create_test_data():
         request_method = ["GET", "POST", "PUT", "DELETE"]
 
+        def create_platform_conf():
+            pc = PlatformConfModel(
+                platform_name="放逐测试平台-demo",
+                platform_login_msg="Sign in to Exile Test Platform",
+                weights=9999,
+                remark="脚本生成",
+                creator="shell",
+                creator_id=999999
+            )
+            db.session.add(pc)
+            db.session.commit()
+
         def create_project_version():
             new_project = TestProject(
                 project_name='初始化项目',
@@ -650,6 +662,7 @@ def register_commands(app):
                 db.session.add(af)
             db.session.commit()
 
+        create_platform_conf()
         create_project_version()
         create_case()
         update_case()
