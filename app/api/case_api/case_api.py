@@ -245,7 +245,7 @@ class CasePageApi(MethodView):
 
         data = request.get_json()
         project_id = data.get('project_id')
-        version_id = data.get('version_id')
+        version_id = data.get('version_id', 0)
         case_id = data.get('case_id')
         case_name = data.get('case_name', '')
         creator_id = data.get('creator_id')
@@ -256,7 +256,8 @@ class CasePageApi(MethodView):
         # TODO 旧数据 version_id 为 0,后续去除
         if not version_id:
             query_version = TestProjectVersion.query.filter_by(project_id=project_id).all()
-            version_id_list = (0,) + tuple([version.id for version in query_version])
+            version_id_tuple = tuple([version.id for version in query_version])
+            version_id_list = (0,) + version_id_tuple if version_id_tuple else (0, 0)
         else:
             version_id_list = (0, version_id)
 
@@ -315,7 +316,8 @@ class CasePageApi(MethodView):
                 AND is_deleted = {is_deleted}
                 AND case_name LIKE"%{case_name}%";
         """
-
+        print(sql)
+        print(sql_count)
         result_list = project_db.select(sql)
         result_count = project_db.select(sql_count)
 
