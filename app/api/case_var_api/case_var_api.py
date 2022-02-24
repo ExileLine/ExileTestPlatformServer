@@ -9,30 +9,16 @@
 from all_reference import *
 from app.models.test_variable.models import TestVariable, TestVariableHistory
 
-var_type_dict = {
-    "str": 1,
-    "int": 2,
-    "json": 3,
-    "json_str": 4,
-    "list": 5,
-    "list_str": 6
-}
-var_source_dict = {
-    "resp_data": "resp_data",
-    "resp_headers": "resp_headers"
-}
-
 
 def check_req_var(data):
     """检查变量参数"""
     var_type = data.get('var_type')
     var_source = data.get('var_source')
-    var_type_list = list(range(1, 7))
-    var_source_list = ['resp_data', 'resp_headers']
+    var_type_list = list(range(1, 20))
 
     if var_type not in var_type_list:
         return False
-    if var_source and var_source not in var_source_list:
+    if var_source and var_source not in var_source_tuple:
         return False
     return True
 
