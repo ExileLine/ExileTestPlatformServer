@@ -33,3 +33,8 @@ class TestApi(MethodView):
 
     def get(self):
         return api_result(code=200, message='test api', data=True)
+
+    def post(self):
+        data = request.get_json()
+        print(data)
+        return api_result(code=200, message='test api', data=True)
