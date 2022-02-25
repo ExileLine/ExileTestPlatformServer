@@ -20,14 +20,7 @@ from common.libs.public_func import check_keys
 from common.libs.assert_related import AssertResponseMain, AssertFieldMain
 from common.libs.StringIOLog import StringIOLog
 from common.libs.execute_code import execute_code
-
-var_func_dict = {
-    "Date": str(datetime.datetime.now().date()),
-    "Time": str(datetime.datetime.now().time()),
-    "DateTime": str(datetime.datetime.now()),
-    "TimeStamp": str(int(time.time())),
-    "UUID": shortuuid.uuid()[0:10] + str(int(time.time())) + shortuuid.uuid()[0:10]
-}
+from common.libs.data_dict import var_func_dict
 
 
 class TestResult:
@@ -210,10 +203,15 @@ class MainTest:
         err_var_list = []
         current_dict = {}
         for res in result_list:
-            sql = """select var_value from exile_test_variable where var_name='{}';""".format(res)
+            sql = """select var_value, var_type from exile_test_variable where var_name='{}';""".format(res)
             query_result = project_db.select(sql=sql, only=True)
             if query_result:
-                current_dict[res] = json.loads(query_result.get('var_value'))
+                var_type = str(query_result.get('var_type'))
+                if var_type in var_func_dict.keys():  # 函数
+                    current_dict[res] = var_func_dict.get(var_type)
+                else:
+                    current_dict[res] = json.loads(query_result.get('var_value'))
+
             elif var_func_dict.get(res):
                 current_dict[res] = var_func_dict.get(res)
             else:

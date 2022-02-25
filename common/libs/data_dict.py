@@ -6,6 +6,9 @@
 # @Software: PyCharm
 
 import json
+import time
+import datetime
+import shortuuid
 
 # 返回值来源
 resp_source_tuple = ("response_body", "response_headers")
@@ -53,6 +56,16 @@ rule_dict = {
     '<=': '__le__',
     '!=': '__ne__',
     'in': '__contains__'
+}
+
+# 变量转换函数字典
+var_func_dict = {
+    "7": shortuuid.uuid()[0:10] + str(int(time.time())) + shortuuid.uuid()[0:10],  # uuid
+    "8": shortuuid.uuid(),  # short_uuid
+    "9": str(datetime.datetime.now().date()),  # date(年月日-2022-01-01)
+    "10": str(datetime.datetime.now().time()),  # time(时分秒-09:30:00.123456)
+    "11": str(datetime.datetime.now()),  # datetime(年月日时分秒-2022-01-01 09:30:00.123456)
+    "12": str(int(time.time()))  # timestamp(时间戳)
 }
 
 if __name__ == '__main__':
