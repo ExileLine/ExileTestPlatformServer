@@ -86,7 +86,9 @@ def register_commands(app):
     @click.option("--password", help="密码", type=str)
     def create_user(username, password):
         """
+        command: flask create_user --username admin --password 123456
         command: flask create_user --username yyx --password 123456
+        command: flask create_user --username okc --password 123456
         """
 
         query_user = Admin.query.filter_by(username=username).first()
