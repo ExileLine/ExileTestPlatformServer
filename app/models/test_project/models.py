@@ -48,6 +48,7 @@ class MidProjectVersionAndCase(BaseModel):
         {'comment': '版本迭代用例中间表'}
     )
     version_id = db.Column(BIGINT(20, unsigned=True), comment='版本迭代id')
+    task_id = db.Column(BIGINT(20, unsigned=True), comment='任务id')
     case_id = db.Column(BIGINT(20, unsigned=True), comment='用例id')
     creator = db.Column(db.String(32), comment='创建人')
     creator_id = db.Column(BIGINT(20, unsigned=True), comment='创建人id')
@@ -56,7 +57,9 @@ class MidProjectVersionAndCase(BaseModel):
     remark = db.Column(db.String(255), comment='备注')
 
     def __repr__(self):
-        return 'MidProjectVersionAndCase 模型对象-> ID:{} 版本迭代id:{} 用例id:{}'.format(self.id, self.version_id, self.case_id)
+        return 'MidProjectVersionAndCase 模型对象-> ID:{} 版本迭代id:{} 任务id:{} 用例id:{}'.format(
+            self.id, self.version_id, self.task_id, self.case_id
+        )
 
 
 class MidProjectVersionAndScenario(BaseModel):
@@ -66,6 +69,7 @@ class MidProjectVersionAndScenario(BaseModel):
         {'comment': '版本迭代场景中间表'}
     )
     version_id = db.Column(BIGINT(20, unsigned=True), comment='版本迭代id')
+    task_id = db.Column(BIGINT(20, unsigned=True), comment='任务id')
     scenario_id = db.Column(BIGINT(20, unsigned=True), comment='场景id')
     creator = db.Column(db.String(32), comment='创建人')
     creator_id = db.Column(BIGINT(20, unsigned=True), comment='创建人id')
@@ -74,5 +78,24 @@ class MidProjectVersionAndScenario(BaseModel):
     remark = db.Column(db.String(255), comment='备注')
 
     def __repr__(self):
-        return 'MidProjectVersionAndScenario 模型对象-> ID:{} 版本迭代id:{} 场景id:{}'.format(self.id, self.version_id,
-                                                                                    self.scenario_id)
+        return 'MidProjectVersionAndScenario 模型对象-> ID:{} 版本迭代id:{} 任务id:{} 场景id:{}'.format(
+            self.id, self.version_id, self.task_id, self.scenario_id
+        )
+
+
+class TestVersionTask(BaseModel):
+    __tablename__ = 'exile_test_version_task'
+    __table_args__ = {'comment': '版本迭代任务表'}
+
+    version_id = db.Column(BIGINT(20, unsigned=True), comment='版本迭代id(冗余字段)')
+    task_name = db.Column(db.String(128), nullable=False, comment='任务名称')
+    task_type = db.Column(db.String(128), nullable=False, comment='任务类型')
+    user_list = db.Column(db.JSON, nullable=False, comment='参与的人员')
+    creator = db.Column(db.String(32), comment='创建人')
+    creator_id = db.Column(BIGINT(20, unsigned=True), comment='创建人id')
+    modifier = db.Column(db.String(32), comment='更新人')
+    modifier_id = db.Column(BIGINT(20, unsigned=True), comment='更新人id')
+    remark = db.Column(db.String(255), comment='备注')
+
+    def __repr__(self):
+        return 'TestVersionTask 模型对象-> ID:{} 任务名称:{} 任务类型:{}'.format(self.id, self.task_name, self.task_type)
