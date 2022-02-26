@@ -221,7 +221,7 @@ class CaseApi(MethodView):
         """用例删除"""
 
         data = request.get_json()
-        case_id = data.get('case_id')
+        case_id = data.get('id')
 
         query_case = TestCase.query.get(case_id)
 
@@ -322,7 +322,7 @@ class CasePageApi(MethodView):
         result_count = project_db.select(sql_count)
 
         result_data = {
-            'records': result_list,
+            'records': result_list if result_list else [],
             'now_page': page,
             'total': result_count[0].get('COUNT(*)')
         }
