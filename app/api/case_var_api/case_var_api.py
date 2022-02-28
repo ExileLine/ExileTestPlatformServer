@@ -50,7 +50,7 @@ class CaseVarApi(MethodView):
             return ab_code(400)
 
         var_name = data.get('var_name')
-        var_value = data.get('var_value')
+        var_value = data.get('var_value', "")
         var_type = data.get('var_type')
         var_source = data.get('var_source')
         var_get_key = data.get('var_get_key')
@@ -90,7 +90,7 @@ class CaseVarApi(MethodView):
 
         var_id = data.get('id')
         var_name = data.get('var_name')
-        var_value = data.get('var_value')
+        var_value = data.get('var_value', "")
         var_type = data.get('var_type')
         var_source = data.get('var_source')
         var_get_key = data.get('var_get_key')

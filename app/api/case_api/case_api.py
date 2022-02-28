@@ -316,8 +316,10 @@ class CasePageApi(MethodView):
                 AND is_deleted = {is_deleted}
                 AND case_name LIKE"%{case_name}%";
         """
-        print(sql)
-        print(sql_count)
+
+        # print(sql)
+        # print(sql_count)
+
         result_list = project_db.select(sql)
         result_count = project_db.select(sql_count)
 
