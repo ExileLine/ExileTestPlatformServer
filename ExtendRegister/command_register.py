@@ -501,6 +501,7 @@ def register_commands(app):
             for case in all_case:
                 mid = MidProjectVersionAndCase(
                     version_id=random.choice(all_version_id),
+                    task_id=0,
                     case_id=case.id,
                     remark="脚本生成",
                     creator="shell",
@@ -674,49 +675,6 @@ def register_commands(app):
         create_db()
         create_ass_resp()
         create_ass_field()
-
-    @app.cli.command("init_version_mid", help='修正旧用例数据以及场景数据，兼容版本迭代的中间表逻辑')
-    def init_version_mid():
-        all_case = TestCase.query.all()
-        old_case_id = [case.id for case in all_case]
-        current_mid_case_id = [i.case_id for i in MidProjectVersionAndCase.query.all()]
-        print(old_case_id, len(old_case_id))
-        print(current_mid_case_id, len(current_mid_case_id))
-        new_data_cj = list(set(old_case_id).difference(set(current_mid_case_id)))
-        print("新数据差集(创建)", new_data_cj, len(new_data_cj))
-        for i in new_data_cj:
-            new_mid = MidProjectVersionAndCase(
-                version_id=0,
-                case_id=i,
-                creator='shell',
-                creator_id=0,
-                remark='旧用例数据关联 exile_test_mid_version_case 表，默认 version_id = 0'
-            )
-            db.session.add(new_mid)
-        db.session.commit()
-
-        print('=== exile_test_mid_version_case 完成 ===')
-
-        all_scenario = TestCaseScenario.query.all()
-        old_scenario_id = [scenario.id for scenario in all_scenario]
-        current_mid_scenario_id = [i.scenario_id for i in MidProjectVersionAndScenario.query.all()]
-        print(old_scenario_id, len(old_scenario_id))
-        print(current_mid_scenario_id, len(current_mid_scenario_id))
-        new_data_cj = list(set(old_scenario_id).difference(set(current_mid_scenario_id)))
-        print("新数据差集(创建)", new_data_cj, len(new_data_cj))
-
-        for i in new_data_cj:
-            new_mid = MidProjectVersionAndScenario(
-                version_id=0,
-                scenario_id=i,
-                creator='shell',
-                creator_id=0,
-                remark='旧用例数据关联 exile_test_mid_version_scenario 表，默认 version_id = 0'
-            )
-            db.session.add(new_mid)
-        db.session.commit()
-
-        print('=== exile_test_mid_version_scenario 完成 ===')
 
     @app.cli.command("fix_ass_resp", help='修正旧响应断言数据添加默认的：response_source')
     def fix_ass_resp():
