@@ -110,6 +110,7 @@ class CaseApi(MethodView):
             version_id = version_obj.get('id')
             new_mid = MidProjectVersionAndCase(
                 version_id=version_id,
+                task_id=0,
                 case_id=case_id,
                 creator=g.app_user.username,
                 creator_id=g.app_user.id
@@ -178,38 +179,21 @@ class CaseApi(MethodView):
         query_case.modifier = g.app_user.username
         query_case.modifier_id = g.app_user.id
 
-        new_version_id_list = [version_obj.get('id') for version_obj in version_id_list]
+        query_mid_all = MidProjectVersionAndCase.query.filter_by(case_id=case_id, task_id=0).all()
 
-        query_mid_all = MidProjectVersionAndCase.query.filter_by(case_id=case_id).all()
+        obj_id_list = list(map(lambda obj: obj.id, query_mid_all))
 
-        remain_list = []
+        db.session.query(MidProjectVersionAndCase).filter(MidProjectVersionAndCase.id.in_(obj_id_list)).delete(
+            synchronize_session=False)
 
-        for q in query_mid_all:
-            if q.version_id not in new_version_id_list:
-                q.is_deleted = q.id
-                q.modifier = g.app_user.username
-                q.modifier_id = g.app_user.id
-                q.remark = "源数据差集(逻辑删除)"
-            else:
-                remain_list.append(q.version_id)
-
-        jj = ActionSet.gen_intersection(remain_list, new_version_id_list)
-        cj = ActionSet.gen_difference(new_version_id_list, remain_list)
-
-        for version_id in jj:  # 激活
-            update_mid = MidProjectVersionAndCase.query.filter_by(version_id=version_id, case_id=case_id).first()
-            update_mid.modifier = g.app_user.username
-            update_mid.modifier_id = g.app_user.id
-            update_mid.is_deleted = 0
-            update_mid.remark = '交集(激活)'
-
-        for version_id in cj:  # 创建新的
+        for version in version_id_list:
+            version_id = version.get('id')
             new_mid = MidProjectVersionAndCase(
                 version_id=version_id,
+                task_id=0,
                 case_id=case_id,
                 creator=g.app_user.username,
                 creator_id=g.app_user.id,
-                remark="新数据差集(创建)"
             )
             db.session.add(new_mid)
 
