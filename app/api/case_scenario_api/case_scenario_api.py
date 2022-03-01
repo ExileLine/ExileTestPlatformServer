@@ -13,6 +13,17 @@ from app.models.test_project.models import TestProjectVersion, MidProjectVersion
 from app.api.case_api.case_api import check_version
 
 
+def create_mid_scenario(version_id, scenario_id):
+    new_mid = MidProjectVersionAndScenario(
+        version_id=version_id,
+        task_id=0,
+        scenario_id=scenario_id,
+        creator=g.app_user.username,
+        creator_id=g.app_user.id
+    )
+    db.session.add(new_mid)
+
+
 class CaseScenarioApi(MethodView):
     """
     用例场景Api
@@ -72,10 +83,7 @@ class CaseScenarioApi(MethodView):
 
         query_scenario = TestCaseScenario.query.filter_by(scenario_title=scenario_title).first()
 
-        if not isinstance(version_id_list, list) or not version_id_list:
-            return api_result(code=400, message='版本迭代不能为空')
-
-        if not check_version(version_id_list):
+        if version_id_list and not check_version(version_id_list):
             return api_result(code=400, message='版本迭代不存在')
 
         if query_scenario:
@@ -95,19 +103,13 @@ class CaseScenarioApi(MethodView):
         new_scenario.save()
         scenario_id = new_scenario.id
 
-        for version_obj in version_id_list:
-            version_id = version_obj.get('id')
-            new_mid = MidProjectVersionAndScenario(
-                version_id=version_id,
-                task_id=0,
-                scenario_id=scenario_id,
-                creator=g.app_user.username,
-                creator_id=g.app_user.id
-            )
-            db.session.add(new_mid)
-
+        if version_id_list:
+            for version_obj in version_id_list:
+                version_id = version_obj.get('id')
+                create_mid_scenario(version_id=version_id, scenario_id=scenario_id)
+        else:
+            create_mid_scenario(version_id=0, scenario_id=scenario_id)
         db.session.commit()
-
         return api_result(code=201, message='创建成功')
 
     def put(self):
@@ -122,9 +124,6 @@ class CaseScenarioApi(MethodView):
         is_public = data.get('is_public', True)
 
         query_scenario = TestCaseScenario.query.get(scenario_id)
-
-        if not isinstance(version_id_list, list) or not version_id_list:
-            return api_result(code=400, message='版本迭代不能为空')
 
         if not check_version(version_id_list):
             return api_result(code=400, message='版本迭代不存在')
@@ -153,19 +152,13 @@ class CaseScenarioApi(MethodView):
         db.session.query(MidProjectVersionAndScenario).filter(MidProjectVersionAndScenario.id.in_(obj_id_list)).delete(
             synchronize_session=False)
 
-        for version in version_id_list:
-            version_id = version.get('id')
-            new_mid = MidProjectVersionAndScenario(
-                version_id=version_id,
-                task_id=0,
-                scenario_id=scenario_id,
-                creator=g.app_user.username,
-                creator_id=g.app_user.id,
-            )
-            db.session.add(new_mid)
-
+        if version_id_list:
+            for version_obj in version_id_list:
+                version_id = version_obj.get('id')
+                create_mid_scenario(version_id=version_id, scenario_id=scenario_id)
+        else:
+            create_mid_scenario(version_id=0, scenario_id=scenario_id)
         db.session.commit()
-
         return api_result(code=203, message='编辑成功')
 
     def delete(self):

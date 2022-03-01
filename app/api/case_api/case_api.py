@@ -20,7 +20,6 @@ def check_method(current_method):
 
 
 p = [
-    ("version_id_list", "版本迭代"),
     ("case_name", "用例名称"),
     ("request_method", "请求方式"),
     ("request_base_url", "base url"),
@@ -34,6 +33,17 @@ def check_version(version_id_list):
         if not TestProjectVersion.query.get(version_id):
             return False
     return True
+
+
+def create_mid_case(version_id, case_id):
+    new_mid = MidProjectVersionAndCase(
+        version_id=version_id,
+        task_id=0,
+        case_id=case_id,
+        creator=g.app_user.username,
+        creator_id=g.app_user.id,
+    )
+    db.session.add(new_mid)
 
 
 class CaseApi(MethodView):
@@ -72,10 +82,7 @@ class CaseApi(MethodView):
         if not check_bool:
             return api_result(code=400, message=check_msg)
 
-        if not isinstance(version_id_list, list) or not version_id_list:
-            return api_result(code=400, message='版本迭代不能为空')
-
-        if not check_version(version_id_list):
+        if version_id_list and not check_version(version_id_list):
             return api_result(code=400, message='版本迭代不存在')
 
         request_base_url = request_base_url.replace(" ", "")
@@ -106,20 +113,14 @@ class CaseApi(MethodView):
         new_test_case.save()
         case_id = new_test_case.id
 
-        for version_obj in version_id_list:
-            version_id = version_obj.get('id')
-            new_mid = MidProjectVersionAndCase(
-                version_id=version_id,
-                task_id=0,
-                case_id=case_id,
-                creator=g.app_user.username,
-                creator_id=g.app_user.id
-            )
-            db.session.add(new_mid)
+        if version_id_list:
+            for version_obj in version_id_list:
+                version_id = version_obj.get('id')
+                create_mid_case(version_id=version_id, case_id=case_id)
+        else:
+            create_mid_case(version_id=0, case_id=case_id)
         db.session.commit()
-
         data['id'] = case_id
-
         return api_result(code=201, message='创建成功', data=data)
 
     def put(self):
@@ -140,10 +141,7 @@ class CaseApi(MethodView):
         if not check_bool:
             return api_result(code=400, message=check_msg)
 
-        if not isinstance(version_id_list, list) or not version_id_list:
-            return api_result(code=400, message='版本迭代不能为空')
-
-        if not check_version(version_id_list):
+        if version_id_list and not check_version(version_id_list):
             return api_result(code=400, message='版本迭代不存在')
 
         request_base_url = request_base_url.replace(" ", "")
@@ -186,19 +184,13 @@ class CaseApi(MethodView):
         db.session.query(MidProjectVersionAndCase).filter(MidProjectVersionAndCase.id.in_(obj_id_list)).delete(
             synchronize_session=False)
 
-        for version in version_id_list:
-            version_id = version.get('id')
-            new_mid = MidProjectVersionAndCase(
-                version_id=version_id,
-                task_id=0,
-                case_id=case_id,
-                creator=g.app_user.username,
-                creator_id=g.app_user.id,
-            )
-            db.session.add(new_mid)
-
+        if version_id_list:
+            for version in version_id_list:
+                version_id = version.get('id')
+                create_mid_case(version_id=version_id, case_id=case_id)
+        else:
+            create_mid_case(version_id=0, case_id=case_id)
         db.session.commit()
-
         return api_result(code=203, message='编辑成功')
 
     def delete(self):
