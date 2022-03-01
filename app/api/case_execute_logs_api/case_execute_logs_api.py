@@ -23,10 +23,7 @@ class CaseExecuteLogsApi(MethodView):
         execute_type = data.get('execute_type')
 
         if execute_id and execute_type:
-            current_get_dict = {
-                "case": f"case_first_log:{execute_id}",
-                "scenario": f"scenario_first_log:{execute_id}"
-            }
+            current_get_dict = gen_redis_first_logs(execute_id=execute_id)
             key = current_get_dict.get(execute_type)
             if not key:
                 return api_result(code=400, message='执行类型错误')

@@ -68,6 +68,24 @@ var_func_dict = {
     "12": str(int(time.time()))  # timestamp(时间戳)
 }
 
+# 执行类型
+execute_type_tuple = ("case", "scenario", "version_case", "version_scenario", "task_case", "task_scenario")
+
+
+# redis最新日志存储字典
+def gen_redis_first_logs(execute_id):
+    """redis最新日志存储字典"""
+    d = {
+        "case": f"case_first_log:{execute_id}",
+        "scenario": f"scenario_first_log:{execute_id}",
+        "version_case": f"version_case_first_log:{execute_id}",
+        "version_scenario": f"version_scenario_first_log:{execute_id}",
+        "task_case": f"task_case_first_log:{execute_id}",
+        "task_scenario": f"task_scenario_first_log:{execute_id}"
+    }
+    return d
+
+
 if __name__ == '__main__':
     a = "123"
     # a = 123

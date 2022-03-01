@@ -20,7 +20,7 @@ from common.libs.public_func import check_keys
 from common.libs.assert_related import AssertResponseMain, AssertFieldMain
 from common.libs.StringIOLog import StringIOLog
 from common.libs.execute_code import execute_code
-from common.libs.data_dict import var_func_dict
+from common.libs.data_dict import var_func_dict, gen_redis_first_logs
 
 
 class TestResult:
@@ -147,18 +147,26 @@ class MainTest:
     def __init__(self, test_obj):
         self.base_url = test_obj.get('base_url')
         self.use_base_url = test_obj.get('use_base_url')
-        self.case_list = test_obj.get('case_list', [])
         self.data_driven = test_obj.get('data_driven')
+
         self.execute_id = test_obj.get('execute_id')
         self.execute_name = test_obj.get('execute_name')
         self.execute_type = test_obj.get('execute_type')
+        self.execute_label = test_obj.get('execute_label')
+
         self.execute_user_id = test_obj.get('execute_user_id')
         self.execute_username = test_obj.get('execute_username')
         self.sio = test_obj.get('sio', StringIOLog())
 
-        if not isinstance(self.case_list, list) or not self.case_list:
-            raise TypeError('TestLoader.__init__.case_list 类型错误')
+        self.case_list = test_obj.get('case_list', [])
 
+        if not isinstance(self.case_list, list) or not self.case_list:
+            raise TypeError('MainTest.__init__.case_list 类型错误')
+
+        if self.execute_label not in ('only', 'many'):
+            raise TypeError('MainTest.__init__.execute_label 类型错误')
+
+        self.func_name = self.execute_label + "_execute"
         self.case_generator = (case for case in self.case_list)
 
         self.current_case_resp_ass_error = 0  # 响应断言标识
@@ -529,6 +537,16 @@ class MainTest:
     def main(self):
         """main"""
 
+        getattr(self, self.func_name)()
+
+    def only_execute(self):
+        """
+        执行一个用例 -> list[obj] 如: [{}]
+        执行一批用例,一个用例场景 -> list[obj,obj,obj...] 如: [{},{},{}...]
+        :return:
+        """
+        print('=== only_execute ===')
+
         for case_index, case in enumerate(self.case_generator, 1):
             self.sio.log('=== start case: {} ==='.format(case_index))
             self.current_case_resp_ass_error = 0
@@ -599,16 +617,114 @@ class MainTest:
         }
         R.set(save_key, json.dumps(return_case_result))
 
-        current_save_dict = {
-            "case": "case_first_log:{}".format(self.execute_id),
-            "scenario": "scenario_first_log:{}".format(self.execute_id)
-        }
+        current_save_dict = gen_redis_first_logs(execute_id=self.execute_id)
+
         save_obj_first = current_save_dict.get(self.execute_type, "未知执行类型")
         R.set(save_obj_first, json.dumps(return_case_result))
 
         logger.success('=== save redis ok ===')
 
         self.save_logs(log_id=save_key)
+
+    def many_execute(self):
+        """
+        执行多个组用例
+        list[list[obj,obj,obj], list[obj,obj,obj], list[obj,obj,obj]] 如: [[{},{},{}...], [{},{},{}...], [{},{},{}...] ...]
+        :return:
+        """
+        print('=== many_execute ===')
+
+        for group_index, group in enumerate(self.case_generator, 1):
+            scenario_id = group.get('scenario_id')
+            scenario_title = group.get('scenario_title')
+            case_list = group.get('case_list')
+            self.sio.log('=== start {}: scenario: {} ==='.format(scenario_id, scenario_title))
+            scenario_log = []
+            for case_index, case in enumerate(case_list, 1):
+                self.sio.log('=== start case: {} ==='.format(case_index))
+                self.current_case_resp_ass_error = 0
+                case_info = case.get('case_info', {})
+                bind_info = case.get('bind_info', [])
+
+                self.case_id = case_info.get('id')
+                self.case_name = case_info.get('case_name')
+
+                self.request_base_url = case_info.get('request_base_url')
+                self.request_url = case_info.get('request_url')
+                self.request_method = case_info.get('request_method')
+                self.update_var_list = []
+
+                self.resp_json = {}
+                self.resp_headers = {}
+
+                if not bind_info:
+                    self.sio.log('=== 未配置请求参数 ===')
+
+                for index, bind in enumerate(bind_info, 1):
+                    self.sio.log("=== 数据驱动:{} ===".format(index))
+                    case_data_info = bind.get('case_data_info', {})
+                    case_resp_ass_info = bind.get('case_resp_ass_info', [])
+                    case_field_ass_info = bind.get('case_field_ass_info', [])
+
+                    try:
+                        self.test_result.req_success += 1
+                        self.assemble_data_send(case_data_info=case_data_info)
+                    except BaseException as e:
+                        self.sio.log("=== 请求失败:{} ===".format(str(e)), status="error")
+                        self.test_result.req_error += 1
+                        self.sio.log("=== 跳过断言 ===")
+                        continue
+
+                    self.resp_check_ass_execute(case_resp_ass_info=case_resp_ass_info)
+
+                    self.field_check_ass_execute(case_field_ass_info=case_field_ass_info)
+
+                    if not self.data_driven:
+                        self.sio.log("=== data_driven is false 只执行基础参数与断言 ===")
+                        break
+
+                add_case = {
+                    "case_id": self.case_id,
+                    "case_name": self.case_name,
+                    "case_log": self.sio.get_stringio().split('\n'),
+                    "error": self.logs_error_switch
+                }
+                scenario_log.append(add_case)
+
+                self.sio.log(
+                    '=== end {}: scenario: {} case: {}===\n\n'.format(scenario_id, scenario_title, case_index))
+            add_group = {
+                "scenario_id": scenario_id,
+                "scenario_title": scenario_title,
+                "scenario_log": scenario_log,
+                "error": self.logs_error_switch
+            }
+            self.case_result_list.append(add_group)
+
+            logger.info('=== save redis start ===')
+
+            case_summary = self.test_result.get_test_result()
+            self.end_time = time.time()
+            save_key = "test_log_{}_{}".format(str(int(time.time())), shortuuid.uuid())
+            return_case_result = {
+                "uuid": save_key,
+                "case_result_list": self.case_result_list,
+                "result_summary": case_summary,
+                "create_time": self.create_time,
+                "start_time": self.start_time,
+                "end_time": self.end_time,
+                "total_time": self.end_time - self.start_time
+            }
+            R.set(save_key, json.dumps(return_case_result))
+
+            current_save_dict = gen_redis_first_logs(execute_id=self.execute_id)
+
+            save_obj_first = current_save_dict.get(self.execute_type, "未知执行类型")
+            R.set(save_obj_first, json.dumps(return_case_result))
+
+            logger.success('=== save redis ok ===')
+
+            self.save_logs(log_id=save_key)
 
     def __str__(self):
         return '\n'.join(["{}:{}".format(k, v) for k, v in self.__dict__.items()])

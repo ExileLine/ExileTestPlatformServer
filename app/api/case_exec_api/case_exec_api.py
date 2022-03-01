@@ -9,9 +9,11 @@ from concurrent.futures import ThreadPoolExecutor
 
 from all_reference import *
 from app.models.test_case.models import TestCase
+from app.models.test_case_scenario.models import TestCaseScenario
+from app.models.test_project.models import TestProjectVersion, MidProjectVersionAndCase, MidProjectVersionAndScenario, \
+    TestVersionTask
 from app.models.test_env.models import TestEnv
 from app.models.test_logs.models import TestLogs
-from app.models.test_case_scenario.models import TestCaseScenario
 from common.libs.StringIOLog import StringIOLog
 
 
@@ -57,11 +59,8 @@ class CaseReqTestApi(MethodView):
 
 class CaseExecApi(MethodView):
     """
-    用例执行Api
-    GET:
-    POST: 用例执行
-    PUT:
-    DELETE:
+    执行用例 Api
+    POST: 执行用例
     """
 
     def post(self):
@@ -71,6 +70,7 @@ class CaseExecApi(MethodView):
         {
             "execute_id": 14,
             "execute_type": "case",
+            "execute_label":"only",
             "data_driven": False
             "base_url_id": 1
         }
@@ -79,15 +79,17 @@ class CaseExecApi(MethodView):
         {
             "execute_id": 3,
             "execute_type": "scenario",
+            "execute_label":"only",
             "data_driven": false
             "base_url_id": 1
         }
         :return:
         """
-        execute_type_em = ("case", "scenario")
+
         data = request.get_json()
         execute_id = data.get('execute_id')
         execute_type = data.get('execute_type')
+        execute_label = data.get('execute_label')
         data_driven = data.get('data_driven', False)
         base_url_id = data.get('base_url_id')
         use_base_url = data.get('use_base_url', False)
@@ -107,13 +109,13 @@ class CaseExecApi(MethodView):
             base_url = ''
             use_base_url = False
 
-        if execute_type not in execute_type_em:
-            return api_result(code=400, message='execute_type:{}不存在'.format(execute_type))
+        if execute_type not in execute_type_tuple:
+            return api_result(code=400, message=f'execute_type:{execute_type}不存在')
 
         if execute_type == "case":
             result = query_case_zip(case_id=execute_id)
             if not result:
-                return api_result(code=400, message='用例id:{}不存在'.format(execute_id))
+                return api_result(code=400, message=f'用例id:{execute_id}不存在')
 
             if not bool(result.get('case_info').get('is_shared')):
                 return api_result(code=400, message='执行失败,该用例是私有的,仅创建者执行!')
@@ -134,7 +136,7 @@ class CaseExecApi(MethodView):
             case_list = result.to_json().get('case_list')
 
             if not case_list:  # 防止手动修改数据导致,在场景创建的接口中有对应的校验
-                return api_result(code=400, message='场景id:{}用例为空'.format(execute_id))
+                return api_result(code=400, message=f'场景id:{execute_id}用例为空')
 
             gen_case_list = sorted(case_list, key=lambda x: x.get("index"), reverse=True)
             update_case_id = []
@@ -154,11 +156,66 @@ class CaseExecApi(MethodView):
             for u in update_case:
                 u.add_total_execution()
 
+        if execute_type == "version_case":
+            query_version = TestProjectVersion.query.get(execute_id)
+            if not query_version:
+                return api_result(code=400, message=f'版本迭代id:{execute_id}不存在')
+
+            query_mid_all = MidProjectVersionAndCase.query.filter_by(version_id=execute_id, task_id=0).all()
+
+            for mid in query_mid_all:
+                case_id = mid.case_id
+                query_case = TestCase.query.get(case_id)
+                query_case.add_total_execution()
+                result = query_case_zip(case_id=case_id)
+                send_test_case_list.append(result)
+
+            execute_name = f"执行【{query_version.version_name}】所有用例"
+
+        if execute_type == "version_scenario":
+            query_version = TestProjectVersion.query.get(execute_id)
+            if not query_version:
+                return api_result(code=400, message=f'版本迭代id:{execute_id}不存在')
+
+            query_mid_all = MidProjectVersionAndScenario.query.filter_by(version_id=execute_id, task_id=0).all()
+            scenario_id_list = [mid.scenario_id for mid in query_mid_all]
+            query_scenario = TestCaseScenario.query.filter(TestCaseScenario.id.in_(scenario_id_list)).all()
+
+            group_list = []
+            for scenario in query_scenario:
+                case_list = scenario.case_list
+                gen_case_list = sorted(case_list, key=lambda x: x.get("index"), reverse=True)
+                update_case_id = []
+                current_group = []
+                for case in gen_case_list:
+                    case_id = case.get('case_id')
+                    result = query_case_zip(case_id=case_id)
+                    if result:
+                        update_case_id.append(case_id)
+                        current_group.append(result)
+
+                d = {
+                    "scenario_id": scenario.id,
+                    "scenario_title": scenario.scenario_title,
+                    "case_list": current_group
+                }
+                group_list.append(d)
+
+            execute_name = f"执行【{query_version.version_name}】所有用例场景"
+            send_test_case_list = group_list
+
+        if execute_type == "task_case":
+            pass
+
+        if execute_type == "task_scenario":
+            pass
+
         sio = StringIOLog()
         test_obj = {
             "execute_id": execute_id,
             "execute_name": execute_name,
             "execute_type": execute_type,
+            "execute_label": execute_label,
             "execute_user_id": g.app_user.id,
             "execute_username": g.app_user.username,
             "base_url": base_url,
