@@ -47,6 +47,7 @@ class MidProjectVersionAndCase(BaseModel):
         db.Index('idx_version_case', 'version_id', 'case_id', 'is_deleted'),
         {'comment': '版本迭代用例中间表'}
     )
+    project_id = db.Column(BIGINT(20, unsigned=True), comment='项目id')
     version_id = db.Column(BIGINT(20, unsigned=True), comment='版本迭代id')
     task_id = db.Column(BIGINT(20, unsigned=True), comment='任务id')
     case_id = db.Column(BIGINT(20, unsigned=True), comment='用例id')
@@ -57,8 +58,8 @@ class MidProjectVersionAndCase(BaseModel):
     remark = db.Column(db.String(255), comment='备注')
 
     def __repr__(self):
-        return 'MidProjectVersionAndCase 模型对象-> ID:{} 版本迭代id:{} 任务id:{} 用例id:{}'.format(
-            self.id, self.version_id, self.task_id, self.case_id
+        return 'MidProjectVersionAndCase 模型对象-> ID:{} 项目id:{} 版本迭代id:{} 任务id:{} 用例id:{}'.format(
+            self.id, self.project_id, self.version_id, self.task_id, self.case_id
         )
 
 
@@ -68,6 +69,7 @@ class MidProjectVersionAndScenario(BaseModel):
         db.Index('idx_version_scenario', 'version_id', 'scenario_id', 'is_deleted'),
         {'comment': '版本迭代场景中间表'}
     )
+    project_id = db.Column(BIGINT(20, unsigned=True), comment='项目id')
     version_id = db.Column(BIGINT(20, unsigned=True), comment='版本迭代id')
     task_id = db.Column(BIGINT(20, unsigned=True), comment='任务id')
     scenario_id = db.Column(BIGINT(20, unsigned=True), comment='场景id')
@@ -78,8 +80,8 @@ class MidProjectVersionAndScenario(BaseModel):
     remark = db.Column(db.String(255), comment='备注')
 
     def __repr__(self):
-        return 'MidProjectVersionAndScenario 模型对象-> ID:{} 版本迭代id:{} 任务id:{} 场景id:{}'.format(
-            self.id, self.version_id, self.task_id, self.scenario_id
+        return 'MidProjectVersionAndScenario 模型对象-> ID:{} 项目id:{} 版本迭代id:{} 任务id:{} 场景id:{}'.format(
+            self.id, self.project_id, self.version_id, self.task_id, self.scenario_id
         )
 
 
