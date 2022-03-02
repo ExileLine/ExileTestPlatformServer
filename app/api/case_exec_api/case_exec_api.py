@@ -30,8 +30,41 @@ class QueryExecuteData:
     """查询执行参数组装"""
 
     @staticmethod
-    def query_version_scenario(execute_id):
-        """查询版本下所有可执行的场景并组装"""
+    def query_version_case(version_id):
+        """
+        查询版本下所有可执行的用例
+        :param version_id: 版本id
+        :return:
+        """
+        query_mid_all = MidProjectVersionAndCase.query.filter_by(version_id=version_id, is_deleted=0).all()
+
+        if not query_mid_all:
+            return False
+
+        version_name = TestProjectVersion.query.get(version_id).version_name
+
+        case_list = []
+        for mid in query_mid_all:
+            case_id = mid.case_id
+            query_case = TestCase.query.get(case_id)
+            query_case.add_total_execution()
+            result = query_case_zip(case_id=case_id)
+            case_list.append(result)
+
+        execute_name = f"执行【{version_name}】所有用例"
+
+        return {
+            "execute_name": execute_name,
+            "send_test_case_list": case_list
+        }
+
+    @staticmethod
+    def query_version_scenario(version_id):
+        """
+        查询版本下所有可执行的场景并组装
+        :param version_id: 版本id
+        :return:
+        """
 
         sql = f"""
             SELECT
@@ -42,7 +75,7 @@ class QueryExecuteData:
                 exile_test_mid_version_scenario AS A
                 INNER JOIN exile_test_case_scenario AS B ON A.scenario_id = B.id
             WHERE
-                A.version_id = {execute_id}
+                A.version_id = {version_id}
                 AND A.is_deleted = 0
                 AND B.is_deleted = 0;
             """
@@ -52,7 +85,7 @@ class QueryExecuteData:
         if not query_scenario:
             return False
 
-        version_name = TestProjectVersion.query.get(execute_id).version_name
+        version_name = TestProjectVersion.query.get(version_id).version_name
 
         scenario_list = []
         for scenario in query_scenario:
@@ -78,6 +111,92 @@ class QueryExecuteData:
                 update_case_total_execution(case_id_list=update_case_id)
 
         execute_name = f"执行【{version_name}】所有用例场景"
+
+        return {
+            "execute_name": execute_name,
+            "send_test_case_list": scenario_list
+        }
+
+    @staticmethod
+    def query_task_case(task_id):
+        """
+        查询任务下所有可执行的用例
+        :param task_id: 任务id
+        :return:
+        """
+        query_mid_all = MidProjectVersionAndCase.query.filter_by(task_id=task_id, is_deleted=0).all()
+
+        if not query_mid_all:
+            return False
+
+        task_name = TestVersionTask.query.get(task_id).task_name
+
+        case_list = []
+        for mid in query_mid_all:
+            case_id = mid.case_id
+            query_case = TestCase.query.get(case_id)
+            query_case.add_total_execution()
+            result = query_case_zip(case_id=case_id)
+            case_list.append(result)
+
+        execute_name = f"执行【{task_name}】所有用例"
+
+        return {
+            "execute_name": execute_name,
+            "send_test_case_list": case_list
+        }
+
+    @staticmethod
+    def query_task_scenario(task_id):
+        """
+        查询任务下所有可执行的场景并组装
+        :param task_id: 任务id
+        :return:
+        """
+        sql = f"""
+        SELECT
+            B.id,
+            B.scenario_title,
+            B.case_list
+        FROM
+            exile_test_mid_version_scenario AS A
+            INNER JOIN exile_test_case_scenario AS B ON A.scenario_id = B.id
+        WHERE
+            task_id = {task_id}
+            AND A.is_deleted = 0
+            AND B.is_deleted = 0;
+        """
+        query_scenario = project_db.select(sql)
+
+        if not query_scenario:
+            return False
+
+        task_name = TestVersionTask.query.get(task_id).task_name
+
+        scenario_list = []
+        for scenario in query_scenario:
+            case_list = scenario.get('case_list')
+            if case_list:
+                sort_case_list = sorted(case_list, key=lambda x: x.get("index"), reverse=True)
+                update_case_id = []
+                new_case_list = []
+                for case in sort_case_list:
+                    case_id = case.get('case_id')
+                    case_result = query_case_zip(case_id=case_id)
+                    if case_result:
+                        update_case_id.append(case_id)
+                        new_case_list.append(case_result)
+
+                scenario_obj = {
+                    "scenario_id": scenario.get('id'),
+                    "scenario_title": scenario.get('scenario_title'),
+                    "case_list": new_case_list
+                }
+                scenario_list.append(scenario_obj)
+
+                update_case_total_execution(case_id_list=update_case_id)
+
+        execute_name = f"执行【{task_name}】所有用例场景"
 
         return {
             "execute_name": execute_name,
@@ -201,35 +320,37 @@ class CaseExecApi(MethodView):
 
         if execute_type == "version_case":
 
-            query_mid_all = MidProjectVersionAndCase.query.filter_by(version_id=execute_id, is_deleted=0).all()
-
-            if not query_mid_all:
+            result = QueryExecuteData.query_version_case(version_id=execute_id)
+            if not result:
                 return api_result(code=400, message=f'版本迭代id:{execute_id}不存在或可执行用例为空')
 
-            version_name = TestProjectVersion.query.get(execute_id).version_name
-
-            for mid in query_mid_all:
-                case_id = mid.case_id
-                query_case = TestCase.query.get(case_id)
-                query_case.add_total_execution()
-                result = query_case_zip(case_id=case_id)
-                send_test_case_list.append(result)
-
-            execute_name = f"执行【{version_name}】所有用例"
+            execute_name = result.get('execute_name')
+            send_test_case_list = result.get('send_test_case_list')
 
         if execute_type == "version_scenario":
 
-            result = QueryExecuteData.query_version_scenario(execute_id=execute_id)
+            result = QueryExecuteData.query_version_scenario(version_id=execute_id)
             if not result:
                 return api_result(code=400, message=f'版本迭代id:{execute_id}不存在或可执行场景为空')
             execute_name = result.get('execute_name')
             send_test_case_list = result.get('send_test_case_list')
 
         if execute_type == "task_case":
-            pass
+
+            result = QueryExecuteData.query_task_case(task_id=execute_id)
+            if not result:
+                return api_result(code=400, message=f'任务id:{execute_id}不存在或可执行用例为空')
+
+            execute_name = result.get('execute_name')
+            send_test_case_list = result.get('send_test_case_list')
 
         if execute_type == "task_scenario":
-            pass
+
+            result = QueryExecuteData.query_task_scenario(task_id=execute_id)
+            if not result:
+                return api_result(code=400, message=f'任务id:{execute_id}不存在或可执行场景为空')
+            execute_name = result.get('execute_name')
+            send_test_case_list = result.get('send_test_case_list')
 
         sio = StringIOLog()
         test_obj = {
