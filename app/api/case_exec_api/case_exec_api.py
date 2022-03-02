@@ -20,6 +20,71 @@ from common.libs.StringIOLog import StringIOLog
 # executor = ThreadPoolExecutor(10)
 
 
+def update_case_total_execution(case_id_list):
+    """更新用例执行数"""
+
+    [case.add_total_execution() for case in TestCase.query.filter(TestCase.id.in_(case_id_list)).all()]
+
+
+class QueryExecuteData:
+    """查询执行参数组装"""
+
+    @staticmethod
+    def query_version_scenario(execute_id):
+        """查询版本下所有可执行的场景并组装"""
+
+        sql = f"""
+            SELECT
+                B.id,
+                B.scenario_title,
+                B.case_list
+            FROM
+                exile_test_mid_version_scenario AS A
+                INNER JOIN exile_test_case_scenario AS B ON A.scenario_id = B.id
+            WHERE
+                A.version_id = {execute_id}
+                AND A.is_deleted = 0
+                AND B.is_deleted = 0;
+            """
+
+        query_scenario = project_db.select(sql)
+
+        if not query_scenario:
+            return False
+
+        version_name = TestProjectVersion.query.get(execute_id).version_name
+
+        scenario_list = []
+        for scenario in query_scenario:
+            case_list = scenario.get('case_list')
+            if case_list:
+                sort_case_list = sorted(case_list, key=lambda x: x.get("index"), reverse=True)
+                update_case_id = []
+                new_case_list = []
+                for case in sort_case_list:
+                    case_id = case.get('case_id')
+                    case_result = query_case_zip(case_id=case_id)
+                    if case_result:
+                        update_case_id.append(case_id)
+                        new_case_list.append(case_result)
+
+                scenario_obj = {
+                    "scenario_id": scenario.get('id'),
+                    "scenario_title": scenario.get('scenario_title'),
+                    "case_list": new_case_list
+                }
+                scenario_list.append(scenario_obj)
+
+                update_case_total_execution(case_id_list=update_case_id)
+
+        execute_name = f"执行【{version_name}】所有用例场景"
+
+        return {
+            "execute_name": execute_name,
+            "send_test_case_list": scenario_list
+        }
+
+
 class CaseReqTestApi(MethodView):
     """
     test send
@@ -65,24 +130,7 @@ class CaseExecApi(MethodView):
 
     def post(self):
         """
-
-        用例执行
-        {
-            "execute_id": 14,
-            "execute_type": "case",
-            "execute_label":"only",
-            "data_driven": False
-            "base_url_id": 1
-        }
-
-        场景执行
-        {
-            "execute_id": 3,
-            "execute_type": "scenario",
-            "execute_label":"only",
-            "data_driven": false
-            "base_url_id": 1
-        }
+        执行
         :return:
         """
 
@@ -136,32 +184,29 @@ class CaseExecApi(MethodView):
             case_list = result.to_json().get('case_list')
 
             if not case_list:  # 防止手动修改数据导致,在场景创建的接口中有对应的校验
-                return api_result(code=400, message=f'场景id:{execute_id}用例为空')
+                return api_result(code=400, message=f'场景id:{execute_id}用例为空(错误数据)')
 
-            gen_case_list = sorted(case_list, key=lambda x: x.get("index"), reverse=True)
+            sort_case_list = sorted(case_list, key=lambda x: x.get("index"), reverse=True)
             update_case_id = []
             send_test_case_list = []
 
-            for case in gen_case_list:
+            for case in sort_case_list:
                 case_id = case.get('case_id')
                 result = query_case_zip(case_id=case_id)
-                if not result:
-                    return api_result(code=400, message='场景中,用例id:{}不存在'.format(case_id))
+                if result:
+                    update_case_id.append(case_id)
+                    send_test_case_list.append(result)
 
-                update_case_id.append(case_id)
-                send_test_case_list.append(result)
-
-            update_case = TestCase.query.filter(TestCase.id.in_(update_case_id)).all()
-
-            for u in update_case:
-                u.add_total_execution()
+            update_case_total_execution(case_id_list=update_case_id)
 
         if execute_type == "version_case":
-            query_version = TestProjectVersion.query.get(execute_id)
-            if not query_version:
-                return api_result(code=400, message=f'版本迭代id:{execute_id}不存在')
 
-            query_mid_all = MidProjectVersionAndCase.query.filter_by(version_id=execute_id, task_id=0).all()
+            query_mid_all = MidProjectVersionAndCase.query.filter_by(version_id=execute_id, is_deleted=0).all()
+
+            if not query_mid_all:
+                return api_result(code=400, message=f'版本迭代id:{execute_id}不存在或可执行用例为空')
+
+            version_name = TestProjectVersion.query.get(execute_id).version_name
 
             for mid in query_mid_all:
                 case_id = mid.case_id
@@ -170,39 +215,15 @@ class CaseExecApi(MethodView):
                 result = query_case_zip(case_id=case_id)
                 send_test_case_list.append(result)
 
-            execute_name = f"执行【{query_version.version_name}】所有用例"
+            execute_name = f"执行【{version_name}】所有用例"
 
         if execute_type == "version_scenario":
-            query_version = TestProjectVersion.query.get(execute_id)
-            if not query_version:
-                return api_result(code=400, message=f'版本迭代id:{execute_id}不存在')
 
-            query_mid_all = MidProjectVersionAndScenario.query.filter_by(version_id=execute_id, task_id=0).all()
-            scenario_id_list = [mid.scenario_id for mid in query_mid_all]
-            query_scenario = TestCaseScenario.query.filter(TestCaseScenario.id.in_(scenario_id_list)).all()
-
-            group_list = []
-            for scenario in query_scenario:
-                case_list = scenario.case_list
-                gen_case_list = sorted(case_list, key=lambda x: x.get("index"), reverse=True)
-                update_case_id = []
-                current_group = []
-                for case in gen_case_list:
-                    case_id = case.get('case_id')
-                    result = query_case_zip(case_id=case_id)
-                    if result:
-                        update_case_id.append(case_id)
-                        current_group.append(result)
-
-                d = {
-                    "scenario_id": scenario.id,
-                    "scenario_title": scenario.scenario_title,
-                    "case_list": current_group
-                }
-                group_list.append(d)
-
-            execute_name = f"执行【{query_version.version_name}】所有用例场景"
-            send_test_case_list = group_list
+            result = QueryExecuteData.query_version_scenario(execute_id=execute_id)
+            if not result:
+                return api_result(code=400, message=f'版本迭代id:{execute_id}不存在或可执行场景为空')
+            execute_name = result.get('execute_name')
+            send_test_case_list = result.get('send_test_case_list')
 
         if execute_type == "task_case":
             pass

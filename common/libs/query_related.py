@@ -36,6 +36,9 @@ def query_case_zip(case_id):
 
     query_case = TestCase.query.get(case_id)
 
+    if not query_case:
+        return False
+
     query_mid = MidProjectVersionAndCase.query.filter_by(case_id=case_id, is_deleted=0).all()
 
     version_id_list = [mid.version_id for mid in query_mid]
@@ -43,9 +46,6 @@ def query_case_zip(case_id):
         TestProjectVersion.id.in_(version_id_list),
         TestProjectVersion.is_deleted == 0).all()
     version_obj_list = [v.to_json() for v in version_model_list]
-
-    if not query_case:
-        return False
 
     query_binds = TestCaseDataAssBind.query.filter_by(case_id=case_id, is_deleted=0).all()
 

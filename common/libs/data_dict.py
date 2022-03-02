@@ -69,7 +69,12 @@ var_func_dict = {
 }
 
 # 执行类型
-execute_type_tuple = ("case", "scenario", "version_case", "version_scenario", "task_case", "task_scenario")
+execute_type_tuple = (
+    "case", "scenario",
+    "project_all", "project_case", "project_scenario",
+    "version_all", "version_case", "version_scenario",
+    "task_all", "task_case", "task_scenario"
+)
 
 
 # redis最新日志存储字典
