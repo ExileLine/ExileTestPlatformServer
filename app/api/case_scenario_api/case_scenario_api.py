@@ -240,6 +240,7 @@ class CaseScenarioPageApi(MethodView):
             A.is_public,
             A.is_shared,
             A.total_execution,
+            A.case_list,
             A.creator,
             A.create_time,
             A.create_timestamp,
