@@ -50,6 +50,7 @@ class MidProjectVersionAndCase(BaseModel):
     project_id = db.Column(BIGINT(20, unsigned=True), comment='项目id')
     version_id = db.Column(BIGINT(20, unsigned=True), comment='版本迭代id')
     task_id = db.Column(BIGINT(20, unsigned=True), comment='任务id')
+    module_id = db.Column(BIGINT(20, unsigned=True), comment='功能模块或应用id')
     case_id = db.Column(BIGINT(20, unsigned=True), comment='用例id')
     creator = db.Column(db.String(32), comment='创建人')
     creator_id = db.Column(BIGINT(20, unsigned=True), comment='创建人id')
@@ -58,8 +59,8 @@ class MidProjectVersionAndCase(BaseModel):
     remark = db.Column(db.String(255), comment='备注')
 
     def __repr__(self):
-        return 'MidProjectVersionAndCase 模型对象-> ID:{} 项目id:{} 版本迭代id:{} 任务id:{} 用例id:{}'.format(
-            self.id, self.project_id, self.version_id, self.task_id, self.case_id
+        return 'MidProjectVersionAndCase 模型对象-> ID:{} 项目id:{} 版本迭代id:{} 任务id:{} 功能模块或应用id:{} 用例id:{}'.format(
+            self.id, self.project_id, self.version_id, self.task_id, self.module_id, self.case_id
         )
 
 
@@ -72,6 +73,7 @@ class MidProjectVersionAndScenario(BaseModel):
     project_id = db.Column(BIGINT(20, unsigned=True), comment='项目id')
     version_id = db.Column(BIGINT(20, unsigned=True), comment='版本迭代id')
     task_id = db.Column(BIGINT(20, unsigned=True), comment='任务id')
+    module_id = db.Column(BIGINT(20, unsigned=True), comment='功能模块或应用id')
     scenario_id = db.Column(BIGINT(20, unsigned=True), comment='场景id')
     creator = db.Column(db.String(32), comment='创建人')
     creator_id = db.Column(BIGINT(20, unsigned=True), comment='创建人id')
@@ -80,8 +82,8 @@ class MidProjectVersionAndScenario(BaseModel):
     remark = db.Column(db.String(255), comment='备注')
 
     def __repr__(self):
-        return 'MidProjectVersionAndScenario 模型对象-> ID:{} 项目id:{} 版本迭代id:{} 任务id:{} 场景id:{}'.format(
-            self.id, self.project_id, self.version_id, self.task_id, self.scenario_id
+        return 'MidProjectVersionAndScenario 模型对象-> ID:{} 项目id:{} 版本迭代id:{} 任务id:{} 功能模块或应用id:{} 场景id:{}'.format(
+            self.id, self.project_id, self.version_id, self.task_id, self.module_id, self.scenario_id
         )
 
 
@@ -101,3 +103,19 @@ class TestVersionTask(BaseModel):
 
     def __repr__(self):
         return 'TestVersionTask 模型对象-> ID:{} 任务名称:{} 任务类型:{}'.format(self.id, self.task_name, self.task_type)
+
+
+class TestModuleApp(BaseModel):
+    __tablename__ = 'exile_test_module_app'
+    __table_args__ = {'comment': '功能模块与应用'}
+
+    module_name = db.Column(db.String(128), nullable=False, comment='模块应用名称')
+    module_type = db.Column(db.String(128), default="默认", comment='模块应用名称类型(暂时未用上)')
+    creator = db.Column(db.String(32), comment='创建人')
+    creator_id = db.Column(BIGINT(20, unsigned=True), comment='创建人id')
+    modifier = db.Column(db.String(32), comment='更新人')
+    modifier_id = db.Column(BIGINT(20, unsigned=True), comment='更新人id')
+    remark = db.Column(db.String(255), comment='备注')
+
+    def __repr__(self):
+        return 'TestModuleApp 模型对象-> ID:{} 模块应用名称:{} 类型:{}'.format(self.id, self.module_name, self.module_type)

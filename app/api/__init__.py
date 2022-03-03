@@ -34,6 +34,7 @@ from .ui_auto_file_api.ui_auto_file_api import UiAutoFileApi, UiAutoFilePageApi
 from .project_api.project_api import ProjectApi, ProjectPageApi
 from .project_api.version_api import ProjectVersionApi, ProjectVersionPageApi, VersionBindCaseApi
 from .project_api.version_task_api import VersionTaskApi, VersionTaskPageApi
+from .project_api.module_app_api import ModuleAppApi, ModuleAppPageApi
 
 api = Blueprint('api', __name__)
 crm = Blueprint('crm', __name__)
@@ -128,3 +129,7 @@ api.add_url_rule('/version_task_page', view_func=VersionTaskPageApi.as_view('ver
 
 # api.add_url_rule('/version_bind_case', view_func=VersionBindCaseApi.as_view('version_bind_case'))
 # api.add_url_rule('/version_bind_case/<version_id>', view_func=VersionBindCaseApi.as_view('version_bind_case_detail'))
+
+api.add_url_rule('/module_app', view_func=ModuleAppApi.as_view('module_app'))
+api.add_url_rule('/module_app/<module_id>', view_func=ModuleAppApi.as_view('module_app_detail'))
+api.add_url_rule('/module_app_page', view_func=ModuleAppPageApi.as_view('module_app_page'))
