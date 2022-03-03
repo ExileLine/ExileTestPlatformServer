@@ -13,11 +13,13 @@ from app.models.test_project.models import TestProjectVersion, MidProjectVersion
 from app.api.case_api.case_api import check_version
 
 
-def create_mid_scenario(version_id, scenario_id):
+def create_mid_scenario(project_id, version_id, scenario_id, module_id):
     new_mid = MidProjectVersionAndScenario(
+        project_id=project_id,
         version_id=version_id,
         task_id=0,
         scenario_id=scenario_id,
+        module_id=module_id,
         creator=g.app_user.username,
         creator_id=g.app_user.id
     )
@@ -75,16 +77,24 @@ class CaseScenarioApi(MethodView):
         """用例场景新增"""
 
         data = request.get_json()
+        project_id = data.get('project_id', 0)
+        module_id = data.get('module_id', 0)
         version_id_list = data.get('version_id_list', [])
         scenario_title = data.get('scenario_title')
         case_list = data.get('case_list', [])
         is_shared = data.get('is_shared', 0)
         is_public = data.get('is_public', True)
 
-        query_scenario = TestCaseScenario.query.filter_by(scenario_title=scenario_title).first()
+        if not isinstance(project_id, int):
+            return api_result(code=400, message='project_id 错误')
 
-        if version_id_list and not check_version(version_id_list):
-            return api_result(code=400, message='版本迭代不存在')
+        if not isinstance(module_id, int):
+            return api_result(code=400, message='module_id 错误')
+
+        if version_id_list and not check_version(project_id=project_id, version_id_list=version_id_list):
+            return api_result(code=400, message=f'版本迭代不存在或不在项目id: {project_id} 关联')
+
+        query_scenario = TestCaseScenario.query.filter_by(scenario_title=scenario_title).first()
 
         if query_scenario:
             return api_result(code=400, message='用例场景标题:{} 已经存在'.format(scenario_title))
@@ -106,9 +116,14 @@ class CaseScenarioApi(MethodView):
         if version_id_list:
             for version_obj in version_id_list:
                 version_id = version_obj.get('id')
-                create_mid_scenario(version_id=version_id, scenario_id=scenario_id)
+                create_mid_scenario(
+                    project_id=project_id,
+                    version_id=version_id,
+                    scenario_id=scenario_id,
+                    module_id=module_id
+                )
         else:
-            create_mid_scenario(version_id=0, scenario_id=scenario_id)
+            create_mid_scenario(project_id=project_id, version_id=0, scenario_id=scenario_id, module_id=module_id)
         db.session.commit()
         return api_result(code=201, message='创建成功')
 
@@ -116,6 +131,8 @@ class CaseScenarioApi(MethodView):
         """用例场景编辑"""
 
         data = request.get_json()
+        project_id = data.get('project_id', 0)
+        module_id = data.get('module_id', 0)
         version_id_list = data.get('version_id_list', [])
         scenario_id = data.get('id')
         scenario_title = data.get('scenario_title')
@@ -123,10 +140,16 @@ class CaseScenarioApi(MethodView):
         is_shared = data.get('is_shared', 0)
         is_public = data.get('is_public', True)
 
-        query_scenario = TestCaseScenario.query.get(scenario_id)
+        if not isinstance(project_id, int):
+            return api_result(code=400, message='project_id 错误')
 
-        if not check_version(version_id_list):
-            return api_result(code=400, message='版本迭代不存在')
+        if not isinstance(module_id, int):
+            return api_result(code=400, message='module_id 错误')
+
+        if version_id_list and not check_version(project_id=project_id, version_id_list=version_id_list):
+            return api_result(code=400, message=f'版本迭代不存在或不在项目id: {project_id} 关联')
+
+        query_scenario = TestCaseScenario.query.get(scenario_id)
 
         if not case_list or len(case_list) <= 1:
             return api_result(code=400, message='用例列表不能为空,或需要一条以上的用例组成')
@@ -155,9 +178,14 @@ class CaseScenarioApi(MethodView):
         if version_id_list:
             for version_obj in version_id_list:
                 version_id = version_obj.get('id')
-                create_mid_scenario(version_id=version_id, scenario_id=scenario_id)
+                create_mid_scenario(
+                    project_id=project_id,
+                    version_id=version_id,
+                    scenario_id=scenario_id,
+                    module_id=module_id
+                )
         else:
-            create_mid_scenario(version_id=0, scenario_id=scenario_id)
+            create_mid_scenario(project_id=project_id, version_id=0, scenario_id=scenario_id, module_id=module_id)
         db.session.commit()
         return api_result(code=203, message='编辑成功')
 

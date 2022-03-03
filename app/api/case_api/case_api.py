@@ -27,9 +27,18 @@ p = [
 ]
 
 
-def check_version(version_id_list):
+def check_version(project_id, version_id_list):
+    """
+    检查入参的 version_id 是否存在并且在 project_id 关联下
+    :param project_id: 项目id
+    :param version_id_list: 请求参数的版本迭代 id list
+    :return:
+    """
+    source_version_id_list = [obj.id for obj in TestProjectVersion.query.filter_by(project_id=project_id).all()]
     for version_obj in version_id_list:
         version_id = version_obj.get('id')
+        if version_id not in source_version_id_list:
+            return False
         if not TestProjectVersion.query.get(version_id):
             return False
     return True
@@ -86,14 +95,14 @@ class CaseApi(MethodView):
         if not check_bool:
             return api_result(code=400, message=check_msg)
 
-        if not project_id or not isinstance(project_id, int):
+        if not isinstance(project_id, int):
             return api_result(code=400, message='project_id 错误')
 
-        if not module_id or not isinstance(module_id, int):
+        if not isinstance(module_id, int):
             return api_result(code=400, message='module_id 错误')
 
-        if version_id_list and not check_version(version_id_list):
-            return api_result(code=400, message='版本迭代不存在')
+        if version_id_list and not check_version(project_id=project_id, version_id_list=version_id_list):
+            return api_result(code=400, message=f'版本迭代不存在或不在项目id: {project_id} 关联')
 
         request_base_url = request_base_url.replace(" ", "")
         if not request_base_url:
@@ -153,14 +162,14 @@ class CaseApi(MethodView):
         if not check_bool:
             return api_result(code=400, message=check_msg)
 
-        if not project_id or not isinstance(project_id, int):
+        if not isinstance(project_id, int):
             return api_result(code=400, message='project_id 错误')
 
-        if not module_id or not isinstance(module_id, int):
+        if not isinstance(module_id, int):
             return api_result(code=400, message='module_id 错误')
 
-        if version_id_list and not check_version(version_id_list):
-            return api_result(code=400, message='版本迭代不存在')
+        if version_id_list and not check_version(project_id=project_id, version_id_list=version_id_list):
+            return api_result(code=400, message=f'版本迭代不存在或不在项目id: {project_id} 关联')
 
         request_base_url = request_base_url.replace(" ", "")
         if not request_base_url:
