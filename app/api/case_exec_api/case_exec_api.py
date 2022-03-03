@@ -10,7 +10,7 @@ from concurrent.futures import ThreadPoolExecutor
 from all_reference import *
 from app.models.test_case.models import TestCase
 from app.models.test_case_scenario.models import TestCaseScenario
-from app.models.test_project.models import TestProjectVersion, MidProjectVersionAndCase, TestVersionTask
+from app.models.test_project.models import TestProject, TestProjectVersion, MidProjectVersionAndCase, TestVersionTask
 from app.models.test_env.models import TestEnv
 from app.models.test_logs.models import TestLogs
 from common.libs.StringIOLog import StringIOLog
@@ -90,13 +90,121 @@ class QueryExecuteData:
         }
 
     @staticmethod
-    def query_version_case(version_id):
+    def query_project_all(project_id):
         """
-        查询版本下所有可执行的用例
+        查询项目下所有可执行的用例、场景并组装
+        :param project_id:项目id
+        :return:
+        """
+
+    @staticmethod
+    def query_project_case(project_id):
+        """
+        查询项目下所有可执行的用例并组装
+        :param project_id: 项目id
+        :return:
+        """
+
+        query_mid_all = MidProjectVersionAndCase.query.filter_by(project_id=project_id, is_deleted=0).with_entities(
+            MidProjectVersionAndCase.case_id).distinct().all()
+
+        if not query_mid_all:
+            return False, f'项目id:{project_id}不存在'
+
+        project_name = TestProject.query.get(project_id).project_name
+
+        case_list = []
+        for mid in query_mid_all:
+            case_id = mid.case_id
+            query_case = TestCase.query.get(case_id)
+            query_case.add_total_execution()
+            result = query_case_zip(case_id=case_id)
+            case_list.append(result)
+
+        return True, {
+            "execute_name": f"执行项目【{project_name}】所有用例",
+            "send_test_case_list": case_list
+        }
+
+    @staticmethod
+    def query_project_scenario(project_id):
+        """
+        查询项目下所有可执行的场景并组装
+        :param project_id: 项目id
+        :return:
+        """
+
+        sql = f"""
+        SELECT
+            A.id,
+            A.scenario_title,
+            A.case_list
+        FROM
+            exile_test_case_scenario A
+        WHERE
+            EXISTS (
+                SELECT
+                    B.id, B.scenario_id, B.version_id
+                FROM
+                    exile_test_mid_version_scenario B
+                WHERE
+                    B.scenario_id = A.id
+                    AND B.is_deleted = 0
+                    AND B.project_id = {project_id})
+                AND A.is_deleted = 0;
+        """
+        query_scenario = project_db.select(sql)
+
+        if not query_scenario:
+            return False, f'项目id:{project_id}不存在'
+
+        project_name = TestProject.query.get(project_id).project_name
+
+        scenario_list = []
+        for scenario in query_scenario:
+            case_list = scenario.get('case_list')
+            if case_list:
+                sort_case_list = sorted(case_list, key=lambda x: x.get("index"), reverse=True)
+                update_case_id = []
+                new_case_list = []
+                for case in sort_case_list:
+                    case_id = case.get('case_id')
+                    case_result = query_case_zip(case_id=case_id)
+                    if case_result:
+                        update_case_id.append(case_id)
+                        new_case_list.append(case_result)
+
+                scenario_obj = {
+                    "scenario_id": scenario.get('id'),
+                    "scenario_title": scenario.get('scenario_title'),
+                    "case_list": new_case_list
+                }
+                scenario_list.append(scenario_obj)
+
+                update_case_total_execution(case_id_list=update_case_id)
+
+        return True, {
+            "execute_name": f"执行项目【{project_name}】所有用例",
+            "send_test_case_list": scenario_list
+        }
+
+    @staticmethod
+    def query_version_all(version_id):
+        """
+        查询版本下所有可执行的用例、场景并组装
         :param version_id: 版本id
         :return:
         """
-        query_mid_all = MidProjectVersionAndCase.query.filter_by(version_id=version_id, is_deleted=0).all()
+
+    @staticmethod
+    def query_version_case(version_id):
+        """
+        查询版本下所有可执行的用例并组装
+        :param version_id: 版本id
+        :return:
+        """
+        query_mid_all = MidProjectVersionAndCase.query.filter_by(version_id=version_id, is_deleted=0).with_entities(
+            MidProjectVersionAndCase.case_id).distinct().all()  # 去重防止脏数据
 
         if not query_mid_all:
             return False, f'版本迭代id:{version_id}不存在或可执行用例为空'
@@ -172,6 +280,14 @@ class QueryExecuteData:
             "execute_name": f"执行【{version_name}】所有用例场景",
             "send_test_case_list": scenario_list
         }
+
+    @staticmethod
+    def query_task_all(task_id):
+        """
+        查询任务下所有可执行的用例、场景并组装
+        :param task_id: 任务id
+        :return:
+        """
 
     @staticmethod
     def query_task_case(task_id):
@@ -259,10 +375,18 @@ class QueryExecuteData:
 execute_func_dict = {
     "case": QueryExecuteData.query_only_case,
     "scenario": QueryExecuteData.query_only_scenario,
+    "project_all": QueryExecuteData.query_project_all,
+    "project_case": QueryExecuteData.query_project_case,
+    "project_scenario": QueryExecuteData.query_project_scenario,
+    "version_all": QueryExecuteData.query_version_all,
     "version_case": QueryExecuteData.query_version_case,
     "version_scenario": QueryExecuteData.query_version_scenario,
+    "task_all": QueryExecuteData.query_task_all,
     "task_case": QueryExecuteData.query_task_case,
-    "task_scenario": QueryExecuteData.query_task_scenario
+    "task_scenario": QueryExecuteData.query_task_scenario,
+    "module_all": "",
+    "module_case": "",
+    "module_scenario": ""
 }
 
 

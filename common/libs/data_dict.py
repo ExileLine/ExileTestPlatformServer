@@ -73,7 +73,8 @@ execute_type_tuple = (
     "case", "scenario",
     "project_all", "project_case", "project_scenario",
     "version_all", "version_case", "version_scenario",
-    "task_all", "task_case", "task_scenario"
+    "task_all", "task_case", "task_scenario",
+    "module_all", "module_case", "module_scenario"
 )
 
 
