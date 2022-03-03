@@ -35,11 +35,13 @@ def check_version(version_id_list):
     return True
 
 
-def create_mid_case(version_id, case_id):
+def create_mid_case(project_id, version_id, case_id, module_id):
     new_mid = MidProjectVersionAndCase(
+        project_id=project_id,
         version_id=version_id,
         task_id=0,
         case_id=case_id,
+        module_id=module_id,
         creator=g.app_user.username,
         creator_id=g.app_user.id,
     )
@@ -69,6 +71,8 @@ class CaseApi(MethodView):
         """用例新增"""
 
         data = request.get_json()
+        project_id = data.get('project_id', 0)
+        module_id = data.get('module_id', 0)
         version_id_list = data.get('version_id_list', [])
         case_name = data.get('case_name')
         request_method = data.get('request_method')
@@ -81,6 +85,12 @@ class CaseApi(MethodView):
         check_bool, check_msg = RequestParamKeysCheck(data, p).ck()
         if not check_bool:
             return api_result(code=400, message=check_msg)
+
+        if not project_id or not isinstance(project_id, int):
+            return api_result(code=400, message='project_id 错误')
+
+        if not module_id or not isinstance(module_id, int):
+            return api_result(code=400, message='module_id 错误')
 
         if version_id_list and not check_version(version_id_list):
             return api_result(code=400, message='版本迭代不存在')
@@ -116,9 +126,9 @@ class CaseApi(MethodView):
         if version_id_list:
             for version_obj in version_id_list:
                 version_id = version_obj.get('id')
-                create_mid_case(version_id=version_id, case_id=case_id)
+                create_mid_case(project_id=project_id, version_id=version_id, case_id=case_id, module_id=module_id)
         else:
-            create_mid_case(version_id=0, case_id=case_id)
+            create_mid_case(project_id=project_id, version_id=0, case_id=case_id, module_id=module_id)
         db.session.commit()
         data['id'] = case_id
         return api_result(code=201, message='创建成功', data=data)
@@ -127,6 +137,8 @@ class CaseApi(MethodView):
         """用例编辑"""
 
         data = request.get_json()
+        project_id = data.get('project_id', 0)
+        module_id = data.get('module_id', 0)
         version_id_list = data.get('version_id_list', [])
         case_id = data.get('id')
         case_name = data.get('case_name')
@@ -140,6 +152,12 @@ class CaseApi(MethodView):
         check_bool, check_msg = RequestParamKeysCheck(data, p).ck()
         if not check_bool:
             return api_result(code=400, message=check_msg)
+
+        if not project_id or not isinstance(project_id, int):
+            return api_result(code=400, message='project_id 错误')
+
+        if not module_id or not isinstance(module_id, int):
+            return api_result(code=400, message='module_id 错误')
 
         if version_id_list and not check_version(version_id_list):
             return api_result(code=400, message='版本迭代不存在')
@@ -187,9 +205,9 @@ class CaseApi(MethodView):
         if version_id_list:
             for version in version_id_list:
                 version_id = version.get('id')
-                create_mid_case(version_id=version_id, case_id=case_id)
+                create_mid_case(project_id=project_id, version_id=version_id, case_id=case_id, module_id=module_id)
         else:
-            create_mid_case(version_id=0, case_id=case_id)
+            create_mid_case(project_id=project_id, version_id=0, case_id=case_id, module_id=module_id)
         db.session.commit()
         return api_result(code=203, message='编辑成功')
 
@@ -356,13 +374,22 @@ class CaseCopyApi(MethodView):
 
         query_mid = MidProjectVersionAndCase.query.filter_by(case_id=case_id, is_deleted=0).all()
 
-        version_id_list = [mid.version_id for mid in query_mid]
+        id_list = [
+            {
+                "project_id": mid.project_id,
+                "version_id": mid.version_id,
+                "module_id": mid.module_id
+            } for mid in query_mid
+        ]
 
-        if version_id_list:
-            for version_id in version_id_list:
+        if id_list:
+            for id_dict in id_list:
                 new_mid = MidProjectVersionAndCase(
                     case_id=new_test_case_id,
-                    version_id=version_id,
+                    project_id=id_dict.get('project_id'),
+                    version_id=id_dict.get('version_id'),
+                    module_id=id_dict.get('module_id'),
+                    task_id=0,
                     creator=g.app_user.username,
                     creator_id=g.app_user.id,
                     remark="用例复制生成"
