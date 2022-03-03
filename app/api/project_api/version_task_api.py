@@ -10,14 +10,15 @@ from all_reference import *
 from app.models.admin.models import Admin
 from app.models.test_case.models import TestCase
 from app.models.test_case_scenario.models import TestCaseScenario
-from app.models.test_project.models import TestProject, TestProjectVersion, MidProjectVersionAndCase, \
-    MidProjectVersionAndScenario, TestVersionTask
+from app.models.test_project.models import TestProjectVersion, MidProjectVersionAndCase, MidProjectVersionAndScenario, \
+    TestVersionTask
 
 
-def gen_mid(version_id, task_id, case_list, scenario_list):
+def gen_mid(project_id, version_id, task_id, case_list, scenario_list):
     """gen mid"""
     for case_id in case_list:
         mid_vc = MidProjectVersionAndCase(
+            project_id=project_id,
             version_id=version_id,
             case_id=case_id,
             task_id=task_id,
@@ -28,6 +29,7 @@ def gen_mid(version_id, task_id, case_list, scenario_list):
 
     for scenario_id in scenario_list:
         mid_vs = MidProjectVersionAndScenario(
+            project_id=project_id,
             version_id=version_id,
             scenario_id=scenario_id,
             task_id=task_id,
@@ -81,6 +83,7 @@ class VersionTaskApi(MethodView):
         """迭代任务新增"""
 
         data = request.get_json()
+        project_id = data.get('project_id', 0)
         version_id = data.get('version_id', '')
         task_name = data.get('task_name', '')
         task_type = data.get('task_type', '')
@@ -116,7 +119,7 @@ class VersionTaskApi(MethodView):
         if query_task_mid:
             return api_result(code=400, message=f"数据异常:版本迭代 {version_id} 已经存在任务 {task_id}")
 
-        gen_mid(version_id, task_id, case_list, scenario_list)
+        gen_mid(project_id, version_id, task_id, case_list, scenario_list)
         db.session.commit()
         return api_result(code=201, message="操作成功")
 
@@ -125,6 +128,7 @@ class VersionTaskApi(MethodView):
 
         data = request.get_json()
         task_id = data.get('id')
+        project_id = data.get('project_id', 0)
         version_id = data.get('version_id', '')
         task_name = data.get('task_name', '')
         task_type = data.get('task_type', '')
@@ -160,7 +164,7 @@ class VersionTaskApi(MethodView):
         db.session.query(MidProjectVersionAndScenario).filter_by(version_id=version_id, task_id=task_id).delete(
             synchronize_session=False)
 
-        gen_mid(version_id, task_id, case_list, scenario_list)
+        gen_mid(project_id, version_id, task_id, case_list, scenario_list)
         db.session.commit()
 
         return api_result(code=203, message="操作成功")
@@ -185,7 +189,7 @@ class VersionTaskApi(MethodView):
 
 class VersionTaskPageApi(MethodView):
     """
-    版本迭代任务 api
+    迭代任务分页模糊查询 api
     version task page api
     POST: 迭代任务分页模糊查询
     """
