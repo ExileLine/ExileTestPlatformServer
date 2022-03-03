@@ -237,6 +237,8 @@ class CaseScenarioPageApi(MethodView):
         SELECT
             A.id,
             A.scenario_title,
+            A.is_public,
+            A.is_shared,
             A.total_execution,
             A.creator,
             A.create_time,
