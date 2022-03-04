@@ -224,6 +224,9 @@ class CaseReqDataApi(MethodView):
         if not query_req_case_data:
             return api_result(code=400, message='用例req数据id:{}数据不存在'.format(req_data_id))
 
+        if query_req_case_data.creator_id != g.app_user.id:
+            return api_result(code=400, message='非管理员不能删除其他人的参数！')
+
         query_req_case_data.modifier_id = g.app_user.id
         query_req_case_data.modifier = g.app_user.username
         query_req_case_data.delete()

@@ -231,6 +231,9 @@ class CaseApi(MethodView):
         if not query_case:
             return api_result(code=400, message='用例id:{}数据不存在'.format(case_id))
 
+        if query_case.creator_id != g.app_user.id:
+            return api_result(code=400, message='非管理员不能删除其他人的用例！')
+
         query_case.modifier = g.app_user.username
         query_case.modifier_id = g.app_user.id
         query_case.delete()

@@ -622,6 +622,7 @@ class MainTest:
             self.sio.log('=== end case: {} ===\n\n'.format(case_index))
 
             add_case = {
+                "report_tab": 1,
                 "case_id": self.case_id,
                 "case_name": self.case_name,
                 "case_log": self.sio.get_stringio().split('\n'),
@@ -705,6 +706,7 @@ class MainTest:
                 self.sio.log(
                     '=== end {}: scenario: {} case: {}===\n\n'.format(scenario_id, scenario_title, case_index))
             add_group = {
+                "report_tab": 2,
                 "scenario_id": scenario_id,
                 "scenario_title": scenario_title,
                 "scenario_log": scenario_log,

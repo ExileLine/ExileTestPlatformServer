@@ -154,6 +154,9 @@ class CaseVarApi(MethodView):
         if not query_var:
             return api_result(code=400, message='用例变量id:{}数据不存在'.format(var_id))
 
+        if query_var.creator_id != g.app_user.id:
+            return api_result(code=400, message='非管理员不能删除其他人的变量！')
+
         query_var.modifier_id = g.app_user.id
         query_var.modifier = g.app_user.username
         query_var.delete()
