@@ -77,6 +77,9 @@ execute_type_tuple = (
     "module_all", "module_case", "module_scenario"
 )
 
+# 执行标签
+execute_label_tuple = ('only', 'many', 'all')
+
 
 # redis最新日志存储字典
 def gen_redis_first_logs(execute_id):
@@ -92,7 +95,10 @@ def gen_redis_first_logs(execute_id):
         "version_scenario": f"version_scenario_first_log:{execute_id}",
         "task_all": f"task_all_first_log:{execute_id}",
         "task_case": f"task_case_first_log:{execute_id}",
-        "task_scenario": f"task_scenario_first_log:{execute_id}"
+        "task_scenario": f"task_scenario_first_log:{execute_id}",
+        "module_all": f"module_all_first_log:{execute_id}",
+        "module_case": f"module_case_first_log:{execute_id}",
+        "module_scenario": f"module_scenario_first_log:{execute_id}"
     }
     return d
 

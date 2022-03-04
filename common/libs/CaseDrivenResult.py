@@ -20,7 +20,7 @@ from common.libs.public_func import check_keys
 from common.libs.assert_related import AssertResponseMain, AssertFieldMain
 from common.libs.StringIOLog import StringIOLog
 from common.libs.execute_code import execute_code
-from common.libs.data_dict import var_func_dict, gen_redis_first_logs
+from common.libs.data_dict import var_func_dict, execute_label_tuple, gen_redis_first_logs
 
 
 class TestResult:
@@ -158,16 +158,25 @@ class MainTest:
         self.execute_username = test_obj.get('execute_username')
         self.sio = test_obj.get('sio', StringIOLog())
 
+        self.is_execute_all = test_obj.get('is_execute_all', False)
+        self.execute_dict = test_obj.get('execute_dict', {})
         self.case_list = test_obj.get('case_list', [])
 
-        if not isinstance(self.case_list, list) or not self.case_list:
+        if not isinstance(self.case_list, list):
             raise TypeError('MainTest.__init__.case_list 类型错误')
 
-        if self.execute_label not in ('only', 'many'):
+        if self.execute_label not in execute_label_tuple:
             raise TypeError('MainTest.__init__.execute_label 类型错误')
 
         self.func_name = self.execute_label + "_execute"
-        self.case_generator = (case for case in self.case_list)
+
+        if self.is_execute_all:
+            case_list = self.execute_dict.get('case_list', [])
+            self.case_generator = (case for case in case_list)
+            scenario_list = self.execute_dict.get('scenario_list', [])
+            self.scenario_generator = (scenario for scenario in scenario_list)
+        else:
+            self.case_generator = (case for case in self.case_list)
 
         self.current_case_resp_ass_error = 0  # 响应断言标识
         self.logs_error_switch = False  # 日志标识
@@ -535,7 +544,28 @@ class MainTest:
         logger.success('=== save_logs ok ===')
 
     def gen_logs(self):
-        """1"""
+        """组装日志并保存"""
+
+        case_summary = self.test_result.get_test_result()
+        self.end_time = time.time()
+        save_key = "test_log_{}_{}".format(str(int(time.time())), shortuuid.uuid())
+        return_case_result = {
+            "uuid": save_key,
+            "execute_type": self.execute_type,
+            "execute_name": self.execute_name,
+            "case_result_list": self.case_result_list,
+            "result_summary": case_summary,
+            "create_time": self.create_time,
+            "start_time": self.start_time,
+            "end_time": self.end_time,
+            "total_time": self.end_time - self.start_time
+        }
+        R.set(save_key, json.dumps(return_case_result))
+        current_save_dict = gen_redis_first_logs(execute_id=self.execute_id)
+        save_obj_first = current_save_dict.get(self.execute_type, "未知执行类型")
+        R.set(save_obj_first, json.dumps(return_case_result))
+        logger.success('=== save redis ok ===')
+        self.save_logs(log_id=save_key)
 
     def only_execute(self):
         """
@@ -599,30 +629,8 @@ class MainTest:
             }
             self.case_result_list.append(add_case)
 
-        logger.info('=== save redis start ===')
-
-        case_summary = self.test_result.get_test_result()
-        self.end_time = time.time()
-        save_key = "test_log_{}_{}".format(str(int(time.time())), shortuuid.uuid())
-        return_case_result = {
-            "uuid": save_key,
-            "case_result_list": self.case_result_list,
-            "result_summary": case_summary,
-            "create_time": self.create_time,
-            "start_time": self.start_time,
-            "end_time": self.end_time,
-            "total_time": self.end_time - self.start_time
-        }
-        R.set(save_key, json.dumps(return_case_result))
-
-        current_save_dict = gen_redis_first_logs(execute_id=self.execute_id)
-
-        save_obj_first = current_save_dict.get(self.execute_type, "未知执行类型")
-        R.set(save_obj_first, json.dumps(return_case_result))
-
-        logger.success('=== save redis ok ===')
-
-        self.save_logs(log_id=save_key)
+        if not self.is_execute_all:
+            self.gen_logs()
 
     def many_execute(self):
         """
@@ -632,7 +640,12 @@ class MainTest:
         """
         print('=== many_execute ===')
 
-        for group_index, group in enumerate(self.case_generator, 1):
+        if self.is_execute_all:
+            new_scenario_generator = self.scenario_generator
+        else:
+            new_scenario_generator = self.case_generator
+
+        for group_index, group in enumerate(new_scenario_generator, 1):
             scenario_id = group.get('scenario_id')
             scenario_title = group.get('scenario_title')
             case_list = group.get('case_list')
@@ -699,35 +712,20 @@ class MainTest:
             }
             self.case_result_list.append(add_group)
 
-            logger.info('=== save redis start ===')
-
-            case_summary = self.test_result.get_test_result()
-            self.end_time = time.time()
-            save_key = "test_log_{}_{}".format(str(int(time.time())), shortuuid.uuid())
-            return_case_result = {
-                "uuid": save_key,
-                "execute_type": self.execute_type,
-                "execute_name": self.execute_name,
-                "case_result_list": self.case_result_list,
-                "result_summary": case_summary,
-                "create_time": self.create_time,
-                "start_time": self.start_time,
-                "end_time": self.end_time,
-                "total_time": self.end_time - self.start_time
-            }
-            R.set(save_key, json.dumps(return_case_result))
-
-            current_save_dict = gen_redis_first_logs(execute_id=self.execute_id)
-
-            save_obj_first = current_save_dict.get(self.execute_type, "未知执行类型")
-            R.set(save_obj_first, json.dumps(return_case_result))
-
-            logger.success('=== save redis ok ===')
-
-            self.save_logs(log_id=save_key)
+        if not self.is_execute_all:
+            self.gen_logs()
 
     def all_execute(self):
-        """1"""
+        """执行用例与场景"""
+
+        print('=== all_execute -> only_execute ===')
+        self.only_execute()
+
+        print('=== all_execute -> many_execute ===')
+        self.many_execute()
+
+        print('=== all_execute -> gen_logs ===')
+        self.gen_logs()
 
     def main(self):
         """main"""
