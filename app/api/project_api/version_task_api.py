@@ -89,7 +89,7 @@ class VersionTaskApi(MethodView):
         task_type = data.get('task_type', '')
         user_list = data.get('user_list', [])
         case_list = data.get('case_list', [])
-        scenario_list = data.get('case_list', [])
+        scenario_list = data.get('scenario_list', [])
         remark = data.get('remark')
 
         if not TestProjectVersion.query.get(version_id):
@@ -134,7 +134,7 @@ class VersionTaskApi(MethodView):
         task_type = data.get('task_type', '')
         user_list = data.get('user_list', [])
         case_list = data.get('case_list', [])
-        scenario_list = data.get('case_list', [])
+        scenario_list = data.get('scenario_list', [])
         remark = data.get('remark')
 
         query_task = TestVersionTask.query.get(task_id)

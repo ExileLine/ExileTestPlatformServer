@@ -103,6 +103,13 @@ def gen_redis_first_logs(execute_id):
     return d
 
 
+case_type_dict = {
+    "1": "api自动化测试",
+    "2": "ui自动化测试",
+    "3": "性能测试",
+    "4": "安全测试"
+}
+
 if __name__ == '__main__':
     a = "123"
     # a = 123
