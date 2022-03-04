@@ -289,7 +289,7 @@ class RespAssertionRuleApi(MethodView):
         """返回值断言删除"""
 
         data = request.get_json()
-        ass_resp_id = data.get('ass_resp_id')
+        ass_resp_id = data.get('id')
         query_ass_resp = TestCaseAssResponse.query.get(ass_resp_id)
 
         if not query_ass_resp:
@@ -433,7 +433,7 @@ class FieldAssertionRuleApi(MethodView):
         """字段断言规则删除"""
 
         data = request.get_json()
-        ass_field_id = data.get('ass_field_id')
+        ass_field_id = data.get('id')
         query_ass_field = TestCaseAssField.query.get(ass_field_id)
 
         if not query_ass_field:

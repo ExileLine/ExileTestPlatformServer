@@ -147,7 +147,7 @@ class CaseVarApi(MethodView):
         """用例变量删除"""
 
         data = request.get_json()
-        var_id = data.get('var_id')
+        var_id = data.get('id')
 
         query_var = TestVariable.query.get(var_id)
 

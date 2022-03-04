@@ -217,7 +217,7 @@ class CaseReqDataApi(MethodView):
         """用例req数据删除"""
 
         data = request.get_json()
-        req_data_id = data.get('req_data_id')
+        req_data_id = data.get('id')
 
         query_req_case_data = TestCaseData.query.get(req_data_id)
 

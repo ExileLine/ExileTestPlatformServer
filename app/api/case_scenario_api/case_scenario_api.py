@@ -193,11 +193,14 @@ class CaseScenarioApi(MethodView):
         """用例场景删除"""
 
         data = request.get_json()
-        scenario_id = data.get('scenario_id')
+        scenario_id = data.get('id')
         query_scenario = TestCaseScenario.query.get(scenario_id)
 
         if not query_scenario:
             return api_result(code=400, message='场景id:{}数据不存在'.format(scenario_id))
+
+        if query_case.creator_id != g.app_user.id:
+            return api_result(code=400, message='非管理员不能删除其他人的用例场景！')
 
         query_scenario.modifier_id = g.app_user.id
         query_scenario.modifier = g.app_user.username
