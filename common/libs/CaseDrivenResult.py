@@ -534,10 +534,8 @@ class MainTest:
         project_db.create_data(sql)
         logger.success('=== save_logs ok ===')
 
-    def main(self):
-        """main"""
-
-        getattr(self, self.func_name)()
+    def gen_logs(self):
+        """1"""
 
     def only_execute(self):
         """
@@ -708,6 +706,8 @@ class MainTest:
             save_key = "test_log_{}_{}".format(str(int(time.time())), shortuuid.uuid())
             return_case_result = {
                 "uuid": save_key,
+                "execute_type": self.execute_type,
+                "execute_name": self.execute_name,
                 "case_result_list": self.case_result_list,
                 "result_summary": case_summary,
                 "create_time": self.create_time,
@@ -725,6 +725,14 @@ class MainTest:
             logger.success('=== save redis ok ===')
 
             self.save_logs(log_id=save_key)
+
+    def all_execute(self):
+        """1"""
+
+    def main(self):
+        """main"""
+
+        getattr(self, self.func_name)()
 
     def __str__(self):
         return '\n'.join(["{}:{}".format(k, v) for k, v in self.__dict__.items()])

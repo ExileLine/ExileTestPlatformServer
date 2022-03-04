@@ -84,8 +84,13 @@ def gen_redis_first_logs(execute_id):
     d = {
         "case": f"case_first_log:{execute_id}",
         "scenario": f"scenario_first_log:{execute_id}",
+        "project_all": f"project_all_first_log:{execute_id}",
+        "project_case": f"project_case_first_log:{execute_id}",
+        "project_scenario": f"project_scenario_first_log:{execute_id}",
+        "version_all": f"version_all_first_log:{execute_id}",
         "version_case": f"version_case_first_log:{execute_id}",
         "version_scenario": f"version_scenario_first_log:{execute_id}",
+        "task_all": f"task_all_first_log:{execute_id}",
         "task_case": f"task_case_first_log:{execute_id}",
         "task_scenario": f"task_scenario_first_log:{execute_id}"
     }
