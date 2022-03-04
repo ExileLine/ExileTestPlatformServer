@@ -107,6 +107,7 @@ class CaseEnvPageApi(MethodView):
         env_id = data.get('env_id')
         env_url = data.get('env_url')
         env_name = data.get('env_name')
+        creator_id = data.get('creator_id')
         is_deleted = data.get('is_deleted', False)
         page = data.get('page')
         size = data.get('size')
@@ -124,8 +125,8 @@ class CaseEnvPageApi(MethodView):
 
         result_data = general_query(
             model=TestEnv,
-            field_list=['id', 'env_url', 'env_name'],
-            query_list=[env_id, env_url, env_name],
+            field_list=['id', 'env_url', 'env_name', 'creator_id'],
+            query_list=[env_id, env_url, env_name, creator_id],
             is_deleted=is_deleted,
             page=page,
             size=size

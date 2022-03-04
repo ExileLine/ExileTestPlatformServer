@@ -198,17 +198,19 @@ class VersionTaskPageApi(MethodView):
         """迭代任务分页模糊查询"""
 
         data = request.get_json()
+        version_id = data.get('version_id')
         task_id = data.get('id')
         task_name = data.get('task_name')
         task_type = data.get('task_type')
+        creator_id = data.get('creator_id')
         is_deleted = data.get('is_deleted', False)
         page = data.get('page')
         size = data.get('size')
 
         result_data = general_query(
             model=TestVersionTask,
-            field_list=['id', 'task_name', 'task_type'],
-            query_list=[task_id, task_name, task_type],
+            field_list=['id', 'task_name', 'task_type', 'creator_id'],
+            query_list=[task_id, task_name, task_type, creator_id],
             is_deleted=is_deleted,
             page=page,
             size=size

@@ -10,7 +10,8 @@ from concurrent.futures import ThreadPoolExecutor
 from all_reference import *
 from app.models.test_case.models import TestCase
 from app.models.test_case_scenario.models import TestCaseScenario
-from app.models.test_project.models import TestProject, TestProjectVersion, MidProjectVersionAndCase, TestVersionTask
+from app.models.test_project.models import TestProject, TestProjectVersion, MidProjectVersionAndCase, TestVersionTask, \
+    TestModuleApp
 from app.models.test_env.models import TestEnv
 from app.models.test_logs.models import TestLogs
 from common.libs.StringIOLog import StringIOLog
@@ -184,7 +185,7 @@ class QueryExecuteData:
                 update_case_total_execution(case_id_list=update_case_id)
 
         return True, {
-            "execute_name": f"执行项目【{project_name}】所有用例",
+            "execute_name": f"执行项目【{project_name}】所有用例场景",
             "send_test_case_list": scenario_list
         }
 
@@ -220,7 +221,7 @@ class QueryExecuteData:
             case_list.append(result)
 
         return True, {
-            "execute_name": f"执行【{version_name}】所有用例",
+            "execute_name": f"执行版本迭代【{version_name}】所有用例",
             "send_test_case_list": case_list
         }
 
@@ -277,7 +278,7 @@ class QueryExecuteData:
                 update_case_total_execution(case_id_list=update_case_id)
 
         return True, {
-            "execute_name": f"执行【{version_name}】所有用例场景",
+            "execute_name": f"执行版本迭代【{version_name}】所有用例场景",
             "send_test_case_list": scenario_list
         }
 
@@ -292,7 +293,7 @@ class QueryExecuteData:
     @staticmethod
     def query_task_case(task_id):
         """
-        查询任务下所有可执行的用例
+        查询任务下所有可执行的用例并组装
         :param task_id: 任务id
         :return:
         """
@@ -312,7 +313,7 @@ class QueryExecuteData:
             case_list.append(result)
 
         return True, {
-            "execute_name": f"执行【{task_name}】所有用例",
+            "execute_name": f"执行任务【{task_name}】所有用例",
             "send_test_case_list": case_list
         }
 
@@ -367,7 +368,106 @@ class QueryExecuteData:
                 update_case_total_execution(case_id_list=update_case_id)
 
         return True, {
-            "execute_name": f"执行【{task_name}】所有用例场景",
+            "execute_name": f"执行任务【{task_name}】所有用例场景",
+            "send_test_case_list": scenario_list
+        }
+
+    @staticmethod
+    def query_module_all(module_id):
+        """
+        查询功能模块应用下所有可执行的用例、场景并组装
+        :param module_id: 功能模块应用id
+        :return:
+        """
+
+    @staticmethod
+    def query_module_case(module_id):
+        """
+        查询功能模块应用下所有可执行的用例并组装
+        :param module_id: 功能模块应用id
+        :return:
+        """
+
+        query_mid_all = MidProjectVersionAndCase.query.filter_by(module_id=module_id, is_deleted=0).with_entities(
+            MidProjectVersionAndCase.case_id).distinct().all()
+
+        if not query_mid_all:
+            return False, f'功能模块应用id:{module_id}不存在或可执行用例为空'
+
+        module_name = TestModuleApp.query.get(module_id).module_name
+
+        case_list = []
+        for mid in query_mid_all:
+            case_id = mid.case_id
+            query_case = TestCase.query.get(case_id)
+            query_case.add_total_execution()
+            result = query_case_zip(case_id=case_id)
+            case_list.append(result)
+
+        return True, {
+            "execute_name": f"执行模块应用【{module_name}】所有用例",
+            "send_test_case_list": case_list
+        }
+
+    @staticmethod
+    def query_module_scenario(module_id):
+        """
+        查询功能模块应用下所有可执行的场景并组装
+        :param module_id: 功能模块应用id
+        :return:
+        """
+
+        sql = f"""
+        SELECT
+            A.id,
+            A.scenario_title,
+            A.case_list
+        FROM
+            exile_test_case_scenario A
+        WHERE
+            EXISTS (
+                SELECT
+                    B.id, B.scenario_id, B.version_id
+                FROM
+                    exile_test_mid_version_scenario B
+                WHERE
+                    B.scenario_id = A.id
+                    AND B.is_deleted = 0
+                    AND B.module_id = {module_id})
+                AND A.is_deleted = 0;
+        """
+        query_scenario = project_db.select(sql)
+
+        if not query_scenario:
+            return False, f'功能模块应用id:{module_id}不存在'
+
+        module_name = TestModuleApp.query.get(module_id).module_name
+
+        scenario_list = []
+        for scenario in query_scenario:
+            case_list = scenario.get('case_list')
+            if case_list:
+                sort_case_list = sorted(case_list, key=lambda x: x.get("index"), reverse=True)
+                update_case_id = []
+                new_case_list = []
+                for case in sort_case_list:
+                    case_id = case.get('case_id')
+                    case_result = query_case_zip(case_id=case_id)
+                    if case_result:
+                        update_case_id.append(case_id)
+                        new_case_list.append(case_result)
+
+                scenario_obj = {
+                    "scenario_id": scenario.get('id'),
+                    "scenario_title": scenario.get('scenario_title'),
+                    "case_list": new_case_list
+                }
+                scenario_list.append(scenario_obj)
+
+                update_case_total_execution(case_id_list=update_case_id)
+
+        return True, {
+            "execute_name": f"执行模块应用【{module_name}】所有用例场景",
             "send_test_case_list": scenario_list
         }
 
@@ -384,9 +484,9 @@ execute_func_dict = {
     "task_all": QueryExecuteData.query_task_all,
     "task_case": QueryExecuteData.query_task_case,
     "task_scenario": QueryExecuteData.query_task_scenario,
-    "module_all": "",
-    "module_case": "",
-    "module_scenario": ""
+    "module_all": QueryExecuteData.query_module_all,
+    "module_case": QueryExecuteData.query_module_case,
+    "module_scenario": QueryExecuteData.query_module_scenario
 }
 
 
