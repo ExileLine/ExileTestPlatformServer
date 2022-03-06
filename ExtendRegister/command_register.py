@@ -701,3 +701,19 @@ def register_commands(app):
             new_ass_json = __func(current_list)
             q.ass_json = new_ass_json
         db.session.commit()
+
+    @app.cli.command("fix_mid_cs", help='修正新增字段project_id')
+    def fix_mid_cs():
+        m_case = MidProjectVersionAndCase.query.all()
+        for case in m_case:
+            query_version = TestProjectVersion.query.get(case.version_id)
+            if query_version:
+                case.project_id = query_version.project_id
+                db.session.commit()
+
+        m_scenario = MidProjectVersionAndScenario.query.all()
+        for scenario in m_scenario:
+            query_version = TestProjectVersion.query.get(scenario.version_id)
+            if query_version:
+                scenario.project_id = query_version.project_id
+                db.session.commit()
