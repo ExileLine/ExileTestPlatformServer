@@ -199,7 +199,7 @@ class CaseScenarioApi(MethodView):
         if not query_scenario:
             return api_result(code=400, message='场景id:{}数据不存在'.format(scenario_id))
 
-        if query_case.creator_id != g.app_user.id:
+        if query_scenario.creator_id != g.app_user.id:
             return api_result(code=400, message='非管理员不能删除其他人的用例场景！')
 
         query_scenario.modifier_id = g.app_user.id
