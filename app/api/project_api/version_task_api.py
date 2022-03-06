@@ -263,9 +263,6 @@ class VersionTaskPageApi(MethodView):
                 AND A.task_type LIKE "%{task_type}%";        
         """
 
-        print(sql)
-        print(sql_count)
-
         result_list = project_db.select(sql)
         result_count = project_db.select(sql_count)
 
