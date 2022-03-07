@@ -149,23 +149,18 @@ class AssertResponseMain(AssertMain):
 class AssertFieldMain(AssertMain):
     """Field 断言类"""
 
-    def __init__(self, sio=None, resp_json=None, resp_headers=None, assert_description=None, db_id=None, query=None,
-                 assert_list=None):
+    def __init__(self, sio=None, assert_description=None, db_id=None, assert_list=None):
+
         self.sio = sio if sio else StringIOLog()
-        self.resp_json = resp_json
-        self.resp_headers = resp_headers
         self.assert_description = assert_description
         self.db_id = db_id
-        self.query = query
         self.assert_list = assert_list
+
         self.query_result = None
+        self.db_type = None
+        self.db_connection = {}
+        self.db_obj = None
 
-        self.current_db_type = None
-        self.current_db_connection = {}
-        self.current_db_obj = None
-        self.current_ass = {}
-
-        self.query_result_status = None
         self.ass_field_success = []
         self.ass_field_fail = []
         self.ass_field_error = []
@@ -183,7 +178,7 @@ class AssertFieldMain(AssertMain):
     def get_mysql(self):
         """连接:Mysql"""
 
-        db = MyPyMysql(**self.current_db_connection, debug=True)  # MySql实例
+        db = MyPyMysql(**self.db_connection, debug=True)  # MySql实例
         ping = db.db_obj().open
         return {
             "db": db,
@@ -193,8 +188,8 @@ class AssertFieldMain(AssertMain):
     def get_redis(self):
         """连接:Redis"""
 
-        self.current_db_connection.update({"decode_responses": True})  # bytes to str
-        pool = redis.ConnectionPool(**self.current_db_connection)
+        self.db_connection.update({"decode_responses": True})  # bytes to str
+        pool = redis.ConnectionPool(**self.db_connection)
         db = redis.Redis(connection_pool=pool)  # Redis实例
         db.ping()
 
@@ -233,36 +228,28 @@ class AssertFieldMain(AssertMain):
             return False
 
         db_obj = query_db.to_json()
-        self.current_db_type = db_obj.get('db_type', '')
-        self.current_db_connection = db_obj.get('db_connection')
+        self.db_type = db_obj.get('db_type', '')
+        self.db_connection = db_obj.get('db_connection')
         return True
 
     def ping_db_connection(self):
         """检查db是否可以连接"""
 
-        self.current_db_obj = self.db_dict.get(self.current_db_type.lower(), None)()
+        self.db_obj = self.db_dict.get(self.db_type.lower(), None)()
 
-        if not self.current_db_obj:
-            self.sio.log(f"=== 暂时不支持: {self.current_db_type} ===", status='error')
+        if not self.db_obj:
+            self.sio.log(f"=== 暂时不支持: {self.db_type} ===", status='error')
             self.ass_field_error.append('暂时不支持')
             return False
 
-        self.sio.log(f"=== 测试需要连接的db配置: {self.current_db_connection} - {type(self.current_db_connection)} ===")
+        self.sio.log(f"=== 测试需要连接的db配置: {self.db_connection} - {type(self.db_connection)} ===")
 
-    def execute_order(self):
-        """执行语句"""
-
-        result_db = self.current_db_obj.get("db")
-        result_cmd = self.current_db_obj.get("cmd")
-        result_execute = getattr(result_db, result_cmd)(self.query)
-        return result_execute
-
-    def ass_str_or_int_result(self):
+    def ass_str_or_int_result(self, assert_field_obj):
         """查询结果为一个str或者int,直接使用 self.query_result 来检验"""
 
         assert_key = self.query_result
-        rule = self.current_ass.get('rule')
-        expect_val = self.current_ass.get('expect_val')
+        rule = assert_field_obj.get('rule')
+        expect_val = assert_field_obj.get('expect_val')
 
         self.sio.log(f'=== 断言:{self.assert_description} ===', status='success')
         self.sio.log(f'=== 值:{assert_key} ===', status='success')
@@ -288,16 +275,16 @@ class AssertFieldMain(AssertMain):
             self.sio.log('=== 断言异常 ===', status="error")
             self.ass_field_error.append(message)
 
-    def ass_dict_result(self):
+    def ass_dict_result(self, assert_field_obj):
         """
         查询结果为一个dict,检验key:value
         ps:如果该方法报错,问题会出现在 参数在入库的时候接口没有做好检验 或 者手动修改了数据库的数据
         """
 
-        assert_key = self.current_ass.get('assert_key')
+        assert_key = assert_field_obj.get('assert_key')
         var_result = self.query_result.get(assert_key)
-        rule = self.current_ass.get('rule')
-        expect_val = self.current_ass.get('expect_val')
+        rule = assert_field_obj.get('rule')
+        expect_val = assert_field_obj.get('expect_val')
 
         self.sio.log('=== 断言:{} ==='.format(self.assert_description), status='success')
         self.sio.log('=== 字段:{} ==='.format(assert_key), status='success')
@@ -323,33 +310,37 @@ class AssertFieldMain(AssertMain):
             self.sio.log('=== 断言异常 ===', status="error")
             self.ass_field_error.append(message)
 
-    def ass_list_result(self):
+    def ass_list_result(self, assert_field_obj):
         """
         查询结果为一个[],检验:=,>,>=,<,<=,in,not in
         ps:如果该方法报错,是参数在入库的时候接口没有做好检验或者手动修改了数据库的数据
         """
         # TODO ass_list_result
 
-    def consume_ass(self):
-        """获取断言规则"""
+    def to_ass(self, assert_field_obj):
+        """
+        assert_field_obj = {
+            "assert_key": "id",
+            "expect_val": 1,
+            "expect_val_type": "1",
+            "rule": "=="
+        }
+        :param assert_field_obj: 期望结果
+        :return:
+        """
+        if self.db_type in ['mysql', 'postgresql']:
+            # TODO 暂时支持唯一数据检验
+            if len(self.query_result) == 1 and isinstance(self.query_result, list):
+                self.query_result = self.query_result[0]
+            self.ass_dict_result(assert_field_obj)
 
-        for index, ass in enumerate(self.assert_list):
+        elif self.db_type in ['redis']:
 
-            self.current_ass = ass
-
-            if self.current_db_type in ['mysql', 'postgresql']:
-                # TODO 暂时支持唯一数据检验
-                if len(self.query_result) == 1 and isinstance(self.query_result, list):
-                    self.query_result = self.query_result[0]
-                self.ass_dict_result()
-
-            elif self.current_db_type in ['redis']:
-
-                if bool(self.current_ass.get('is_expression')):
-                    self.query_result = json.loads(self.query_result)
-                    self.ass_dict_result()
-                else:
-                    self.ass_str_or_int_result()
+            if bool(assert_field_obj.get('is_expression')):
+                self.query_result = json.loads(self.query_result)
+                self.ass_dict_result(assert_field_obj)
+            else:
+                self.ass_str_or_int_result(assert_field_obj)
 
     def main(self):
         """
@@ -363,8 +354,15 @@ class AssertFieldMain(AssertMain):
         try:
             self.query_db_connection()
             self.ping_db_connection()
-            self.query_result = self.execute_order()
-            self.consume_ass()
+
+            for ass in self.assert_list:
+                query = ass.get('query')
+                assert_field_list = ass.get('assert_field_list')
+                result_db = self.db_obj.get("db")
+                result_cmd = self.db_obj.get("cmd")
+                query_result = getattr(result_db, result_cmd)(query)
+                self.query_result = query_result
+                list(map(self.to_ass, assert_field_list))
 
             return {
                 "success": len(self.ass_field_success),
@@ -393,7 +391,7 @@ if __name__ == '__main__':
         }
         resp_json = {
             "code": 200,
-            "data": 1630586912.8031318,
+            "data": 1630586912,
             "message": "index"
         }
         resp_ass_dict = {
@@ -417,35 +415,74 @@ if __name__ == '__main__':
 
     def test_field_ass():
         """测试断言field"""
-        field_ass_dict = {
-            "assert_list": [
+
+        def __execute(ass_json):
+            """
+            执行
+            :return:
+            """
+
+            new_field_ass = AssertFieldMain(
+                sio=StringIOLog(),
+                # assert_description=assert_description,
+                **ass_json
+            )
+
+            new_field_ass.main()
+
+        feild_ass_demo = {
+            "version_id_list": [],
+            "assert_description": "A通用字段校验",
+            "is_public": 1,
+            "remark": "remark",
+            "ass_json": [
                 {
-                    "assert_key": "id",
-                    "expect_val": 1,
-                    "expect_val_type": "1",
-                    # "rule": "__eq__",
-                    "rule": "=="
+                    "db_id": 12,
+                    "assert_list": [
+                        {
+                            "query": "select id, case_name FROM ExileTestPlatform.exile_test_case WHERE id=1;",
+                            "assert_field_list": [
+                                {
+                                    "assert_key": "id",
+                                    "expect_val": 1,
+                                    "expect_val_type": "1",
+                                    "rule": "=="
+                                },
+                                {
+                                    "assert_key": "case_name",
+                                    "expect_val": "测试用例B1",
+                                    "expect_val_type": "2",
+                                    "rule": "=="
+                                }
+                            ]
+                        }
+                    ]
                 },
                 {
-                    "assert_key": "case_name",
-                    "expect_val": "测试用例B1",
-                    "expect_val_type": "2",
-                    # "rule": "__eq__",
-                    "rule": "=="
+                    "db_id": 9,
+                    "assert_list": [
+                        {
+                            "query": "get 127.0.0.1",
+                            "assert_field_list": [
+                                {
+                                    "assert_key": "username",
+                                    "expect_val": "user_00007",
+                                    "expect_val_type": "2",
+                                    "is_expression": 1,
+                                    "python_val_exp": "obj.get('username')",
+                                    "rule": "=="
+                                }
+                            ]
+                        }
+                    ]
                 }
-            ],
-            "db_id": 1,
-            "query": "select * FROM ExileTestPlatform.exile_test_case WHERE id=1;"
+            ]
         }
 
-        new_ass = AssertFieldMain(
-            assert_description="Field通用断言",
-            **field_ass_dict
-        )
-        field_ass_result = new_ass.main()
+        assert_description = feild_ass_demo.get('assert_description')
+        ass_json_list = feild_ass_demo.get('ass_json')
+        print(assert_description)
+        list(map(__execute, ass_json_list))
 
-
-    """test"""
     # test_resp_ass()
     # test_field_ass()
-    # print(ReturnDB(db_id=1).main().select("""select * from ExilicTestPlatform.exile_test_case where id=1;"""))

@@ -125,7 +125,7 @@ class MainTest:
 
     6.field断言前置检查:
         MainTest.field_check_ass_execute() √
-            MainTest.check_field_ass_keys() √
+            MainTest.check_field_ass_keys() √ 【弃用】
 
     7.field断言执行:
         MainTest.field_check_ass_execute() √
@@ -177,6 +177,8 @@ class MainTest:
             self.scenario_generator = (scenario for scenario in scenario_list)
         else:
             self.case_generator = (case for case in self.case_list)
+
+        self.current_assert_description = None
 
         self.current_case_resp_ass_error = 0  # 响应断言标识
         self.logs_error_switch = False  # 日志标识
@@ -254,44 +256,24 @@ class MainTest:
         assert_list: ->list 规则列表
         """
 
-        cl = [
-            "assert_key",
-            "expect_val",
-            "expect_val_type",
-            "response_source",
-            "is_expression",
-            "python_val_exp",
-            "rule"
-        ]
-
-        if not isinstance(assert_list, list) or not assert_list:
-            self.sio.log("assert_list:类型错误{}".format(assert_list))
-            return False
-
-        for ass in assert_list:
-            if not check_keys(ass, *cl):
-                self.sio.log("缺少需要的键值对:{}".format(ass), status='error')
-                return False
-        return True
-
-    def check_field_ass_keys(self, assert_list):
-        """
-        检查field断言对象参数类型是否正确
-        assert_list: ->list 规则列表
-        """
-
-        cl = ["assert_key", "expect_val", "expect_val_type", "rule"]
-
-        if not isinstance(assert_list, list) or not assert_list:
-            self.sio.log("assert_list:类型错误{}".format(assert_list))
-            return False
-
-        for ass in assert_list:
-            child_assert_list = ass.get('assert_list')
-            for ass_child in child_assert_list:
-                if not check_keys(ass_child, *cl):
-                    self.sio.log("缺少需要的键值对:{}".format(ass), status='error')
-                    return False
+        # cl = [
+        #     "assert_key",
+        #     "expect_val",
+        #     "expect_val_type",
+        #     "response_source",
+        #     "is_expression",
+        #     "python_val_exp",
+        #     "rule"
+        # ]
+        #
+        # if not isinstance(assert_list, list) or not assert_list:
+        #     self.sio.log("assert_list:类型错误{}".format(assert_list))
+        #     return False
+        #
+        # for ass in assert_list:
+        #     if not check_keys(ass, *cl):
+        #         self.sio.log("缺少需要的键值对:{}".format(ass), status='error')
+        #         return False
         return True
 
     def execute_resp_ass(self, resp_ass_list, assert_description):
@@ -337,25 +319,22 @@ class MainTest:
                 self.current_case_resp_ass_error += 1
                 self.logs_error_switch = True
 
-    def execute_field_ass(self, field_ass_list, assert_description):
+    def execute_field_ass(self, ass_json):
         """
         执行Field断言
         """
-        for index, field_ass_dict in enumerate(field_ass_list):
 
-            new_field_ass = AssertFieldMain(
-                sio=self.sio,
-                assert_description=assert_description,
-                **field_ass_dict
-            )
+        field_ass_result = AssertFieldMain(
+            sio=self.sio,
+            assert_description=self.current_assert_description,
+            **ass_json
+        ).main()
 
-            field_ass_result = new_field_ass.main()
-
-            self.test_result.field_ass_success += field_ass_result.get('success')
-            self.test_result.field_ass_fail += field_ass_result.get('fail')
-            self.test_result.field_ass_error += field_ass_result.get('error')
-            if self.test_result.field_ass_error != 0:
-                self.logs_error_switch = True
+        self.test_result.field_ass_success += field_ass_result.get('success')
+        self.test_result.field_ass_fail += field_ass_result.get('fail')
+        self.test_result.field_ass_error += field_ass_result.get('error')
+        if self.test_result.field_ass_error != 0:
+            self.logs_error_switch = True
 
     def current_request(self, method=None, **kwargs):
         """
@@ -453,21 +432,12 @@ class MainTest:
         """
         if self.current_case_resp_ass_error == 0:  # 所有resp断言规则通过
             self.update_var()  # 更新变量
-            for field_ass in case_field_ass_info:
-                field_ass_list = field_ass.get('ass_json')
-                assert_description = field_ass.get('assert_description')
 
-                if self.check_field_ass_keys(assert_list=field_ass_list):  # 数据库校验
-                    for field_ass_child in field_ass_list:
-                        assert_list = field_ass_child.get('assert_list')
+            for index, field_ass_obj in enumerate(case_field_ass_info, 1):
+                self.current_assert_description = field_ass_obj.get('assert_description')
+                ass_json_list = field_ass_obj.get('ass_json')
 
-                    self.execute_field_ass(
-                        field_ass_list=field_ass_list,
-                        assert_description=assert_description
-                    )
-
-                else:
-                    return False
+                list(map(self.execute_field_ass, ass_json_list))
 
         else:
             self.sio.log('=== 断言规则没有100%通过,失败数:{} 不更新变量以及不进行数据库校验 ==='.format(self.current_case_resp_ass_error))
