@@ -15,7 +15,7 @@ resp_source_tuple = ("response_body", "response_headers")
 
 var_source_tuple = ('resp_data', 'resp_headers')
 
-# RespAssertionRuleApi 新增,编辑时候使用
+# RespAssertionRuleApi, FieldAssertionRuleApi 新增,编辑时候使用
 rule_save_dict = {
     "=": 1,
     "<": 2,
@@ -27,7 +27,7 @@ rule_save_dict = {
     "not in": 8
 }
 
-# RespAssertionRuleApi 新增,编辑时候使用
+# RespAssertionRuleApi, FieldAssertionRuleApi 新增,编辑时候使用
 expect_val_type_dict = {
     '1': int,
     '2': str,
@@ -110,11 +110,31 @@ case_type_dict = {
     "4": "安全测试"
 }
 
+
+def type_conversion(type_key, val):
+    """
+    类型转换
+    :param type_key: 类型字典key
+    :param val: 需要转换的值
+    :return:
+    """
+    bf = expect_val_type_dict.get(str(type_key))
+
+    try:
+        new_val = bf(val)
+        # print(f"值:{val}-{type(val)} 【func-{bf}】 {new_val}-{type(new_val)}")
+        return True, new_val
+    except BaseException as e:
+        # print(f'参数:{val} 无法转换至 类型:{bf} ERROR:{e}')
+        return False, f'参数:{val} 无法转换至 类型:{bf} ERROR:{e}'
+
+
 if __name__ == '__main__':
-    a = "123"
+    a = "123a"
     # a = 123
-    print(expect_val_type_dict.get('1')(a))
-    print(expect_val_type_dict.get('2')(a))
-    print(expect_val_type_dict.get('3')(a))
-    print(expect_val_type_dict.get('4')(a))
-    print(expect_val_type_dict.get('5')(a))
+    type_conversion(1, a)
+    type_conversion(2, a)
+    type_conversion(3, a)
+    type_conversion(4, a)
+    type_conversion(5, a)
+    type_conversion(6, a)
