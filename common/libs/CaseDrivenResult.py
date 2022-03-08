@@ -1263,15 +1263,15 @@ class MainTest:
 
         mt = f"#### 测试报告:{self.execute_name}  \n  > 测试人员:{self.execute_username}  \n  > 开始时间:{self.create_time}  \n  > 结束时间:{self.end_time}  \n  > 持续时间:{self.end_time - self.start_time}  \n  > 总数:{result_summary.get('req_count')}  \n  > 成功数:{result_summary.get('req_success')}  \n  > 失败数:{result_summary.get('resp_ass_fail')}  \n  > 错误数:{result_summary.get('req_error_rate')}  \n  > 通过率:{result_summary.get('resp_ass_success_rate')}  \n "
 
-        # if self.is_dd_push:
-        MainTestExpand.dd_push(ding_talk_url=self.ding_talk_url, report_name=self.report_name, markdown_text=mt)
+        if self.is_dd_push:
+            MainTestExpand.dd_push(ding_talk_url=self.ding_talk_url, report_name=self.report_name, markdown_text=mt)
 
         # if self.is_send_mail:
-        SendEmail(to_list=self.mail_list, ac_list=self.mail_list).send_attach(
-            report_title=self.execute_name,
-            html_file_path=self.path,
-            mail_content="详情查看附件"
-        )
+            SendEmail(to_list=self.mail_list, ac_list=self.mail_list).send_attach(
+                report_title=self.execute_name,
+                html_file_path=self.path,
+                mail_content="详情查看附件"
+            )
 
         # os.system(f'rm {self.path}')
 
