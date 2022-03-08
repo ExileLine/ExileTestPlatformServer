@@ -488,8 +488,8 @@ class MainTestExpand:
     def dd_push(ding_talk_url=None, report_name=None, markdown_text=None):
         """钉钉推送"""
 
-        url = "https://oapi.dingtalk.com/robot/send?access_token=fd469de777d85a41f2198b9d8f0d138593239b3ff86a6c7c9d747a1f605848cd"
-        # url = ding_talk_url
+        # url = "https://oapi.dingtalk.com/robot/send?access_token=fd469de777d85a41f2198b9d8f0d138593239b3ff86a6c7c9d747a1f605848cd"
+        url = ding_talk_url
 
         if platform.system() == "Linux":
             # report_url = f'http://192.168.14.214:5000/report/{report_name}'
