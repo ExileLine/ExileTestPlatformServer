@@ -72,10 +72,9 @@ class AssertResponseMain(AssertMain):
         """
 
         if self.response_source not in resp_source_tuple:
-            return {
-                "status": False,
-                "message": f"response 来源错误: {self.response_source}"
-            }
+            self.sio.log(f"response 来源错误: {self.response_source}", status="error")
+            return False
+
         if self.response_source == resp_source_tuple[0]:  # response_body
             if self.is_expression:
                 result_json = execute_code(code=self.python_val_exp, data=self.resp_json)
@@ -104,7 +103,12 @@ class AssertResponseMain(AssertMain):
         :expect_val: 期望值
         ps:如果该方法报错,是参数在入库的时候接口没有做好检验或者手动修改了数据库的数据
         """
-        self.set_this_val()
+
+        try:
+            self.set_this_val()
+        except BaseException as e:
+            self.sio.log(f"获取需要断言的值:{str(e)}", status="error")
+            return False
 
         self.sio.log(f'=== 断言:{self.assert_description} ===')
         self.sio.log('=== 键值:{} ==='.format({self.assert_key: self.this_val}))
@@ -115,16 +119,11 @@ class AssertResponseMain(AssertMain):
             rule = rule_dict.get(self.rule)  # 从字典中取出反射的规则函数
             if self.get_assert(this_val=self.this_val, rule=rule, expect_val=self.expect_val):
                 self.sio.log('=== Response 断言通过 ===', status='success')
-                return {
-                    "status": True,
-                    "message": message
-                }
+                return True
             else:
                 self.sio.log('=== Response 断言失败 ===', status="error")
-                return {
-                    "status": False,
-                    "message": message
-                }
+                return False
+
         except BaseException as e:
             self.sio.log('数据异常:{}'.format(str(e)), status='error')
             self.sio.log('这种情况一般会因为以下两种原因导致:', status='error')
@@ -133,10 +132,7 @@ class AssertResponseMain(AssertMain):
                 '2.查看: case_ass_rule_api.py 中的 RespAssertionRuleApi 中的逻辑是否被修改.',
                 status='error')
             self.sio.log('=== 断言异常 ===', status="error")
-            return {
-                "status": False,
-                "message": message
-            }
+            return False
 
 
 class AssertFieldMain(AssertMain):

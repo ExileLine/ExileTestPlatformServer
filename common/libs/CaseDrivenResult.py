@@ -567,7 +567,9 @@ class TestResult:
         self.field_ass_fail_rate = 0
         self.field_ass_error_rate = 0
 
-        self.all_count = 0
+        self.all_ass_count = 0
+        self.all_ass_success_count = 0
+        self.all_ass_fail_count = 0
 
     def get_test_result(self):
         """
@@ -578,6 +580,7 @@ class TestResult:
         if self.req_count != 0:
             self.req_success_rate = "{}%".format(round(self.req_success / self.req_count, 2) * 100)
             self.req_error_rate = "{}%".format(round(self.req_error / self.req_count, 2) * 100)
+
             self.resp_ass_count = self.resp_ass_success + self.resp_ass_fail
 
             self.resp_ass_success_rate = 0 if self.resp_ass_success == 0 else "{}%".format(
@@ -596,6 +599,8 @@ class TestResult:
 
             self.field_ass_error_rate = 0 if self.field_ass_error == 0 else "{}%".format(
                 round(self.field_ass_error / self.field_ass_count, 2) * 100)
+
+            self.all_ass_count = round(self.resp_ass_count + self.field_ass_count, 2)
 
         d = {
             "req_count": self.req_count,
@@ -616,7 +621,9 @@ class TestResult:
             "field_ass_error": self.field_ass_error,
             "field_ass_success_rate": self.field_ass_success_rate,
             "field_ass_fail_rate": self.field_ass_fail_rate,
-            "field_ass_error_rate": self.field_ass_error_rate
+            "field_ass_error_rate": self.field_ass_error_rate,
+
+            "all_ass_count": self.all_ass_count
         }
         return d
 
@@ -814,7 +821,7 @@ class MainTest:
             **ass_json
         ).main()
 
-        if response_ass_result.get('status'):  # [bool,str]
+        if response_ass_result:
             self.test_result.resp_ass_success += 1
         else:
             self.test_result.resp_ass_fail += 1
@@ -915,7 +922,7 @@ class MainTest:
         :return:
         """
         if not case_resp_ass_info:
-            self.sio.log('=== case_resp_ass_info is [] ===')
+            self.sio.log('=== 断言规则为空 ===')
             return False
 
         for resp_ass in case_resp_ass_info:  # 遍历断言规则逐一校验
