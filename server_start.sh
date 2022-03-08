@@ -12,7 +12,7 @@ fi
 echo y | docker system prune
 docker build -t 'exile_platform' .
 echo "build success"
-docker run -d --network host --name exile_platform exile_platform -e TZ=Asia/Shanghai --rm myalpine date
+docker run -d --network host --name exile_platform exile_platform
 # docker run -d -p 5000:5000 --name exile_platform exile_platform
 echo "run success"
 
