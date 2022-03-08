@@ -912,7 +912,7 @@ class MainTest:
         send = self.var_conversion(before_send)
 
         self.sio.log('=== send ===')
-        resp = self.current_request(method=method, **send)
+        resp = self.current_request(method=method, timeout=3, **send)
         self.resp_json = resp.json()
         self.resp_headers = resp.headers
 
