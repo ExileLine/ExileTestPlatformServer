@@ -680,10 +680,10 @@ class MainTest:
         self.case_list = test_obj.get('case_list', [])
 
         self.is_dd_push = test_obj.get('is_dd_push', False)
-        self.dd_id = test_obj.get('dd_id')
+        self.dd_push_id = test_obj.get('dd_push_id')
         self.ding_talk_url = test_obj.get('ding_talk_url')
 
-        self.is_mail_send = test_obj.get('is_mail_send', False)
+        self.is_send_mail = test_obj.get('is_send_mail', False)
         self.mail_list = test_obj.get('mail_list')
 
         if not isinstance(self.case_list, list):
@@ -1262,7 +1262,7 @@ class MainTest:
         # if self.is_dd_push:
         MainTestExpand.dd_push(ding_talk_url=self.ding_talk_url, report_name=self.report_name, markdown_text=mt)
 
-        # if self.is_mail_send:
+        # if self.is_send_mail:
         SendEmail(to_list=self.mail_list).send_attach(
             report_title=self.execute_name,
             html_file_path=self.path,

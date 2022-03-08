@@ -634,9 +634,9 @@ class CaseExecApi(MethodView):
         base_url_id = data.get('base_url_id')
         use_base_url = data.get('use_base_url', False)
         is_dd_push = data.get('is_dd_push', False)
-        dd_id = data.get('dd_id')
+        dd_push_id = data.get('dd_push_id')
         ding_talk_url = ""
-        is_mail_send = data.get('is_mail_send', False)
+        is_send_mail = data.get('is_send_mail', False)
         # mail_list = data.get('mail_list')
         mail_list = [m.mail for m in MailConfModel.query.all()]
 
@@ -665,12 +665,12 @@ class CaseExecApi(MethodView):
             return api_result(code=400, message=result_data)
 
         if is_dd_push:
-            query_dd = DingDingConfModel.query.get(dd_id)
+            query_dd = DingDingConfModel.query.get(dd_push_id)
             if not query_dd:
                 return api_result(code=400, message="钉钉群不存在或被禁用")
             ding_talk_url = query_dd.ding_talk_url
 
-        if is_mail_send and not mail_list:
+        if is_send_mail and not mail_list:
             return api_result(code=400, message="邮件不能为空")
 
         execute_name = result_data.get('execute_name', '')
@@ -694,9 +694,9 @@ class CaseExecApi(MethodView):
             "execute_dict": execute_dict,
             "sio": sio,
             "is_dd_push": is_dd_push,
-            "dd_id": dd_id,
+            "dd_push_id": dd_push_id,
             "ding_talk_url": ding_talk_url,
-            "is_mail_send": is_mail_send,
+            "is_send_mail": is_send_mail,
             "mail_list": mail_list
         }
         main_test = MainTest(test_obj=test_obj)
