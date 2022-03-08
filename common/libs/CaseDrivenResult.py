@@ -488,7 +488,8 @@ class MainTestExpand:
         # url = ding_talk_url
 
         if platform.system() == "Linux":
-            report_url = f'http://192.168.14.214/static/{report_name}'
+            # report_url = f'http://192.168.14.214/static/{report_name}'
+            report_url = f'http://120.24.214.173/static/{report_name}'
         else:
             report_url = f"http://0.0.0.0:7272/static/{report_name}"
             print(report_url)
