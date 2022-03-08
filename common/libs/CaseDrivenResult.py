@@ -759,7 +759,7 @@ class MainTest:
             if query_result:
                 var_type = str(query_result.get('var_type'))
                 if var_type in var_func_dict.keys():  # 函数
-                    current_dict[res] = var_func_dict.get(var_type)
+                    current_dict[res] = var_func_dict.get(var_type)()
                 else:
                     current_dict[res] = json.loads(query_result.get('var_value'))
 
@@ -933,6 +933,7 @@ class MainTest:
             before_send.update(req_json_data)
 
         send = self.var_conversion(before_send)
+
         self.sio.log('=== send ===')
         resp = self.current_request(method=method, **send)
         self.resp_json = resp.json()
@@ -1107,10 +1108,10 @@ class MainTest:
                 case_field_ass_info = bind.get('case_field_ass_info', [])
 
                 try:
+                    self.assemble_data_send(case_data_info=case_data_info)  # 转换变量并发起请求
                     self.test_result.req_success += 1
-                    self.assemble_data_send(case_data_info=case_data_info)
                 except BaseException as e:
-                    self.sio.log("=== 请求失败:{} ===".format(str(e)), status="error")
+                    self.sio.log(f"=== 请求失败:{str(e)} ===", status="error")
                     self.test_result.req_error += 1
                     self.sio.log("=== 跳过断言 ===")
                     continue
@@ -1266,7 +1267,7 @@ class MainTest:
         if self.is_dd_push:
             MainTestExpand.dd_push(ding_talk_url=self.ding_talk_url, report_name=self.report_name, markdown_text=mt)
 
-        # if self.is_send_mail:
+            # if self.is_send_mail:
             SendEmail(to_list=self.mail_list, ac_list=self.mail_list).send_attach(
                 report_title=self.execute_name,
                 html_file_path=self.path,

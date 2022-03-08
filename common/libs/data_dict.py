@@ -58,14 +58,41 @@ rule_dict = {
     'in': '__contains__'
 }
 
+
 # 变量转换函数字典
+
+
+def gen_shortuuid_1():
+    return shortuuid.uuid()[0:10] + str(int(time.time())) + shortuuid.uuid()[0:10]
+
+
+def gen_shortuuid_2():
+    return shortuuid.uuid()
+
+
+def gen_date():
+    return str(datetime.datetime.now().date())
+
+
+def gen_time():
+    return str(datetime.datetime.now().time())
+
+
+def gen_datetime():
+    return str(datetime.datetime.now())
+
+
+def gen_timestamp():
+    return str(int(time.time()))
+
+
 var_func_dict = {
-    "7": shortuuid.uuid()[0:10] + str(int(time.time())) + shortuuid.uuid()[0:10],  # uuid
-    "8": shortuuid.uuid(),  # short_uuid
-    "9": str(datetime.datetime.now().date()),  # date(年月日-2022-01-01)
-    "10": str(datetime.datetime.now().time()),  # time(时分秒-09:30:00.123456)
-    "11": str(datetime.datetime.now()),  # datetime(年月日时分秒-2022-01-01 09:30:00.123456)
-    "12": str(int(time.time()))  # timestamp(时间戳)
+    "7": gen_shortuuid_1,  # uuid
+    "8": gen_shortuuid_2,  # short_uuid
+    "9": gen_date,  # date(年月日-2022-01-01)
+    "10": gen_time,  # time(时分秒-09:30:00.123456)
+    "11": gen_datetime,  # datetime(年月日时分秒-2022-01-01 09:30:00.123456)
+    "12": gen_timestamp  # timestamp(时间戳)
 }
 
 # 执行类型
