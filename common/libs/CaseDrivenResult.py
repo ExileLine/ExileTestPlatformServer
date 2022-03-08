@@ -373,16 +373,19 @@ class SendEmail:
 
     def __init__(self, to_list=None, ac_list=None):
 
-        self.mail_from = '872540033@qq.com'  # 发件邮箱账号
-        self.mail_pwd = 'rscfszznxzuubcdb'  # 发件邮箱的授权码
+        # self.mail_from = '872540033@qq.com'  # 发件邮箱账号
+        # self.mail_pwd = 'rscfszznxzuubcdb'  # 发件邮箱的授权码
+
+        self.mail_from = 'shipeng@haoyuntech.com'  # 发件邮箱账号
+        self.mail_pwd = 'He@789012'  # 发件邮箱的授权码
 
         if to_list:
             self.to_list = to_list
         if ac_list:
             self.ac_list = ac_list
 
-        self.to_list = ['yang6333yyx@126.com']
-        self.ac_list = ['417993207@qq.com']
+        # self.to_list = ['yang6333yyx@126.com']
+        # self.ac_list = ['417993207@qq.com']
 
         self.subject = '自动化测试报告'  # 邮件标题
 
@@ -445,7 +448,8 @@ class SendEmail:
             # message.attach(att_xm)
 
         try:
-            smtpObj = smtplib.SMTP_SSL("smtp.qq.com", 465)
+            smtpObj = smtplib.SMTP_SSL("smtp.qiye.aliyun.com", 465)
+            # smtpObj = smtplib.SMTP_SSL("smtp.qq.com", 465)
             # smtpObj = smtplib.SMTP_SSL("smtp.exmail.qq.com", 465)
             smtpObj.login(self.mail_from, self.mail_pwd)
             smtpObj.sendmail(self.mail_from, message['To'].split(',') + message['Cc'].split(','), message.as_string())
@@ -1263,7 +1267,7 @@ class MainTest:
         MainTestExpand.dd_push(ding_talk_url=self.ding_talk_url, report_name=self.report_name, markdown_text=mt)
 
         # if self.is_send_mail:
-        SendEmail(to_list=self.mail_list).send_attach(
+        SendEmail(to_list=self.mail_list, ac_list=self.mail_list).send_attach(
             report_title=self.execute_name,
             html_file_path=self.path,
             mail_content="详情查看附件"
