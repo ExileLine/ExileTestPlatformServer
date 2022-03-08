@@ -635,7 +635,6 @@ class MainTest:
 
     3.resp断言前置检查:
         MainTest.resp_check_ass_execute() √
-        MainTest.check_resp_ass_keys() √
 
     4.resp断言执行:
         MainTest.resp_check_ass_execute() √
@@ -647,7 +646,6 @@ class MainTest:
 
     6.field断言前置检查:
         MainTest.field_check_ass_execute() √
-            MainTest.check_field_ass_keys() √ 【弃用】
 
     7.field断言执行:
         MainTest.field_check_ass_execute() √
@@ -782,33 +780,7 @@ class MainTest:
         # print(current_str)
         return current_str
 
-    def check_resp_ass_keys(self, assert_list):
-        """
-        检查resp断言对象参数类型是否正确
-        assert_list: ->list 规则列表
-        """
-
-        # cl = [
-        #     "assert_key",
-        #     "expect_val",
-        #     "expect_val_type",
-        #     "response_source",
-        #     "is_expression",
-        #     "python_val_exp",
-        #     "rule"
-        # ]
-        #
-        # if not isinstance(assert_list, list) or not assert_list:
-        #     self.sio.log("assert_list:类型错误{}".format(assert_list))
-        #     return False
-        #
-        # for ass in assert_list:
-        #     if not check_keys(ass, *cl):
-        #         self.sio.log("缺少需要的键值对:{}".format(ass), status='error')
-        #         return False
-        return True
-
-    def execute_resp_ass(self, resp_ass_list, assert_description):
+    def execute_resp_ass(self, ass_json):
         """
         执行Resp断言
         resp_ass_list demo
@@ -833,23 +805,21 @@ class MainTest:
                 }
             ]
         """
-        for resp_ass_dict in resp_ass_list:
-            # print(resp_ass_dict)
-            new_resp_ass = AssertResponseMain(
-                sio=self.sio,
-                resp_json=self.resp_json,
-                resp_headers=self.resp_headers,
-                assert_description=assert_description,
-                **resp_ass_dict
-            )
-            resp_ass_result = new_resp_ass.main()
-            # print(resp_ass_result)
-            if resp_ass_result.get('status'):  # [bool,str]
-                self.test_result.resp_ass_success += 1
-            else:
-                self.test_result.resp_ass_fail += 1
-                self.current_case_resp_ass_error += 1
-                self.logs_error_switch = True
+
+        response_ass_result = AssertResponseMain(
+            sio=self.sio,
+            resp_json=self.resp_json,
+            resp_headers=self.resp_headers,
+            assert_description=self.current_assert_description,
+            **ass_json
+        ).main()
+
+        if response_ass_result.get('status'):  # [bool,str]
+            self.test_result.resp_ass_success += 1
+        else:
+            self.test_result.resp_ass_fail += 1
+            self.current_case_resp_ass_error += 1
+            self.logs_error_switch = True
 
     def execute_field_ass(self, ass_json):
         """
@@ -949,14 +919,10 @@ class MainTest:
             return False
 
         for resp_ass in case_resp_ass_info:  # 遍历断言规则逐一校验
-            resp_ass_list = resp_ass.get('ass_json')
-            assert_description = resp_ass.get('assert_description')
-            # print(resp_ass_list)
-            if self.check_resp_ass_keys(assert_list=resp_ass_list):  # 响应检验
-                self.execute_resp_ass(resp_ass_list=resp_ass_list, assert_description=assert_description)
-            else:
-                self.sio.log('=== check_ass_keys error ===', status='error')
-                # return False
+            self.current_assert_description = resp_ass.get('assert_description')
+            ass_json_list = resp_ass.get('ass_json')
+
+            list(map(self.execute_resp_ass, ass_json_list))
 
     def field_check_ass_execute(self, case_field_ass_info):
         """
@@ -971,7 +937,6 @@ class MainTest:
                 ass_json_list = field_ass_obj.get('ass_json')
 
                 list(map(self.execute_field_ass, ass_json_list))
-
         else:
             self.sio.log('=== 断言规则没有100%通过,失败数:{} 不更新变量以及不进行数据库校验 ==='.format(self.current_case_resp_ass_error))
 

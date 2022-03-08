@@ -33,11 +33,10 @@ class AssertMain:
         expect_val_type = type(expect_val)
 
         if not this_val_type == expect_val_type:
-            raise TypeError("当前值:{} 类型:{} 与 期望值:{} 类型:{} 不一致,无法用于比较.".format(
-                this_val, expect_val_type, expect_val, expect_val_type
-            ))
+            raise TypeError(f"当前值:{this_val} 类型:{expect_val_type} 与 期望值:{expect_val} 类型:{expect_val_type} 不一致,无法用于比较")
+
         if not hasattr(this_val, rule):
-            raise AttributeError("当前值:{} 没有属性:{}".format(this_val, rule))
+            raise AttributeError(f"当前值:{this_val} 没有属性:{rule}")
 
         result = getattr(this_val, rule)(expect_val)
 
@@ -75,13 +74,13 @@ class AssertResponseMain(AssertMain):
         if self.response_source not in resp_source_tuple:
             return {
                 "status": False,
-                "message": "response 来源错误: {}".format(self.response_source)
+                "message": f"response 来源错误: {self.response_source}"
             }
         if self.response_source == resp_source_tuple[0]:  # response_body
             if self.is_expression:
                 result_json = execute_code(code=self.python_val_exp, data=self.resp_json)
                 result = result_json.get('result_data')
-                self.sio.log("=== 公式取值结果: {} ===".format(result))
+                self.sio.log(f"=== 公式取值结果: {result} ===")
                 self.this_val = result
             else:
                 self.this_val = self.resp_json.get(self.assert_key)  # 直接常规取值:紧限于返回值的第一层键值对如:{"code":200,"message":"ok"}
@@ -90,7 +89,7 @@ class AssertResponseMain(AssertMain):
             if self.is_expression:
                 result_json = execute_code(code=self.python_val_exp, data=self.resp_headers)
                 result = result_json.get('result_data')
-                self.sio.log("=== 公式取值结果: {} ===".format(result))
+                self.sio.log(f"=== 公式取值结果: {result} ===")
                 self.this_val = result
             else:
                 self.this_val = self.resp_headers.get(
@@ -107,15 +106,9 @@ class AssertResponseMain(AssertMain):
         """
         self.set_this_val()
 
-        self.sio.log('=== 断言:{} ==='.format(self.assert_description))
+        self.sio.log(f'=== 断言:{self.assert_description} ===')
         self.sio.log('=== 键值:{} ==='.format({self.assert_key: self.this_val}))
-        message = '{}:{} {} {}:{}'.format(
-            self.this_val,
-            type(self.this_val),
-            self.rule,
-            self.expect_val,
-            type(self.expect_val)
-        )
+        message = f'{self.this_val}:{type(self.this_val)} [{self.rule}] {self.expect_val}:{type(self.expect_val)}'
         self.sio.log(message)
 
         try:
