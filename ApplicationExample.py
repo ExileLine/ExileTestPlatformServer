@@ -23,7 +23,7 @@ def create_app():
     app = Flask(
         __name__,
         template_folder=os.getcwd() + '/app/templates',
-        static_folder=os.getcwd() + '/app/static',
+        static_folder=os.getcwd() + '/app/static/report',
     )  # 实例
     CORS(app, supports_credentials=True)  # 跨域
     register_commands(app)  # flask cli 注册

@@ -432,7 +432,7 @@ class SendEmail:
             #     'reports\\' if platform.system() == "Windows" else 'reports/')[1]
 
             att_html["Content-Disposition"] = 'attachment; filename=' + html_file_path.split(
-                'static\\' if platform.system() == "Windows" else 'static/')[1]
+                'report\\' if platform.system() == "Windows" else 'report/')[1]
 
             message.attach(att_html)
         if xm_file_path:
@@ -488,10 +488,10 @@ class MainTestExpand:
         # url = ding_talk_url
 
         if platform.system() == "Linux":
-            # report_url = f'http://192.168.14.214/static/{report_name}'
-            report_url = f'http://120.24.214.173/static/{report_name}'
+            # report_url = f'http://192.168.14.214/report/{report_name}'
+            report_url = f'http://120.24.214.173/report/{report_name}'
         else:
-            report_url = f"http://0.0.0.0:7272/static/{report_name}"
+            report_url = f"http://0.0.0.0:7272/report/{report_name}"
             print(report_url)
 
         if not url.strip():
@@ -1238,7 +1238,7 @@ class MainTest:
 
         self.report_name = f"Test_Report_{time.strftime('%Y-%m-%d_%H_%M_%S')}_.html"
 
-        self.path = f"{os.getcwd().split('ExileTestPlatformServer')[0]}ExileTestPlatformServer/app/static/{self.report_name}"
+        self.path = f"{os.getcwd().split('ExileTestPlatformServer')[0]}ExileTestPlatformServer/app/static/report/{self.report_name}"
 
         with open(self.path, "w", encoding="utf-8") as f:
             f.write(report_stt)
@@ -1280,7 +1280,7 @@ if __name__ == '__main__':
     html_str = TemplateMixin(data=json.loads(get_data)).generate_html_report()
     print(html_str)
     report_name = f"Test_Report_{time.strftime('%Y-%m-%d_%H_%M_%S')}_.html"
-    path = f"{os.getcwd().split('ExileTestPlatformServer')[0]}ExileTestPlatformServer/app/static/{report_name}"
+    path = f"{os.getcwd().split('ExileTestPlatformServer')[0]}ExileTestPlatformServer/app/static/report/{report_name}"
     print(path)
     with open(path, "w",
               encoding="utf-8") as f:
