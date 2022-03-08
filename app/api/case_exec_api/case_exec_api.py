@@ -14,6 +14,7 @@ from app.models.test_project.models import TestProject, TestProjectVersion, MidP
     TestModuleApp
 from app.models.test_env.models import TestEnv
 from app.models.test_logs.models import TestLogs
+from app.models.push_reminder.models import DingDingConfModel, MailConfModel
 from common.libs.StringIOLog import StringIOLog
 
 
@@ -632,6 +633,12 @@ class CaseExecApi(MethodView):
         data_driven = data.get('data_driven', False)
         base_url_id = data.get('base_url_id')
         use_base_url = data.get('use_base_url', False)
+        is_dd_push = data.get('is_dd_push', False)
+        dd_id = data.get('dd_id')
+        ding_talk_url = ""
+        is_mail_send = data.get('is_mail_send', False)
+        # mail_list = data.get('mail_list')
+        mail_list = [m.mail for m in MailConfModel.query.all()]
 
         if isinstance(use_base_url, bool) and use_base_url:
             query_base_url = TestEnv.query.get(base_url_id)
@@ -657,6 +664,15 @@ class CaseExecApi(MethodView):
         if not result_bool:
             return api_result(code=400, message=result_data)
 
+        if is_dd_push:
+            query_dd = DingDingConfModel.query.get(dd_id)
+            if not query_dd:
+                return api_result(code=400, message="钉钉群不存在或被禁用")
+            ding_talk_url = query_dd.ding_talk_url
+
+        if is_mail_send and not mail_list:
+            return api_result(code=400, message="邮件不能为空")
+
         execute_name = result_data.get('execute_name', '')
         is_execute_all = result_data.get('is_execute_all', False)
         execute_dict = result_data.get('execute_dict', {})
@@ -676,7 +692,12 @@ class CaseExecApi(MethodView):
             "is_execute_all": is_execute_all,
             "case_list": send_test_case_list,
             "execute_dict": execute_dict,
-            "sio": sio
+            "sio": sio,
+            "is_dd_push": is_dd_push,
+            "dd_id": dd_id,
+            "ding_talk_url": ding_talk_url,
+            "is_mail_send": is_mail_send,
+            "mail_list": mail_list
         }
         main_test = MainTest(test_obj=test_obj)
         # executor.submit(main_test.main)

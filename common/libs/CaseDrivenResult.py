@@ -5,14 +5,21 @@
 # @File    : CaseDrivenResult.py
 # @Software: PyCharm
 
-
+import os
+import sys
 import re
 import json
 import time
 import datetime
-import shortuuid
+import platform
+import smtplib
+from ast import literal_eval
+from email.header import Header
+from email.mime.text import MIMEText
+from email.mime.multipart import MIMEMultipart
 
 import requests
+import shortuuid
 from loguru import logger
 
 from common.libs.db import project_db, R
@@ -21,6 +28,514 @@ from common.libs.assert_related import AssertResponseMain, AssertFieldMain
 from common.libs.StringIOLog import StringIOLog
 from common.libs.execute_code import execute_code
 from common.libs.data_dict import var_func_dict, execute_label_tuple, gen_redis_first_logs
+
+
+class TemplateMixin:
+    """HTML模版"""
+
+    def __init__(self, data):
+        self.data = data
+
+    @classmethod
+    def before_html(cls):
+        """1"""
+        _before = r"""<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <!-- import CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/element-plus@2.0.5/dist/index.css" />
+    <!-- import Vue before Element -->
+    <script src="https://unpkg.com/vue@3.2.31/dist/vue.global.js"></script>
+    <!-- import JavaScript -->
+    <script src="https://unpkg.com/element-plus@2.0.5/dist/index.full.js"></script>
+
+    <style>
+      table table thead {
+        display: none;
+      }
+
+      .el-table__expanded-cell[class*='cell'] {
+        padding-top: 0 !important;
+        padding-bottom: 0 !important;
+        padding-right: 0 !important;
+      }
+
+      .card {
+        margin: 30px;
+        white-space: pre;
+      }
+
+      .pl-20 {
+        padding-left: 20px;
+      }
+
+      .circle.success {
+        color: lightgreen;
+      }
+
+      .circle.error {
+        color: lightcoral;
+      }
+
+      .justify-between {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+    </style>
+  </head>
+    <body>
+    <div id="app">
+      <el-backtop :bottom="10" :visibility-height="10"></el-backtop>
+      <div>
+        <h1>自动化测试报告</h1>
+        <h3>测试人员 : {{resp.execute_username}}</h3>
+        <p>开始时间 : {{resp.create_time}}</p>
+        <p>合计耗时 : {{resp.total_time}}</p>
+        <p>
+          请求统计 : 总数: {{resp.result_summary.req_count}}，成功数 :
+          {{resp.result_summary.req_success}}，失败数 : {{resp.result_summary.req_error}}，成功率 :
+          {{resp.result_summary.req_success_rate}}，失败率 : {{resp.result_summary.req_error_rate}}
+        </p>
+        <p>
+          响应断言统计 : 总数: {{resp.result_summary.resp_ass_count}}，成功数 :
+          {{resp.result_summary.resp_ass_success}}，失败数 :
+          {{resp.result_summary.resp_ass_fail}}，成功率 :
+          {{resp.result_summary.resp_ass_success_rate}}，失败率 :
+          {{resp.result_summary.resp_ass_fail_rate}}
+        </p>
+        <p>
+          字段断言统计 : 总数: {{resp.result_summary.field_ass_count}}，成功数 :
+          {{resp.result_summary.field_ass_success}}，失败数 :
+          {{resp.result_summary.field_ass_fail}}，成功率 :
+          {{resp.result_summary.field_ass_success_rate}}，失败率 :
+          {{resp.result_summary.field_ass_fail_rate}}
+        </p>
+        <p>
+          测试结果 : 共 {{resp.result_summary.req_count + resp.result_summary.resp_ass_count +
+          resp.result_summary.field_ass_count}}，通过
+          {{resp.result_summary.req_success+resp.result_summary.resp_ass_success+resp.result_summary.field_ass_success}}
+        </p>
+        <p>{{description}}</p>
+      </div>
+
+      <el-tabs>
+        <el-tab-pane
+          :label="`所有(${resp.result_summary.req_count + resp.result_summary.resp_ass_count +
+          resp.result_summary.field_ass_count})`"
+        >
+          <el-tabs type="border-card">
+            <el-tab-pane label="用例">
+              <el-table border :data="case_all_list" show-header="false">
+                <el-table-column type="expand">
+                  <template #default="{row}">
+                    <el-card shadow="always" class="card">
+                      <p v-for="i in row.case_log">{{i}}</p>
+                    </el-card>
+                  </template>
+                </el-table-column>
+                <el-table-column prop="case_name" :label="resp.execute_name">
+                  <template #default="{row}">
+                    <div class="justify-between">
+                      <span>{{row.case_id}}-{{row.case_name}}</span>
+                      <span v-if="row.error" class="circle error">X</span>
+                      <span v-else class="circle success">✔️</span>
+                    </div>
+                  </template>
+                </el-table-column>
+              </el-table>
+            </el-tab-pane>
+            <el-tab-pane label="场景">
+              <el-table border :data="group_all_list" show-header="false">
+                <el-table-column type="expand">
+                  <template #default="{row}">
+                    <div class="pl-20">
+                      <el-table border :data="row.scenario_log" show-header="false">
+                        <el-table-column type="expand">
+                          <template #default="{row}">
+                            <el-card shadow="always" class="card">
+                              <p v-for="i in row.case_log">{{i}}</p>
+                            </el-card>
+                          </template>
+                        </el-table-column>
+                        <el-table-column prop="case_name">
+                          <template #default="{row}">
+                            <div class="justify-between">
+                              <span>{{row.case_id}}-{{row.case_name}}</span>
+                              <span v-if="row.error" class="circle error">X</span>
+                              <span v-else class="circle success">✔️</span>
+                            </div>
+                          </template>
+                        </el-table-column>
+                      </el-table>
+                    </div>
+                  </template>
+                </el-table-column>
+                <el-table-column prop="scenario_title" :label="resp.execute_name">
+                  <template #default="{row}">
+                    <div class="justify-between">
+                      <span>{{row.scenario_id}}-{{row.scenario_title}}</span>
+                      <span v-if="row.error" class="circle error">X</span>
+                      <span v-else class="circle success">✔️</span>
+                    </div>
+                  </template>
+                </el-table-column>
+              </el-table>
+            </el-tab-pane>
+          </el-tabs>
+        </el-tab-pane>
+        <el-tab-pane
+          :label="`成功(${resp.result_summary.req_success+resp.result_summary.resp_ass_success+resp.result_summary.field_ass_success})`"
+        >
+          <el-tabs type="border-card">
+            <el-tab-pane label="用例">
+              <el-table border :data="success_left_list" show-header="false">
+                <el-table-column type="expand">
+                  <template #default="{row}">
+                    <el-card shadow="always" class="card">
+                      <p v-for="i in row.case_log">{{i}}</p>
+                    </el-card>
+                  </template>
+                </el-table-column>
+                <el-table-column prop="case_name" :label="resp.execute_name">
+                  <template #default="{row}">
+                    <div class="justify-between">
+                      <span>{{row.case_id}}-{{row.case_name}}</span>
+                      <span v-if="row.error" class="circle error">X</span>
+                      <span v-else class="circle success">✔️</span>
+                    </div>
+                  </template>
+                </el-table-column>
+              </el-table>
+            </el-tab-pane>
+            <el-tab-pane label="场景">
+              <el-table border :data="success_right_list" show-header="false">
+                <el-table-column type="expand">
+                  <template #default="{row}">
+                    <div class="pl-20">
+                      <el-table border :data="row.scenario_log" show-header="false">
+                        <el-table-column type="expand">
+                          <template #default="{row}">
+                            <el-card shadow="always" class="card">
+                              <p v-for="i in row.case_log">{{i}}</p>
+                            </el-card>
+                          </template>
+                        </el-table-column>
+                        <el-table-column prop="case_name">
+                          <template #default="{row}">
+                            <div class="justify-between">
+                              <span>{{row.case_id}}-{{row.case_name}}</span>
+                              <span v-if="row.error" class="circle error">X</span>
+                              <span v-else class="circle success">✔️</span>
+                            </div>
+                          </template>
+                        </el-table-column>
+                      </el-table>
+                    </div>
+                  </template>
+                </el-table-column>
+                <el-table-column prop="scenario_title" :label="resp.execute_name">
+                  <template #default="{row}">
+                    <div class="justify-between">
+                      <span>{{row.scenario_id}}-{{row.scenario_title}}</span>
+                      <span v-if="row.error" class="circle error">X</span>
+                      <span v-else class="circle success">✔️</span>
+                    </div>
+                  </template>
+                </el-table-column>
+              </el-table>
+            </el-tab-pane>
+          </el-tabs>
+        </el-tab-pane>
+        <el-tab-pane
+          :label="`失败(${resp.result_summary.req_error+resp.result_summary.resp_ass_fail+resp.result_summary.field_ass_fail})`"
+        >
+          <el-tabs type="border-card">
+            <el-tab-pane label="用例">
+              <el-table border :data="error_left_list" show-header="false">
+                <el-table-column type="expand">
+                  <template #default="{row}">
+                    <el-card shadow="always" class="card">
+                      <p v-for="i in row.case_log">{{i}}</p>
+                    </el-card>
+                  </template>
+                </el-table-column>
+                <el-table-column prop="case_name" :label="resp.execute_name">
+                  <template #default="{row}">
+                    <div class="justify-between">
+                      <span>{{row.case_id}}-{{row.case_name}}</span>
+                      <span v-if="row.error" class="circle error">X</span>
+                      <span v-else class="circle success">✔️</span>
+                    </div>
+                  </template>
+                </el-table-column>
+              </el-table>
+            </el-tab-pane>
+            <el-tab-pane label="场景">
+              <el-table border :data="error_right_list" show-header="false">
+                <el-table-column type="expand">
+                  <template #default="{row}">
+                    <div class="pl-20">
+                      <el-table border :data="row.scenario_log" show-header="false">
+                        <el-table-column type="expand">
+                          <template #default="{row}">
+                            <el-card shadow="always" class="card">
+                              <p v-for="i in row.case_log">{{i}}</p>
+                            </el-card>
+                          </template>
+                        </el-table-column>
+                        <el-table-column prop="case_name">
+                          <template #default="{row}">
+                            <div class="justify-between">
+                              <span>{{row.case_id}}-{{row.case_name}}</span>
+                              <span v-if="row.error" class="circle error">X</span>
+                              <span v-else class="circle success">✔️</span>
+                            </div>
+                          </template>
+                        </el-table-column>
+                      </el-table>
+                    </div>
+                  </template>
+                </el-table-column>
+                <el-table-column prop="scenario_title" :label="resp.execute_name">
+                  <template #default="{row}">
+                    <div class="justify-between">
+                      <span>{{row.scenario_id}}-{{row.scenario_title}}</span>
+                      <span v-if="row.error" class="circle error">X</span>
+                      <span v-else class="circle success">✔️</span>
+                    </div>
+                  </template>
+                </el-table-column>
+              </el-table>
+            </el-tab-pane>
+          </el-tabs>
+        </el-tab-pane>
+      </el-tabs>
+    </div>
+  </body>
+  <script>
+  var True = true
+  var False = false
+"""
+
+        return _before
+
+    @classmethod
+    def script_html(cls, data):
+        """script"""
+        _script = f"""
+                var resp = {data};
+                """
+        return _script
+
+    @classmethod
+    def after_html(cls):
+        """3"""
+        _after = """
+var case_result_list = resp.case_result_list
+var leftTabList = case_result_list.filter(c => c.report_tab == 1)
+var rightTabList = case_result_list.filter(c => c.report_tab == 2)
+Vue.createApp({
+  data() {
+    return {
+      resp,
+      case_all_list: leftTabList,
+      group_all_list: rightTabList,
+      success_left_list: leftTabList.filter(left => !left.error),
+      error_left_list: leftTabList.filter(left => left.error),
+      success_right_list: rightTabList.filter(right => !right.error),
+      error_right_list: rightTabList.filter(right => right.error)
+    }
+  }
+})
+  .use(ElementPlus)
+  .mount('#app')
+
+</script>
+</html>
+"""
+        return _after
+
+    def generate_html_report(self):
+        """生成html报告"""
+        one = self.before_html()
+        two = self.script_html(self.data)
+        three = self.after_html()
+        html_vue3 = f"{one}{two}{three}"
+        return html_vue3
+
+
+class SendEmail:
+    """
+    发送邮件
+    """
+
+    def __init__(self, to_list=None, ac_list=None):
+
+        self.mail_from = '872540033@qq.com'  # 发件邮箱账号
+        self.mail_pwd = 'rscfszznxzuubcdb'  # 发件邮箱的授权码
+
+        if to_list:
+            self.to_list = to_list
+        if ac_list:
+            self.ac_list = ac_list
+
+        self.to_list = ['yang6333yyx@126.com']
+        self.ac_list = ['417993207@qq.com']
+
+        self.subject = '自动化测试报告'  # 邮件标题
+
+    @classmethod
+    def open_test_report(cls, file_path):
+        """打开最新测试报告"""
+        f = open(file_path, 'rb')  # 打开最新报告
+        print('打开报告', f)
+        mail_content = f.read()  # 读取->作为邮件内容
+        f.close()
+        return mail_content
+
+    def send_attach(self, report_title=None, html_file_path=None, mail_content=None, xm_file_path=None):
+        """
+        附件发送
+        :param report_title:
+        :param html_file_path:
+        :param mail_content:
+        :param xm_file_path:
+        :return:
+        """
+
+        to_list = self.to_list
+        ac_list = self.ac_list
+
+        to = ",".join(to_list)  # 收件人
+        acc = ",".join(ac_list)  # 抄送人
+
+        # mail_content = cls.open_test_report(file_path)
+
+        message = MIMEMultipart()
+        # message['From'] = Header("基础服务" + "<" + '杨跃雄' + ">", 'utf-8')
+        # message['To'] = Header("yyx", 'utf-8')
+        message['From'] = Header(f'{report_title}-自动化测试<自动发送>', 'utf-8')
+        message['To'] = to
+        message['Cc'] = acc
+        message['Subject'] = Header(self.subject, 'utf-8')
+        # message.attach(MIMEText(mail_content, 'html', 'utf-8'))
+        message.attach(MIMEText(mail_content, 'plain', 'utf-8'))
+        # message.attach(MIMEText('基础服务:自动化测试报告-邮件内容', 'plain', 'utf-8'))  # 邮件内容
+
+        if html_file_path:
+            # 附件:HTML
+            att_html = MIMEText(open(html_file_path, 'rb').read(), 'base64', 'utf-8')
+            att_html["Content-Type"] = 'application/octet-stream'
+            # att_html["Content-Disposition"] = 'attachment; filename=' + html_file_path.split(
+            #     'reports\\' if platform.system() == "Windows" else 'reports/')[1]
+
+            att_html["Content-Disposition"] = 'attachment; filename=' + html_file_path.split(
+                'templates\\' if platform.system() == "Windows" else 'templates/')[1]
+
+            message.attach(att_html)
+        if xm_file_path:
+            pass
+            # TODO XMind上传
+            # 附件:XMind
+            # att_xm = MIMEText(open(xm_file_path, 'rb').read(), 'base64', 'utf-8')
+            # att_xm["Content-Type"] = 'application/octet-stream'
+            # att_xm["Content-Disposition"] = 'attachment; filename=' + xm_file_path.split('xminds/')[1]
+            # message.attach(att_xm)
+
+        try:
+            smtpObj = smtplib.SMTP_SSL("smtp.qq.com", 465)
+            # smtpObj = smtplib.SMTP_SSL("smtp.exmail.qq.com", 465)
+            smtpObj.login(self.mail_from, self.mail_pwd)
+            smtpObj.sendmail(self.mail_from, message['To'].split(',') + message['Cc'].split(','), message.as_string())
+            print('发送成功')
+            smtpObj.quit()
+        except smtplib.SMTPException as e:
+            print("发送失败:{}".format(str(e)))
+
+    def send_normal(self, subject, content):
+        """
+        正常发送
+        :param subject:
+        :param content:
+        :return:
+        """
+        to = ",".join(literal_eval(self.to_list))
+        message = MIMEText(content)
+        message["Subject"] = subject
+        message["From"] = self.mail_from
+        message["To"] = to
+        message['Cc'] = ",".join(literal_eval(self.ac_list))
+        try:
+            smtpObj = smtplib.SMTP_SSL("smtp.exmail.qq.com", 465)
+            smtpObj.login(self.mail_from, self.mail_pwd)
+            smtpObj.sendmail(self.mail_from, to, message.as_string())
+            print("发送成功!")
+            smtpObj.quit()
+        except BaseException as e:
+            print("发送失败:{}".format(str(e)))
+
+
+class MainTestExpand:
+    """扩展"""
+
+    @staticmethod
+    def dd_push(ding_talk_url=None, report_name=None, markdown_text=None):
+        """钉钉推送"""
+
+        url = "https://oapi.dingtalk.com/robot/send?access_token=fd469de777d85a41f2198b9d8f0d138593239b3ff86a6c7c9d747a1f605848cd"
+        # url = ding_talk_url
+
+        if platform.system() == "Linux":
+            report_url = f'http://192.168.14.214/static/{report_name}'
+        else:
+            report_url = f"http://0.0.0.0:7272/static/{report_name}"
+            print(report_url)
+
+        if not url.strip():
+            raise TypeError('钉钉推送失败: DING_TALK_URL 未配置')
+
+        headers = {"Content-Type": "application/json;charset=utf-8"}
+
+        # msg = """{}\n报告地址: {}""".format(report_result, report_url)
+
+        """
+        text:
+        
+        json_data = {
+            "msgtype": "text",
+            "text": {
+                "content": msg
+            },
+            "at": {
+                "atMobiles": AT_MOBILES,
+                "atUserIds": AT_USER_IDS,
+                "isAtAll": IS_AT_ALL
+            }
+        }
+        """
+
+        demo_text = "#### 测试报告:{}  \n  > 测试人员:{}  \n  > 开始时间:{}  \n  > 结束时间:{}  \n  > 持续时间:{}  \n  > 总数:{}  \n  > 成功数:{}  \n  > 失败数:{}  \n  > 错误数:{}  \n  > 通过率:{}  \n  > 报告地址:[前往](1)"
+
+        report_link = "  \n  > 报告地址:[{}]({})".format(report_url, report_url)
+
+        json_data = {
+            "msgtype": "markdown",
+            "markdown": {
+                "title": "测试报告",
+                "text": markdown_text + report_link
+                # "text": demo_text + report_link
+            },
+            "at": {
+                "atMobiles": [],
+                "atUserIds": [],
+                "isAtAll": True
+            }
+        }
+
+        response = requests.post(url, json=json_data, headers=headers, verify=False)
+        print(response.json())
 
 
 class TestResult:
@@ -46,6 +561,8 @@ class TestResult:
         self.field_ass_success_rate = 0
         self.field_ass_fail_rate = 0
         self.field_ass_error_rate = 0
+
+        self.all_count = 0
 
     def get_test_result(self):
         """
@@ -162,6 +679,13 @@ class MainTest:
         self.execute_dict = test_obj.get('execute_dict', {})
         self.case_list = test_obj.get('case_list', [])
 
+        self.is_dd_push = test_obj.get('is_dd_push', False)
+        self.dd_id = test_obj.get('dd_id')
+        self.ding_talk_url = test_obj.get('ding_talk_url')
+
+        self.is_mail_send = test_obj.get('is_mail_send', False)
+        self.mail_list = test_obj.get('mail_list')
+
         if not isinstance(self.case_list, list):
             raise TypeError('MainTest.__init__.case_list 类型错误')
 
@@ -188,6 +712,10 @@ class MainTest:
         self.create_time = str(datetime.datetime.now())
         self.start_time = time.time()
         self.end_time = 0
+
+        self.save_key = ""
+        self.path = ""
+        self.report_name = ""
 
     def json_format(self, d, msg=None):
         """json格式打印"""
@@ -518,9 +1046,11 @@ class MainTest:
 
         case_summary = self.test_result.get_test_result()
         self.end_time = time.time()
-        save_key = "test_log_{}_{}".format(str(int(time.time())), shortuuid.uuid())
+        self.save_key = "test_log_{}_{}".format(str(int(time.time())), shortuuid.uuid())
         return_case_result = {
-            "uuid": save_key,
+            "uuid": self.save_key,
+            "execute_user_id": self.execute_user_id,
+            "execute_username": self.execute_username,
             "execute_type": self.execute_type,
             "execute_name": self.execute_name,
             "case_result_list": self.case_result_list,
@@ -530,12 +1060,12 @@ class MainTest:
             "end_time": self.end_time,
             "total_time": self.end_time - self.start_time
         }
-        R.set(save_key, json.dumps(return_case_result))
+        R.set(self.save_key, json.dumps(return_case_result))
         current_save_dict = gen_redis_first_logs(execute_id=self.execute_id)
         save_obj_first = current_save_dict.get(self.execute_type, "未知执行类型")
         R.set(save_obj_first, json.dumps(return_case_result))
         logger.success('=== save redis ok ===')
-        self.save_logs(log_id=save_key)
+        self.save_logs(log_id=self.save_key)
 
     def only_execute(self):
         """
@@ -699,10 +1229,61 @@ class MainTest:
         print('=== all_execute -> gen_logs ===')
         self.gen_logs()
 
+    def save_test_repost(self, report_stt):
+        """
+
+        :param report_stt: 测试报告html字符
+        :return:
+        """
+
+        self.report_name = f"Test_Report_{time.strftime('%Y-%m-%d_%H_%M_%S')}_.html"
+
+        self.path = f"{os.getcwd().split('ExileTestPlatformServer')[0]}ExileTestPlatformServer/app/static/{self.report_name}"
+
+        with open(self.path, "w", encoding="utf-8") as f:
+            f.write(report_stt)
+
     def main(self):
         """main"""
 
         getattr(self, self.func_name)()
 
+        get_data = R.get(self.save_key)
+        get_data_to_dict = json.loads(get_data)
+        test_repost = TemplateMixin(data=get_data_to_dict).generate_html_report()
+        # print(test_repost)
+
+        self.save_test_repost(report_stt=test_repost)
+
+        result_summary = get_data_to_dict.get('result_summary')
+
+        mt = f"#### 测试报告:{self.execute_name}  \n  > 测试人员:{self.execute_username}  \n  > 开始时间:{self.create_time}  \n  > 结束时间:{self.end_time}  \n  > 持续时间:{self.end_time - self.start_time}  \n  > 总数:{result_summary.get('req_count')}  \n  > 成功数:{result_summary.get('req_success')}  \n  > 失败数:{result_summary.get('resp_ass_fail')}  \n  > 错误数:{result_summary.get('req_error_rate')}  \n  > 通过率:{result_summary.get('resp_ass_success_rate')}  \n "
+
+        if self.is_dd_push:
+            MainTestExpand.dd_push(ding_talk_url=self.ding_talk_url, report_name=self.report_name, markdown_text=mt)
+
+            # if self.is_mail_send:
+            SendEmail(to_list=self.mail_list).send_attach(
+                report_title=self.execute_name,
+                html_file_path=self.path,
+                mail_content="详情查看附件"
+            )
+
+        # os.system(f'rm {self.path}')
+
     def __str__(self):
         return '\n'.join(["{}:{}".format(k, v) for k, v in self.__dict__.items()])
+
+
+if __name__ == '__main__':
+    get_data = R.get("module_all_first_log:3")
+    html_str = TemplateMixin(data=json.loads(get_data)).generate_html_report()
+    print(html_str)
+    report_name = f"Test_Report_{time.strftime('%Y-%m-%d_%H_%M_%S')}_.html"
+    path = f"{os.getcwd().split('ExileTestPlatformServer')[0]}ExileTestPlatformServer/app/static/{report_name}"
+    print(path)
+    with open(path, "w",
+              encoding="utf-8") as f:
+        f.write(html_str)
+
+    # print(os.system(f'rm {path}'))
