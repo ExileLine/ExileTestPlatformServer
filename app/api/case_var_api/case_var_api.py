@@ -56,6 +56,7 @@ class CaseVarApi(MethodView):
         var_get_key = data.get('var_get_key')
         expression = data.get('expression')
         is_expression = data.get('is_expression', 0)
+        is_active = data.get('is_active', 0)
         is_public = data.get('is_public', True)
         remark = data.get('remark')
 
@@ -64,6 +65,8 @@ class CaseVarApi(MethodView):
         if query_var:
             return api_result(code=200, message='变量:【{}】已存在'.format(var_name))
         else:
+            if str(var_type) in var_func_dict.keys():
+                var_value = var_func_dict.get(str(var_type))()
             new_var = TestVariable(
                 var_name=var_name,
                 var_value=var_value,
@@ -72,6 +75,7 @@ class CaseVarApi(MethodView):
                 var_get_key=var_get_key,
                 expression=expression,
                 is_expression=is_expression,
+                is_active=is_active,
                 is_public=is_public if isinstance(is_public, bool) else True,
                 remark=remark,
                 creator=g.app_user.username,
@@ -96,6 +100,7 @@ class CaseVarApi(MethodView):
         var_get_key = data.get('var_get_key')
         expression = data.get('expression')
         is_expression = data.get('is_expression', 0)
+        is_active = data.get('is_active', 0)
         is_public = data.get('is_public', True)
         remark = data.get('remark')
 
@@ -117,6 +122,9 @@ class CaseVarApi(MethodView):
         if query_var_filter and query_var.to_json().get('var_name') != var_name:
             return api_result(code=400, message='变量名称:{} 已存在'.format(var_name))
 
+        if str(var_type) in var_func_dict.keys():
+            var_value = var_func_dict.get(str(var_type))()
+
         query_var.var_name = var_name
         query_var.var_value = var_value
         query_var.var_type = var_type
@@ -124,6 +132,7 @@ class CaseVarApi(MethodView):
         query_var.var_get_key = var_get_key
         query_var.expression = expression
         query_var.is_expression = is_expression
+        query_var.is_active = is_active
         query_var.is_public = is_public if isinstance(is_public, bool) else True
         query_var.remark = remark
         query_var.modifier = g.app_user.username

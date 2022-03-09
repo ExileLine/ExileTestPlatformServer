@@ -711,6 +711,9 @@ class MainTest:
         else:
             self.case_generator = (case for case in self.case_list)
 
+        self.var_conversion_active_list = []
+        self.current_var_value = ""
+
         self.current_assert_description = None
 
         self.current_case_resp_ass_error = 0  # 响应断言标识
@@ -759,14 +762,28 @@ class MainTest:
         err_var_list = []
         current_dict = {}
         for res in result_list:
-            sql = """select var_value, var_type from exile_test_variable where var_name='{}';""".format(res)
+            sql = """select id, var_name, var_value, var_type, is_active from exile_test_variable where var_name='{}';""".format(
+                res)
             query_result = project_db.select(sql=sql, only=True)
             if query_result:
+                var_id = query_result.get('id')
+                var_value = query_result.get('var_value')
                 var_type = str(query_result.get('var_type'))
+                is_active = query_result.get('is_active')
                 if var_type in var_func_dict.keys():  # 函数
-                    current_dict[res] = var_func_dict.get(var_type)()
+                    if var_id not in self.var_conversion_active_list:
+                        new_val = var_func_dict.get(var_type)()  # 首次触函数
+                        current_dict[res] = new_val
+                        self.current_var_value = new_val
+                        self.var_conversion_active_list.append(var_id)
+                    else:
+                        if is_active == 1:
+                            new_val = var_func_dict.get(var_type)()
+                            current_dict[res] = new_val
+                        else:
+                            current_dict[res] = self.current_var_value
                 else:
-                    current_dict[res] = json.loads(query_result.get('var_value'))
+                    current_dict[res] = json.loads(var_value)
 
             elif var_func_dict.get(res):
                 current_dict[res] = var_func_dict.get(res)

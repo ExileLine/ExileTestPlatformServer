@@ -20,6 +20,7 @@ class TestVariable(BaseModel):
     var_get_key = db.Column(db.String(255), comment='值对应的key(用于关系变量获取)')
     expression = db.Column(db.String(255), comment='取值表达式')
     is_expression = db.Column(TINYINT(1, unsigned=True), default=0, comment='是否使用取值表达式:0-否;1-是')
+    is_active = db.Column(TINYINT(1, unsigned=True), default=0, comment='是否每次更新(针对函数变量,在用例场景中):0-否;1-是')
     last_func = db.Column(db.String(255), comment='上次最后使用的函数')
     last_func_var = db.Column(db.String(255), comment='上次最后函数使用的值')
     is_public = db.Column(TINYINT(1, unsigned=True), default=1, comment='是否公共使用:0-否;1-是')
