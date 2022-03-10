@@ -202,9 +202,12 @@ class CaseScenarioApi(MethodView):
         if query_scenario.creator_id != g.app_user.id:
             return api_result(code=400, message='非管理员不能删除其他人的用例场景！')
 
+        db.session.query(MidProjectVersionAndScenario).filter_by(scenario_id=scenario_id).delete(
+            synchronize_session=False)
         query_scenario.modifier_id = g.app_user.id
         query_scenario.modifier = g.app_user.username
         query_scenario.delete()
+
         return api_result(code=204, message='删除成功')
 
 
