@@ -113,8 +113,7 @@ class ProjectPageApi(MethodView):
         data = request.get_json()
         project_id = data.get('project_id')
         project_name = data.get('project_name')
-        creator_id = data.get('creator_id')
-        is_deleted = data.get('is_deleted', False)
+        is_deleted = data.get('is_deleted', 0)
         page = data.get('page')
         size = data.get('size')
 
@@ -122,17 +121,22 @@ class ProjectPageApi(MethodView):
         SELECT * 
         FROM exile_test_project  
         WHERE 
-        id LIKE"%%" 
+        id = "id" 
         and project_name LIKE"%B1%" 
-        and is_deleted=0
+        and is_deleted = 0
         ORDER BY create_timestamp LIMIT 0,20;
         """
 
+        where_dict = {
+            "id": project_id,
+            "is_deleted": is_deleted
+        }
+
         result_data = general_query(
             model=TestProject,
-            field_list=['id', 'project_name', 'creator_id'],
-            query_list=[project_id, project_name, creator_id],
-            is_deleted=is_deleted,
+            field_list=['project_name'],
+            query_list=[project_name],
+            where_dict=where_dict,
             page=page,
             size=size
         )
