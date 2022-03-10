@@ -121,7 +121,7 @@ class CaseDBPageApi(MethodView):
         db_id = data.get('db_id')
         name = data.get('name')
         db_type = data.get('db_type')
-        is_deleted = data.get('is_deleted', False)
+        is_deleted = data.get('is_deleted', 0)
         page = data.get('page')
         size = data.get('size')
 
@@ -129,18 +129,24 @@ class CaseDBPageApi(MethodView):
         SELECT * 
         FROM exile_test_databases  
         WHERE 
-        id LIKE"%%" 
+        id = "id" 
         and name LIKE"%yyx%" 
-        and db_type LIKE"%sql%" 
-        and is_deleted=0
+        and db_type = "db_type" 
+        and is_deleted = 0
         ORDER BY create_timestamp LIMIT 0,20;
         """
 
+        where_dict = {
+            "id": db_id,
+            "db_type": db_type,
+            "is_deleted": is_deleted
+        }
+
         result_data = general_query(
             model=TestDatabases,
-            field_list=['id', 'name', 'db_type'],
-            query_list=[db_id, name, db_type],
-            is_deleted=is_deleted,
+            field_list=['name'],
+            query_list=[name],
+            where_dict=where_dict,
             page=page,
             size=size
         )

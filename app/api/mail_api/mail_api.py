@@ -112,27 +112,28 @@ class MailPageApi(MethodView):
         mail_user = data.get('mail_user')
         page = data.get('page')
         size = data.get('size')
-        pass_is_deleted = data.get('pass_is_deleted', True)
 
         sql = """
         SELECT * 
         FROM exile_mail_conf  
         WHERE 
-        id LIKE"%%" 
+        id = "id" 
         and mail LIKE"%B1%" 
         and mail_user LIKE"%B1%" 
-        and is_deleted=0
         ORDER BY create_timestamp LIMIT 0,20;
         """
 
+        where_dict = {
+            "id": mail_id,
+        }
+
         result_data = general_query(
             model=MailConfModel,
-            field_list=['id', 'mail', 'mail_user'],
-            query_list=[mail_id, mail, mail_user],
-            is_deleted=False,
+            field_list=['mail', 'mail_user'],
+            query_list=[mail, mail_user],
+            where_dict=where_dict,
             page=page,
-            size=size,
-            pass_is_deleted=pass_is_deleted
+            size=size
         )
 
         return api_result(code=200, message='操作成功', data=result_data)

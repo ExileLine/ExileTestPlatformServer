@@ -203,7 +203,7 @@ class VersionTaskPageApi(MethodView):
         task_name = data.get('task_name', '')
         task_type = data.get('task_type', '')
         creator_id = data.get('creator_id')
-        is_deleted = data.get('is_deleted', False)
+        is_deleted = data.get('is_deleted', 0)
         page = data.get('page')
         size = data.get('size')
 
@@ -214,14 +214,15 @@ class VersionTaskPageApi(MethodView):
             "id": task_id,
             "task_type": task_type,
             "version_id": version_id,
-            "creator_id": creator_id
+            "creator_id": creator_id,
+            "is_deleted": is_deleted
         }
+
         result_data = general_query(
             model=TestVersionTask,
             field_list=['task_name'],
             query_list=[task_name],
             where_dict=where_dict,
-            is_deleted=is_deleted,
             page=page,
             size=size
         )

@@ -97,18 +97,18 @@ class CaseEnvApi(MethodView):
 class CaseEnvPageApi(MethodView):
     """
     case env page api
-    POST: 用例测试环境分页模糊查询
+    POST: 环境分页模糊查询
     """
 
     def post(self):
-        """用例分页模糊查询"""
+        """环境分页模糊查询"""
 
         data = request.get_json()
         env_id = data.get('env_id')
         env_url = data.get('env_url')
         env_name = data.get('env_name')
         creator_id = data.get('creator_id')
-        is_deleted = data.get('is_deleted', False)
+        is_deleted = data.get('is_deleted', 0)
         page = data.get('page')
         size = data.get('size')
 
@@ -116,18 +116,25 @@ class CaseEnvPageApi(MethodView):
         SELECT * 
         FROM exile_test_env  
         WHERE 
-        id LIKE"%%" 
+        id = "id" 
         and env_url LIKE"%%" 
         and env_name LIKE"%%" 
-        and is_deleted=0
+        and is_deleted = 0
+        and creator_id = 1
         ORDER BY create_timestamp LIMIT 0,20;
         """
 
+        where_dict = {
+            "id": env_id,
+            "is_deleted": is_deleted,
+            "creator_id": creator_id
+        }
+
         result_data = general_query(
             model=TestEnv,
-            field_list=['id', 'env_url', 'env_name', 'creator_id'],
-            query_list=[env_id, env_url, env_name, creator_id],
-            is_deleted=is_deleted,
+            field_list=['env_url', 'env_name'],
+            query_list=[env_url, env_name],
+            where_dict=where_dict,
             page=page,
             size=size
         )

@@ -115,14 +115,14 @@ class ProjectVersionPageApi(MethodView):
     """
 
     def post(self):
-        """项目分页模糊查询"""
+        """迭代分页模糊查询"""
 
         data = request.get_json()
         version_id = data.get('version_id')
         project_id = data.get('project_id')
         version_name = data.get('version_name')
         creator_id = data.get('creator_id')
-        is_deleted = data.get('is_deleted', False)
+        is_deleted = data.get('is_deleted', 0)
         page = data.get('page')
         size = data.get('size')
 
@@ -130,18 +130,26 @@ class ProjectVersionPageApi(MethodView):
         SELECT * 
         FROM exile_test_project_version  
         WHERE 
-        id LIKE"%%" 
+        id = "id" 
         and version_name LIKE"%B1%" 
-        and is_deleted=0
-        and project_id=1
+        and is_deleted = 0
+        and project_id = 1
+        and creator_id = 1
         ORDER BY create_timestamp LIMIT 0,20;
         """
 
+        where_dict = {
+            "id": version_id,
+            "project_id": project_id,
+            "is_deleted": is_deleted,
+            "creator_id": creator_id
+        }
+
         result_data = general_query(
             model=TestProjectVersion,
-            field_list=['id', 'version_name', 'creator_id', 'project_id'],
-            query_list=[version_id, version_name, creator_id, project_id],
-            is_deleted=is_deleted,
+            field_list=['version_name'],
+            query_list=[version_name],
+            where_dict=where_dict,
             page=page,
             size=size
         )

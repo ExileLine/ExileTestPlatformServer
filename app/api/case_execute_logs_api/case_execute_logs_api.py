@@ -73,7 +73,6 @@ class CaseExecuteLogsPageApi(MethodView):
         execute_id = data.get('execute_id')
         execute_name = data.get('execute_name')
         execute_type = data.get('execute_type')
-        creator = data.get('creator')
         creator_id = data.get('creator_id')
         page = data.get('page')
         size = data.get('size')
@@ -82,20 +81,24 @@ class CaseExecuteLogsPageApi(MethodView):
         SELECT * 
         FROM exile_test_execute_logs  
         WHERE 
-        execute_id LIKE"%%" 
         and execute_name LIKE"%B1%" 
-        and execute_type LIKE"%B1%" 
-        and creator LIKE"%B1%" 
-        and creator_id LIKE"%B1%" 
-        and is_deleted=0
+        and execute_id = "execute_id" 
+        and execute_type = "execute_type"  
+        and creator_id = "creator_id" 
         ORDER BY create_timestamp LIMIT 0,20;
         """
 
+        where_dict = {
+            "execute_id": execute_id,
+            "execute_type": execute_type,
+            "creator_id": creator_id
+        }
+
         result_data = general_query(
             model=TestExecuteLogs,
-            field_list=['execute_id', 'execute_name', 'execute_type', 'creator', 'creator_id'],
-            query_list=[execute_id, execute_name, execute_type, creator, creator_id],
-            is_deleted=False,
+            field_list=['execute_name'],
+            query_list=[execute_name],
+            where_dict=where_dict,
             page=page,
             size=size
         )

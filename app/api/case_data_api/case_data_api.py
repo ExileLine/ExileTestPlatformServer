@@ -245,7 +245,8 @@ class CaseReqDataPageApi(MethodView):
         data = request.get_json()
         data_id = data.get('data_id')
         data_name = data.get('data_name')
-        is_deleted = data.get('is_deleted', False)
+        is_deleted = data.get('is_deleted', 0)
+        creator_id = data.get('creator_id')
         page = data.get('page')
         size = data.get('size')
 
@@ -253,17 +254,24 @@ class CaseReqDataPageApi(MethodView):
         SELECT * 
         FROM exile_test_case_data  
         WHERE 
-        id LIKE"%%" 
+        id = "id" 
         and case_name LIKE"%B1%" 
-        and is_deleted=0
+        and is_deleted = 0
+        and creator_id = 1
         ORDER BY create_timestamp LIMIT 0,20;
         """
 
+        where_dict = {
+            "id": data_id,
+            "is_deleted": is_deleted,
+            "creator_id": creator_id
+        }
+
         result_data = general_query(
             model=TestCaseData,
-            field_list=['id', 'data_name'],
-            query_list=[data_id, data_name],
-            is_deleted=is_deleted,
+            field_list=['data_name'],
+            query_list=[data_name],
+            where_dict=where_dict,
             page=page,
             size=size
         )

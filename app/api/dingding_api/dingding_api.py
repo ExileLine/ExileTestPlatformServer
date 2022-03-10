@@ -119,26 +119,28 @@ class DingDingPushPageApi(MethodView):
         ding_talk_url = data.get('ding_talk_url')
         page = data.get('page')
         size = data.get('size')
-        pass_is_deleted = data.get('pass_is_deleted', True)
 
         sql = """
         SELECT * 
         FROM exile_ding_ding_conf  
         WHERE 
-        id LIKE"%%" 
+        id = "id" 
         and title LIKE"%B1%" 
         and ding_talk_url LIKE"%B1%" 
         ORDER BY create_timestamp LIMIT 0,20;
         """
 
+        where_dict = {
+            "id": dd_conf_id
+        }
+
         result_data = general_query(
             model=DingDingConfModel,
-            field_list=['id', 'title', 'ding_talk_url'],
-            query_list=[dd_conf_id, title, ding_talk_url],
-            is_deleted=False,
+            field_list=['title', 'ding_talk_url'],
+            query_list=[title, ding_talk_url],
+            where_dict=where_dict,
             page=page,
-            size=size,
-            pass_is_deleted=pass_is_deleted
+            size=size
         )
 
         return api_result(code=200, message='操作成功', data=result_data)

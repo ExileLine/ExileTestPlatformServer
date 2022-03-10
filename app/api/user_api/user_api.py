@@ -173,13 +173,12 @@ class UserPageApi(MethodView):
     """
 
     def post(self):
-        """用例分页模糊查询"""
+        """用户分页模糊查询"""
 
         data = request.get_json()
         user_id = data.get('user_id')
         code = data.get('code')
         username = data.get('username')
-        is_deleted = data.get('is_deleted', False)
         page = data.get('page')
         size = data.get('size')
 
@@ -187,17 +186,20 @@ class UserPageApi(MethodView):
         SELECT * 
         FROM exile_auth_admin  
         WHERE 
-        id LIKE"%%" 
+        id = "id" 
         and username LIKE"%B1%" 
-        and is_deleted=0
         ORDER BY create_timestamp LIMIT 0,20;
         """
 
+        where_dict = {
+            "id": user_id
+        }
+
         result_data = general_query(
             model=Admin,
-            field_list=['id', 'username', 'code'],
-            query_list=[user_id, username, code],
-            is_deleted=is_deleted,
+            field_list=['username', 'code'],
+            query_list=[username, code],
+            where_dict=where_dict,
             page=page,
             size=size
         )

@@ -90,16 +90,14 @@ def query_case_zip(case_id):
 
 
 @set_app_context
-def general_query(model, is_deleted, page, size, pass_is_deleted=False, like_rule="and_", field_list=[],
-                  query_list=[], where_dict={}, in_field_list=None, in_value_list=None):
+def general_query(model, page, size, like_rule="and_", field_list=[], query_list=[], where_dict={}, in_field_list=None,
+                  in_value_list=None):
     """
     通用分页模糊查询
     :param model: -> DefaultMeta
     :param field_list: -> list -> 模糊查询的字段列表 如: ['id','username']
     :param query_list: -> list -> 模糊查询入参列表,对应表字段的位置 如: ['id','username'] 对应 [1,'yyx']
     :param where_dict: -> dict -> {"id":1 ...}
-    :param is_deleted: -> int  -> 是否逻辑删除
-    :param pass_is_deleted: -> bool -> 如果为 True 则省略 is_deleted
     :param like_rule: -> str -> and;or; -> like规则目前仅支持使用其中一个
     :param in_field_list: -> list -> in的字段列表 如: ['id','username']
     :param in_value_list: -> list -> in的入参列表 如: ['id','username'] 对应 [[1,2,3],['y1','y2','y3']] => model.id.in_([1, 2, 3])
@@ -124,9 +122,6 @@ def general_query(model, is_deleted, page, size, pass_is_deleted=False, like_rul
     if not isinstance(page, int) or not isinstance(size, int):
         raise TypeError('类型错误 -> page 和 size 应该是 -> int')
 
-    if not isinstance(is_deleted, bool):
-        raise TypeError('类型错误 -> is_deleted 应该是 -> bool')
-
     in_list = []
 
     if in_field_list and isinstance(in_field_list, list) and in_value_list and isinstance(in_value_list, list):
@@ -145,18 +140,8 @@ def general_query(model, is_deleted, page, size, pass_is_deleted=False, like_rul
         _like = getattr(model, str(field)).ilike("%{}%".format(query_var if query_var else ''))
         like_list.append(_like)
 
-    where_list = []
-
-    if not pass_is_deleted:
-        where_list.append(getattr(model, 'is_deleted') != 0) if is_deleted else where_list.append(
-            getattr(model, 'is_deleted') == 0)
-
-    if where_dict:
-        for k, v in where_dict.items():
-            if v:
-                where_list.append(getattr(model, k) == v)
-
-    print(where_list)
+    # 忽略null或空字符串的查询
+    where_list = [getattr(model, key) == val for key, val in where_dict.items() if val or isinstance(val, int)]
 
     result = getattr(model, 'query').filter(
         like_rule_func(*like_list),
@@ -186,11 +171,17 @@ def general_query(model, is_deleted, page, size, pass_is_deleted=False, like_rul
 if __name__ == '__main__':
     def test_query_case():
         from app.models.test_case.models import TestCase
+
+        where_dict = {
+            "id": 1,
+            "is_deleted": 0
+        }
+
         result_data = general_query(
             model=TestCase,
-            field_list=['id', 'case_name'],
-            query_list=['', ''],
-            is_deleted=False,
+            field_list=['case_name'],
+            query_list=[''],
+            where_dict=where_dict,
             page=1,
             size=10
         )
@@ -200,11 +191,16 @@ if __name__ == '__main__':
     def test_query_variable():
         from app.models.test_variable.models import TestVariable
 
+        where_dict = {
+            "id": 1,
+            "is_deleted": 0
+        }
+
         result_data = general_query(
             model=TestVariable,
-            field_list=['id', 'var_name'],
-            query_list=['', ''],
-            is_deleted=False,
+            field_list=['var_name'],
+            query_list=[''],
+            where_dict=where_dict,
             page=1,
             size=20
         )

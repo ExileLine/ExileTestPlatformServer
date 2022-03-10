@@ -215,7 +215,8 @@ class CaseVarPageApi(MethodView):
         data = request.get_json()
         var_id = data.get('var_id')
         var_name = data.get('var_name')
-        is_deleted = data.get('is_deleted', False)
+        is_deleted = data.get('is_deleted', 0)
+        creator_id = data.get('creator_id')
         page = data.get('page')
         size = data.get('size')
 
@@ -223,17 +224,24 @@ class CaseVarPageApi(MethodView):
         SELECT * 
         FROM exile_test_variable  
         WHERE 
-        id LIKE"%%" 
+        id = "id" 
         and var_name LIKE"%B1%" 
-        and is_deleted=0
+        and is_deleted = 0
+        and creator_id = 1
         ORDER BY create_timestamp LIMIT 0,20;
         """
 
+        where_dict = {
+            "id": var_id,
+            "is_deleted": is_deleted,
+            "creator_id": creator_id
+        }
+
         result_data = general_query(
             model=TestVariable,
-            field_list=['id', 'var_name'],
-            query_list=[var_id, var_name],
-            is_deleted=is_deleted,
+            field_list=['var_name'],
+            query_list=[var_name],
+            where_dict=where_dict,
             page=page,
             size=size
         )

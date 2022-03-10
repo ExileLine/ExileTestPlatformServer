@@ -107,7 +107,7 @@ class UiAutoFilePageApi(MethodView):
         title = data.get('title')
         file_name = data.get('file_name')
         creator_id = data.get('creator_id')
-        is_deleted = data.get('is_deleted', False)
+        is_deleted = data.get('is_deleted', 0)
         page = data.get('page')
         size = data.get('size')
 
@@ -115,18 +115,25 @@ class UiAutoFilePageApi(MethodView):
         SELECT * 
         FROM exile_ui_auto_file  
         WHERE 
-        id LIKE"%%" 
+        id = "id" 
         and title LIKE"%B1%" 
         and file_name LIKE"%B1%" 
-        and is_deleted=0
+        and is_deleted = 0
+        and creator_id = 1
         ORDER BY create_timestamp LIMIT 0,20;
         """
 
+        where_dict = {
+            "id": file_id,
+            "is_deleted": is_deleted,
+            "creator_id": creator_id,
+        }
+
         result_data = general_query(
             model=UiAutoFile,
-            field_list=['id', 'title', 'file_name'],
-            query_list=[file_id, title, file_name],
-            is_deleted=is_deleted,
+            field_list=['title', 'file_name'],
+            query_list=[title, file_name],
+            where_dict=where_dict,
             page=page,
             size=size
         )

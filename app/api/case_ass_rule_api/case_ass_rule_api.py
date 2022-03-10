@@ -10,6 +10,22 @@ from app.models.test_case_assert.models import TestCaseAssResponse, TestCaseAssF
 from app.models.test_case_config.models import TestDatabases
 
 
+def gen_new_ass(ass_obj):
+    """
+    {
+        "assert_key": "id",
+        "expect_val": 1,
+        "expect_val_type": "1",
+        "rule": "=="
+    }
+    :param ass_obj:
+    :return:
+    """
+    new_expect_val = type_conversion(type_key=ass_obj.get('expect_val_type'), val=ass_obj.get('expect_val'))
+    ass_obj['expect_val'] = new_expect_val
+    return ass_obj
+
+
 def check_field_ass(aj_list):
     """检查:断言新增的参数"""
 
@@ -359,38 +375,54 @@ class FieldAssertionRuleApi(MethodView):
         """字段断言新增"""
 
         data = request.get_json()
+        version_id_list = data.get('version_id_list')
         assert_description = data.get('assert_description')
         ass_json = data.get('ass_json', [])
         is_public = data.get('is_public', 1)
         remark = data.get('remark')
 
-        if not isinstance(ass_json, list) or not ass_json:
-            return ab_code(400)
+        # if not isinstance(ass_json, list) or not ass_json:
+        #     return ab_code(400)
+        #
+        # check_result = check_field_ass(ass_json)
+        # _bool = check_result.get('status')
+        # _msg = check_result.get('message')
+        # _ass_json = check_result.get('ass_json')
+        #
+        # if not _bool:
+        #     return api_result(code=400, message='{}'.format(_msg))
+        #
 
-        check_result = check_field_ass(ass_json)
-        _bool = check_result.get('status')
-        _msg = check_result.get('message')
-        _ass_json = check_result.get('ass_json')
+        for ass_obj in ass_json:
+            db_id = ass_obj.get('db_id')
+            assert_list = ass_obj.get('assert_list')
 
-        if not _bool:
-            return api_result(code=400, message='{}'.format(_msg))
+            query_db = TestDatabases.query.get(db_id)
+            if not query_db or query_db.is_deleted:
+                return api_result(code=400, message=f'数据库不存在或被禁用: {db_id}')
+
+            for ass in assert_list:
+                assert_field_list = ass.get('assert_field_list')
+                new_assert_field_list = list(map(gen_new_ass, assert_field_list))
+                ass['assert_field_list'] = new_assert_field_list
 
         new_ass_field = TestCaseAssField(
             assert_description=assert_description,
-            ass_json=_ass_json,
+            ass_json=ass_json,
             is_public=is_public,
             creator=g.app_user.username,
             creator_id=g.app_user.id,
             remark=remark
         )
         new_ass_field.save()
-        return api_result(code=201, message='创建成功', data=_ass_json)
+        return api_result(code=201, message='创建成功', data=ass_json)
 
     def put(self):
         """字段断言编辑"""
 
         data = request.get_json()
         ass_field_id = data.get('id')
+        version_id_list = data.get('version_id_list')
         assert_description = data.get('assert_description')
         ass_json = data.get('ass_json', [])
         is_public = data.get('is_public', 1)
@@ -411,16 +443,29 @@ class FieldAssertionRuleApi(MethodView):
         if not isinstance(ass_json, list) or not ass_json:
             return ab_code(400)
 
-        check_result = check_field_ass(ass_json)
-        _bool = check_result.get('status')
-        _msg = check_result.get('message')
-        _ass_json = check_result.get('ass_json')
+        # check_result = check_field_ass(ass_json)
+        # _bool = check_result.get('status')
+        # _msg = check_result.get('message')
+        # _ass_json = check_result.get('ass_json')
+        #
+        # if not _bool:
+        #     return api_result(code=400, message='{}'.format(_msg))
 
-        if not _bool:
-            return api_result(code=400, message='{}'.format(_msg))
+        for ass_obj in ass_json:
+            db_id = ass_obj.get('db_id')
+            assert_list = ass_obj.get('assert_list')
+
+            query_db = TestDatabases.query.get(db_id)
+            if not query_db or query_db.is_deleted:
+                return api_result(code=400, message=f'数据库不存在或被禁用: {db_id}')
+
+            for ass in assert_list:
+                assert_field_list = ass.get('assert_field_list')
+                new_assert_field_list = list(map(gen_new_ass, assert_field_list))
+                ass['assert_field_list'] = new_assert_field_list
 
         query_ass_field.assert_description = assert_description
-        query_ass_field.ass_json = _ass_json
+        query_ass_field.ass_json = ass_json
         query_ass_field.is_public = is_public
         query_ass_field.remark = remark
         query_ass_field.modifier = g.app_user.username
@@ -460,7 +505,8 @@ class RespAssertionRulePageApi(MethodView):
         data = request.get_json()
         resp_ass_id = data.get('resp_ass_id')
         assert_description = data.get('assert_description')
-        is_deleted = data.get('is_deleted', False)
+        is_deleted = data.get('is_deleted', 0)
+        creator_id = data.get('creator_id')
         page = data.get('page')
         size = data.get('size')
 
@@ -468,17 +514,24 @@ class RespAssertionRulePageApi(MethodView):
         SELECT * 
         FROM exile_ass_response  
         WHERE 
-        id LIKE"%%" 
+        id = "id" 
         and assert_description LIKE"%B1%" 
-        and is_deleted=0
+        and is_deleted = 0
+        and creator_id = 1
         ORDER BY create_timestamp LIMIT 0,20;
         """
 
+        where_dict = {
+            "id": resp_ass_id,
+            "is_deleted": is_deleted,
+            "creator_id": creator_id
+        }
+
         result_data = general_query(
             model=TestCaseAssResponse,
-            field_list=['id', 'assert_description'],
-            query_list=[resp_ass_id, assert_description],
-            is_deleted=is_deleted,
+            field_list=['assert_description'],
+            query_list=[assert_description],
+            where_dict=where_dict,
             page=page,
             size=size
         )
@@ -492,12 +545,13 @@ class FieldAssertionRulePageApi(MethodView):
     """
 
     def post(self):
-        """用例变量分页模糊查询"""
+        """字段断言分页模糊查询"""
 
         data = request.get_json()
         field_ass_id = data.get('field_ass_id')
         assert_description = data.get('assert_description')
-        is_deleted = data.get('is_deleted', False)
+        is_deleted = data.get('is_deleted', 0)
+        creator_id = data.get('creator_id')
         page = data.get('page')
         size = data.get('size')
 
@@ -505,17 +559,24 @@ class FieldAssertionRulePageApi(MethodView):
         SELECT * 
         FROM exile_ass_field  
         WHERE 
-        id LIKE"%%" 
+        id = "id" 
         and assert_description LIKE"%B1%" 
-        and is_deleted=0
+        and is_deleted = 0
+        and creator_id = 1
         ORDER BY create_timestamp LIMIT 0,20;
         """
 
+        where_dict = {
+            "id": field_ass_id,
+            "is_deleted": is_deleted,
+            "creator_id": creator_id
+        }
+
         result_data = general_query(
             model=TestCaseAssField,
-            field_list=['id', 'assert_description'],
-            query_list=[field_ass_id, assert_description],
-            is_deleted=is_deleted,
+            field_list=['assert_description'],
+            query_list=[assert_description],
+            where_dict=where_dict,
             page=page,
             size=size
         )

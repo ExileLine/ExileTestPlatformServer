@@ -149,11 +149,11 @@ def type_conversion(type_key, val):
 
     try:
         new_val = bf(val)
-        # print(f"值:{val}-{type(val)} 【func-{bf}】 {new_val}-{type(new_val)}")
-        return True, new_val
+        print(f"值:{val}-{type(val)} 【func-{bf}】 {new_val}-{type(new_val)}")
+        return new_val
     except BaseException as e:
-        # print(f'参数:{val} 无法转换至 类型:{bf} ERROR:{e}')
-        return False, f'参数:{val} 无法转换至 类型:{bf} ERROR:{e}'
+        print(f'参数:{val} 无法转换至 类型:{bf} ERROR:{e}')
+        return False
 
 
 if __name__ == '__main__':

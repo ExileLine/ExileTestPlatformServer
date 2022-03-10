@@ -87,7 +87,7 @@ class ModuleAppPageApi(MethodView):
         module_id = data.get('id')
         module_name = data.get('module_name')
         creator_id = data.get('creator_id')
-        is_deleted = data.get('is_deleted', False)
+        is_deleted = data.get('is_deleted', 0)
         page = data.get('page')
         size = data.get('size')
 
@@ -95,17 +95,23 @@ class ModuleAppPageApi(MethodView):
         SELECT * 
         FROM exile_test_module_app  
         WHERE 
-        id LIKE"%%" 
+        id = "id" 
         and module_name LIKE"%%" 
         and is_deleted=0
         ORDER BY create_timestamp LIMIT 0,20;
         """
 
+        where_dict = {
+            "id": module_id,
+            "is_deleted": is_deleted,
+            "creator_id": creator_id
+        }
+
         result_data = general_query(
             model=TestModuleApp,
-            field_list=['id', 'module_name', 'creator_id'],
-            query_list=[module_id, module_name, creator_id],
-            is_deleted=is_deleted,
+            field_list=['module_name'],
+            query_list=[module_name],
+            where_dict=where_dict,
             page=page,
             size=size
         )

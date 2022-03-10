@@ -26,17 +26,21 @@ class CaseLogsPageApi(MethodView):
         SELECT * 
         FROM exile_test_logs  
         WHERE 
-        creator_id LIKE"%%" 
-        and creator LIKE"%B1%" 
+        creator_id = 1 
         and is_deleted=0
+        and creator LIKE"%B1%" 
         ORDER BY create_timestamp LIMIT 0,20;
         """
 
+        where_dict = {
+            "creator_id": user_id
+        }
+
         result_data = general_query(
             model=TestLogs,
-            field_list=['creator_id', 'creator'],
-            query_list=[user_id, username],
-            is_deleted=False,
+            field_list=['creator'],
+            query_list=[username],
+            where_dict=where_dict,
             page=page,
             size=size
         )
