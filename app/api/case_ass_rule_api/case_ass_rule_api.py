@@ -4,6 +4,7 @@
 # @Email   : yang6333yyx@126.com
 # @File    : case_ass_rule_api.py
 # @Software: PyCharm
+import json
 
 from all_reference import *
 from app.models.test_case_assert.models import TestCaseAssResponse, TestCaseAssField
@@ -14,16 +15,35 @@ def gen_new_ass(ass_obj):
     """
     {
         "assert_key": "id",
-        "expect_val": 1,
+        "expect_val": "1",
         "expect_val_type": "1",
+        "is_expression": 1,
+        "python_val_exp": "obj.get('id')",
         "rule": "=="
     }
     :param ass_obj:
     :return:
     """
+
     new_expect_val = type_conversion(type_key=ass_obj.get('expect_val_type'), val=ass_obj.get('expect_val'))
+
+    if not new_expect_val:
+        return False
+
     ass_obj['expect_val'] = new_expect_val
+
     return ass_obj
+
+
+def check_query(db_type, **ass_obj):
+    """
+    检验语句防止删除语句
+    :param db_type:
+    :param ass_obj:
+    :return:
+    """
+    pattern = r"\b(exec|insert|drop|grant|alter|delete|update|count|chr|mid|master|truncate|char|delclare)\b|(\*)"
+    re.search(pattern, query.lower())
 
 
 def check_field_ass(aj_list):
@@ -381,18 +401,6 @@ class FieldAssertionRuleApi(MethodView):
         is_public = data.get('is_public', 1)
         remark = data.get('remark')
 
-        # if not isinstance(ass_json, list) or not ass_json:
-        #     return ab_code(400)
-        #
-        # check_result = check_field_ass(ass_json)
-        # _bool = check_result.get('status')
-        # _msg = check_result.get('message')
-        # _ass_json = check_result.get('ass_json')
-        #
-        # if not _bool:
-        #     return api_result(code=400, message='{}'.format(_msg))
-        #
-
         for ass_obj in ass_json:
             db_id = ass_obj.get('db_id')
             assert_list = ass_obj.get('assert_list')
@@ -402,8 +410,15 @@ class FieldAssertionRuleApi(MethodView):
                 return api_result(code=400, message=f'数据库不存在或被禁用: {db_id}')
 
             for ass in assert_list:
+                query = ass.get('query')
                 assert_field_list = ass.get('assert_field_list')
+                # TODO 验证 query
+                # db_type = query_db.db_type
+                # check_query(db_type=db_type, **ass)
+
                 new_assert_field_list = list(map(gen_new_ass, assert_field_list))
+                if False in new_assert_field_list:
+                    return api_result(code=400, message="期望值无法转换至类型，请检查")
                 ass['assert_field_list'] = new_assert_field_list
 
         new_ass_field = TestCaseAssField(
@@ -443,14 +458,6 @@ class FieldAssertionRuleApi(MethodView):
         if not isinstance(ass_json, list) or not ass_json:
             return ab_code(400)
 
-        # check_result = check_field_ass(ass_json)
-        # _bool = check_result.get('status')
-        # _msg = check_result.get('message')
-        # _ass_json = check_result.get('ass_json')
-        #
-        # if not _bool:
-        #     return api_result(code=400, message='{}'.format(_msg))
-
         for ass_obj in ass_json:
             db_id = ass_obj.get('db_id')
             assert_list = ass_obj.get('assert_list')
@@ -460,8 +467,15 @@ class FieldAssertionRuleApi(MethodView):
                 return api_result(code=400, message=f'数据库不存在或被禁用: {db_id}')
 
             for ass in assert_list:
+                query = ass.get('query')
                 assert_field_list = ass.get('assert_field_list')
+                # TODO 验证 query
+                # db_type = query_db.db_type
+                # check_query(db_type=db_type, **ass)
+
                 new_assert_field_list = list(map(gen_new_ass, assert_field_list))
+                if False in new_assert_field_list:
+                    return api_result(code=400, message="期望值无法转换至类型，请检查")
                 ass['assert_field_list'] = new_assert_field_list
 
         query_ass_field.assert_description = assert_description
@@ -471,7 +485,6 @@ class FieldAssertionRuleApi(MethodView):
         query_ass_field.modifier = g.app_user.username
         query_ass_field.modifier_id = g.app_user.id
         db.session.commit()
-
         return api_result(code=203, message='编辑成功')
 
     def delete(self):

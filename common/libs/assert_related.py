@@ -4,8 +4,8 @@
 # @Email   : yang6333yyx@126.com
 # @File    : assert_related.py
 # @Software: PyCharm
-import json
 
+import json
 import redis
 
 from app.models.test_case_config.models import TestDatabases
@@ -311,12 +311,15 @@ class AssertFieldMain(AssertMain):
         assert_field_obj = {
             "assert_key": "id",
             "expect_val": 1,
+            "is_expression": 0,
+            "python_val_exp": "",
             "expect_val_type": "1",
             "rule": "=="
         }
         :param assert_field_obj: 期望结果
         :return:
         """
+        print(json.dumps(assert_field_obj))
         if self.db_type in ['mysql', 'postgresql']:
             # TODO 暂时支持唯一数据检验
             if len(self.query_result) == 1 and isinstance(self.query_result, list):
@@ -325,8 +328,9 @@ class AssertFieldMain(AssertMain):
 
         elif self.db_type in ['redis']:
 
-            if bool(assert_field_obj.get('is_expression')):
-                self.query_result = json.loads(self.query_result)
+            self.query_result = json.loads(self.query_result)
+
+            if isinstance(self.query_result, (dict, list)) and bool(assert_field_obj.get('is_expression')):
                 self.ass_dict_result(assert_field_obj)
             else:
                 self.ass_str_or_int_result(assert_field_obj)
@@ -421,7 +425,7 @@ if __name__ == '__main__':
 
         feild_ass_demo = {
             "version_id_list": [],
-            "assert_description": "A通用字段校验",
+            "assert_description": "field断言2022-03-10",
             "is_public": 1,
             "remark": "remark",
             "ass_json": [
@@ -432,16 +436,20 @@ if __name__ == '__main__':
                             "query": "select id, case_name FROM ExileTestPlatform.exile_test_case WHERE id=1;",
                             "assert_field_list": [
                                 {
+                                    "rule": "==",
                                     "assert_key": "id",
                                     "expect_val": 1,
-                                    "expect_val_type": "1",
-                                    "rule": "=="
+                                    "is_expression": 0,
+                                    "python_val_exp": "",
+                                    "expect_val_type": "1"
                                 },
                                 {
-                                    "assert_key": "case_name",
-                                    "expect_val": "测试用例B1",
-                                    "expect_val_type": "2",
-                                    "rule": "=="
+                                    "rule": "==",
+                                    "assert_key": "id",
+                                    "expect_val": 1,
+                                    "is_expression": 1,
+                                    "python_val_exp": "obj.get('id')",
+                                    "expect_val_type": "1"
                                 }
                             ]
                         }
@@ -454,12 +462,30 @@ if __name__ == '__main__':
                             "query": "get 127.0.0.1",
                             "assert_field_list": [
                                 {
+                                    "rule": "==",
                                     "assert_key": "username",
                                     "expect_val": "user_00007",
-                                    "expect_val_type": "2",
                                     "is_expression": 1,
                                     "python_val_exp": "obj.get('username')",
-                                    "rule": "=="
+                                    "expect_val_type": "2"
+                                }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "db_id": 9,
+                    "assert_list": [
+                        {
+                            "query": "get user_00007",
+                            "assert_field_list": [
+                                {
+                                    "rule": "==",
+                                    "assert_key": "7",
+                                    "expect_val": "user_00007",
+                                    "is_expression": 0,
+                                    "python_val_exp": "",
+                                    "expect_val_type": "2"
                                 }
                             ]
                         }
@@ -473,5 +499,6 @@ if __name__ == '__main__':
         print(assert_description)
         list(map(__execute, ass_json_list))
 
+
     # test_resp_ass()
-    # test_field_ass()
+    test_field_ass()
