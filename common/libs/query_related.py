@@ -91,12 +91,13 @@ def query_case_zip(case_id):
 
 @set_app_context
 def general_query(model, is_deleted, page, size, pass_is_deleted=False, like_rule="and_", field_list=[],
-                  query_list=[], in_field_list=None, in_value_list=None):
+                  query_list=[], where_dict={}, in_field_list=None, in_value_list=None):
     """
     通用分页模糊查询
     :param model: -> DefaultMeta
     :param field_list: -> list -> 模糊查询的字段列表 如: ['id','username']
     :param query_list: -> list -> 模糊查询入参列表,对应表字段的位置 如: ['id','username'] 对应 [1,'yyx']
+    :param where_dict: -> dict -> {"id":1 ...}
     :param is_deleted: -> int  -> 是否逻辑删除
     :param pass_is_deleted: -> bool -> 如果为 True 则省略 is_deleted
     :param like_rule: -> str -> and;or; -> like规则目前仅支持使用其中一个
@@ -149,6 +150,13 @@ def general_query(model, is_deleted, page, size, pass_is_deleted=False, like_rul
     if not pass_is_deleted:
         where_list.append(getattr(model, 'is_deleted') != 0) if is_deleted else where_list.append(
             getattr(model, 'is_deleted') == 0)
+
+    if where_dict:
+        for k, v in where_dict.items():
+            if v:
+                where_list.append(getattr(model, k) == v)
+
+    print(where_list)
 
     result = getattr(model, 'query').filter(
         like_rule_func(*like_list),

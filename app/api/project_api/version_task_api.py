@@ -210,66 +210,20 @@ class VersionTaskPageApi(MethodView):
         if not version_id:
             return api_result(code=400, message=f"版本迭代id: {version_id} 不存在")
 
-        limit = page_size(page=page, size=size)
-        sql = f"""
-        SELECT
-            A.id,
-            A.task_name,
-            A.task_type,
-            A.creator,
-            A.create_time,
-            A.modifier,
-            A.update_time,
-            A.remark
-        FROM
-            exile_test_version_task AS A
-        WHERE
-            EXISTS (
-                SELECT
-                    B.id, B.task_id
-                FROM
-                    exile_test_mid_version_case B
-                WHERE
-                    A.id = B.task_id
-                    AND B.is_deleted = 0)
-                {f'AND creator_id={creator_id}' if creator_id else ''}
-                AND A.version_id = {version_id}
-                AND A.is_deleted = {is_deleted}
-                AND A.task_name LIKE"%{task_name}%"
-                AND A.task_type LIKE"%{task_type}%"
-            ORDER BY
-                A.create_timestamp DESC
-           LIMIT {limit[0]},{limit[1]}
-        """
-
-        sql_count = f"""
-        SELECT
-            COUNT(*)
-        FROM
-            exile_test_version_task AS A
-        WHERE
-            EXISTS (
-                SELECT
-                    B.id, B.task_id
-                FROM
-                    exile_test_mid_version_case B
-                WHERE
-                    A.id = B.task_id
-                    AND B.is_deleted = 0)
-                {f'AND creator_id={creator_id}' if creator_id else ''}
-                AND A.version_id = {version_id}
-                AND A.is_deleted = {is_deleted}
-                AND A.task_name LIKE "%{task_name}%"
-                AND A.task_type LIKE "%{task_type}%";        
-        """
-
-        result_list = project_db.select(sql)
-        result_count = project_db.select(sql_count)
-
-        result_data = {
-            'records': result_list if result_list else [],
-            'now_page': page,
-            'total': result_count[0].get('COUNT(*)')
+        where_dict = {
+            "id": task_id,
+            "task_type": task_type,
+            "version_id": version_id,
+            "creator_id": creator_id
         }
+        result_data = general_query(
+            model=TestVersionTask,
+            field_list=['task_name'],
+            query_list=[task_name],
+            where_dict=where_dict,
+            is_deleted=is_deleted,
+            page=page,
+            size=size
+        )
 
         return api_result(code=200, message="操作成功", data=result_data)
