@@ -233,7 +233,8 @@ class CaseScenarioPageApi(MethodView):
         # TODO 旧数据 version_id 为 0,后续去除
         if not version_id:
             query_version = TestProjectVersion.query.filter_by(project_id=project_id).all()
-            version_id_list = (0,) + tuple([version.id for version in query_version])
+            version_id_tuple = tuple([version.id for version in query_version])
+            version_id_list = (0,) + version_id_tuple if version_id_tuple else (0, 0)
         else:
             version_id_list = (0, version_id)
 
