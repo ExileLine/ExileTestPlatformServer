@@ -203,5 +203,12 @@ class UserPageApi(MethodView):
             page=page,
             size=size
         )
+        records = result_data.get('records')
+        for index, user in enumerate(records):
+            current_user_id = user.get('id')
+            if current_user_id == g.app_user.id:
+                records.pop(index)
+                records.insert(0, user)
+                break
 
         return api_result(code=200, message='操作成功', data=result_data)
