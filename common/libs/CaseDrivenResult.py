@@ -6,7 +6,6 @@
 # @Software: PyCharm
 
 import os
-import sys
 import re
 import json
 import time
@@ -23,7 +22,6 @@ import shortuuid
 from loguru import logger
 
 from common.libs.db import project_db, R
-from common.libs.public_func import check_keys
 from common.libs.assert_related import AssertResponseMain, AssertFieldMain
 from common.libs.StringIOLog import StringIOLog
 from common.libs.execute_code import execute_code
@@ -118,9 +116,7 @@ class TemplateMixin:
           {{resp.result_summary.field_ass_fail_rate}}
         </p>
         <p>
-          测试结果 : 共 {{resp.result_summary.req_count + resp.result_summary.resp_ass_count +
-          resp.result_summary.field_ass_count}}，通过
-          {{resp.result_summary.req_success+resp.result_summary.resp_ass_success+resp.result_summary.field_ass_success}}
+          测试结果汇总 : 共 {{resp.result_summary.all_test_count}}，通过 {{resp.result_summary.pass_count}}，通过率 {{resp.result_summary.pass_rate}} %
         </p>
         <p>{{description}}</p>
       </div>
@@ -450,8 +446,11 @@ class SendEmail:
             # message.attach(att_xm)
 
         try:
-            smtpObj = smtplib.SMTP_SSL("smtp.qiye.aliyun.com", 465)
-            # smtpObj = smtplib.SMTP_SSL("smtp.qq.com", 465)
+            if "qq" or "QQ" in self.mail_from:
+                smtpObj = smtplib.SMTP_SSL("smtp.qq.com", 465)
+            else:
+                smtpObj = smtplib.SMTP_SSL("smtp.qiye.aliyun.com", 465)
+
             # smtpObj = smtplib.SMTP_SSL("smtp.exmail.qq.com", 465)
             smtpObj.login(self.mail_from, self.mail_pwd)
             smtpObj.sendmail(self.mail_from, message['To'].split(',') + message['Cc'].split(','), message.as_string())
@@ -567,6 +566,13 @@ class TestResult:
         self.all_ass_success_count = 0
         self.all_ass_fail_count = 0
 
+        self.pass_count = 0
+        self.pass_rate = 0
+        self.fail_count = 0
+        self.fail_rate = 0
+        self.all_test_count = 0
+        self.all_test_rate = 0
+
     def get_test_result(self):
         """
 
@@ -598,6 +604,10 @@ class TestResult:
 
             self.all_ass_count = round(self.resp_ass_count + self.field_ass_count, 2)
 
+            self.all_test_count = self.pass_count + self.fail_count
+            self.pass_rate = round(self.pass_rate / self.all_test_count, 2) * 100
+            self.fail_rate = round(self.fail_rate / self.all_test_count, 2) * 100
+
         d = {
             "req_count": self.req_count,
             "req_success": self.req_success,
@@ -619,7 +629,13 @@ class TestResult:
             "field_ass_fail_rate": self.field_ass_fail_rate,
             "field_ass_error_rate": self.field_ass_error_rate,
 
-            "all_ass_count": self.all_ass_count
+            "all_ass_count": self.all_ass_count,
+
+            "all_test_count": self.all_test_count,
+            "pass_count": self.pass_count,
+            "pass_rate": self.pass_rate,
+            "fail_count": self.fail_count,
+            "fail_rate": self.fail_rate
         }
         return d
 
@@ -712,6 +728,7 @@ class MainTest:
 
         self.current_assert_description = None
 
+        self.full_pass = True
         self.current_case_resp_ass_error = 0  # 响应断言标识
         self.logs_error_switch = False  # 日志标识
         self.test_result = TestResult()  # 测试结果
@@ -724,6 +741,20 @@ class MainTest:
         self.save_key = ""
         self.path = ""
         self.report_name = ""
+
+    def reset_current_data(self):
+        """重置"""
+
+        self.full_pass = True
+        self.current_case_resp_ass_error = 0
+
+    def set_case_count(self):
+        """设置用例统计"""
+
+        if self.full_pass:
+            self.test_result.pass_count += 1
+        else:
+            self.test_result.fail_count += 1
 
     def json_format(self, d, msg=None):
         """json格式打印"""
@@ -840,6 +871,7 @@ class MainTest:
             self.test_result.resp_ass_fail += 1
             self.current_case_resp_ass_error += 1
             self.logs_error_switch = True
+            self.full_pass = False
 
     def execute_field_ass(self, ass_json):
         """
@@ -855,8 +887,10 @@ class MainTest:
         self.test_result.field_ass_success += field_ass_result.get('success')
         self.test_result.field_ass_fail += field_ass_result.get('fail')
         self.test_result.field_ass_error += field_ass_result.get('error')
+
         if self.test_result.field_ass_error != 0:
             self.logs_error_switch = True
+            self.full_pass = False
 
     def current_request(self, method=None, **kwargs):
         """
@@ -1066,8 +1100,9 @@ class MainTest:
         print('=== only_execute ===')
 
         for case_index, case in enumerate(self.case_generator, 1):
-            self.sio.log('=== start case: {} ==='.format(case_index))
-            self.current_case_resp_ass_error = 0
+            self.sio.log(f'=== start case: {case_index} ===')
+            self.reset_current_data()
+
             case_info = case.get('case_info', {})
             bind_info = case.get('bind_info', [])
 
@@ -1087,7 +1122,7 @@ class MainTest:
 
             for index, bind in enumerate(bind_info, 1):
 
-                self.sio.log("=== 数据驱动:{} ===".format(index))
+                self.sio.log(f"=== 数据驱动:{index} ===")
                 case_data_info = bind.get('case_data_info', {})
                 case_resp_ass_info = bind.get('case_resp_ass_info', [])
                 case_field_ass_info = bind.get('case_field_ass_info', [])
@@ -1098,6 +1133,7 @@ class MainTest:
                 except BaseException as e:
                     self.sio.log(f"=== 请求失败:{str(e)} ===", status="error")
                     self.test_result.req_error += 1
+                    self.full_pass = False
                     self.sio.log("=== 跳过断言 ===")
                     continue
 
@@ -1109,7 +1145,9 @@ class MainTest:
                     self.sio.log("=== data_driven is false 只执行基础参数与断言 ===")
                     break
 
-            self.sio.log('=== end case: {} ===\n\n'.format(case_index))
+            self.set_case_count()
+
+            self.sio.log(f'=== end case: {case_index} ===\n')
 
             add_case = {
                 "report_tab": 1,
@@ -1140,11 +1178,11 @@ class MainTest:
             scenario_id = group.get('scenario_id')
             scenario_title = group.get('scenario_title')
             case_list = group.get('case_list')
-            self.sio.log('=== start {}: scenario: {} ==='.format(scenario_id, scenario_title))
+            self.sio.log(f'=== start {scenario_id}: scenario: {scenario_title} ===')
             scenario_log = []
             for case_index, case in enumerate(case_list, 1):
-                self.sio.log('=== start case: {} ==='.format(case_index))
-                self.current_case_resp_ass_error = 0
+                self.sio.log(f'=== start case: {case_index} ===')
+                self.reset_current_data()
                 case_info = case.get('case_info', {})
                 bind_info = case.get('bind_info', [])
 
@@ -1163,7 +1201,7 @@ class MainTest:
                     self.sio.log('=== 未配置请求参数 ===')
 
                 for index, bind in enumerate(bind_info, 1):
-                    self.sio.log("=== 数据驱动:{} ===".format(index))
+                    self.sio.log(f"=== 数据驱动:{index} ===")
                     case_data_info = bind.get('case_data_info', {})
                     case_resp_ass_info = bind.get('case_resp_ass_info', [])
                     case_field_ass_info = bind.get('case_field_ass_info', [])
@@ -1172,7 +1210,7 @@ class MainTest:
                         self.test_result.req_success += 1
                         self.assemble_data_send(case_data_info=case_data_info)
                     except BaseException as e:
-                        self.sio.log("=== 请求失败:{} ===".format(str(e)), status="error")
+                        self.sio.log(f"=== 请求失败:{str(e)} ===", status="error")
                         self.test_result.req_error += 1
                         self.sio.log("=== 跳过断言 ===")
                         continue
@@ -1191,10 +1229,13 @@ class MainTest:
                     "case_log": self.sio.get_stringio().split('\n'),
                     "error": self.logs_error_switch
                 }
+
+                self.set_case_count()
+
                 scenario_log.append(add_case)
 
-                self.sio.log(
-                    '=== end {}: scenario: {} case: {}===\n\n'.format(scenario_id, scenario_title, case_index))
+                self.sio.log(f'=== end {scenario_id}: scenario: {scenario_title} case: {case_index}===\n')
+
             add_group = {
                 "report_tab": 2,
                 "scenario_id": scenario_id,
@@ -1202,6 +1243,7 @@ class MainTest:
                 "scenario_log": scenario_log,
                 "error": self.logs_error_switch
             }
+            self.set_case_count()
             self.case_result_list.append(add_group)
 
         if not self.is_execute_all:
