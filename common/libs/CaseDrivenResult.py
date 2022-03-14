@@ -373,11 +373,8 @@ class SendEmail:
 
     def __init__(self, to_list=None, ac_list=None):
 
-        # self.mail_from = '872540033@qq.com'  # 发件邮箱账号
-        # self.mail_pwd = 'rscfszznxzuubcdb'  # 发件邮箱的授权码
-
-        self.mail_from = 'shipeng@haoyuntech.com'  # 发件邮箱账号
-        self.mail_pwd = 'He@789012'  # 发件邮箱的授权码
+        self.mail_from = '872540033@qq.com'  # 发件邮箱账号
+        self.mail_pwd = 'rscfszznxzuubcdb'  # 发件邮箱的授权码
 
         if to_list:
             self.to_list = to_list

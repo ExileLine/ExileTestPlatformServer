@@ -104,6 +104,7 @@ venv.bak/
 .mypy_cache/
 .vscode
 .idea
+.DS_Store
 /migrations
 /config/dev.ini
 /logs/*.log
