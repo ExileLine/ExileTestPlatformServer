@@ -29,6 +29,11 @@ from common.libs.StringIOLog import StringIOLog
 from common.libs.execute_code import execute_code
 from common.libs.data_dict import var_func_dict, execute_label_tuple, gen_redis_first_logs
 
+send_mail = project_db.select('SELECT * FROM exile_mail_conf WHERE is_send=1;', only=True)
+server_url = project_db.select(
+    'SELECT server_url FROM exile_platform_conf WHERE weights = (SELECT max(weights) FROM exile_platform_conf);',
+    only=True)
+
 
 class TemplateMixin:
     """HTML模版"""
@@ -373,8 +378,8 @@ class SendEmail:
 
     def __init__(self, to_list=None, ac_list=None):
 
-        self.mail_from = '872540033@qq.com'  # 发件邮箱账号
-        self.mail_pwd = 'rscfszznxzuubcdb'  # 发件邮箱的授权码
+        self.mail_from = send_mail.get('mail')  # 发件邮箱账号
+        self.mail_pwd = send_mail.get('send_pwd')  # 发件邮箱的授权码
 
         if to_list:
             self.to_list = to_list
@@ -487,12 +492,7 @@ class MainTestExpand:
 
         url = ding_talk_url
 
-        if platform.system() == "Linux":
-            report_url = f'http://192.168.14.214:5000/report/{report_name}'
-            # report_url = f'http://120.24.214.173:5000/report/{report_name}'
-        else:
-            report_url = f"http://0.0.0.0:7272/report/{report_name}"
-            print(report_url)
+        report_url = f"{server_url.get('server_url', 'http://0.0.0.0:7272')}/report/{report_name}"
 
         if not url.strip():
             raise TypeError('钉钉推送失败: DING_TALK_URL 未配置')

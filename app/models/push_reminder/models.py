@@ -15,6 +15,8 @@ class MailConfModel(BaseModel):
 
     mail = db.Column(db.String(255), comment='邮箱')
     mail_user = db.Column(db.String(255), comment='邮箱用户')
+    is_send = db.Column(TINYINT(1, unsigned=True), comment='是否为发送账号')
+    send_pwd = db.Column(db.String(255), comment='发件邮箱的授权码')
     creator = db.Column(db.String(32), comment='创建人')
     creator_id = db.Column(BIGINT(20, unsigned=True), comment='创建人id')
     modifier = db.Column(db.String(32), comment='更新人')
