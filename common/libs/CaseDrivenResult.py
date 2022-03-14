@@ -491,6 +491,7 @@ class MainTestExpand:
 
         url = ding_talk_url
 
+        print(server_url)
         report_url = f"{server_url.get('server_url', 'http://0.0.0.0:7272')}/report/{report_name}"
 
         if not url.strip():
@@ -605,8 +606,8 @@ class TestResult:
             self.all_ass_count = round(self.resp_ass_count + self.field_ass_count, 2)
 
             self.all_test_count = self.pass_count + self.fail_count
-            self.pass_rate = round(self.pass_rate / self.all_test_count, 2) * 100
-            self.fail_rate = round(self.fail_rate / self.all_test_count, 2) * 100
+            self.pass_rate = 0 if self.pass_count == 0 else f"{round(self.pass_count / self.all_test_count, 2) * 100}"
+            self.fail_rate = 0 if self.fail_count == 0 else f"{round(self.fail_count / self.all_test_count, 2) * 100}"
 
         d = {
             "req_count": self.req_count,
