@@ -552,7 +552,7 @@ def register_commands(app):
             mysql_db = TestDatabases(
                 name='测试环境:mysql',
                 db_type='mysql',
-                db_connection={"host": "127.0.0.1", "password": "12345678", "port": 3306, "user": "root"},
+                db_connection={"host": "127.0.0.1", "password": "1234567890", "port": 33060, "user": "root"},
                 remark="脚本生成",
                 creator="shell",
                 creator_id=999999,
@@ -560,7 +560,7 @@ def register_commands(app):
             redis_db = TestDatabases(
                 name='测试环境:redis',
                 db_type='redis',
-                db_connection={"db": 3, "host": "127.0.0.1", "password": "1234567890000", "port": 3308},
+                db_connection={"db": 0, "host": "127.0.0.1", "password": "1234567890", "port": 63790},
                 remark="脚本生成",
                 creator="shell",
                 creator_id=999999,
@@ -641,19 +641,19 @@ def register_commands(app):
                     ass_json=[
                         {
                             "db_id": 1,
-                            "query": "select id,case_name FROM ExileTestPlatform.exile_test_case WHERE id=1;",
                             "assert_list": [
                                 {
-                                    "assert_key": "id",
-                                    "expect_val": "1",
-                                    "expect_val_type": "1",
-                                    "rule": "=="
-                                },
-                                {
-                                    "assert_key": "case_name",
-                                    "expect_val": "测试用例B1",
-                                    "expect_val_type": "2",
-                                    "rule": "=="
+                                    "query": "select id, case_name FROM ExileTestPlatform.exile_test_case WHERE id=1;",
+                                    "assert_field_list": [
+                                        {
+                                            "rule": "==",
+                                            "assert_key": "id",
+                                            "expect_val": 11,
+                                            "is_expression": 1,
+                                            "python_val_exp": "obj.get('id')",
+                                            "expect_val_type": "1"
+                                        }
+                                    ]
                                 }
                             ]
                         }
