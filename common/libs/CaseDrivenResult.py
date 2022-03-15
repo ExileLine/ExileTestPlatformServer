@@ -16,6 +16,7 @@ from ast import literal_eval
 from email.header import Header
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
+from decimal import Decimal
 
 import requests
 import shortuuid
@@ -24,6 +25,7 @@ from loguru import logger
 from common.libs.db import project_db, R
 from common.libs.assert_related import AssertResponseMain, AssertFieldMain
 from common.libs.StringIOLog import StringIOLog
+from common.libs.report_template import RepostTemplate
 from common.libs.execute_code import execute_code
 from common.libs.data_dict import var_func_dict, execute_label_tuple, gen_redis_first_logs
 
@@ -31,340 +33,6 @@ send_mail = project_db.select('SELECT * FROM exile_mail_conf WHERE is_send=1;', 
 server_url = project_db.select(
     'SELECT server_url FROM exile_platform_conf WHERE weights = (SELECT max(weights) FROM exile_platform_conf);',
     only=True)
-
-
-class TemplateMixin:
-    """HTML模版"""
-
-    def __init__(self, data):
-        self.data = data
-
-    @classmethod
-    def before_html(cls):
-        """1"""
-        _before = r"""<!DOCTYPE html>
-<html>
-  <head>
-    <meta charset="UTF-8" />
-    <!-- import CSS -->
-    <link rel="stylesheet" href="https://unpkg.com/element-plus@2.0.5/dist/index.css" />
-    <!-- import Vue before Element -->
-    <script src="https://unpkg.com/vue@3.2.31/dist/vue.global.js"></script>
-    <!-- import JavaScript -->
-    <script src="https://unpkg.com/element-plus@2.0.5/dist/index.full.js"></script>
-
-    <style>
-      table table thead {
-        display: none;
-      }
-
-      .el-table__expanded-cell[class*='cell'] {
-        padding-top: 0 !important;
-        padding-bottom: 0 !important;
-        padding-right: 0 !important;
-      }
-
-      .card {
-        margin: 30px;
-        white-space: pre;
-      }
-
-      .pl-20 {
-        padding-left: 20px;
-      }
-
-      .circle.success {
-        color: lightgreen;
-      }
-
-      .circle.error {
-        color: lightcoral;
-      }
-
-      .justify-between {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-      }
-    </style>
-  </head>
-    <body>
-    <div id="app">
-      <el-backtop :bottom="10" :visibility-height="10"></el-backtop>
-      <div>
-        <h1>自动化测试报告</h1>
-        <h3>测试人员 : {{resp.execute_username}}</h3>
-        <p>开始时间 : {{resp.create_time}}</p>
-        <p>合计耗时 : {{resp.total_time}}</p>
-        <p>
-          请求统计 : 总数: {{resp.result_summary.req_count}}，成功数 :
-          {{resp.result_summary.req_success}}，失败数 : {{resp.result_summary.req_error}}，成功率 :
-          {{resp.result_summary.req_success_rate}}，失败率 : {{resp.result_summary.req_error_rate}}
-        </p>
-        <p>
-          响应断言统计 : 总数: {{resp.result_summary.resp_ass_count}}，成功数 :
-          {{resp.result_summary.resp_ass_success}}，失败数 :
-          {{resp.result_summary.resp_ass_fail}}，成功率 :
-          {{resp.result_summary.resp_ass_success_rate}}，失败率 :
-          {{resp.result_summary.resp_ass_fail_rate}}
-        </p>
-        <p>
-          字段断言统计 : 总数: {{resp.result_summary.field_ass_count}}，成功数 :
-          {{resp.result_summary.field_ass_success}}，失败数 :
-          {{resp.result_summary.field_ass_fail}}，成功率 :
-          {{resp.result_summary.field_ass_success_rate}}，失败率 :
-          {{resp.result_summary.field_ass_fail_rate}}
-        </p>
-        <p>
-          测试结果汇总 : 共 {{resp.result_summary.all_test_count}}，通过 {{resp.result_summary.pass_count}}，通过率 {{resp.result_summary.pass_rate}} %
-        </p>
-        <p>{{description}}</p>
-      </div>
-
-      <el-tabs>
-        <el-tab-pane
-          :label="`所有(${resp.result_summary.req_count + resp.result_summary.resp_ass_count +
-          resp.result_summary.field_ass_count})`"
-        >
-          <el-tabs type="border-card">
-            <el-tab-pane label="用例">
-              <el-table border :data="case_all_list" show-header="false">
-                <el-table-column type="expand">
-                  <template #default="{row}">
-                    <el-card shadow="always" class="card">
-                      <p v-for="i in row.case_log">{{i}}</p>
-                    </el-card>
-                  </template>
-                </el-table-column>
-                <el-table-column prop="case_name" :label="resp.execute_name">
-                  <template #default="{row}">
-                    <div class="justify-between">
-                      <span>{{row.case_id}}-{{row.case_name}}</span>
-                      <span v-if="row.error" class="circle error">X</span>
-                      <span v-else class="circle success">✔️</span>
-                    </div>
-                  </template>
-                </el-table-column>
-              </el-table>
-            </el-tab-pane>
-            <el-tab-pane label="场景">
-              <el-table border :data="group_all_list" show-header="false">
-                <el-table-column type="expand">
-                  <template #default="{row}">
-                    <div class="pl-20">
-                      <el-table border :data="row.scenario_log" show-header="false">
-                        <el-table-column type="expand">
-                          <template #default="{row}">
-                            <el-card shadow="always" class="card">
-                              <p v-for="i in row.case_log">{{i}}</p>
-                            </el-card>
-                          </template>
-                        </el-table-column>
-                        <el-table-column prop="case_name">
-                          <template #default="{row}">
-                            <div class="justify-between">
-                              <span>{{row.case_id}}-{{row.case_name}}</span>
-                              <span v-if="row.error" class="circle error">X</span>
-                              <span v-else class="circle success">✔️</span>
-                            </div>
-                          </template>
-                        </el-table-column>
-                      </el-table>
-                    </div>
-                  </template>
-                </el-table-column>
-                <el-table-column prop="scenario_title" :label="resp.execute_name">
-                  <template #default="{row}">
-                    <div class="justify-between">
-                      <span>{{row.scenario_id}}-{{row.scenario_title}}</span>
-                      <span v-if="row.error" class="circle error">X</span>
-                      <span v-else class="circle success">✔️</span>
-                    </div>
-                  </template>
-                </el-table-column>
-              </el-table>
-            </el-tab-pane>
-          </el-tabs>
-        </el-tab-pane>
-        <el-tab-pane
-          :label="`成功(${resp.result_summary.req_success+resp.result_summary.resp_ass_success+resp.result_summary.field_ass_success})`"
-        >
-          <el-tabs type="border-card">
-            <el-tab-pane label="用例">
-              <el-table border :data="success_left_list" show-header="false">
-                <el-table-column type="expand">
-                  <template #default="{row}">
-                    <el-card shadow="always" class="card">
-                      <p v-for="i in row.case_log">{{i}}</p>
-                    </el-card>
-                  </template>
-                </el-table-column>
-                <el-table-column prop="case_name" :label="resp.execute_name">
-                  <template #default="{row}">
-                    <div class="justify-between">
-                      <span>{{row.case_id}}-{{row.case_name}}</span>
-                      <span v-if="row.error" class="circle error">X</span>
-                      <span v-else class="circle success">✔️</span>
-                    </div>
-                  </template>
-                </el-table-column>
-              </el-table>
-            </el-tab-pane>
-            <el-tab-pane label="场景">
-              <el-table border :data="success_right_list" show-header="false">
-                <el-table-column type="expand">
-                  <template #default="{row}">
-                    <div class="pl-20">
-                      <el-table border :data="row.scenario_log" show-header="false">
-                        <el-table-column type="expand">
-                          <template #default="{row}">
-                            <el-card shadow="always" class="card">
-                              <p v-for="i in row.case_log">{{i}}</p>
-                            </el-card>
-                          </template>
-                        </el-table-column>
-                        <el-table-column prop="case_name">
-                          <template #default="{row}">
-                            <div class="justify-between">
-                              <span>{{row.case_id}}-{{row.case_name}}</span>
-                              <span v-if="row.error" class="circle error">X</span>
-                              <span v-else class="circle success">✔️</span>
-                            </div>
-                          </template>
-                        </el-table-column>
-                      </el-table>
-                    </div>
-                  </template>
-                </el-table-column>
-                <el-table-column prop="scenario_title" :label="resp.execute_name">
-                  <template #default="{row}">
-                    <div class="justify-between">
-                      <span>{{row.scenario_id}}-{{row.scenario_title}}</span>
-                      <span v-if="row.error" class="circle error">X</span>
-                      <span v-else class="circle success">✔️</span>
-                    </div>
-                  </template>
-                </el-table-column>
-              </el-table>
-            </el-tab-pane>
-          </el-tabs>
-        </el-tab-pane>
-        <el-tab-pane
-          :label="`失败(${resp.result_summary.req_error+resp.result_summary.resp_ass_fail+resp.result_summary.field_ass_fail})`"
-        >
-          <el-tabs type="border-card">
-            <el-tab-pane label="用例">
-              <el-table border :data="error_left_list" show-header="false">
-                <el-table-column type="expand">
-                  <template #default="{row}">
-                    <el-card shadow="always" class="card">
-                      <p v-for="i in row.case_log">{{i}}</p>
-                    </el-card>
-                  </template>
-                </el-table-column>
-                <el-table-column prop="case_name" :label="resp.execute_name">
-                  <template #default="{row}">
-                    <div class="justify-between">
-                      <span>{{row.case_id}}-{{row.case_name}}</span>
-                      <span v-if="row.error" class="circle error">X</span>
-                      <span v-else class="circle success">✔️</span>
-                    </div>
-                  </template>
-                </el-table-column>
-              </el-table>
-            </el-tab-pane>
-            <el-tab-pane label="场景">
-              <el-table border :data="error_right_list" show-header="false">
-                <el-table-column type="expand">
-                  <template #default="{row}">
-                    <div class="pl-20">
-                      <el-table border :data="row.scenario_log" show-header="false">
-                        <el-table-column type="expand">
-                          <template #default="{row}">
-                            <el-card shadow="always" class="card">
-                              <p v-for="i in row.case_log">{{i}}</p>
-                            </el-card>
-                          </template>
-                        </el-table-column>
-                        <el-table-column prop="case_name">
-                          <template #default="{row}">
-                            <div class="justify-between">
-                              <span>{{row.case_id}}-{{row.case_name}}</span>
-                              <span v-if="row.error" class="circle error">X</span>
-                              <span v-else class="circle success">✔️</span>
-                            </div>
-                          </template>
-                        </el-table-column>
-                      </el-table>
-                    </div>
-                  </template>
-                </el-table-column>
-                <el-table-column prop="scenario_title" :label="resp.execute_name">
-                  <template #default="{row}">
-                    <div class="justify-between">
-                      <span>{{row.scenario_id}}-{{row.scenario_title}}</span>
-                      <span v-if="row.error" class="circle error">X</span>
-                      <span v-else class="circle success">✔️</span>
-                    </div>
-                  </template>
-                </el-table-column>
-              </el-table>
-            </el-tab-pane>
-          </el-tabs>
-        </el-tab-pane>
-      </el-tabs>
-    </div>
-  </body>
-  <script>
-  var True = true
-  var False = false
-"""
-
-        return _before
-
-    @classmethod
-    def script_html(cls, data):
-        """script"""
-        _script = f"""
-                var resp = {data};
-                """
-        return _script
-
-    @classmethod
-    def after_html(cls):
-        """3"""
-        _after = """
-var case_result_list = resp.case_result_list
-var leftTabList = case_result_list.filter(c => c.report_tab == 1)
-var rightTabList = case_result_list.filter(c => c.report_tab == 2)
-Vue.createApp({
-  data() {
-    return {
-      resp,
-      case_all_list: leftTabList,
-      group_all_list: rightTabList,
-      success_left_list: leftTabList.filter(left => !left.error),
-      error_left_list: leftTabList.filter(left => left.error),
-      success_right_list: rightTabList.filter(right => !right.error),
-      error_right_list: rightTabList.filter(right => right.error)
-    }
-  }
-})
-  .use(ElementPlus)
-  .mount('#app')
-
-</script>
-</html>
-"""
-        return _after
-
-    def generate_html_report(self):
-        """生成html报告"""
-        one = self.before_html()
-        two = self.script_html(self.data)
-        three = self.after_html()
-        html_vue3 = f"{one}{two}{three}"
-        return html_vue3
 
 
 class SendEmail:
@@ -517,7 +185,7 @@ class MainTestExpand:
         }
         """
 
-        demo_text = "#### 测试报告:{}  \n  > 测试人员:{}  \n  > 开始时间:{}  \n  > 结束时间:{}  \n  > 持续时间:{}  \n  > 总数:{}  \n  > 成功数:{}  \n  > 失败数:{}  \n  > 错误数:{}  \n  > 通过率:{}  \n  > 报告地址:[前往](1)"
+        demo_text = "#### 测试报告:{}  \n  > 测试人员:{}  \n  > 开始时间:{}  \n  > 结束时间:{}  \n  > 合计耗时:{}  \n  > 总数:{}  \n  > 成功数:{}  \n  > 失败数:{}  \n  > 错误数:{}  \n  > 通过率:{}  \n  > 报告地址:[前往](1)"
 
         report_link = "  \n  > 报告地址:[{}]({})".format(report_url, report_url)
 
@@ -558,10 +226,8 @@ class TestResult:
         self.field_ass_count = 0
         self.field_ass_success = 0
         self.field_ass_fail = 0
-        self.field_ass_error = 0
         self.field_ass_success_rate = 0
         self.field_ass_fail_rate = 0
-        self.field_ass_error_rate = 0
 
         self.all_ass_count = 0
         self.all_ass_success_count = 0
@@ -579,35 +245,31 @@ class TestResult:
 
         :return:
         """
+
         self.req_count = self.req_success + self.req_error
         if self.req_count != 0:
-            self.req_success_rate = "{}%".format(round(self.req_success / self.req_count, 2) * 100)
-            self.req_error_rate = "{}%".format(round(self.req_error / self.req_count, 2) * 100)
+            self.req_success_rate = f"{Decimal(self.req_success / self.req_count).quantize(Decimal('1.00')) * 100}%"
+            self.req_error_rate = f"{Decimal(self.req_error / self.req_count).quantize(Decimal('1.00')) * 100}%"
 
             self.resp_ass_count = self.resp_ass_success + self.resp_ass_fail
 
-            self.resp_ass_success_rate = 0 if self.resp_ass_success == 0 else "{}%".format(
-                round(self.resp_ass_success / self.resp_ass_count, 2) * 100)
+            if self.resp_ass_count != 0:
+                self.resp_ass_success_rate = f"{Decimal(self.resp_ass_success / self.resp_ass_count).quantize(Decimal('1.00')) * 100}%"
+                self.resp_ass_fail_rate = f"{Decimal(self.resp_ass_fail / self.resp_ass_count).quantize(Decimal('1.00')) * 100}%"
 
-            self.resp_ass_fail_rate = 0 if self.resp_ass_fail == 0 else "{}%".format(
-                round(self.resp_ass_fail / self.resp_ass_count, 2) * 100)
+            self.field_ass_count = self.field_ass_success + self.field_ass_fail
 
-            self.field_ass_count = self.field_ass_success + self.field_ass_fail + self.field_ass_error
+            if self.field_ass_count != 0:
+                self.field_ass_success_rate = f"{Decimal(self.field_ass_success / self.field_ass_count).quantize(Decimal('1.00')) * 100}%"
+                self.field_ass_fail_rate = f"{Decimal(self.field_ass_fail / self.field_ass_count).quantize(Decimal('1.00')) * 100}%"
 
-            self.field_ass_success_rate = 0 if self.field_ass_success == 0 else "{}%".format(
-                round(self.field_ass_success / self.field_ass_count, 2) * 100)
-
-            self.field_ass_fail_rate = 0 if self.field_ass_fail == 0 else "{}%".format(
-                round(self.field_ass_fail / self.field_ass_count, 2) * 100)
-
-            self.field_ass_error_rate = 0 if self.field_ass_error == 0 else "{}%".format(
-                round(self.field_ass_error / self.field_ass_count, 2) * 100)
-
-            self.all_ass_count = round(self.resp_ass_count + self.field_ass_count, 2)
+            self.all_ass_count = self.resp_ass_count + self.field_ass_count
 
             self.all_test_count = self.pass_count + self.fail_count
-            self.pass_rate = 0 if self.pass_count == 0 else f"{round(self.pass_count / self.all_test_count, 2) * 100}"
-            self.fail_rate = 0 if self.fail_count == 0 else f"{round(self.fail_count / self.all_test_count, 2) * 100}"
+
+            if self.all_test_count != 0:
+                self.pass_rate = f"{Decimal(self.pass_count / self.all_test_count).quantize(Decimal('1.00')) * 100}%"
+                self.fail_rate = f"{Decimal(self.fail_count / self.all_test_count).quantize(Decimal('1.00')) * 100}%"
 
         d = {
             "req_count": self.req_count,
@@ -625,10 +287,8 @@ class TestResult:
             "field_ass_count": self.field_ass_count,
             "field_ass_success": self.field_ass_success,
             "field_ass_fail": self.field_ass_fail,
-            "field_ass_error": self.field_ass_error,
             "field_ass_success_rate": self.field_ass_success_rate,
             "field_ass_fail_rate": self.field_ass_fail_rate,
-            "field_ass_error_rate": self.field_ass_error_rate,
 
             "all_ass_count": self.all_ass_count,
 
@@ -735,9 +395,10 @@ class MainTest:
         self.test_result = TestResult()  # 测试结果
         self.case_result_list = []  # 测试结果日志集
 
-        self.create_time = str(datetime.datetime.now())
+        self.create_time = str(datetime.datetime.now()).split(".")[0]
         self.start_time = time.time()
         self.end_time = 0
+        self.total_time = 0
 
         self.save_key = ""
         self.path = ""
@@ -887,9 +548,8 @@ class MainTest:
 
         self.test_result.field_ass_success += field_ass_result.get('success')
         self.test_result.field_ass_fail += field_ass_result.get('fail')
-        self.test_result.field_ass_error += field_ass_result.get('error')
 
-        if self.test_result.field_ass_error != 0:
+        if self.test_result.field_ass_fail != 0:
             self.logs_error_switch = True
             self.full_pass = False
 
@@ -1054,8 +714,8 @@ class MainTest:
         """
 
         sql = """INSERT INTO exile_test_execute_logs (`is_deleted`, `create_time`, `create_timestamp`,  `execute_id`, `execute_name`, `execute_type`, `redis_key`, `creator`, `creator_id`) VALUES (0,'{}','{}','{}','{}','{}','{}','{}','{}');""".format(
-            self.create_time.split('.')[0],
-            int(self.end_time),
+            self.create_time,
+            int(self.start_time),
             self.execute_id,
             self.execute_name,
             self.execute_type,
@@ -1070,7 +730,9 @@ class MainTest:
         """组装日志并保存"""
 
         case_summary = self.test_result.get_test_result()
-        self.end_time = time.time()
+        self.end_time = str(datetime.datetime.now()).split(".")[0]
+        self.total_time = Decimal(time.time() - self.start_time).quantize(Decimal('0.00'))
+
         self.save_key = "test_log_{}_{}".format(str(int(time.time())), shortuuid.uuid())
         return_case_result = {
             "uuid": self.save_key,
@@ -1083,7 +745,7 @@ class MainTest:
             "create_time": self.create_time,
             "start_time": self.start_time,
             "end_time": self.end_time,
-            "total_time": self.end_time - self.start_time
+            "total_time": str(self.total_time)
         }
         R.set(self.save_key, json.dumps(return_case_result))
         current_save_dict = gen_redis_first_logs(execute_id=self.execute_id)
@@ -1283,14 +945,12 @@ class MainTest:
 
         get_data = R.get(self.save_key)
         get_data_to_dict = json.loads(get_data)
-        test_repost = TemplateMixin(data=get_data_to_dict).generate_html_report()
+        test_repost = RepostTemplate(data=get_data_to_dict).generate_html_report()
         # print(test_repost)
 
         self.save_test_repost(report_stt=test_repost)
 
-        result_summary = get_data_to_dict.get('result_summary')
-
-        mt = f"#### 测试报告:{self.execute_name}  \n  > 测试人员:{self.execute_username}  \n  > 开始时间:{self.create_time}  \n  > 结束时间:{self.end_time}  \n  > 持续时间:{self.end_time - self.start_time}  \n  > 总数:{self.test_result.all_test_count}  \n  > 成功数:{self.test_result.pass_count}  \n  > 失败数:{self.test_result.fail_count}  \n  > 通过率:{self.test_result.pass_rate}  \n "
+        mt = f"#### 测试报告:{self.execute_name}  \n  > 测试人员:{self.execute_username}  \n  > 开始时间:{self.create_time}  \n  > 结束时间:{self.end_time}  \n  > 合计耗时:{self.total_time}s  \n  > 总数:{self.test_result.all_test_count}  \n  > 成功数:{self.test_result.pass_count}  \n  > 失败数:{self.test_result.fail_count}  \n  > 通过率:{self.test_result.pass_rate}  \n "
 
         if self.is_dd_push:
             MainTestExpand.dd_push(ding_talk_url=self.ding_talk_url, report_name=self.report_name, markdown_text=mt)
@@ -1310,7 +970,7 @@ class MainTest:
 
 if __name__ == '__main__':
     get_data = R.get("module_all_first_log:3")
-    html_str = TemplateMixin(data=json.loads(get_data)).generate_html_report()
+    html_str = RepostTemplate(data=json.loads(get_data)).generate_html_report()
     print(html_str)
     report_name = f"Test_Report_{time.strftime('%Y-%m-%d_%H_%M_%S')}_.html"
     path = f"{os.getcwd().split('ExileTestPlatformServer')[0]}ExileTestPlatformServer/app/static/report/{report_name}"

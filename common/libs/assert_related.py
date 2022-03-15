@@ -152,7 +152,6 @@ class AssertFieldMain(AssertMain):
 
         self.ass_field_success = []
         self.ass_field_fail = []
-        self.ass_field_error = []
 
         self.db_dict = {
             "mysql": self.get_mysql,
@@ -360,7 +359,6 @@ class AssertFieldMain(AssertMain):
             return {
                 "success": len(self.ass_field_success),
                 "fail": len(self.ass_field_fail),
-                "error": len(self.ass_field_error)
             }
 
         except BaseException as e:
@@ -368,7 +366,6 @@ class AssertFieldMain(AssertMain):
             result = {
                 "success": len(self.ass_field_success),
                 "fail": len(self.ass_field_fail),
-                "error": len(self.ass_field_error)
             }
             return result
 
