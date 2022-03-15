@@ -212,7 +212,7 @@ class AssertFieldMain(AssertMain):
 
         if not query_db or query_db.is_deleted != 0:
             self.sio.log(f"=== 数据库不存在或禁用: {self.db_id} === ", status='error')
-            self.ass_field_error.append('数据库不存在或禁用')
+            self.ass_field_fail.append('数据库不存在或禁用')
             return False
 
         db_obj = query_db.to_json()
@@ -227,7 +227,7 @@ class AssertFieldMain(AssertMain):
 
         if not self.db_obj:
             self.sio.log(f"=== 暂时不支持: {self.db_type} ===", status='error')
-            self.ass_field_error.append('暂时不支持')
+            self.ass_field_fail.append('暂时不支持')
             return False
 
         self.sio.log(f"=== 测试需要连接的db配置: {self.db_connection} - {type(self.db_connection)} ===")
@@ -261,7 +261,7 @@ class AssertFieldMain(AssertMain):
                 '2.查看: case_ass_rule_api.py 中的 FieldAssertionRuleApi 中的逻辑是否被修改.',
                 status='error')
             self.sio.log('=== 断言异常 ===', status="error")
-            self.ass_field_error.append(message)
+            self.ass_field_fail.append(message)
 
     def ass_dict_result(self, assert_field_obj):
         """
@@ -296,7 +296,7 @@ class AssertFieldMain(AssertMain):
                 '2.查看: case_ass_rule_api.py 中的 FieldAssertionRuleApi 中的逻辑是否被修改.',
                 status='error')
             self.sio.log('=== 断言异常 ===', status="error")
-            self.ass_field_error.append(message)
+            self.ass_field_fail.append(message)
 
     def ass_list_result(self, assert_field_obj):
         """
