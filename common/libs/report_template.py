@@ -70,29 +70,10 @@ class RepostTemplate:
         <p>开始时间 : {{resp.create_time}}</p>
         <p>结束时间 : {{resp.end_time}}</p>
         <p>合计耗时 : {{resp.total_time}}s</p>
-        <p>
-          请求统计 : 总数: {{resp.result_summary.req_count}}，成功数 :
-          {{resp.result_summary.req_success}}，失败数 : {{resp.result_summary.req_error}}，成功率 :
-          {{resp.result_summary.req_success_rate}}，失败率 : {{resp.result_summary.req_error_rate}}
-        </p>
-        <p>
-          响应断言统计 : 总数: {{resp.result_summary.resp_ass_count}}，成功数 :
-          {{resp.result_summary.resp_ass_success}}，失败数 :
-          {{resp.result_summary.resp_ass_fail}}，成功率 :
-          {{resp.result_summary.resp_ass_success_rate}}，失败率 :
-          {{resp.result_summary.resp_ass_fail_rate}}
-        </p>
-        <p>
-          字段断言统计 : 总数: {{resp.result_summary.field_ass_count}}，成功数 :
-          {{resp.result_summary.field_ass_success}}，失败数 :
-          {{resp.result_summary.field_ass_fail}}，成功率 :
-          {{resp.result_summary.field_ass_success_rate}}，失败率 :
-          {{resp.result_summary.field_ass_fail_rate}}
-        </p>
-        <p>
-          测试结果汇总 : 共 {{resp.result_summary.all_test_count}}，通过 {{resp.result_summary.pass_count}}，通过率 {{resp.result_summary.pass_rate}}
-        </p>
-        <p>{{description}}</p>
+        <p>用例总数 : {{resp.result_summary.all_test_count}}</p>
+        <p>成功数 : {{resp.result_summary.pass_count}}</p>
+        <p>失败数 : {{resp.result_summary.fail_count}}</p>
+        <p>通过率 : {{resp.result_summary.pass_rate}}</p>
       </div>
 
       <el-tabs>
