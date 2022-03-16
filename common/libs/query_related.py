@@ -28,6 +28,92 @@ def page_size(page=None, size=None, **kwargs):
     return page, size
 
 
+class MapToJsonObj:
+    """模型转Json"""
+
+    @staticmethod
+    def gen_version_obj_list(version_id):
+        """
+
+        :param version_id: 版本id
+        :return:
+        """
+
+        query_version = TestProjectVersion.query.get(version_id)
+        if query_version:
+            return query_version.to_json()
+
+    @staticmethod
+    def gen_ass_resp_obj_list(ass_resp_id):
+        """
+
+        :param ass_resp_id: 断言响应规则id
+        :return:
+        """
+
+        query_ass_resp = TestCaseAssResponse.query.get(ass_resp_id)
+        if query_ass_resp:
+            return query_ass_resp.to_json()
+
+    @staticmethod
+    def gen_ass_field_obj_list(ass_field_id):
+        """
+
+        :param ass_field_id: 断言字段规则id
+        :return:
+        """
+
+        query_ass_field = TestCaseAssField.query.get(ass_field_id)
+        if query_ass_field:
+            return query_ass_field.to_json()
+
+
+@set_app_context
+def query_case_assemble(case_id):
+    """用例组装"""
+
+    query_case = TestCase.query.get(case_id)
+
+    if not query_case:
+        return False
+
+    case_info = query_case.to_json()
+    bind_info = []
+
+    query_version_list = MidProjectVersionAndCase.query.filter_by(case_id=case_id, is_deleted=0).all()
+    query_version_id_list = [obj.version_id for obj in query_version_list]
+    version_obj_list = list(map(MapToJsonObj.gen_version_obj_list, query_version_id_list))
+
+    query_case_mid = TestCaseDataAssBind.query.filter_by(case_id=case_id).all()
+
+    for mid in query_case_mid:
+        case_data_id = mid.data_id
+
+        query_data = TestCaseData.query.get(case_data_id)
+        case_data_info = query_data.to_json()
+
+        case_ass_resp_id_list = mid.ass_resp_id_list
+        case_ass_field_id_list = mid.ass_field_id_list
+        case_resp_ass_info = list(map(MapToJsonObj.gen_ass_resp_obj_list, case_ass_resp_id_list))
+        case_field_ass_info = list(map(MapToJsonObj.gen_ass_field_obj_list, case_ass_field_id_list))
+
+        current_bind_info = {
+            "case_data_info": case_data_info,
+            "case_resp_ass_info": case_resp_ass_info,
+            "case_field_ass_info": case_field_ass_info,
+        }
+        bind_info.append(current_bind_info)
+
+    case_info["version_id_list"] = version_obj_list
+    case_info['is_public'] = bool(case_info.get('is_public'))
+    case_info['is_shared'] = bool(case_info.get('is_shared'))
+    result = {
+        "case_info": case_info,
+        "bind_info": bind_info
+    }
+    return result
+
+
 @set_app_context
 def query_case_zip(case_id):
     """组装查询用例"""
@@ -206,5 +292,8 @@ if __name__ == '__main__':
         )
         print(result_data)
 
+
     # print(query_case_zip(case_id=14))
     # test_query_case()
+
+    query_case_assemble(56)

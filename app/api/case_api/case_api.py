@@ -69,7 +69,7 @@ class CaseApi(MethodView):
     def get(self, case_id):
         """用例详情"""
 
-        result = query_case_zip(case_id=case_id)
+        result = query_case_assemble(case_id=case_id)
 
         if not result:
             return api_result(code=400, message='用例id:{}不存在'.format(case_id))

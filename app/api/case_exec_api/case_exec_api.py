@@ -4,7 +4,6 @@
 # @Email   : yang6333yyx@126.com
 # @File    : case_exec_api.py
 # @Software: PyCharm
-
 from concurrent.futures import ThreadPoolExecutor
 
 from all_reference import *
@@ -24,7 +23,9 @@ from common.libs.StringIOLog import StringIOLog
 def update_case_total_execution(case_id_list):
     """更新用例执行数"""
 
-    [case.add_total_execution() for case in TestCase.query.filter(TestCase.id.in_(case_id_list)).all()]
+    for case in TestCase.query.filter(TestCase.id.in_(case_id_list)).all():
+        case.total_execution = case.total_execution + 1
+    db.session.commit()
 
 
 class QueryExecuteData:
@@ -41,9 +42,7 @@ class QueryExecuteData:
         case_list = []
         for mid in query_case_result:
             case_id = mid.case_id
-            query_case = TestCase.query.get(case_id)
-            query_case.add_total_execution()
-            result = query_case_zip(case_id=case_id)
+            result = query_case_assemble(case_id=case_id)
             case_list.append(result)
 
         return case_list
@@ -61,23 +60,17 @@ class QueryExecuteData:
             case_list = scenario.get('case_list')
             if case_list:
                 sort_case_list = sorted(case_list, key=lambda x: x.get("index"), reverse=True)
-                update_case_id = []
-                new_case_list = []
-                for case in sort_case_list:
-                    case_id = case.get('case_id')
-                    case_result = query_case_zip(case_id=case_id)
-                    if case_result:
-                        update_case_id.append(case_id)
-                        new_case_list.append(case_result)
+                case_id_list = [obj.get('case_id') for obj in sort_case_list]
+
+                update_case_total_execution(case_id_list)
 
                 scenario_obj = {
                     "scenario_id": scenario.get('id'),
                     "scenario_title": scenario.get('scenario_title'),
-                    "case_list": new_case_list
+                    "case_list": list(map(query_case_assemble, case_id_list))
                 }
-                scenario_list.append(scenario_obj)
 
-                update_case_total_execution(case_id_list=update_case_id)
+                scenario_list.append(scenario_obj)
 
         return scenario_list
 
@@ -89,7 +82,7 @@ class QueryExecuteData:
         :return:
         """
 
-        result = query_case_zip(case_id=case_id)
+        result = query_case_assemble(case_id=case_id)
         if not result:
             return False, f'用例id:{case_id}不存在'
 
@@ -132,12 +125,10 @@ class QueryExecuteData:
 
         for case in sort_case_list:
             case_id = case.get('case_id')
-            result = query_case_zip(case_id=case_id)
+            result = query_case_assemble(case_id=case_id)
             if result:
                 update_case_id.append(case_id)
                 send_test_case_list.append(result)
-
-        update_case_total_execution(case_id_list=update_case_id)
 
         return True, {
             "execute_name": execute_name,
@@ -154,6 +145,7 @@ class QueryExecuteData:
 
         query_mid_all = MidProjectVersionAndCase.query.filter_by(project_id=project_id, is_deleted=0).with_entities(
             MidProjectVersionAndCase.case_id).distinct().all()
+        case_id_list = [obj[0] for obj in query_mid_all]
 
         sql = f"""
         SELECT
@@ -180,7 +172,8 @@ class QueryExecuteData:
         if not query_mid_all and not query_scenario:
             return False, f'项目id:{project_id}不存在或可执行为空'
 
-        case_list = QueryExecuteData.gen_exec_case_list(query_mid_all)
+        case_list = list(map(query_case_assemble, case_id_list))
+        update_case_total_execution(case_id_list)
         scenario_list = QueryExecuteData.gen_exec_scenario_list(query_scenario)
         project_name = TestProject.query.get(project_id).project_name
 
@@ -209,9 +202,13 @@ class QueryExecuteData:
 
         project_name = TestProject.query.get(project_id).project_name
 
+        case_id_list = [obj[0] for obj in query_mid_all]
+        send_test_case_list = list(map(query_case_assemble, case_id_list))
+        update_case_total_execution(case_id_list)
+
         return True, {
             "execute_name": f"执行项目【{project_name}】所有用例",
-            "send_test_case_list": QueryExecuteData.gen_exec_case_list(query_mid_all)
+            "send_test_case_list": send_test_case_list
         }
 
     @staticmethod
@@ -264,6 +261,7 @@ class QueryExecuteData:
 
         query_mid_all = MidProjectVersionAndCase.query.filter_by(version_id=version_id, is_deleted=0).with_entities(
             MidProjectVersionAndCase.case_id).distinct().all()  # 去重防止脏数据
+        case_id_list = [obj[0] for obj in query_mid_all]
 
         sql = f"""
             SELECT
@@ -284,7 +282,8 @@ class QueryExecuteData:
         if not query_mid_all and not query_scenario:
             return False, f'版本迭代id:{version_id}不存在或可执行为空'
 
-        case_list = QueryExecuteData.gen_exec_case_list(query_mid_all)
+        case_list = list(map(query_case_assemble, case_id_list))
+        update_case_total_execution(case_id_list)
         scenario_list = QueryExecuteData.gen_exec_scenario_list(query_scenario)
         version_name = TestProjectVersion.query.get(version_id).version_name
 
@@ -313,9 +312,13 @@ class QueryExecuteData:
 
         version_name = TestProjectVersion.query.get(version_id).version_name
 
+        case_id_list = [obj[0] for obj in query_mid_all]
+        send_test_case_list = list(map(query_case_assemble, case_id_list))
+        update_case_total_execution(case_id_list)
+
         return True, {
             "execute_name": f"执行版本迭代【{version_name}】所有用例",
-            "send_test_case_list": QueryExecuteData.gen_exec_case_list(query_mid_all)
+            "send_test_case_list": send_test_case_list
         }
 
     @staticmethod
@@ -361,6 +364,7 @@ class QueryExecuteData:
         """
 
         query_mid_all = MidProjectVersionAndCase.query.filter_by(task_id=task_id, is_deleted=0).all()
+        case_id_list = [obj.case_id for obj in query_mid_all]
 
         sql = f"""
         SELECT
@@ -381,7 +385,8 @@ class QueryExecuteData:
         if not query_mid_all and not query_scenario:
             return False, f'任务id:{task_id}不存在或可执行为空'
 
-        case_list = QueryExecuteData.gen_exec_case_list(query_mid_all)
+        case_list = list(map(query_case_assemble, case_id_list))
+        update_case_total_execution(case_id_list)
         scenario_list = QueryExecuteData.gen_exec_scenario_list(query_scenario)
         task_name = TestVersionTask.query.get(task_id).task_name
 
@@ -409,9 +414,13 @@ class QueryExecuteData:
 
         task_name = TestVersionTask.query.get(task_id).task_name
 
+        case_id_list = [obj.case_id for obj in query_mid_all]
+        send_test_case_list = list(map(query_case_assemble, case_id_list))
+        update_case_total_execution(case_id_list)
+
         return True, {
             "execute_name": f"执行任务【{task_name}】所有用例",
-            "send_test_case_list": QueryExecuteData.gen_exec_case_list(query_mid_all)
+            "send_test_case_list": send_test_case_list
         }
 
     @staticmethod
@@ -458,6 +467,7 @@ class QueryExecuteData:
 
         query_mid_all = MidProjectVersionAndCase.query.filter_by(module_id=module_id, is_deleted=0).with_entities(
             MidProjectVersionAndCase.case_id).distinct().all()
+        case_id_list = [obj[0] for obj in query_mid_all]
 
         sql = f"""
         SELECT
@@ -484,7 +494,8 @@ class QueryExecuteData:
         if not query_mid_all and not query_scenario:
             return False, f'功能模块应用id:{module_id}不存在或可执行为空'
 
-        case_list = QueryExecuteData.gen_exec_case_list(query_mid_all)
+        case_list = list(map(query_case_assemble, case_id_list))
+        update_case_total_execution(case_id_list)
         scenario_list = QueryExecuteData.gen_exec_scenario_list(query_scenario)
         module_name = TestModuleApp.query.get(module_id).module_name
 
@@ -512,10 +523,13 @@ class QueryExecuteData:
             return False, f'功能模块应用id:{module_id}不存在或可执行用例为空'
 
         module_name = TestModuleApp.query.get(module_id).module_name
+        case_id_list = [obj[0] for obj in query_mid_all]
+        send_test_case_list = list(map(query_case_assemble, case_id_list))
+        update_case_total_execution(case_id_list)
 
         return True, {
             "execute_name": f"执行模块应用【{module_name}】所有用例",
-            "send_test_case_list": QueryExecuteData.gen_exec_case_list(query_mid_all)
+            "send_test_case_list": send_test_case_list
         }
 
     @staticmethod
@@ -656,11 +670,9 @@ class CaseExecApi(MethodView):
             return api_result(code=400, message=f'execute_type:{execute_type}不存在')
 
         execute_func = execute_func_dict.get(execute_type)
-
         result = execute_func(execute_id)
         result_bool = result[0]
         result_data = result[1]
-
         if not result_bool:
             return api_result(code=400, message=result_data)
 
