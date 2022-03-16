@@ -97,7 +97,7 @@ class RepostTemplate:
 
       <el-tabs>
         <el-tab-pane
-          :label="`所有(${resp.result_summary.req_count})`"
+          :label="`所有(${resp.result_summary.all_test_count})`"
         >
           <el-tabs type="border-card">
             <el-tab-pane label="用例">

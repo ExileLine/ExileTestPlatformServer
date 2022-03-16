@@ -893,7 +893,7 @@ class MainTest:
                     "error": self.logs_error_switch
                 }
 
-                self.set_case_count()
+                # self.set_case_count()
 
                 scenario_log.append(add_case)
 
