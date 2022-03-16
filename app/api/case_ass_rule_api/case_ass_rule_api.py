@@ -4,7 +4,6 @@
 # @Email   : yang6333yyx@126.com
 # @File    : case_ass_rule_api.py
 # @Software: PyCharm
-import json
 
 from all_reference import *
 from app.models.test_case_assert.models import TestCaseAssResponse, TestCaseAssField
@@ -35,88 +34,28 @@ def gen_new_ass(ass_obj):
     return ass_obj
 
 
-def check_query(db_type, **ass_obj):
+def check_query(db_type, query):
     """
     检验语句防止删除语句
     :param db_type:
-    :param ass_obj:
+    :param query:
     :return:
     """
-    pattern = r"\b(exec|insert|drop|grant|alter|delete|update|count|chr|mid|master|truncate|char|delclare)\b|(\*)"
-    re.search(pattern, query.lower())
-
-
-def check_field_ass(aj_list):
-    """检查:断言新增的参数"""
-
-    def __result(status, message, result_ass_json=None):
-        result = {
-            "status": status,
-            "message": message,
-            "ass_json": result_ass_json
-        }
-        return result
-
-    new_ass_json = []
-
-    for a in aj_list:
-        check_bool = check_keys(a, 'db_id', 'query', 'assert_list')
-        db_id = a.get('db_id')
-        query = a.get('query')
-        assert_list = a.get('assert_list', [])
-
+    if db_type.lower() == 'mysql':
         pattern = r"\b(exec|insert|drop|grant|alter|delete|update|count|chr|mid|master|truncate|char|delclare)\b|(\*)"
-        r = re.search(pattern, query.lower())
-        if r:
-            return __result(status=False, message='{}:不属于查询类别的语句或指令'.format(r.group()))
+        result = re.search(pattern, query.lower())
+        if result:
+            print(result.group())
+            return True
 
-        if not check_bool or not isinstance(assert_list, list):
-            return __result(status=False, message='ass_json 参数错误')
-
-        query_db = TestDatabases.query.get(db_id)
-
-        if not query_db or query_db.is_deleted:
-            return __result(status=False, message='数据库不存在或被禁用: {}'.format(db_id))
-
-        current_assert_list = []
-        current_ass_obj = {
-            "db_id": db_id,
-            "query": query,
-            "assert_list": current_assert_list
-        }
-
-        for ass_obj in assert_list:
-
-            rule = rule_dict.get(ass_obj.get('rule'))
-
-            if not rule:
-                return __result(status=False, message='规则参数错误:{}'.format(ass_obj.get('rule')))
-
-            if not isinstance(ass_obj, dict):
-                return __result(status=False, message='assert_list 中的对象:{} 类型错误:{}'.format(ass_obj, type(ass_obj)))
-
-            if not check_keys(ass_obj, 'assert_key', 'expect_val', 'expect_val_type', 'rule'):
-                return __result(status=False, message='assert_list 中的对象key错误:{}'.format(ass_obj))
-
-            expect_val = ass_obj.get('expect_val')
-            expect_val_type = expect_val_type_dict.get(str(ass_obj.get('expect_val_type')))
-            try:
-                # ass_obj['rule'] = rule
-                ass_obj['expect_val'] = expect_val_type(expect_val)
-                current_assert_list.append(ass_obj)
-            except BaseException as e:
-                return __result(
-                    status=False,
-                    message='参数:{} 无法转换至 类型:{} ERROR:{}'.format(
-                        expect_val,
-                        type(expect_val_type()),
-                        str(e)
-                    )
-                )
-
-        new_ass_json.append(current_ass_obj)
-
-    return __result(status=True, message='True', result_ass_json=new_ass_json)
+    elif db_type.lower() == 'redis':
+        pattern = r"\b(del|delete|unlink|flushdb|flushall)\b|(\*)"
+        result = re.search(pattern, query.lower())
+        if result:
+            print(result.group())
+            return True
+    else:
+        return False
 
 
 class RespAssertionRuleApi(MethodView):
@@ -412,9 +351,11 @@ class FieldAssertionRuleApi(MethodView):
             for ass in assert_list:
                 query = ass.get('query')
                 assert_field_list = ass.get('assert_field_list')
-                # TODO 验证 query
-                # db_type = query_db.db_type
-                # check_query(db_type=db_type, **ass)
+
+                db_type = query_db.db_type
+                check_query_result = check_query(db_type=db_type, query=query)
+                if check_query_result:
+                    return api_result(code=400, message='只能使用查询相关的语句或命令')
 
                 new_assert_field_list = list(map(gen_new_ass, assert_field_list))
                 if False in new_assert_field_list:
@@ -469,9 +410,11 @@ class FieldAssertionRuleApi(MethodView):
             for ass in assert_list:
                 query = ass.get('query')
                 assert_field_list = ass.get('assert_field_list')
-                # TODO 验证 query
-                # db_type = query_db.db_type
-                # check_query(db_type=db_type, **ass)
+
+                db_type = query_db.db_type
+                check_query_result = check_query(db_type=db_type, query=query)
+                if check_query_result:
+                    return api_result(code=400, message='只能使用查询相关的语句或命令')
 
                 new_assert_field_list = list(map(gen_new_ass, assert_field_list))
                 if False in new_assert_field_list:
