@@ -160,7 +160,7 @@ class MainTestExpand:
         url = ding_talk_url
 
         print(server_url)
-        report_url = f"{server_url.get('server_url', 'http://0.0.0.0:7272')}/report/{report_name}"
+        report_url = f"{server_url.get('server_url', 'http://0.0.0.0:7272')}/static/report/{report_name}"
 
         if not url.strip():
             raise TypeError('钉钉推送失败: DING_TALK_URL 未配置')

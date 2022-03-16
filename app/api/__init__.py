@@ -133,8 +133,3 @@ api.add_url_rule('/version_task_page', view_func=VersionTaskPageApi.as_view('ver
 api.add_url_rule('/module_app', view_func=ModuleAppApi.as_view('module_app'))
 api.add_url_rule('/module_app/<module_id>', view_func=ModuleAppApi.as_view('module_app_detail'))
 api.add_url_rule('/module_app_page', view_func=ModuleAppPageApi.as_view('module_app_page'))
-
-
-@api.route('/<path:path>/reports')
-def static_file(path):
-    return method_view_api.send_static_file(path)
