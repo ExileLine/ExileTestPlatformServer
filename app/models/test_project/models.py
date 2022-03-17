@@ -111,6 +111,7 @@ class TestModuleApp(BaseModel):
 
     module_name = db.Column(db.String(128), nullable=False, comment='模块应用名称')
     module_type = db.Column(db.String(128), default="默认", comment='模块应用名称类型(暂时未用上)')
+    module_code = db.Column(db.String(128), unique=True, comment='模块应用名称类型(暂时未用上)')
     module_source = db.Column(db.String(512), comment='模块应用来源')
     creator = db.Column(db.String(32), comment='创建人')
     creator_id = db.Column(BIGINT(20, unsigned=True), comment='创建人id')

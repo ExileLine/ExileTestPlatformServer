@@ -100,6 +100,7 @@ api.add_url_rule('/case_scenario_page', view_func=CaseScenarioPageApi.as_view('c
 api.add_url_rule('/rule_test', view_func=RuleTestApi.as_view('rule_test'))
 api.add_url_rule('/case_send', view_func=CaseReqTestApi.as_view('case_send'))
 api.add_url_rule('/case_exec', view_func=CaseExecApi.as_view('case_exec'))
+api.add_url_rule('/open_exec', view_func=CaseExecApi.as_view('open_exec'))
 api.add_url_rule('/case_report', view_func=CaseRepostApi.as_view('case_report'))
 api.add_url_rule('/case_set', view_func=CaseSetApi.as_view('case_set'))
 

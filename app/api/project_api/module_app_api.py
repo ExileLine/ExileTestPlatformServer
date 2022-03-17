@@ -32,9 +32,21 @@ class ModuleAppApi(MethodView):
 
         data = request.get_json()
         module_name = data.get('module_name')
+        module_type = data.get('module_type')
+        module_code = data.get('module_code', int(time.time()))
+        module_source = data.get('module_source')
         remark = data.get('remark')
+
+        query_module = TestModuleApp.query.filter_by(module_code=module_code).first()
+
+        if query_module:
+            return api_result(code=400, message="应用编号已存在")
+
         new_module = TestModuleApp(
             module_name=module_name,
+            module_type=module_type,
+            module_code=module_code,
+            module_source=module_source,
             remark=remark,
             creator=g.app_user.username,
             creator_id=g.app_user.id
@@ -48,12 +60,24 @@ class ModuleAppApi(MethodView):
         data = request.get_json()
         module_id = data.get('id')
         module_name = data.get('module_name')
+        module_type = data.get('module_type')
+        module_code = data.get('module_code', int(time.time()))
+        module_source = data.get('module_source')
         remark = data.get('remark')
+
         query_module = TestModuleApp.query.get(module_id)
         if not query_module:
             return api_result(code=400, message=f'功能模块或应用不存在:{module_id}')
 
+        if query_module.module_code != module_code:
+            query_module_code = TestModuleApp.query.filter_by(module_code=module_code).all()
+            if query_module_code:
+                return api_result(code=400, message="应用编号已存在")
+
         query_module.module_name = module_name
+        query_module.module_type = module_type
+        query_module.module_code = module_code
+        query_module.module_source = module_source
         query_module.remark = remark
         query_module.modifier = g.app_user.username,
         query_module.modifier_id = g.app_user.id

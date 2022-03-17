@@ -26,6 +26,7 @@ def before_request_api():
     print_logs()
 
     dev_host_list = ['0.0.0.0', 'localhost']
+    open_api_list = ['/api/open_exec']
     white_list = ['/api/login', '/api/tourist', '/api/platform_conf']
     if request.path in white_list:
         return
@@ -35,9 +36,11 @@ def before_request_api():
         logger.info('headers是否存在key:token -> {}'.format(is_token))
 
         # TODO 开发环境忽略鉴权
-        if request.host.split(':')[0] in dev_host_list:
+        if (request.host.split(':')[0] in dev_host_list) or (request.path in open_api_list):
             print('=== dev host ===')
             print(request.host.split(':')[0])
+            print('=== open api ===')
+            print(request.path)
             user = Admin.query.get(1)
             g.app_user = user
             return

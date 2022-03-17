@@ -458,6 +458,21 @@ class QueryExecuteData:
         }
 
     @staticmethod
+    def query_module_app(module_code):
+        """
+
+        :param module_code: 应用编号
+        :return:
+        """
+
+        query_app = TestModuleApp.query.filter_by(module_code=module_code).first()
+        if query_app:
+            module_id = query_app.id
+            return QueryExecuteData.query_module_all(module_id=module_id)
+        else:
+            return False, f'应用编号:{module_code}不存在或可执行为空'
+
+    @staticmethod
     def query_module_all(module_id):
         """
         查询功能模块应用下所有可执行的用例、场景并组装
@@ -585,6 +600,7 @@ execute_func_dict = {
     "task_all": QueryExecuteData.query_task_all,
     "task_case": QueryExecuteData.query_task_case,
     "task_scenario": QueryExecuteData.query_task_scenario,
+    "module_app": QueryExecuteData.query_module_app,
     "module_all": QueryExecuteData.query_module_all,
     "module_case": QueryExecuteData.query_module_case,
     "module_scenario": QueryExecuteData.query_module_scenario
