@@ -71,13 +71,19 @@ def check_update_var(update_var_list):
     """
     if update_var_list:
         update_var_id_list = list(set(map(lambda x: x.get('id') if isinstance(x, dict) else None, update_var_list)))
+
         if len(update_var_list) == 1:
-            sql = """SELECT id FROM exile_test_variable WHERE id = {};""".format(update_var_list[-1].get('id'))
+            sql = f"""SELECT id FROM exile_test_variable WHERE id = {update_var_list[-1].get('id')} and var_source is not null;"""
             logger.success(sql)
         else:
-            sql = """SELECT id FROM exile_test_variable WHERE id in {};""".format(tuple(update_var_id_list))
+            sql = f"""SELECT id FROM exile_test_variable WHERE id in {tuple(update_var_id_list)} and var_source is not null;"""
             logger.success(sql)
+
         query_result = project_db.select(sql)
+
+        if not query_result:
+            return False, '静态变量缺少来源,不能作为关系变量使用'
+
         query_result_id = list(map(lambda x: x.get('id'), query_result))
         cj = list(set(update_var_id_list).difference(set(query_result_id)))
         if cj:
