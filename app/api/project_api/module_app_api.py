@@ -33,7 +33,7 @@ class ModuleAppApi(MethodView):
         data = request.get_json()
         module_name = data.get('module_name')
         module_type = data.get('module_type')
-        module_code = data.get('module_code', int(time.time()))
+        module_code = data.get('module_code', f"默认{int(time.time())}")
         module_source = data.get('module_source')
         remark = data.get('remark')
 
@@ -61,7 +61,7 @@ class ModuleAppApi(MethodView):
         module_id = data.get('id')
         module_name = data.get('module_name')
         module_type = data.get('module_type')
-        module_code = data.get('module_code', int(time.time()))
+        module_code = data.get('module_code', f"默认{int(time.time())}")
         module_source = data.get('module_source')
         remark = data.get('remark')
 
