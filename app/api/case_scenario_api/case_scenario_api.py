@@ -70,6 +70,7 @@ class CaseScenarioApi(MethodView):
             TestProjectVersion.is_deleted == 0).all()
         version_obj_list = [v.to_json() for v in version_model_list]
         result["version_id_list"] = version_obj_list
+        result["module_id"] = query_mid[-1].module_id
 
         return api_result(code=200, message='操作成功', data=result)
 
@@ -223,6 +224,7 @@ class CaseScenarioPageApi(MethodView):
         data = request.get_json()
         project_id = data.get('project_id')
         version_id = data.get('version_id')
+        module_id = data.get('module_id')
         scenario_id = data.get('scenario_id')
         scenario_title = data.get('scenario_title', '')
         creator_id = data.get('creator_id')
@@ -259,12 +261,13 @@ class CaseScenarioPageApi(MethodView):
         WHERE
             EXISTS (
                 SELECT
-                    B.id, B.scenario_id, B.version_id
+                    B.id, B.scenario_id, B.version_id, B.module_id
                 FROM
                     exile_test_mid_version_scenario B
                 WHERE
                     B.scenario_id = A.id 
                     AND B.is_deleted = 0
+                    {f'AND module_id={module_id}' if module_id else ''}
                     AND B.version_id in {version_id_list})
                 {f'AND creator_id={creator_id}' if creator_id else ''}
                 AND is_deleted = {is_deleted}
@@ -282,12 +285,13 @@ class CaseScenarioPageApi(MethodView):
         WHERE
             EXISTS (
                 SELECT
-                    B.id, B.scenario_id, B.version_id
+                    B.id, B.scenario_id, B.version_id, B.module_id
                 FROM
                     exile_test_mid_version_scenario B
                 WHERE
                     B.scenario_id = A.id
                     AND B.is_deleted = 0 
+                    {f'AND module_id={module_id}' if module_id else ''}
                     AND B.version_id in {version_id_list})
                 {f'AND creator_id={creator_id}' if creator_id else ''}
                 AND is_deleted = {is_deleted}

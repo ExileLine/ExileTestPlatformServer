@@ -83,6 +83,7 @@ def query_case_assemble(case_id):
     query_version_list = MidProjectVersionAndCase.query.filter_by(case_id=case_id, is_deleted=0).all()
     query_version_id_list = [obj.version_id for obj in query_version_list]
     version_obj_list = list(map(MapToJsonObj.gen_version_obj_list, query_version_id_list))
+    module_id = query_version_list[-1].module_id
 
     query_case_mid = TestCaseDataAssBind.query.filter_by(case_id=case_id).all()
 
@@ -105,6 +106,7 @@ def query_case_assemble(case_id):
         bind_info.append(current_bind_info)
 
     case_info["version_id_list"] = version_obj_list
+    case_info["module_id"] = module_id
     case_info['is_public'] = bool(case_info.get('is_public'))
     case_info['is_shared'] = bool(case_info.get('is_shared'))
     result = {

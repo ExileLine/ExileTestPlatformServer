@@ -13,7 +13,7 @@ from app.models.test_case_assert.models import TestCaseDataAssBind
 
 def check_method(current_method):
     """检查method"""
-    if current_method.upper() in ['GET', 'POST', 'PUT', 'DELETE']:
+    if current_method.upper() in ['GET', 'POST', 'PUT', 'DELETE', 'PATCH']:
         return current_method.upper()
     else:
         return False
@@ -254,6 +254,7 @@ class CasePageApi(MethodView):
         data = request.get_json()
         project_id = data.get('project_id')
         version_id = data.get('version_id', 0)
+        module_id = data.get('module_id', 0)
         case_id = data.get('case_id')
         case_name = data.get('case_name', '')
         creator_id = data.get('creator_id')
@@ -290,12 +291,13 @@ class CasePageApi(MethodView):
         WHERE
             EXISTS (
                 SELECT
-                    B.id, B.case_id, B.version_id
+                    B.id, B.case_id, B.version_id, B.module_id
                 FROM
                     exile_test_mid_version_case B
                 WHERE
                     B.case_id = A.id 
                     AND B.is_deleted = 0
+                    {f'AND module_id={module_id}' if module_id else ''}
                     AND B.version_id in {version_id_list})
                 {f'AND creator_id={creator_id}' if creator_id else ''}
                 AND is_deleted = {is_deleted}
@@ -313,12 +315,13 @@ class CasePageApi(MethodView):
         WHERE
             EXISTS (
                 SELECT
-                    B.id, B.case_id, B.version_id
+                    B.id, B.case_id, B.version_id, B.module_id
                 FROM
                     exile_test_mid_version_case B
                 WHERE
                     B.case_id = A.id
                     AND B.is_deleted = 0 
+                    {f'AND module_id={module_id}' if module_id else ''}
                     AND B.version_id in {version_id_list})
                 {f'AND creator_id={creator_id}' if creator_id else ''}
                 AND is_deleted = {is_deleted}

@@ -109,10 +109,13 @@ class TestModuleApp(BaseModel):
     __tablename__ = 'exile_test_module_app'
     __table_args__ = {'comment': '功能模块与应用'}
 
+    project_id = db.Column(BIGINT(20, unsigned=True), comment='项目id')
     module_name = db.Column(db.String(128), nullable=False, comment='模块应用名称')
     module_type = db.Column(db.String(128), default="默认", comment='模块应用名称类型(暂时未用上)')
-    module_code = db.Column(db.String(128), unique=True, comment='模块应用名称类型(暂时未用上)')
+    module_code = db.Column(db.String(128), unique=True, comment='模块应用名称类型')
     module_source = db.Column(db.String(512), comment='模块应用来源')
+    case_list = db.Column(db.JSON, comment='用例id列表')
+    scenario_list = db.Column(db.JSON, comment='场景id列表')
     creator = db.Column(db.String(32), comment='创建人')
     creator_id = db.Column(BIGINT(20, unsigned=True), comment='创建人id')
     modifier = db.Column(db.String(32), comment='更新人')
@@ -120,4 +123,6 @@ class TestModuleApp(BaseModel):
     remark = db.Column(db.String(255), comment='备注')
 
     def __repr__(self):
-        return 'TestModuleApp 模型对象-> ID:{} 模块应用名称:{} 类型:{}'.format(self.id, self.module_name, self.module_type)
+        return 'TestModuleApp 模型对象-> ID:{} 模块应用名称:{} 类型:{}'.format(
+            self.id, self.module_name, self.module_type
+        )
