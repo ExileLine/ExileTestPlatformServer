@@ -39,7 +39,11 @@
 
 - [SQL文件：ExileTestPlatform.sql](./docs/ExileTestPlatform.sql)
 
-![数据库表设计](docs/ExileTestPlatform数据库表设计.png)
+- 数据库表设计总览
+  ![数据库表设计总览](docs/ExileTestPlatform数据库表设计总览.png)
+
+- 核心业务数据库表设计
+  ![数据库表设计总览](docs/ExileTestPlatform核心业务数据库表设计.png)
 
 ### 后端技术
 
@@ -158,15 +162,36 @@
 |75|/api/dd_conf_page|POST|钉钉配置分页模糊查询|
 |76|/api/platform_conf|GET|平台配置加载|
 |77|/api/case_db_ping/{db_id}|GET|db ping|
+|78|/api/platform_conf|POST|平台配置|
+|79|/api/project/{project_id}|GET|项目详情|
+|80|/api/project|POST|新增项目|
+|81|/api/project|PUT|编辑项目|
+|82|/api/project|DELETE|删除项目|
+|82|/api/project_page|POST|项目分页查询|
+|83|/api/project_version/{version_id}|GET|版本迭代详情|
+|84|/api/project_version|POST|新增版本迭代|
+|85|/api/project_version|PUT|编辑版本迭代|
+|86|/api/project_version|DELETE|删除版本迭代|
+|86|/api/project_version_page|POST|版本迭代分页查询|
+|87|/api/version_task/{task_id}|GET|任务详情|
+|88|/api/version_task|POST|新增任务|
+|89|/api/version_task|PUT|编辑任务|
+|90|/api/version_task|DELETE|删除任务|
+|91|/api/version_task_page|POST|任务分页查询|
+|92|/api/module_app/{module_id}|GET|模块详情|
+|93|/api/module_app|POST|新增模块|
+|94|/api/module_app|PUT|编辑模块|
+|95|/api/module_app|DELETE|删除模块|
+|96|/api/module_app_page|POST|模块分页查询|
 
 ### 项目部署
 
 - 前端：待补充
 - 后端：
-  - 方法1：本机部署：https://juejin.cn/post/6844903870250876935
-  - 方法2：Docker部署：https://juejin.cn/post/7054460759526342687
-  - 方法3：执行该项目下的 `server_start.sh` (推荐)
-  
+    - 方法1：本机部署：https://juejin.cn/post/6844903870250876935
+    - 方法2：Docker部署：https://juejin.cn/post/7054460759526342687
+    - 方法3：执行该项目下的 `server_start.sh` (推荐)
+
 ### 备注
 
 - 文档可能存在不清晰的地方，有问题可以添加 `QQ or Wechat：417993207` 
