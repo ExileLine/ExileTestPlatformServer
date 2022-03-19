@@ -13,7 +13,7 @@ class TestExecuteLogs(BaseModel):
     __tablename__ = 'exile_test_execute_logs'
     __table_args__ = {'comment': '用例执行记录表'}
 
-    execute_id = db.Column(BIGINT(20, unsigned=True), comment='用例id/场景id')
+    execute_id = db.Column(db.String(255), comment='用例id/场景id/module_code')
     execute_name = db.Column(db.String(255), nullable=False, comment='用例名称/场景名称')
     execute_type = db.Column(db.String(255), nullable=False, comment='执行类型')
     redis_key = db.Column(db.String(255), nullable=False, comment='Redis的key')

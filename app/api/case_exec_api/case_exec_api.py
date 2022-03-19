@@ -54,7 +54,6 @@ class QueryExecuteData:
         :param query_scenario_result: 查询用例场景结果集
         :return:
         """
-
         scenario_list = []
         for scenario in query_scenario_result:
             case_list = scenario.get('case_list')
@@ -467,8 +466,18 @@ class QueryExecuteData:
 
         query_app = TestModuleApp.query.filter_by(module_code=module_code).first()
         if query_app:
-            module_id = query_app.id
-            return QueryExecuteData.query_module_all(module_id=module_id)
+            case_list = list(map(query_case_assemble, query_app.case_list))
+            query_scenario_list = TestCaseScenario.query.filter(TestCaseScenario.id.in_(query_app.scenario_list)).all()
+            scenario_list = QueryExecuteData.gen_exec_scenario_list([s.to_json() for s in query_scenario_list])
+
+            return True, {
+                "execute_name": f"发布应用调用【{module_code}】所有用例与场景",
+                "is_execute_all": True,
+                "execute_dict": {
+                    "case_list": case_list,
+                    "scenario_list": scenario_list
+                }
+            }
         else:
             return False, f'应用编号:{module_code}不存在或可执行为空'
 
