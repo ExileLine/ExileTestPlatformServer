@@ -267,6 +267,7 @@ class CaseScenarioPageApi(MethodView):
                 WHERE
                     B.scenario_id = A.id 
                     AND B.is_deleted = 0
+                    AND B.project_id = {project_id}
                     {f'AND module_id={module_id}' if module_id else ''}
                     AND B.version_id in {version_id_list})
                 {f'AND creator_id={creator_id}' if creator_id else ''}
@@ -290,7 +291,8 @@ class CaseScenarioPageApi(MethodView):
                     exile_test_mid_version_scenario B
                 WHERE
                     B.scenario_id = A.id
-                    AND B.is_deleted = 0 
+                    AND B.is_deleted = 0
+                    AND B.project_id = {project_id} 
                     {f'AND module_id={module_id}' if module_id else ''}
                     AND B.version_id in {version_id_list})
                 {f'AND creator_id={creator_id}' if creator_id else ''}
