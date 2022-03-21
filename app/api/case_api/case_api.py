@@ -9,6 +9,7 @@ from all_reference import *
 from app.models.test_case.models import TestCase
 from app.models.test_project.models import TestProjectVersion, MidProjectVersionAndCase
 from app.models.test_case_assert.models import TestCaseDataAssBind
+from app.models.test_project.models import TestModuleApp
 
 
 def check_method(current_method):
@@ -81,7 +82,7 @@ class CaseApi(MethodView):
 
         data = request.get_json()
         project_id = data.get('project_id', 0)
-        module_id = data.get('module_id', 0)
+        module_id = data.get('module_id')
         version_id_list = data.get('version_id_list', [])
         case_name = data.get('case_name')
         request_method = data.get('request_method')
@@ -98,8 +99,12 @@ class CaseApi(MethodView):
         if not isinstance(project_id, int):
             return api_result(code=400, message='project_id 错误')
 
-        if not isinstance(module_id, int):
-            return api_result(code=400, message='module_id 错误')
+        if module_id:
+            query_module = TestModuleApp.query.get(module_id)
+            if not query_module:
+                return api_result(code=400, message=f'模块：{module_id} 不存在')
+        else:
+            module_id = 0
 
         if version_id_list and not check_version(project_id=project_id, version_id_list=version_id_list):
             return api_result(code=400, message=f'版本迭代不存在或不在项目id: {project_id} 关联')
@@ -147,7 +152,7 @@ class CaseApi(MethodView):
 
         data = request.get_json()
         project_id = data.get('project_id', 0)
-        module_id = data.get('module_id', 0)
+        module_id = data.get('module_id')
         version_id_list = data.get('version_id_list', [])
         case_id = data.get('id')
         case_name = data.get('case_name')
@@ -165,8 +170,12 @@ class CaseApi(MethodView):
         if not isinstance(project_id, int):
             return api_result(code=400, message='project_id 错误')
 
-        if not isinstance(module_id, int):
-            return api_result(code=400, message='module_id 错误')
+        if module_id:
+            query_module = TestModuleApp.query.get(module_id)
+            if not query_module:
+                return api_result(code=400, message=f'模块：{module_id} 不存在')
+        else:
+            module_id = 0
 
         if version_id_list and not check_version(project_id=project_id, version_id_list=version_id_list):
             return api_result(code=400, message=f'版本迭代不存在或不在项目id: {project_id} 关联')
