@@ -4,11 +4,13 @@
 # @Email   : yang6333yyx@126.com
 # @File    : query_related.py
 # @Software: PyCharm
+import json
 
 import sqlalchemy
 from flask_sqlalchemy.model import DefaultMeta
 
 from common.libs.set_app_context import set_app_context
+from common.libs.db import project_db
 from app.models.test_case.models import TestCase, TestCaseData
 from app.models.test_case_assert.models import TestCaseDataAssBind, TestCaseAssResponse, TestCaseAssField
 from app.models.test_project.models import TestProjectVersion, MidProjectVersionAndCase
@@ -26,6 +28,95 @@ def page_size(page=None, size=None, **kwargs):
     size = size if size and isinstance(size, int) else int(kwargs.get('size', 10))
     page = (page - 1) * size if page != 0 else 0
     return page, size
+
+
+def gen_ass_info(query_obj):
+    """
+    生成 bind_info
+    :param query_obj: 查询结果
+    :return:
+    """
+
+    data_id = query_obj.get('data_id')
+    ass_resp_id_list = query_obj.get('ass_resp_id_list', [])
+    ass_field_id_list = query_obj.get('ass_field_id_list', [])
+
+    query_case_data = TestCaseData.query.get(data_id)
+    case_data_info = query_case_data.to_json()
+    query_ass_response = TestCaseAssResponse.query.filter(TestCaseAssResponse.id.in_(ass_resp_id_list)).all()
+    query_ass_field = TestCaseAssField.query.filter(TestCaseAssField.id.in_(ass_field_id_list)).all()
+    case_resp_ass_info = list(map(lambda x: x.to_json(), query_ass_response))
+    case_field_ass_info = list(map(lambda x: x.to_json(), query_ass_field))
+
+    bind_info = {
+        "case_data_info": case_data_info,
+        "case_resp_ass_info": case_resp_ass_info,
+        "case_field_ass_info": case_field_ass_info,
+    }
+
+    return bind_info
+
+
+@set_app_context
+def query_case_join(case_id=None):
+    """用例组装"""
+
+    sql = """
+        SELECT
+        A.id,
+        A.create_time,
+        A.create_timestamp,
+        A.update_time,
+        A.update_timestamp,
+        A.is_deleted,
+        A.create_time,
+        A.request_method,
+        A.request_base_url,
+        A.request_url,
+        A.is_pass,
+        A.is_shared,
+        A.is_public,
+        A.total_execution,
+        A.creator,
+        A.creator_id,
+        A.modifier,
+        A.modifier_id,
+        A.remark,
+        B.data_id,
+        B.ass_resp_id_list,
+        B.ass_field_id_list,
+        B.is_deleted,
+        C.data_name,
+        C.request_params,
+        C.request_headers,
+        C.request_body_type,
+        C.request_body,
+        C.update_var_list,
+        C.is_public,
+        C.creator,
+        C.creator_id,
+        C.modifier,
+        C.modifier_id,
+        C.remark,
+        C.is_deleted
+    FROM
+        exile_test_case AS A
+        INNER JOIN exile_ass_bind AS B ON A.id = B.case_id
+        INNER JOIN exile_test_case_data AS C ON C.id = B.data_id
+    WHERE
+        A.is_deleted = 0
+        AND B.is_deleted = 0
+        AND C.is_deleted = 0
+        AND B.case_id in(1, 2, 3);
+    """
+
+    query_result = project_db.select(sql)
+    bind_info = list(map(gen_ass_info, query_result))
+    result = {
+        "case_info": query_result,
+        "bind_info": bind_info
+    }
+    return result
 
 
 class MapToJsonObj:
@@ -298,4 +389,6 @@ if __name__ == '__main__':
     # print(query_case_zip(case_id=14))
     # test_query_case()
 
-    query_case_assemble(56)
+    # print(query_case_assemble(1))
+
+    print(json.dumps(query_case_join(), ensure_ascii=False))
