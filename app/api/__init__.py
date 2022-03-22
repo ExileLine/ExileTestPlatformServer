@@ -77,7 +77,8 @@ api.add_url_rule('/case_db_page', view_func=CaseDBPageApi.as_view('case_db_page'
 api.add_url_rule('/case_db_ping/<db_id>', view_func=CaseDBPingApi.as_view('case_db_ping'))
 
 api.add_url_rule('/case_logs_page', view_func=CaseLogsPageApi.as_view('case_logs_page'))
-api.add_url_rule('/case_execute_logs', view_func=CaseExecuteLogsApi.as_view('case_execute_logs'))
+api.add_url_rule('/case_execute_logs/<redis_key>', view_func=CaseExecuteLogsApi.as_view('case_execute_logs'))
+api.add_url_rule('/case_execute_logs', view_func=CaseExecuteLogsApi.as_view('case_execute_logs_first'))
 api.add_url_rule('/case_execute_logs_page', view_func=CaseExecuteLogsPageApi.as_view('case_execute_logs_page'))
 
 api.add_url_rule('/resp_ass_rule', view_func=RespAssertionRuleApi.as_view('resp_ass_rule'))

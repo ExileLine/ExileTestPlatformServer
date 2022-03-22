@@ -12,10 +12,23 @@ from app.models.test_logs.models import TestExecuteLogs
 
 class CaseExecuteLogsApi(MethodView):
     """
-    用例/场景最新日志
+    用例/场景
+    GET: 日志明细
+    POST: 最新日志明细
     """
 
+    def get(self, redis_key):
+        """日志明细"""
+
+        result = R.get(redis_key)
+        if not result:
+            data = {}
+        else:
+            data = json.loads(result)
+        return api_result(code=200, message='操作成功', data=data)
+
     def post(self):
+        """最新日志明细"""
         data = request.get_json()
         case_id = data.get('case_id')
         scenario_id = data.get('scenario_id')

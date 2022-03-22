@@ -118,7 +118,7 @@ class CaseApi(MethodView):
         if not request_method_result:
             return api_result(code=400, message='请求方式:{} 不存在'.format(request_method))
 
-        query_case = TestCase.query.filter_by(case_name=case_name).first()
+        query_case = TestCase.query.filter_by(case_name=case_name, is_deleted=0).first()
 
         if query_case:
             return api_result(code=400, message='用例名称:{} 已经存在'.format(case_name))
@@ -200,7 +200,7 @@ class CaseApi(MethodView):
                 return api_result(code=400, message='该用例未开放,只能被创建人修改!')
 
         if query_case.case_name != case_name:
-            if TestCase.query.filter_by(case_name=case_name).all():
+            if TestCase.query.filter_by(case_name=case_name, is_deleted=0).all():
                 return api_result(code=400, message='用例名称:{} 已经存在'.format(case_name))
 
         query_case.case_name = case_name
