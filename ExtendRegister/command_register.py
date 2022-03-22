@@ -22,8 +22,8 @@ from app.models.test_case_assert.models import TestCaseAssResponse, TestCaseAssF
 from app.models.push_reminder.models import MailConfModel, DingDingConfModel
 from app.models.platform_conf.models import PlatformConfModel
 from app.models.ui_auto_file.models import UiAutoFile
-from app.models.test_project.models import TestProject, TestProjectVersion, MidProjectVersionAndCase, \
-    MidProjectVersionAndScenario
+from app.models.test_project.models import TestProject, TestProjectVersion, TestVersionTask, TestModuleApp, \
+    MidProjectVersionAndCase, MidProjectVersionAndScenario, MidRelationCase, MidRelationScenario
 from app.models.test_case_config.models import TestDatabases
 
 """

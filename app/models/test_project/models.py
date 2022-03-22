@@ -41,6 +41,47 @@ class TestProjectVersion(BaseModel):
         return 'TestProjectVersion 模型对象-> ID:{} 版本名称:{} 版本号:{}'.format(self.id, self.version_name, self.version_number)
 
 
+class TestVersionTask(BaseModel):
+    __tablename__ = 'exile_test_version_task'
+    __table_args__ = {'comment': '版本迭代任务表'}
+
+    version_id = db.Column(BIGINT(20, unsigned=True), comment='版本迭代id(冗余字段)')
+    task_name = db.Column(db.String(128), nullable=False, comment='任务名称')
+    task_type = db.Column(db.String(128), nullable=False, comment='任务类型')
+    user_list = db.Column(db.JSON, nullable=False, comment='参与的人员')
+    creator = db.Column(db.String(32), comment='创建人')
+    creator_id = db.Column(BIGINT(20, unsigned=True), comment='创建人id')
+    modifier = db.Column(db.String(32), comment='更新人')
+    modifier_id = db.Column(BIGINT(20, unsigned=True), comment='更新人id')
+    remark = db.Column(db.String(255), comment='备注')
+
+    def __repr__(self):
+        return 'TestVersionTask 模型对象-> ID:{} 任务名称:{} 任务类型:{}'.format(self.id, self.task_name, self.task_type)
+
+
+class TestModuleApp(BaseModel):
+    __tablename__ = 'exile_test_module_app'
+    __table_args__ = {'comment': '功能模块与应用'}
+
+    project_id = db.Column(BIGINT(20, unsigned=True), comment='项目id')
+    module_name = db.Column(db.String(128), nullable=False, comment='模块应用名称')
+    module_type = db.Column(db.String(128), default="默认", comment='模块应用名称类型(暂时未用上)')
+    module_code = db.Column(db.String(128), unique=True, comment='模块应用名称类型')
+    module_source = db.Column(db.String(512), comment='模块应用来源')
+    case_list = db.Column(db.JSON, comment='用例id列表')
+    scenario_list = db.Column(db.JSON, comment='场景id列表')
+    creator = db.Column(db.String(32), comment='创建人')
+    creator_id = db.Column(BIGINT(20, unsigned=True), comment='创建人id')
+    modifier = db.Column(db.String(32), comment='更新人')
+    modifier_id = db.Column(BIGINT(20, unsigned=True), comment='更新人id')
+    remark = db.Column(db.String(255), comment='备注')
+
+    def __repr__(self):
+        return 'TestModuleApp 模型对象-> ID:{} 模块应用名称:{} 类型:{}'.format(
+            self.id, self.module_name, self.module_type
+        )
+
+
 class MidProjectVersionAndCase(BaseModel):
     __tablename__ = 'exile_test_mid_version_case'
     __table_args__ = (
@@ -87,14 +128,17 @@ class MidProjectVersionAndScenario(BaseModel):
         )
 
 
-class TestVersionTask(BaseModel):
-    __tablename__ = 'exile_test_version_task'
-    __table_args__ = {'comment': '版本迭代任务表'}
-
-    version_id = db.Column(BIGINT(20, unsigned=True), comment='版本迭代id(冗余字段)')
-    task_name = db.Column(db.String(128), nullable=False, comment='任务名称')
-    task_type = db.Column(db.String(128), nullable=False, comment='任务类型')
-    user_list = db.Column(db.JSON, nullable=False, comment='参与的人员')
+class MidRelationCase(BaseModel):
+    __tablename__ = 'exile_test_mid_relation_case'
+    __table_args__ = (
+        db.Index('idx_relation_case', 'is_deleted', 'case_id', 'project_id', 'module_id', 'version_id', 'task_id'),
+        {'comment': '用例关联中间表'}
+    )
+    case_id = db.Column(BIGINT(20, unsigned=True), comment='用例id')
+    project_id = db.Column(BIGINT(20, unsigned=True), default=0, comment='项目id')
+    module_id = db.Column(BIGINT(20, unsigned=True), default=0, comment='功能模块或应用id')
+    version_id = db.Column(BIGINT(20, unsigned=True), default=0, comment='版本迭代id')
+    task_id = db.Column(BIGINT(20, unsigned=True), default=0, comment='任务id')
     creator = db.Column(db.String(32), comment='创建人')
     creator_id = db.Column(BIGINT(20, unsigned=True), comment='创建人id')
     modifier = db.Column(db.String(32), comment='更新人')
@@ -102,20 +146,22 @@ class TestVersionTask(BaseModel):
     remark = db.Column(db.String(255), comment='备注')
 
     def __repr__(self):
-        return 'TestVersionTask 模型对象-> ID:{} 任务名称:{} 任务类型:{}'.format(self.id, self.task_name, self.task_type)
+        return 'MidRelationCase 模型对象-> ID:{} 用例id:{} 项目id:{} 模块id:{} 版本迭代id:{} 任务id:{} '.format(
+            self.id, self.case_id, self.project_id, self.module_id, self.version_id, self.task_id
+        )
 
 
-class TestModuleApp(BaseModel):
-    __tablename__ = 'exile_test_module_app'
-    __table_args__ = {'comment': '功能模块与应用'}
-
-    project_id = db.Column(BIGINT(20, unsigned=True), comment='项目id')
-    module_name = db.Column(db.String(128), nullable=False, comment='模块应用名称')
-    module_type = db.Column(db.String(128), default="默认", comment='模块应用名称类型(暂时未用上)')
-    module_code = db.Column(db.String(128), unique=True, comment='模块应用名称类型')
-    module_source = db.Column(db.String(512), comment='模块应用来源')
-    case_list = db.Column(db.JSON, comment='用例id列表')
-    scenario_list = db.Column(db.JSON, comment='场景id列表')
+class MidRelationScenario(BaseModel):
+    __tablename__ = 'exile_test_mid_relation_scenario'
+    __table_args__ = (
+        db.Index('idx_relation_case', 'is_deleted', 'scenario_id', 'project_id', 'module_id', 'version_id', 'task_id'),
+        {'comment': '场景关联中间表'}
+    )
+    scenario_id = db.Column(BIGINT(20, unsigned=True), comment='场景id')
+    project_id = db.Column(BIGINT(20, unsigned=True), default=0, comment='项目id')
+    module_id = db.Column(BIGINT(20, unsigned=True), default=0, comment='功能模块或应用id')
+    version_id = db.Column(BIGINT(20, unsigned=True), default=0, comment='版本迭代id')
+    task_id = db.Column(BIGINT(20, unsigned=True), default=0, comment='任务id')
     creator = db.Column(db.String(32), comment='创建人')
     creator_id = db.Column(BIGINT(20, unsigned=True), comment='创建人id')
     modifier = db.Column(db.String(32), comment='更新人')
@@ -123,6 +169,6 @@ class TestModuleApp(BaseModel):
     remark = db.Column(db.String(255), comment='备注')
 
     def __repr__(self):
-        return 'TestModuleApp 模型对象-> ID:{} 模块应用名称:{} 类型:{}'.format(
-            self.id, self.module_name, self.module_type
+        return 'MidRelationCase 模型对象-> ID:{} 场景id:{} 项目id:{} 模块id:{} 版本迭代id:{} 任务id:{} '.format(
+            self.id, self.scenario_id, self.project_id, self.module_id, self.version_id, self.task_id
         )
