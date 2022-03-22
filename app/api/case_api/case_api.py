@@ -7,9 +7,17 @@
 
 from all_reference import *
 from app.models.test_case.models import TestCase
-from app.models.test_project.models import TestProjectVersion, MidProjectVersionAndCase
+from app.models.test_project.models import TestProject, TestProjectVersion, TestModuleApp, MidProjectVersionAndCase, \
+    MidRelationCase
+
 from app.models.test_case_assert.models import TestCaseDataAssBind
-from app.models.test_project.models import TestModuleApp
+
+p = [
+    ("case_name", "用例名称"),
+    ("request_method", "请求方式"),
+    ("request_base_url", "base url"),
+    ("request_url", "url")
+]
 
 
 def check_method(current_method):
@@ -18,14 +26,6 @@ def check_method(current_method):
         return current_method.upper()
     else:
         return False
-
-
-p = [
-    ("case_name", "用例名称"),
-    ("request_method", "请求方式"),
-    ("request_base_url", "base url"),
-    ("request_url", "url")
-]
 
 
 def check_version(project_id, version_id_list):
@@ -82,8 +82,8 @@ class CaseApi(MethodView):
 
         data = request.get_json()
         project_id = data.get('project_id', 0)
-        module_id = data.get('module_id')
         version_id_list = data.get('version_id_list', [])
+        module_id = data.get('module_id')
         case_name = data.get('case_name')
         request_method = data.get('request_method')
         request_base_url = data.get('request_base_url')
@@ -96,18 +96,19 @@ class CaseApi(MethodView):
         if not check_bool:
             return api_result(code=400, message=check_msg)
 
-        if not isinstance(project_id, int):
-            return api_result(code=400, message='project_id 错误')
+        query_project = TestProject.query.get(project_id)
+        if not query_project:
+            return api_result(code=400, message=f'项目: {project_id} 不存在')
+
+        if version_id_list and not check_version(project_id=project_id, version_id_list=version_id_list):
+            return api_result(code=400, message=f'版本迭代不存在或不在项目: {query_project.project_name} 中关联')
 
         if module_id:
             query_module = TestModuleApp.query.get(module_id)
             if not query_module:
-                return api_result(code=400, message=f'模块：{module_id} 不存在')
+                return api_result(code=400, message=f'模块: {module_id} 不存在')
         else:
             module_id = 0
-
-        if version_id_list and not check_version(project_id=project_id, version_id_list=version_id_list):
-            return api_result(code=400, message=f'版本迭代不存在或不在项目id: {project_id} 关联')
 
         request_base_url = request_base_url.replace(" ", "")
         if not request_base_url:
@@ -116,12 +117,12 @@ class CaseApi(MethodView):
         request_method_result = check_method(current_method=request_method)
 
         if not request_method_result:
-            return api_result(code=400, message='请求方式:{} 不存在'.format(request_method))
+            return api_result(code=400, message=f'请求方式: {request_method} 不存在')
 
         query_case = TestCase.query.filter_by(case_name=case_name, is_deleted=0).first()
 
         if query_case:
-            return api_result(code=400, message='用例名称:{} 已经存在'.format(case_name))
+            return api_result(code=400, message=f'用例名称: {case_name} 已经存在')
 
         new_test_case = TestCase(
             case_name=case_name,
@@ -136,6 +137,12 @@ class CaseApi(MethodView):
         )
         new_test_case.save()
         case_id = new_test_case.id
+
+        # db.session.add(MidRelationCase(case_id=case_id, project_id=project_id))
+        # db.session.add(MidRelationCase(case_id=case_id, module_id=module_id))
+        # if version_id_list:
+        #     list(map(lambda version_obj: db.session.add(
+        #         MidRelationCase(case_id=case_id, version_id=version_obj.get('id'))), version_id_list))
 
         if version_id_list:
             for version_obj in version_id_list:
@@ -152,8 +159,8 @@ class CaseApi(MethodView):
 
         data = request.get_json()
         project_id = data.get('project_id', 0)
-        module_id = data.get('module_id')
         version_id_list = data.get('version_id_list', [])
+        module_id = data.get('module_id')
         case_id = data.get('id')
         case_name = data.get('case_name')
         request_method = data.get('request_method')
@@ -167,18 +174,19 @@ class CaseApi(MethodView):
         if not check_bool:
             return api_result(code=400, message=check_msg)
 
-        if not isinstance(project_id, int):
-            return api_result(code=400, message='project_id 错误')
+        query_project = TestProject.query.get(project_id)
+        if not query_project:
+            return api_result(code=400, message=f'项目: {project_id} 不存在')
+
+        if version_id_list and not check_version(project_id=project_id, version_id_list=version_id_list):
+            return api_result(code=400, message=f'版本迭代不存在或不在项目: {query_project.project_name} 中关联')
 
         if module_id:
             query_module = TestModuleApp.query.get(module_id)
             if not query_module:
-                return api_result(code=400, message=f'模块：{module_id} 不存在')
+                return api_result(code=400, message=f'模块: {module_id} 不存在')
         else:
             module_id = 0
-
-        if version_id_list and not check_version(project_id=project_id, version_id_list=version_id_list):
-            return api_result(code=400, message=f'版本迭代不存在或不在项目id: {project_id} 关联')
 
         request_base_url = request_base_url.replace(" ", "")
         if not request_base_url:
@@ -187,7 +195,7 @@ class CaseApi(MethodView):
         query_case = TestCase.query.get(case_id)
 
         if not query_case:
-            return api_result(code=400, message='用例id:{}数据不存在'.format(case_id))
+            return api_result(code=400, message=f'用例id: {case_id} 数据不存在')
 
         if not bool(is_public) and query_case.creator_id != g.app_user.id:
             return api_result(code=400, message='非创建人，无法修改使用状态')
