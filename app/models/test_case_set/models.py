@@ -14,8 +14,9 @@ class TestCaseSet(BaseModel):
     __table_args__ = {'comment': '用户用例收藏'}
 
     user_id = db.Column(BIGINT(20, unsigned=True), comment='用户id')
-    case_id_list = db.Column(db.JSON, comment='用例id列表')
-    scenario_id_list = db.Column(db.JSON, comment='场景id列表')
+    case_id = db.Column(BIGINT(20, unsigned=True), comment='用例id')
+    scenario_id = db.Column(BIGINT(20, unsigned=True), comment='场景id')
+    is_set = db.Column(TINYINT(1, unsigned=True), server_default=text('0'), comment='是否收藏0/1')
     creator = db.Column(db.String(32), comment='创建人')
     creator_id = db.Column(BIGINT(20, unsigned=True), comment='创建人id')
     modifier = db.Column(db.String(32), comment='更新人')
@@ -23,4 +24,6 @@ class TestCaseSet(BaseModel):
     remark = db.Column(db.String(255), comment='备注')
 
     def __repr__(self):
-        return 'TestCaseSet 模型对象-> ID:{} user_id:{} case_id_list:{}'.format(self.id, self.user_id, self.case_id_list)
+        return 'TestCaseSet 模型对象-> ID:{} user_id:{} case_id:{} scenario_id:{}'.format(
+            self.id, self.user_id, self.case_id, self.scenario_id
+        )
