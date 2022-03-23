@@ -341,7 +341,6 @@ class MainTest:
     # TODO field 前置查询 {"before_query":"select xxx from xxx....","before_field":"username"}
     # TODO sio优化
     # TODO yield 优化 list 消费
-    # TODO decimal.Decimal 优化统计数据
 
     def __init__(self, test_obj):
         self.base_url = test_obj.get('base_url')
@@ -764,6 +763,7 @@ class MainTest:
 
         for case_index, case in enumerate(self.case_generator, 1):
             self.sio.log(f'=== start case: {case_index} ===')
+            self.logs_error_switch = False
             self.reset_current_data()
 
             case_info = case.get('case_info', {})
@@ -782,6 +782,7 @@ class MainTest:
 
             if not bind_info:
                 self.sio.log('=== 未配置请求参数 ===')
+                continue
 
             for index, bind in enumerate(bind_info, 1):
 
@@ -842,6 +843,8 @@ class MainTest:
             scenario_title = group.get('scenario_title')
             case_list = group.get('case_list')
             self.sio.log(f'=== start {scenario_id}: scenario: {scenario_title} ===')
+            self.logs_error_switch = False
+
             scenario_log = []
             for case_index, case in enumerate(case_list, 1):
                 self.sio.log(f'=== start case: {case_index} ===')
@@ -862,6 +865,7 @@ class MainTest:
 
                 if not bind_info:
                     self.sio.log('=== 未配置请求参数 ===')
+                    continue
 
                 for index, bind in enumerate(bind_info, 1):
                     self.sio.log(f"=== 数据驱动:{index} ===")
