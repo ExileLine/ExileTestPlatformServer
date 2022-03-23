@@ -9,8 +9,9 @@
 from all_reference import *
 from app.models.test_case.models import TestCase
 from app.models.test_case_scenario.models import TestCaseScenario
-from app.models.test_project.models import TestProjectVersion, MidProjectVersionAndScenario
+from app.models.test_project.models import TestProject, TestProjectVersion, TestModuleApp, MidProjectVersionAndScenario
 from app.api.case_api.case_api import check_version
+from common.libs.query_related import MapToJsonObj
 
 
 def create_mid_scenario(project_id, version_id, scenario_id, module_id):
@@ -24,6 +25,23 @@ def create_mid_scenario(project_id, version_id, scenario_id, module_id):
         creator_id=g.app_user.id
     )
     db.session.add(new_mid)
+
+
+def gen_case_zip(case):
+    """
+
+    :param case: {"index": 9, "case_id": 190, "is_active": 0}
+    :return:
+    """
+    case_id = case.get('case_id')
+    is_active = case.get('is_active')
+    index = case.get('index', case_id)
+    query_case = TestCase.query.get(case_id)
+    if query_case:
+        case_obj = query_case.to_json()
+        case_obj['index'] = index
+        case_obj['is_active'] = is_active
+        return case_obj
 
 
 class CaseScenarioApi(MethodView):
@@ -49,29 +67,16 @@ class CaseScenarioApi(MethodView):
         if not case_id_list:
             return api_result(code=400, message='异常的数据')
 
-        gen_case_id_list = sorted(case_id_list, key=lambda x: x.get("index", x.get('case_id')), reverse=True)
-        case_obj_list = []
+        sorted_case_id_list = sorted(case_id_list, key=lambda x: x.get("index", x.get('case_id')), reverse=True)
+        case_obj_list = list(filter(None, map(gen_case_zip, sorted_case_id_list)))
 
-        if case_id_list:
-            for case in gen_case_id_list:
-                case_id = case.get('case_id')
-                index = case.get('index', case_id)
-                query_case = TestCase.query.get(case_id)
-                if query_case:
-                    case_obj = query_case.to_json()
-                    case_obj['index'] = index
-                    case_obj_list.append(case_obj)
-            result['case_list'] = case_obj_list
+        query_version_list = MidProjectVersionAndScenario.query.filter_by(scenario_id=scenario_id, is_deleted=0).all()
+        version_obj_list = list(filter(None, map(MapToJsonObj.gen_version_obj, query_version_list)))
+        module_id = query_version_list[-1].module_id
 
-        query_mid = MidProjectVersionAndScenario.query.filter_by(scenario_id=scenario_id, is_deleted=0).all()
-        version_id_list = [mid.version_id for mid in query_mid]
-        version_model_list = TestProjectVersion.query.filter(
-            TestProjectVersion.id.in_(version_id_list),
-            TestProjectVersion.is_deleted == 0).all()
-        version_obj_list = [v.to_json() for v in version_model_list]
+        result['case_list'] = case_obj_list
         result["version_id_list"] = version_obj_list
-        result["module_id"] = query_mid[-1].module_id
-
+        result["module_id"] = module_id if module_id else ''
         return api_result(code=200, message='操作成功', data=result)
 
     def post(self):
@@ -79,22 +84,27 @@ class CaseScenarioApi(MethodView):
 
         data = request.get_json()
         project_id = data.get('project_id', 0)
-        module_id = data.get('module_id', 0)
         version_id_list = data.get('version_id_list', [])
+        module_id = data.get('module_id')
         scenario_title = data.get('scenario_title')
         case_list = data.get('case_list', [])
         is_shared = data.get('is_shared', 0)
         is_public = data.get('is_public', True)
 
-        if not isinstance(project_id, int):
-            return api_result(code=400, message='project_id 错误')
+        query_project = TestProject.query.get(project_id)
 
-        if not isinstance(module_id, int):
-            return api_result(code=400, message='module_id 错误')
+        if not query_project:
+            return api_result(code=400, message=f'项目: {project_id} 不存在')
 
         if version_id_list and not check_version(project_id=project_id, version_id_list=version_id_list):
-            return api_result(code=400, message=f'版本迭代不存在或不在项目id: {project_id} 关联')
+            return api_result(code=400, message=f'版本迭代不存在或不在项目: {query_project.project_name} 中关联')
 
+        if module_id:
+            query_module = TestModuleApp.query.get(module_id)
+            if not query_module:
+                return api_result(code=400, message=f'模块: {module_id} 不存在')
+        else:
+            module_id = 0
         query_scenario = TestCaseScenario.query.filter_by(scenario_title=scenario_title).first()
 
         if query_scenario:
@@ -133,22 +143,28 @@ class CaseScenarioApi(MethodView):
 
         data = request.get_json()
         project_id = data.get('project_id', 0)
-        module_id = data.get('module_id', 0)
         version_id_list = data.get('version_id_list', [])
+        module_id = data.get('module_id')
         scenario_id = data.get('id')
         scenario_title = data.get('scenario_title')
         case_list = data.get('case_list', [])
         is_shared = data.get('is_shared', 0)
         is_public = data.get('is_public', True)
 
-        if not isinstance(project_id, int):
-            return api_result(code=400, message='project_id 错误')
+        query_project = TestProject.query.get(project_id)
 
-        if not isinstance(module_id, int):
-            return api_result(code=400, message='module_id 错误')
+        if not query_project:
+            return api_result(code=400, message=f'项目: {project_id} 不存在')
 
         if version_id_list and not check_version(project_id=project_id, version_id_list=version_id_list):
-            return api_result(code=400, message=f'版本迭代不存在或不在项目id: {project_id} 关联')
+            return api_result(code=400, message=f'版本迭代不存在或不在项目: {query_project.project_name} 中关联')
+
+        if module_id:
+            query_module = TestModuleApp.query.get(module_id)
+            if not query_module:
+                return api_result(code=400, message=f'模块: {module_id} 不存在')
+        else:
+            module_id = 0
 
         query_scenario = TestCaseScenario.query.get(scenario_id)
 

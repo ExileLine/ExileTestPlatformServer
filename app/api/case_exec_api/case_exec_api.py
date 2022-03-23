@@ -58,7 +58,7 @@ class QueryExecuteData:
         for scenario in query_scenario_result:
             case_list = scenario.get('case_list')
             if case_list:
-                sort_case_list = sorted(case_list, key=lambda x: x.get("index"), reverse=True)
+                sort_case_list = list(filter(lambda x: not x.get('is_active'), sorted(case_list, key=lambda x: x.get("index"), reverse=True)))
                 case_id_list = [obj.get('case_id') for obj in sort_case_list]
 
                 update_case_total_execution(case_id_list)
@@ -118,7 +118,7 @@ class QueryExecuteData:
         if not case_list:  # 防止手动修改数据导致,在场景创建的接口中有对应的校验
             return False, f'场景id:{scenario_id}用例为空(错误数据)'
 
-        sort_case_list = sorted(case_list, key=lambda x: x.get("index"), reverse=True)
+        sort_case_list = list(filter(lambda x: not x.get('is_active'), sorted(case_list, key=lambda x: x.get("index"), reverse=True)))
         update_case_id = []
         send_test_case_list = []
 
