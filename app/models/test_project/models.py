@@ -85,7 +85,7 @@ class TestModuleApp(BaseModel):
 class MidProjectVersionAndCase(BaseModel):
     __tablename__ = 'exile_test_mid_version_case'
     __table_args__ = (
-        db.Index('idx_version_case', 'version_id', 'case_id', 'is_deleted'),
+        db.Index('idx_version_case', 'project_id', 'version_id', 'task_id', 'module_id', 'case_id', 'is_deleted'),
         {'comment': '版本迭代用例中间表'}
     )
     project_id = db.Column(BIGINT(20, unsigned=True), comment='项目id')
@@ -108,7 +108,8 @@ class MidProjectVersionAndCase(BaseModel):
 class MidProjectVersionAndScenario(BaseModel):
     __tablename__ = 'exile_test_mid_version_scenario'
     __table_args__ = (
-        db.Index('idx_version_scenario', 'version_id', 'scenario_id', 'is_deleted'),
+        db.Index('idx_version_scenario', 'project_id', 'version_id', 'task_id', 'module_id', 'scenario_id',
+                 'is_deleted'),
         {'comment': '版本迭代场景中间表'}
     )
     project_id = db.Column(BIGINT(20, unsigned=True), comment='项目id')

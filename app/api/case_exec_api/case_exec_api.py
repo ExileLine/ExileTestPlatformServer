@@ -4,10 +4,12 @@
 # @Email   : yang6333yyx@126.com
 # @File    : case_exec_api.py
 # @Software: PyCharm
+import json
 from concurrent.futures import ThreadPoolExecutor
 
 from all_reference import *
 from app.models.test_case.models import TestCase
+from app.models.test_case_assert.models import TestCaseAssResponse, TestCaseAssField
 from app.models.test_case_scenario.models import TestCaseScenario
 from app.models.test_project.models import TestProject, TestProjectVersion, MidProjectVersionAndCase, TestVersionTask, \
     TestModuleApp
@@ -20,35 +22,246 @@ from common.libs.StringIOLog import StringIOLog
 # executor = ThreadPoolExecutor(10)
 
 
-def update_case_total_execution(case_id_list):
-    """更新用例执行数"""
+class GenExecuteData:
+    """生成执行数据结构的用例"""
 
-    for case in TestCase.query.filter(TestCase.id.in_(case_id_list)).all():
-        case.total_execution = case.total_execution + 1
-    db.session.commit()
+    @staticmethod
+    def gen_structure(before_dict, first):
+        """
+        组装成执行需要的数据结构
+        {
+            "case_info":{},
+            "bind_info":[
+                {
+                    "case_data_info":{},
+                    "case_resp_ass_info":[],
+                    "case_field_ass_info":[]
+                }
+            ]
+        }
+        :param before_dict: sql联表查询结果
+        :param first: 首次建立
+        :return:
+        """
+        bind = {
+            "case_info": {
+                "id": "",
+                "is_deleted": "",
+                "case_name": "2",
+                "request_method": "",
+                "request_base_url": "",
+                "request_url": "",
+                "is_shared": "",
+                "is_public": "",
+                "total_execution": "",
+                "creator": "",
+                "creator_id": "",
+                "create_time": "",
+                "create_timestamp": "",
+                "modifier": "",
+                "modifier_id": "",
+                "update_time": "",
+                "update_timestamp": "",
+                "remark": "",
+            },
+            "bind_info": []
+        }
+        case_data_info = {
+            "id": "",
+            "data_name": "",
+            "request_params": "",
+            "request_headers": "",
+            "request_body": "",
+            "request_body_type": "",
+            "var_list": "",
+            "update_var_list": "",
+            "is_deleted": "",
+            "is_public": "",
+            "creator": "",
+            "creator_id": "",
+            "create_time": "",
+            "create_timestamp": "",
+            "modifier": "",
+            "modifier_id": "",
+            "update_time": "",
+            "update_timestamp": "",
+            "remark": ""
+        }
+        case_resp_ass_info = GenExecuteData.gen_ass_resp_ass_info(before_dict.get('ass_resp_id_list', []))
+        case_field_ass_info = GenExecuteData.gen_ass_field_ass_info(before_dict.get('ass_field_id_list', []))
+
+        def _func():
+            _key = "C."
+            case_data_info['id'] = before_dict['data_id']
+            case_data_info['is_deleted'] = before_dict[f'{_key}is_deleted']
+            case_data_info['is_public'] = before_dict[f'{_key}is_public']
+            case_data_info['creator'] = before_dict[f'{_key}creator']
+            case_data_info['creator_id'] = before_dict[f'{_key}creator_id']
+            case_data_info['create_time'] = before_dict[f'{_key}create_time']
+            case_data_info['create_timestamp'] = before_dict[f'{_key}create_timestamp']
+            case_data_info['modifier'] = before_dict[f'{_key}modifier']
+            case_data_info['modifier_id'] = before_dict[f'{_key}modifier_id']
+            case_data_info['update_time'] = before_dict[f'{_key}update_time']
+            case_data_info['update_timestamp'] = before_dict[f'{_key}update_timestamp']
+            case_data_info['remark'] = before_dict[f'{_key}remark']
+
+        if first:
+            for key, val in before_dict.items():
+                if key in bind['case_info']:
+                    bind['case_info'][key] = val
+
+                if key in case_data_info:
+                    case_data_info[key] = val
+            _func()
+            b = {
+                "case_data_info": case_data_info,
+                "case_resp_ass_info": case_resp_ass_info,
+                "case_field_ass_info": case_field_ass_info
+            }
+            bind['bind_info'].append(b)
+            return bind
+        else:
+
+            for key, val in before_dict.items():
+                if key in case_data_info:
+                    case_data_info[key] = val
+            _func()
+            b = {
+                "case_data_info": case_data_info,
+                "case_resp_ass_info": case_resp_ass_info,
+                "case_field_ass_info": case_field_ass_info
+            }
+            return b
+
+    @staticmethod
+    def gen_ass_resp_ass_info(id_list):
+        """
+
+        :return:
+        """
+        if not id_list:
+            return []
+
+        query_ass = TestCaseAssResponse.query.filter(
+            TestCaseAssResponse.is_deleted == 0,
+            TestCaseAssResponse.id.in_(id_list)).all()
+
+        return [ass.to_json() for ass in query_ass]
+
+    @staticmethod
+    def gen_ass_field_ass_info(id_list):
+        """
+
+        :return:
+        """
+        if not id_list:
+            return []
+
+        query_ass = TestCaseAssField.query.filter(
+            TestCaseAssField.is_deleted == 0,
+            TestCaseAssField.id.in_(id_list)).all()
+
+        return [ass.to_json() for ass in query_ass]
+
+    @staticmethod
+    def main(query_list):
+        """main"""
+
+        current_dict = {}
+
+        for query in query_list:
+            if query['id'] in current_dict:
+                case_data_info = GenExecuteData.gen_structure(before_dict=query, first=False)
+                current_dict[query['id']][-1]['bind_info'].append(case_data_info)
+            else:
+                current_dict[query['id']] = [GenExecuteData.gen_structure(before_dict=query, first=True)]
+
+        # print(json.dumps(current_dict, ensure_ascii=False))
+
+        result_list = []
+        for obj in current_dict.values():
+            result_list += obj
+
+        # print(json.dumps(result_list, ensure_ascii=False))
+        return result_list
 
 
 class QueryExecuteData:
     """查询执行参数组装"""
 
     @staticmethod
-    def gen_exec_case_list(query_case_result):
+    def update_case_total_execution(case_id_list):
+        """更新用例执行数"""
+
+        sql = f"""UPDATE exile_test_case SET total_execution = total_execution +1 WHERE id in {tuple(case_id_list)};"""
+        project_db.update_data(sql)
+        print(f'共 {len(case_id_list)} 条, 更新用例执行数成功:{case_id_list}')
+
+    @staticmethod
+    def query_case_assemble(case_id_list):
         """
-        组装用例,返回执行需要的数据格式
-        :param query_case_result: 查询用例结果集
+        用例组装
+        :param case_id_list: 用例 id 列表
         :return:
         """
 
-        case_list = []
-        for mid in query_case_result:
-            case_id = mid.case_id
-            result = query_case_assemble(case_id=case_id)
-            case_list.append(result)
-
-        return case_list
+        sql = f"""
+        SELECT
+            A.id,
+            A.is_deleted,
+            A.case_name,
+            A.request_method,
+            A.request_base_url,
+            A.request_url,
+            A.is_shared,
+            A.is_public,
+            A.total_execution,
+            A.creator,
+            A.creator_id,
+            A.create_time,
+            A.create_timestamp,
+            A.modifier,
+            A.modifier_id,
+            A.update_time,
+            A.update_timestamp,
+            A.remark,
+            C.id AS data_id,
+            C.data_name,
+            C.request_params,
+            C.request_headers,
+            C.request_body,
+            C.request_body_type,
+            C.var_list,
+            C.update_var_list,
+            C.is_deleted,
+            C.is_public,
+            C.creator,
+            C.creator_id,
+            C.create_time,
+            C.create_timestamp,
+            C.modifier,
+            C.modifier_id,
+            C.update_time,
+            C.update_timestamp,
+            C.remark,
+            B.ass_resp_id_list,
+            B.ass_field_id_list
+        FROM
+            exile_test_case AS A
+            INNER JOIN exile_ass_bind AS B ON A.id = B.case_id
+            INNER JOIN exile_test_case_data AS C ON B.data_id = C.id
+        WHERE
+            A.is_deleted = 0
+            AND B.is_deleted = 0
+            AND C.is_deleted = 0
+            AND B.case_id in {tuple(case_id_list)}
+            ORDER BY A.id;        
+	    """
+        result = project_db.select(sql)
+        return result
 
     @staticmethod
-    def gen_exec_scenario_list(query_scenario_result):
+    def query_scenario_assemble(query_scenario_result):
         """
         组装用例场景下的用例,返回执行需要的数据格式
         :param query_scenario_result: 查询用例场景结果集
@@ -58,15 +271,17 @@ class QueryExecuteData:
         for scenario in query_scenario_result:
             case_list = scenario.get('case_list')
             if case_list:
-                sort_case_list = list(filter(lambda x: not x.get('is_active'), sorted(case_list, key=lambda x: x.get("index"), reverse=True)))
+                sort_case_list = list(filter(lambda x: not x.get('is_active'),
+                                             sorted(case_list, key=lambda x: x.get("index"), reverse=True)))
                 case_id_list = [obj.get('case_id') for obj in sort_case_list]
-
-                update_case_total_execution(case_id_list)
+                QueryExecuteData.update_case_total_execution(case_id_list)
+                query_case_zip_list = QueryExecuteData.query_case_assemble(case_id_list)
+                case_list = GenExecuteData.main(query_case_zip_list)
 
                 scenario_obj = {
                     "scenario_id": scenario.get('id'),
                     "scenario_title": scenario.get('scenario_title'),
-                    "case_list": list(map(query_case_assemble, case_id_list))
+                    "case_list": case_list
                 }
 
                 scenario_list.append(scenario_obj)
@@ -74,7 +289,126 @@ class QueryExecuteData:
         return scenario_list
 
     @staticmethod
-    def query_only_case(case_id):
+    def gen_execute_case_list(**kwargs):
+        """
+        生成需要执行的用例数据
+        PS:每次只能选择其中一个 key:val 作为查询参数
+        {
+            "project_id": 3
+            # "version_id": 4,
+            # "task_id": 30,
+            # "module_id": 30,
+        }
+        :param kwargs:
+        :return:
+        """
+
+        query_case = MidProjectVersionAndCase.query.filter_by(**kwargs, is_deleted=0).with_entities(
+            MidProjectVersionAndCase.case_id).distinct().all()
+        case_id_list = [obj.case_id for obj in query_case]
+        query_case_zip_list = QueryExecuteData.query_case_assemble(case_id_list)
+        case_list = GenExecuteData.main(query_case_zip_list)
+        QueryExecuteData.update_case_total_execution(case_id_list)
+        return case_list
+
+    @staticmethod
+    def gen_execute_scenario_list(**kwargs):
+        """
+        生成需要执行的场景数据
+        PS:每次只能选择其中一个 key:val 作为查询参数
+        {
+            "project_id": 3
+            # "version_id": 4,
+            # "task_id": 30,
+            # "module_id": 30,
+        }
+        :param kwargs:
+        :return:
+        """
+        t = [(k, v) for k, v in kwargs.items()]
+        k = t[-1][0]
+        v = t[-1][1]
+        sql = f"""
+            SELECT
+                A.id,
+                A.scenario_title,
+                A.case_list
+            FROM
+                exile_test_case_scenario A
+            WHERE
+                EXISTS (
+                    SELECT
+                        B.id, B.scenario_id, B.version_id
+                    FROM
+                        exile_test_mid_version_scenario B
+                    WHERE
+                        B.scenario_id = A.id
+                        AND B.is_deleted = 0
+                        AND {k}={v})
+                    AND A.is_deleted = 0;
+            """
+        query_scenario = project_db.select(sql)
+        scenario_list = QueryExecuteData.query_scenario_assemble(query_scenario if query_scenario else [])
+        return scenario_list
+
+    @staticmethod
+    def gen_execute_name(_id):
+        """1"""
+        d = {
+            "task_id": TestVersionTask
+        }
+        # task_name = TestVersionTask.query.get(task_id).task_name
+        d.get(_id)
+        getattr(d.get(_id), 'query')
+        return execute_name
+
+    @staticmethod
+    def execute_all(**kwargs):
+        """执行全部用例以及场景"""
+        case_list = QueryExecuteData.gen_execute_case_list(**kwargs)
+        scenario_list = QueryExecuteData.gen_execute_scenario_list(**kwargs)
+        execute_name = "测试。。。"
+        return True, {
+            "execute_name": f"执行任务【{execute_name}】所有用例与场景",
+            "is_execute_all": True,
+            "execute_dict": {
+                "case_list": case_list,
+                "scenario_list": scenario_list
+            }
+        }
+
+    @staticmethod
+    def execute_case(**kwargs):
+        """执行全部用例"""
+
+        case_list = QueryExecuteData.gen_execute_case_list(**kwargs)
+
+        # if not case_list:
+        #     return False, f'任务id:{task_id}不存在或可执行用例为空'
+
+        execute_name = "测试。。。"
+        return True, {
+            "execute_name": f"执行任务【{execute_name}】所有用例",
+            "send_test_case_list": case_list
+        }
+
+    @staticmethod
+    def execute_scenario(**kwargs):
+        """执行全部场景"""
+
+        scenario_list = QueryExecuteData.gen_execute_scenario_list(**kwargs)
+
+        # if not query_scenario:
+        #     return False, f'任务id:{task_id}不存在或可执行场景为空'
+
+        execute_name = "测试。。。"
+        return True, {
+            "execute_name": f"执行任务【{execute_name}】所有用例场景",
+            "send_test_case_list": scenario_list
+        }
+
+    @staticmethod
+    def execute_case_only(case_id):
         """
         查询单个用例组装
         :param case_id: 用例id
@@ -98,7 +432,7 @@ class QueryExecuteData:
         }
 
     @staticmethod
-    def query_only_scenario(scenario_id):
+    def execute_scenario_only(scenario_id):
         """
         查询单个场景组装
         :param scenario_id: 场景id
@@ -118,7 +452,8 @@ class QueryExecuteData:
         if not case_list:  # 防止手动修改数据导致,在场景创建的接口中有对应的校验
             return False, f'场景id:{scenario_id}用例为空(错误数据)'
 
-        sort_case_list = list(filter(lambda x: not x.get('is_active'), sorted(case_list, key=lambda x: x.get("index"), reverse=True)))
+        sort_case_list = list(
+            filter(lambda x: not x.get('is_active'), sorted(case_list, key=lambda x: x.get("index"), reverse=True)))
         update_case_id = []
         send_test_case_list = []
 
@@ -135,328 +470,6 @@ class QueryExecuteData:
         }
 
     @staticmethod
-    def query_project_all(project_id):
-        """
-        查询项目下所有可执行的用例、场景并组装
-        :param project_id:项目id
-        :return:
-        """
-
-        query_mid_all = MidProjectVersionAndCase.query.filter_by(project_id=project_id, is_deleted=0).with_entities(
-            MidProjectVersionAndCase.case_id).distinct().all()
-        case_id_list = [obj[0] for obj in query_mid_all]
-
-        sql = f"""
-        SELECT
-            A.id,
-            A.scenario_title,
-            A.case_list
-        FROM
-            exile_test_case_scenario A
-        WHERE
-            EXISTS (
-                SELECT
-                    B.id, B.scenario_id, B.version_id
-                FROM
-                    exile_test_mid_version_scenario B
-                WHERE
-                    B.scenario_id = A.id
-                    AND B.is_deleted = 0
-                    AND B.project_id = {project_id})
-                AND A.is_deleted = 0;
-        """
-
-        query_scenario = project_db.select(sql)
-
-        if not query_mid_all and not query_scenario:
-            return False, f'项目id:{project_id}不存在或可执行为空'
-
-        case_list = list(map(query_case_assemble, case_id_list))
-        update_case_total_execution(case_id_list)
-        scenario_list = QueryExecuteData.gen_exec_scenario_list(query_scenario)
-        project_name = TestProject.query.get(project_id).project_name
-
-        return True, {
-            "execute_name": f"执行项目【{project_name}】所有用例与场景",
-            "is_execute_all": True,
-            "execute_dict": {
-                "case_list": case_list,
-                "scenario_list": scenario_list
-            }
-        }
-
-    @staticmethod
-    def query_project_case(project_id):
-        """
-        查询项目下所有可执行的用例并组装
-        :param project_id: 项目id
-        :return:
-        """
-
-        query_mid_all = MidProjectVersionAndCase.query.filter_by(project_id=project_id, is_deleted=0).with_entities(
-            MidProjectVersionAndCase.case_id).distinct().all()
-
-        if not query_mid_all:
-            return False, f'项目id:{project_id}不存在可执行用例为空'
-
-        project_name = TestProject.query.get(project_id).project_name
-
-        case_id_list = [obj[0] for obj in query_mid_all]
-        send_test_case_list = list(map(query_case_assemble, case_id_list))
-        update_case_total_execution(case_id_list)
-
-        return True, {
-            "execute_name": f"执行项目【{project_name}】所有用例",
-            "send_test_case_list": send_test_case_list
-        }
-
-    @staticmethod
-    def query_project_scenario(project_id):
-        """
-        查询项目下所有可执行的场景并组装
-        :param project_id: 项目id
-        :return:
-        """
-
-        sql = f"""
-        SELECT
-            A.id,
-            A.scenario_title,
-            A.case_list
-        FROM
-            exile_test_case_scenario A
-        WHERE
-            EXISTS (
-                SELECT
-                    B.id, B.scenario_id, B.version_id
-                FROM
-                    exile_test_mid_version_scenario B
-                WHERE
-                    B.scenario_id = A.id
-                    AND B.is_deleted = 0
-                    AND B.project_id = {project_id})
-                AND A.is_deleted = 0;
-        """
-
-        query_scenario = project_db.select(sql)
-
-        if not query_scenario:
-            return False, f'项目id:{project_id}不存在可执行场景为空'
-
-        project_name = TestProject.query.get(project_id).project_name
-
-        return True, {
-            "execute_name": f"执行项目【{project_name}】所有用例场景",
-            "send_test_case_list": QueryExecuteData.gen_exec_scenario_list(query_scenario)
-        }
-
-    @staticmethod
-    def query_version_all(version_id):
-        """
-        查询版本下所有可执行的用例、场景并组装
-        :param version_id: 版本id
-        :return:
-        """
-
-        query_mid_all = MidProjectVersionAndCase.query.filter_by(version_id=version_id, is_deleted=0).with_entities(
-            MidProjectVersionAndCase.case_id).distinct().all()  # 去重防止脏数据
-        case_id_list = [obj[0] for obj in query_mid_all]
-
-        sql = f"""
-            SELECT
-                B.id,
-                B.scenario_title,
-                B.case_list
-            FROM
-                exile_test_mid_version_scenario AS A
-                INNER JOIN exile_test_case_scenario AS B ON A.scenario_id = B.id
-            WHERE
-                A.version_id = {version_id}
-                AND A.is_deleted = 0
-                AND B.is_deleted = 0;
-            """
-
-        query_scenario = project_db.select(sql)
-
-        if not query_mid_all and not query_scenario:
-            return False, f'版本迭代id:{version_id}不存在或可执行为空'
-
-        case_list = list(map(query_case_assemble, case_id_list))
-        update_case_total_execution(case_id_list)
-        scenario_list = QueryExecuteData.gen_exec_scenario_list(query_scenario)
-        version_name = TestProjectVersion.query.get(version_id).version_name
-
-        return True, {
-            "execute_name": f"版本迭代【{version_name}】所有用例与场景",
-            "is_execute_all": True,
-            "execute_dict": {
-                "case_list": case_list,
-                "scenario_list": scenario_list
-            }
-        }
-
-    @staticmethod
-    def query_version_case(version_id):
-        """
-        查询版本下所有可执行的用例并组装
-        :param version_id: 版本id
-        :return:
-        """
-
-        query_mid_all = MidProjectVersionAndCase.query.filter_by(version_id=version_id, is_deleted=0).with_entities(
-            MidProjectVersionAndCase.case_id).distinct().all()  # 去重防止脏数据
-
-        if not query_mid_all:
-            return False, f'版本迭代id:{version_id}不存在或可执行用例为空'
-
-        version_name = TestProjectVersion.query.get(version_id).version_name
-
-        case_id_list = [obj[0] for obj in query_mid_all]
-        send_test_case_list = list(map(query_case_assemble, case_id_list))
-        update_case_total_execution(case_id_list)
-
-        return True, {
-            "execute_name": f"执行版本迭代【{version_name}】所有用例",
-            "send_test_case_list": send_test_case_list
-        }
-
-    @staticmethod
-    def query_version_scenario(version_id):
-        """
-        查询版本下所有可执行的场景并组装
-        :param version_id: 版本id
-        :return:
-        """
-
-        sql = f"""
-            SELECT
-                B.id,
-                B.scenario_title,
-                B.case_list
-            FROM
-                exile_test_mid_version_scenario AS A
-                INNER JOIN exile_test_case_scenario AS B ON A.scenario_id = B.id
-            WHERE
-                A.version_id = {version_id}
-                AND A.is_deleted = 0
-                AND B.is_deleted = 0;
-            """
-
-        query_scenario = project_db.select(sql)
-
-        if not query_scenario:
-            return False, f'版本迭代id:{version_id}不存在或可执行场景为空'
-
-        version_name = TestProjectVersion.query.get(version_id).version_name
-
-        return True, {
-            "execute_name": f"执行版本迭代【{version_name}】所有用例场景",
-            "send_test_case_list": QueryExecuteData.gen_exec_scenario_list(query_scenario)
-        }
-
-    @staticmethod
-    def query_task_all(task_id):
-        """
-        查询任务下所有可执行的用例、场景并组装
-        :param task_id: 任务id
-        :return:
-        """
-
-        query_mid_all = MidProjectVersionAndCase.query.filter_by(task_id=task_id, is_deleted=0).all()
-        case_id_list = [obj.case_id for obj in query_mid_all]
-
-        sql = f"""
-        SELECT
-            B.id,
-            B.scenario_title,
-            B.case_list
-        FROM
-            exile_test_mid_version_scenario AS A
-            INNER JOIN exile_test_case_scenario AS B ON A.scenario_id = B.id
-        WHERE
-            task_id = {task_id}
-            AND A.is_deleted = 0
-            AND B.is_deleted = 0;
-        """
-
-        query_scenario = project_db.select(sql)
-
-        if not query_mid_all and not query_scenario:
-            return False, f'任务id:{task_id}不存在或可执行为空'
-
-        case_list = list(map(query_case_assemble, case_id_list))
-        update_case_total_execution(case_id_list)
-        scenario_list = QueryExecuteData.gen_exec_scenario_list(query_scenario)
-        task_name = TestVersionTask.query.get(task_id).task_name
-
-        return True, {
-            "execute_name": f"执行任务【{task_name}】所有用例与场景",
-            "is_execute_all": True,
-            "execute_dict": {
-                "case_list": case_list,
-                "scenario_list": scenario_list
-            }
-        }
-
-    @staticmethod
-    def query_task_case(task_id):
-        """
-        查询任务下所有可执行的用例并组装
-        :param task_id: 任务id
-        :return:
-        """
-
-        query_mid_all = MidProjectVersionAndCase.query.filter_by(task_id=task_id, is_deleted=0).all()
-
-        if not query_mid_all:
-            return False, f'任务id:{task_id}不存在或可执行用例为空'
-
-        task_name = TestVersionTask.query.get(task_id).task_name
-
-        case_id_list = [obj.case_id for obj in query_mid_all]
-        send_test_case_list = list(map(query_case_assemble, case_id_list))
-        update_case_total_execution(case_id_list)
-
-        return True, {
-            "execute_name": f"执行任务【{task_name}】所有用例",
-            "send_test_case_list": send_test_case_list
-        }
-
-    @staticmethod
-    def query_task_scenario(task_id):
-        """
-        查询任务下所有可执行的场景并组装
-        :param task_id: 任务id
-        :return:
-        """
-
-        sql = f"""
-        SELECT
-            B.id,
-            B.scenario_title,
-            B.case_list
-        FROM
-            exile_test_mid_version_scenario AS A
-            INNER JOIN exile_test_case_scenario AS B ON A.scenario_id = B.id
-        WHERE
-            task_id = {task_id}
-            AND A.is_deleted = 0
-            AND B.is_deleted = 0;
-        """
-
-        query_scenario = project_db.select(sql)
-
-        if not query_scenario:
-            return False, f'任务id:{task_id}不存在或可执行场景为空'
-
-        task_name = TestVersionTask.query.get(task_id).task_name
-
-        return True, {
-            "execute_name": f"执行任务【{task_name}】所有用例场景",
-            "send_test_case_list": QueryExecuteData.gen_exec_scenario_list(query_scenario)
-        }
-
-    @staticmethod
     def query_module_app(module_code):
         """
 
@@ -468,7 +481,7 @@ class QueryExecuteData:
         if query_app:
             case_list = list(map(query_case_assemble, query_app.case_list))
             query_scenario_list = TestCaseScenario.query.filter(TestCaseScenario.id.in_(query_app.scenario_list)).all()
-            scenario_list = QueryExecuteData.gen_exec_scenario_list([s.to_json() for s in query_scenario_list])
+            scenario_list = QueryExecuteData.query_scenario_assemble([s.to_json() for s in query_scenario_list])
 
             return True, {
                 "execute_name": f"发布应用调用【{module_code}】所有用例与场景",
@@ -481,176 +494,29 @@ class QueryExecuteData:
         else:
             return False, f'应用编号:{module_code}不存在或可执行为空'
 
-    @staticmethod
-    def query_module_all(module_id):
-        """
-        查询功能模块应用下所有可执行的用例、场景并组装
-        :param module_id: 功能模块应用id
-        :return:
-        """
-
-        query_mid_all = MidProjectVersionAndCase.query.filter_by(module_id=module_id, is_deleted=0).with_entities(
-            MidProjectVersionAndCase.case_id).distinct().all()
-        case_id_list = [obj[0] for obj in query_mid_all]
-
-        sql = f"""
-        SELECT
-            A.id,
-            A.scenario_title,
-            A.case_list
-        FROM
-            exile_test_case_scenario A
-        WHERE
-            EXISTS (
-                SELECT
-                    B.id, B.scenario_id, B.version_id
-                FROM
-                    exile_test_mid_version_scenario B
-                WHERE
-                    B.scenario_id = A.id
-                    AND B.is_deleted = 0
-                    AND B.module_id = {module_id})
-                AND A.is_deleted = 0;
-        """
-
-        query_scenario = project_db.select(sql)
-
-        if not query_mid_all and not query_scenario:
-            return False, f'功能模块应用id:{module_id}不存在或可执行为空'
-
-        case_list = list(map(query_case_assemble, case_id_list))
-        update_case_total_execution(case_id_list)
-        scenario_list = QueryExecuteData.gen_exec_scenario_list(query_scenario)
-        module_name = TestModuleApp.query.get(module_id).module_name
-
-        return True, {
-            "execute_name": f"执行模块应用【{module_name}】所有用例与场景",
-            "is_execute_all": True,
-            "execute_dict": {
-                "case_list": case_list,
-                "scenario_list": scenario_list
-            }
-        }
-
-    @staticmethod
-    def query_module_case(module_id):
-        """
-        查询功能模块应用下所有可执行的用例并组装
-        :param module_id: 功能模块应用id
-        :return:
-        """
-
-        query_mid_all = MidProjectVersionAndCase.query.filter_by(module_id=module_id, is_deleted=0).with_entities(
-            MidProjectVersionAndCase.case_id).distinct().all()
-
-        if not query_mid_all:
-            return False, f'功能模块应用id:{module_id}不存在或可执行用例为空'
-
-        module_name = TestModuleApp.query.get(module_id).module_name
-        case_id_list = [obj[0] for obj in query_mid_all]
-        send_test_case_list = list(map(query_case_assemble, case_id_list))
-        update_case_total_execution(case_id_list)
-
-        return True, {
-            "execute_name": f"执行模块应用【{module_name}】所有用例",
-            "send_test_case_list": send_test_case_list
-        }
-
-    @staticmethod
-    def query_module_scenario(module_id):
-        """
-        查询功能模块应用下所有可执行的场景并组装
-        :param module_id: 功能模块应用id
-        :return:
-        """
-
-        sql = f"""
-        SELECT
-            A.id,
-            A.scenario_title,
-            A.case_list
-        FROM
-            exile_test_case_scenario A
-        WHERE
-            EXISTS (
-                SELECT
-                    B.id, B.scenario_id, B.version_id
-                FROM
-                    exile_test_mid_version_scenario B
-                WHERE
-                    B.scenario_id = A.id
-                    AND B.is_deleted = 0
-                    AND B.module_id = {module_id})
-                AND A.is_deleted = 0;
-        """
-
-        query_scenario = project_db.select(sql)
-
-        if not query_scenario:
-            return False, f'功能模块应用id:{module_id}不存在'
-
-        module_name = TestModuleApp.query.get(module_id).module_name
-
-        return True, {
-            "execute_name": f"执行模块应用【{module_name}】所有用例场景",
-            "send_test_case_list": QueryExecuteData.gen_exec_scenario_list(query_scenario)
-        }
-
 
 execute_func_dict = {
-    "case": QueryExecuteData.query_only_case,
-    "scenario": QueryExecuteData.query_only_scenario,
-    "project_all": QueryExecuteData.query_project_all,
-    "project_case": QueryExecuteData.query_project_case,
-    "project_scenario": QueryExecuteData.query_project_scenario,
-    "version_all": QueryExecuteData.query_version_all,
-    "version_case": QueryExecuteData.query_version_case,
-    "version_scenario": QueryExecuteData.query_version_scenario,
-    "task_all": QueryExecuteData.query_task_all,
-    "task_case": QueryExecuteData.query_task_case,
-    "task_scenario": QueryExecuteData.query_task_scenario,
+    "case": QueryExecuteData.execute_case_only,
+    "scenario": QueryExecuteData.execute_scenario_only,
+
+    "project_all": QueryExecuteData.execute_all,
+    "project_case": QueryExecuteData.execute_case,
+    "project_scenario": QueryExecuteData.execute_scenario,
+
+    "version_all": QueryExecuteData.execute_all,
+    "version_case": QueryExecuteData.execute_case,
+    "version_scenario": QueryExecuteData.execute_scenario,
+
+    "task_all": QueryExecuteData.execute_all,
+    "task_case": QueryExecuteData.execute_case,
+    "task_scenario": QueryExecuteData.execute_scenario,
+
     "module_app": QueryExecuteData.query_module_app,
-    "module_all": QueryExecuteData.query_module_all,
-    "module_case": QueryExecuteData.query_module_case,
-    "module_scenario": QueryExecuteData.query_module_scenario
+
+    "module_all": QueryExecuteData.execute_all,
+    "module_case": QueryExecuteData.execute_case,
+    "module_scenario": QueryExecuteData.execute_scenario
 }
-
-
-class CaseReqTestApi(MethodView):
-    """
-    test send
-    """
-
-    def post(self):
-        data = request.get_json()
-        method = data.get('method')
-        base_url = data.get('base_url')
-        url = data.get('url')
-        headers = data.get('headers', {})
-        req_type = data.get('req_type')
-        body = data.get('body', {})
-
-        send = {
-            "url": base_url + url if base_url else url,
-            "headers": headers,
-            req_type: body
-        }
-
-        if req_type not in ["params", "data", "json"]:
-            return api_result(code=400, message='req_type 应该为:{}'.format(["params", "data", "json"]))
-
-        try:
-            if hasattr(requests, method):
-                response = getattr(requests, method)(**send, verify=False)
-                data = {
-                    "response": response.json(),
-                    "response_headers": dict(response.headers)
-                }
-                return api_result(code=200, message='操作成功', data=data)
-            else:
-                return api_result(code=400, message='请求方式:{}不存在'.format(method))
-        except BaseException as e:
-            return api_result(code=400, message='请求方式失败:{}'.format(str(e)))
 
 
 class CaseExecApi(MethodView):
@@ -695,7 +561,8 @@ class CaseExecApi(MethodView):
             return api_result(code=400, message=f'execute_type:{execute_type}不存在')
 
         execute_func = execute_func_dict.get(execute_type)
-        result = execute_func(execute_id)
+        __key = execute_type if '_' not in execute_type else execute_type.split("_")[0]
+        result = execute_func(**{f"{__key}_id": execute_id})
         result_bool = result[0]
         result_data = result[1]
         if not result_bool:
@@ -749,3 +616,17 @@ class CaseExecApi(MethodView):
         tl.save()
 
         return api_result(code=200, message='操作成功,请前往日志查看执行结果', data=send_test_case_list)
+
+
+if __name__ == '__main__':
+    pass
+    from common.libs.set_app_context import set_app_context
+
+
+    @set_app_context
+    def main():
+        QueryExecuteData.query_task_all(30)
+        # QueryExecuteData.query_version_all(4)
+
+
+    main()

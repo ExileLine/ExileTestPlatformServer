@@ -23,7 +23,8 @@ from .case_bind_api.case_bind_api import CaseBindApi, CaseBindDataApi, CaseBindR
 from .case_ass_rule_api.case_ass_rule_api import RespAssertionRuleApi, FieldAssertionRuleApi, \
     RespAssertionRulePageApi, FieldAssertionRulePageApi
 from .rule_test_api.rule_test_api import RuleTestApi
-from .case_exec_api.case_exec_api import CaseExecApi, CaseReqTestApi
+from .case_exec_api.case_exec_api import CaseExecApi
+from .case_exec_api.case_send_api import CaseReqTestApi
 from .case_scenario_api.case_scenario_api import CaseScenarioApi, CaseScenarioPageApi
 from .case_report_api.case_report_api import CaseRepostApi
 from .case_set_api.case_set_api import CaseSetApi
