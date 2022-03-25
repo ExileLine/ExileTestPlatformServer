@@ -5,6 +5,8 @@
 # @File    : case_send_api.py
 # @Software: PyCharm
 
+from decimal import Decimal
+
 from all_reference import *
 
 
@@ -32,14 +34,21 @@ class CaseReqTestApi(MethodView):
             return api_result(code=400, message='req_type 应该为:{}'.format(["params", "data", "json"]))
 
         try:
-            if hasattr(requests, method):
-                response = getattr(requests, method)(**send, verify=False)
-                data = {
-                    "response": response.json(),
-                    "response_headers": dict(response.headers)
-                }
-                return api_result(code=200, message='操作成功', data=data)
-            else:
-                return api_result(code=400, message='请求方式:{}不存在'.format(method))
+            if not hasattr(requests, method):
+                return api_result(code=400, message=f'请求方式:{method}不存在')
+
+            start_time = time.time()
+            response = getattr(requests, method)(**send, verify=False)
+            end_time = time.time()
+
+            data = {
+                "request_headers": dict(headers),
+                "response_headers": dict(response.headers),
+                "response_content": response.json(),
+                "http_code": response.status_code,
+                "time": f"{Decimal((end_time - start_time) * 1000).quantize(Decimal('1'))}ms"
+            }
+            return api_result(code=200, message='操作成功', data=data)
+
         except BaseException as e:
-            return api_result(code=400, message='请求方式失败:{}'.format(str(e)))
+            return api_result(code=400, message=f'{str(e)}')
