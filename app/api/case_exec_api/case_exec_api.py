@@ -194,7 +194,7 @@ class QueryExecuteData:
         """更新用例执行数"""
 
         sql = f"""UPDATE exile_test_case SET total_execution = total_execution +1 WHERE id in {tuple(case_id_list)};"""
-        project_db.update_data(sql)
+        project_db.update(sql)
         print(f'共 {len(case_id_list)} 条, 更新用例执行数成功:{case_id_list}')
 
     @staticmethod

@@ -516,13 +516,13 @@ class MainTest:
 
             sql = """UPDATE exile_test_variable SET var_value='{}' WHERE id='{}';""".format(new_var, id)
             self.sio.log('=== update sql === 【 {} 】'.format(sql), status='success')
-            project_db.update_data(sql)
+            project_db.update(sql)
 
             sql2 = """INSERT INTO exile_test_variable_history ( `create_timestamp`, `is_deleted`, `var_id`, `update_type`, `creator`, `creator_id`, `before_var`, `after_var`) VALUES ('{}',  '0',  '{}', '执行用例更新', '{}', '{}', '{}', '{}');""".format(
                 int(self.start_time), id, self.execute_username, self.execute_user_id, old_var, new_var
             )
             self.sio.log('=== update history sql === 【 {} 】'.format(sql2), status='success')
-            project_db.create_data(sql2)
+            project_db.insert(sql2)
 
     def save_logs(self, log_id):
         """
@@ -541,7 +541,7 @@ class MainTest:
             self.execute_username,
             self.execute_user_id
         )
-        project_db.create_data(sql)
+        project_db.insert(sql)
         logger.success('=== save_logs ok ===')
 
     def gen_logs(self):

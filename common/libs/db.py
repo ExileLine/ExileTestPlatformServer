@@ -51,100 +51,27 @@ class MyPyMysql:
         except BaseException as e:
             return '连接数据库参数异常{}'.format(str(e) if self.debug else '')
 
-    def create_data(self, sql=None):
-        """
-        新增
-        :return:
-        """
+    def __send(self, sql):
+        """执行语句"""
+
         try:
             db = self.db_obj()
             with db.cursor() as cur:
-                print(sql)
-                cur.execute(sql)
+                result = cur.execute(sql)
                 db.commit()
-                return 'create success'
+                return result
         except BaseException as e:
             cur.rollback()
-            return 'create:出现错误:{}'.format(str(e) if self.debug else '')
+            return f"执行错误:{str(e)}"
 
-    def read_data(self, sql=None):
-        """
-        查询(废弃,保留实现思想)(使用: MyPyMysql.select 代替之)
-        :param sql:
-        :return:
-        """
-        try:
-            db = self.db_obj()
-            with db.cursor() as cur:
-                cur.execute(sql)  # 执行sql语句
-                # sql = "select * from gambler where id='YfpgoLZtEGPfMXUvFPffCi'"
+    def insert(self, sql):
+        return self.__send(sql)
 
-                '''
-                获取表结构,并且取出字段,生成列表
-                '''
-                '''获取字段列表'''
-                # print(cur.description)
-                key_list = [i[0] for i in cur.description]
-                # print(key_list)
+    def update(self, sql):
+        return self.__send(sql)
 
-                '''
-                把查询结果集组装成列表
-                '''
-                results = cur.fetchall()
-                # print(results)
-                data_list = [i for i in results]
-                # print(data_list)
-
-                data_dict = []
-                for field in cur.description:
-                    data_dict.append(field[0])
-                # print(data_dict)
-                # print(len(data_dict))
-
-                '''
-                将字段与每一条查询数据合并成键值对,并且组装成新的列表
-                new_list = []
-                for i in data_list:
-                    print(list(i))
-                    new_list.append(dict(zip(key_list, list(i))))
-                '''
-                new_list = [dict(zip(key_list, list(i))) for i in data_list]
-                # print(new_list)
-                return new_list
-        except BaseException as e:
-            return 'read:出现错误:{}'.format(str(e) if self.debug else '')
-
-    def update_data(self, sql=None):
-        """
-        更新
-        :param sql:
-        :return:
-        """
-        try:
-            db = self.db_obj()
-            with db.cursor() as cur:
-                cur.execute(sql)
-                db.commit()
-                return 'update success'
-        except BaseException as e:
-            cur.rollback()
-            return 'update:出现错误:{}'.format(str(e) if self.debug else '')
-
-    def del_data(self, sql=None):
-        """
-        删除
-        :param sql:
-        :return:
-        """
-        try:
-            db = self.db_obj()
-            with db.cursor() as cur:
-                cur.execute(sql)
-                db.commit()
-                return 'del success'
-        except BaseException as e:
-            cur.rollback()
-            return 'del:出现错误:{}'.format(str(e) if self.debug else '')
+    def delete(self, sql):
+        return self.__send(sql)
 
     def select(self, sql=None, only=None, size=None):
         """
