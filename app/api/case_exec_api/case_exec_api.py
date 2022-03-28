@@ -5,11 +5,12 @@
 # @File    : case_exec_api.py
 # @Software: PyCharm
 import json
+import time
 from concurrent.futures import ThreadPoolExecutor
 
 from all_reference import *
 from app.models.test_case.models import TestCase
-from app.models.test_case_assert.models import TestCaseAssResponse, TestCaseAssField
+from app.models.test_case_assert.models import TestCaseAssResponse, TestCaseAssField, TestCaseDataAssBind
 from app.models.test_case_scenario.models import TestCaseScenario
 from app.models.test_project.models import TestProject, TestProjectVersion, MidProjectVersionAndCase, TestVersionTask, \
     TestModuleApp
@@ -17,9 +18,19 @@ from app.models.test_env.models import TestEnv
 from app.models.test_logs.models import TestLogs
 from app.models.push_reminder.models import DingDingConfModel, MailConfModel
 from common.libs.StringIOLog import StringIOLog
+from common.libs.set_app_context import set_app_context
 
 
 # executor = ThreadPoolExecutor(10)
+
+@set_app_context
+def save_test_logs(execute_type):
+    tl = TestLogs(
+        log_type=execute_type,
+        creator=g.app_user.username,
+        creator_id=g.app_user.id
+    )
+    tl.save()
 
 
 class GenExecuteData:
@@ -415,20 +426,34 @@ class QueryExecuteData:
         :return:
         """
 
-        result = query_case_assemble(case_id=case_id)
-        if not result:
+        query_case = TestCase.query.get(case_id)
+
+        if not query_case:
+            return {}
+
+        case_info = query_case.to_json()
+
+        query_case_mid = TestCaseDataAssBind.query.filter_by(case_id=case_id).all()
+        bind_info = list(map(MapToJsonObj.gen_bind_info, query_case_mid))
+
+        case_info['is_public'] = bool(case_info.get('is_public'))
+        case_info['is_shared'] = bool(case_info.get('is_shared'))
+        result = {
+            "case_info": case_info,
+            "bind_info": bind_info
+        }
+
+        if not query_case:
             return False, f'用例id:{case_id}不存在'
 
-        if not bool(result.get('case_info').get('is_shared')):
+        if not bool(case_info.get('is_shared')):
             return False, '执行失败,该用例是私有的,仅创建者执行!'
 
-        execute_name = result.get('case_info').get('case_name')
-        TestCase.query.get(case_id).add_total_execution()
-        case_list = [result]
+        execute_name = case_info.get('case_name')
 
         return True, {
             "execute_name": execute_name,
-            "send_test_case_list": case_list
+            "send_test_case_list": [result]
         }
 
     @staticmethod
@@ -605,17 +630,11 @@ class CaseExecApi(MethodView):
         }
         main_test = MainTest(test_obj=test_obj)
         # executor.submit(main_test.main)
-        thread = threading.Thread(target=main_test.main)
-        thread.start()
-
-        tl = TestLogs(
-            log_type=execute_type,
-            creator=g.app_user.username,
-            creator_id=g.app_user.id
-        )
-        tl.save()
-
-        return api_result(code=200, message='操作成功,请前往日志查看执行结果', data=send_test_case_list)
+        thread1 = threading.Thread(target=main_test.main)
+        thread2 = threading.Thread(target=save_test_logs, args=(execute_type,))
+        thread1.start()
+        thread2.start()
+        return api_result(code=200, message='操作成功,请前往日志查看执行结果', data=[time.time()])
 
 
 if __name__ == '__main__':
