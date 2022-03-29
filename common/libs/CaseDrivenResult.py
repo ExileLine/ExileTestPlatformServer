@@ -27,7 +27,7 @@ from common.tools.message_push import MessagePush
 
 
 class TestResult:
-    """测试结果"""
+    """测试结果数据统计"""
 
     def __init__(self):
         self.req_count = 0
@@ -154,7 +154,7 @@ class MainTest:
         MainTest.main()
 
     9.生成报告:
-
+        MainTest.save_test_repost()
     """
 
     # TODO field 前置查询 {"before_query":"select xxx from xxx....","before_field":"username"}
@@ -255,7 +255,11 @@ class MainTest:
         self.json_format(resp_json, msg='=== response json ===')
 
     def var_conversion(self, before_var):
-        """变量转换参数"""
+        """
+        变量转换参数
+        :param before_var: 转换前的send参数
+        :return:
+        """
 
         before_var_init = before_var
         if isinstance(before_var_init, (list, dict)):
@@ -404,6 +408,7 @@ class MainTest:
     def assemble_data_send(self, case_data_info):
         """
         组装数据发送并且更新变量
+        :param case_data_info: 参数转换后的组装的参数对象
         :return:
         """
 
@@ -445,8 +450,10 @@ class MainTest:
     def resp_check_ass_execute(self, case_resp_ass_info):
         """
         检查 resp 断言规则并执行断言
+        :param case_resp_ass_info: resp检验规则对象
         :return:
         """
+
         if not case_resp_ass_info:
             self.sio.log('=== 断言规则为空 ===')
             return False
@@ -514,14 +521,14 @@ class MainTest:
             old_var = json.dumps(var_value, ensure_ascii=False)
             new_var = json.dumps(update_val_result, ensure_ascii=False)
 
-            sql = """UPDATE exile_test_variable SET var_value='{}' WHERE id='{}';""".format(new_var, id)
-            self.sio.log('=== update sql === 【 {} 】'.format(sql), status='success')
+            sql = f"""UPDATE exile_test_variable SET var_value='{new_var}' WHERE id='{id}';"""
+            self.sio.log(f'=== update sql === 【 {sql} 】', status='success')
             project_db.update(sql)
 
             sql2 = """INSERT INTO exile_test_variable_history ( `create_timestamp`, `is_deleted`, `var_id`, `update_type`, `creator`, `creator_id`, `before_var`, `after_var`) VALUES ('{}',  '0',  '{}', '执行用例更新', '{}', '{}', '{}', '{}');""".format(
                 int(self.start_time), id, self.execute_username, self.execute_user_id, old_var, new_var
             )
-            self.sio.log('=== update history sql === 【 {} 】'.format(sql2), status='success')
+            self.sio.log(f'=== update history sql === 【 {sql2} 】', status='success')
             project_db.insert(sql2)
 
     def save_logs(self, log_id):
@@ -747,10 +754,10 @@ class MainTest:
         print('=== all_execute -> gen_logs ===')
         self.gen_logs()
 
-    def save_test_repost(self, report_stt):
+    def save_test_repost(self, report_str):
         """
-
-        :param report_stt: 测试报告html字符
+        生成 html 测试报告
+        :param report_str: html字符
         :return:
         """
 
@@ -759,7 +766,7 @@ class MainTest:
         self.path = f"{os.getcwd().split('ExileTestPlatformServer')[0]}ExileTestPlatformServer/app/static/report/{self.report_name}"
 
         with open(self.path, "w", encoding="utf-8") as f:
-            f.write(report_stt)
+            f.write(report_str)
 
     def main(self):
         """main"""
@@ -771,7 +778,7 @@ class MainTest:
         test_repost = RepostTemplate(data=get_data_to_dict).generate_html_report()
         # print(test_repost)
 
-        self.save_test_repost(report_stt=test_repost)
+        self.save_test_repost(report_str=test_repost)
 
         mt = f"#### 测试报告:{self.execute_name}  \n  > 测试人员:{self.execute_username}  \n  > 开始时间:{self.create_time}  \n  > 结束时间:{self.end_time}  \n  > 合计耗时:{self.total_time}s  \n  > 用例总数:{self.test_result.all_test_count}  \n  > 成功数:{self.test_result.pass_count}  \n  > 失败数:{self.test_result.fail_count}  \n  > 通过率:{self.test_result.pass_rate}  \n "
 
@@ -788,18 +795,18 @@ class MainTest:
         # os.system(f'rm {self.path}')
 
     def __str__(self):
-        return '\n'.join(["{}:{}".format(k, v) for k, v in self.__dict__.items()])
+        return '\n'.join([f"{k}:{v}" for k, v in self.__dict__.items()])
 
 
 if __name__ == '__main__':
-    get_data = R.get("module_all_first_log:3")
-    html_str = RepostTemplate(data=json.loads(get_data)).generate_html_report()
-    print(html_str)
-    report_name = f"Test_Report_{time.strftime('%Y-%m-%d_%H_%M_%S')}_.html"
-    path = f"{os.getcwd().split('ExileTestPlatformServer')[0]}ExileTestPlatformServer/app/static/report/{report_name}"
-    print(path)
-    with open(path, "w",
-              encoding="utf-8") as f:
-        f.write(html_str)
-
+    pass
+    # get_data = R.get("module_all_first_log:3")
+    # html_str = RepostTemplate(data=json.loads(get_data)).generate_html_report()
+    # print(html_str)
+    # report_name = f"Test_Report_{time.strftime('%Y-%m-%d_%H_%M_%S')}_.html"
+    # path = f"{os.getcwd().split('ExileTestPlatformServer')[0]}ExileTestPlatformServer/app/static/report/{report_name}"
+    # print(path)
+    # with open(path, "w",
+    #           encoding="utf-8") as f:
+    #     f.write(html_str)
     # print(os.system(f'rm {path}'))

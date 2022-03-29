@@ -11,6 +11,7 @@ from loguru import logger
 
 
 class StringIOLog:
+    """日志收集缓存"""
 
     def __init__(self):
         self.output = io.StringIO()
