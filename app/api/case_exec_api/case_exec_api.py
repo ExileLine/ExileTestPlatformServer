@@ -20,8 +20,8 @@ from app.models.push_reminder.models import DingDingConfModel, MailConfModel
 from common.libs.StringIOLog import StringIOLog
 from common.libs.set_app_context import set_app_context
 
+executor = ThreadPoolExecutor(200)
 
-# executor = ThreadPoolExecutor(10)
 
 @set_app_context
 def save_test_logs(execute_type):
@@ -629,11 +629,12 @@ class CaseExecApi(MethodView):
             "mail_list": mail_list
         }
         main_test = MainTest(test_obj=test_obj)
-        # executor.submit(main_test.main)
-        thread1 = threading.Thread(target=main_test.main)
-        thread2 = threading.Thread(target=save_test_logs, args=(execute_type,))
-        thread1.start()
-        thread2.start()
+        executor.submit(main_test.main)
+        executor.submit(save_test_logs, **{"execute_type": execute_type})
+        # thread1 = threading.Thread(target=main_test.main)
+        # thread2 = threading.Thread(target=save_test_logs, args=(execute_type,))
+        # thread1.start()
+        # thread2.start()
         return api_result(code=200, message='操作成功,请前往日志查看执行结果', data=[time.time()])
 
 
@@ -646,6 +647,5 @@ if __name__ == '__main__':
     def main():
         QueryExecuteData.query_task_all(30)
         # QueryExecuteData.query_version_all(4)
-
 
     main()
