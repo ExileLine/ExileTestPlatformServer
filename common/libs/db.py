@@ -29,6 +29,28 @@ DB = {
 }
 
 
+def result_format(data):
+    """
+    查询结果处理
+    :param data:
+    :return:
+    """
+    if isinstance(data, dict):
+        for key, val in data.items():
+            if isinstance(val, decimal.Decimal):
+                data[key] = float(decimal.Decimal(val).quantize(decimal.Decimal("0.000")))
+            elif isinstance(val, datetime):
+                data[key] = str(val)
+            elif isinstance(val, str):
+                try:
+                    new_val = json.loads(val)
+                    if isinstance(new_val, (dict, list, tuple)):
+                        data[key] = new_val
+                except BaseException as e:
+                    pass
+    return data
+
+
 class BaseDatabase(metaclass=ABCMeta):
     """基类"""
 
@@ -93,70 +115,19 @@ class MyPyMysql(BaseDatabase):
         :return:
         """
 
-        def __func(r):
-            if isinstance(r, list):
-                new_list = []
-                for i in r:
-                    new_r = {}
-                    for k, v in i.items():
-                        if isinstance(v, decimal.Decimal):
-                            # v = float(decimal.Decimal(v).quantize(decimal.Decimal("0.0")))
-                            v = str(v)
-                            v = float(v)
-                            new_r[k] = v
-                        elif isinstance(v, str):
-                            try:
-                                new_v = json.loads(v)
-                                if isinstance(new_v, list) or isinstance(new_v, dict):
-                                    new_r[k] = new_v
-                                else:
-                                    new_r[k] = v
-                            except BaseException as e:
-                                new_r[k] = v
-                                # print(k, v, type(v))
-                                # print("select.__func 异常:{}".format(str(e) if self.debug else ''))
-                        elif isinstance(v, datetime):
-                            new_r[k] = str(v)
-                        else:
-                            new_r[k] = v
-                    new_list.append(new_r)
-                return new_list
-            elif isinstance(r, dict):
-                new_r = {}
-                for k, v in r.items():
-                    if isinstance(v, decimal.Decimal):
-                        # v = float(decimal.Decimal(v).quantize(decimal.Decimal("0.0")))
-                        v = str(v)
-                        v = float(v)
-                        new_r[k] = v
-                    elif isinstance(v, str):
-                        try:
-                            new_v = json.loads(v)
-                            if isinstance(new_v, list) or isinstance(new_v, dict):
-                                new_r[k] = new_v
-                            else:
-                                new_r[k] = v
-                        except BaseException as e:
-                            new_r[k] = v
-                    elif isinstance(v, datetime):
-                        new_r[k] = str(v)
-                    else:
-                        new_r[k] = v
-                return new_r
-            else:
-                pass
-
         try:
             db = self.db_obj()
             with db.cursor(pymysql.cursors.DictCursor) as cur:
                 cur.execute(sql)  # 执行sql语句
                 if only and not size:  # 唯一结果返回 json/dict
-                    rs = cur.fetchone()
+                    query_result = cur.fetchone()
+                    result = result_format(query_result)
                 elif size and not only:  # 按照需要的长度返回
-                    rs = cur.fetchmany(size)
+                    query_result = cur.fetchmany(size)
+                    result = [result_format(data) for data in query_result]
                 else:  # 返回结果集返回 list
-                    rs = cur.fetchall()
-                result = __func(rs)
+                    query_result = cur.fetchall()
+                    result = [result_format(data) for data in query_result]
                 return result
         except BaseException as e:
             return 'select:出现错误:{}'.format(str(e) if self.debug else '')
@@ -230,11 +201,14 @@ class MyPostgreSql(BaseDatabase):
             with db.cursor(cursor_factory=RealDictCursor) as cur:
                 cur.execute(sql)
                 if only and not size:
-                    results = cur.fetchone()
+                    query_result = cur.fetchone()
+                    results = result_format(query_result)
                 elif size and not only:
-                    results = cur.fetchmany(size)
+                    query_result = cur.fetchmany(size)
+                    results = [result_format(data) for data in query_result]
                 else:
-                    results = cur.fetchall()
+                    query_result = cur.fetchall()
+                    results = [result_format(data) for data in query_result]
                 results_json = json.dumps(results, ensure_ascii=False)
                 return json.loads(results_json)
         except Exception as e:
@@ -265,9 +239,9 @@ if __name__ == '__main__':
     result1 = project_db.select(sql, only=True)
     result2 = project_db.select(sql, size=3)
     result3 = project_db.select(sql)
-    print(result1, len(result1))
-    print(result2, len(result2))
-    print(result3, len(result3))
+    print(result1, type(result1), len(result1))
+    print(result2, type(result2), len(result2))
+    print(result3, type(result3), len(result3))
 
     # 测试 Redis
     print('\n===test Redis===')
