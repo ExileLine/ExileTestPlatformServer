@@ -19,7 +19,7 @@ db_ping_dict = {
         "func": "ping"
     },
     "redis": {
-        "class": "",
+        "class": redis.Redis,
         "func": "ping"
     },
     "postgresql": {
@@ -40,14 +40,9 @@ def db_ping(db_type, db_connection):
     if db_type not in db_list:
         return False, f'暂未支持：{db_type}'
     try:
-        if db_type == 'redis':
-            pool = redis.ConnectionPool(**db_connection)
-            R = redis.Redis(connection_pool=pool)
-            R.ping()
-        else:
-            main = db_ping_dict.get(db_type).get('class')(**db_connection)
-            func = db_ping_dict.get(db_type).get('func')
-            getattr(main, func)()
+        main = db_ping_dict.get(db_type).get('class')(**db_connection)
+        func = db_ping_dict.get(db_type).get('func')
+        getattr(main, func)()
         return True, 'Ping成功'
     except BaseException as e:
         return False, 'db 连接失败，请检查配置'
