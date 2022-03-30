@@ -8,10 +8,49 @@
 import redis
 
 from all_reference import *
-from common.libs.db import MyPyMysql
+from common.libs.db import MyPyMysql, MyPostgreSql
 from app.models.test_case_config.models import TestDatabases
 
-db_list = ["mysql", "redis"]  # TODO 用数据库表管理
+db_list = ("mysql", "redis", "postgresql")
+
+db_ping_dict = {
+    "mysql": {
+        "class": MyPyMysql,
+        "func": "ping"
+    },
+    "redis": {
+        "class": "",
+        "func": "ping"
+    },
+    "postgresql": {
+        "class": MyPostgreSql,
+        "func": "ping"
+    }
+}
+
+
+def db_ping(db_type, db_connection):
+    """
+    db ping
+    :param db_type: db类型
+    :param db_connection: db连接信息
+    :return:
+    """
+
+    if db_type not in db_list:
+        return False, f'暂未支持：{db_type}'
+    try:
+        if db_type == 'redis':
+            pool = redis.ConnectionPool(**db_connection)
+            R = redis.Redis(connection_pool=pool)
+            R.ping()
+        else:
+            main = db_ping_dict.get(db_type).get('class')(**db_connection)
+            func = db_ping_dict.get(db_type).get('func')
+            getattr(main, func)()
+        return True, 'Ping成功'
+    except BaseException as e:
+        return False, 'db 连接失败，请检查配置'
 
 
 class CaseDBApi(MethodView):
@@ -168,43 +207,6 @@ class CaseDBPingApi(MethodView):
 
         db_type = query_db.to_json().get('db_type', {})
         db_connection = query_db.to_json().get('db_connection', {})
+        _bool, _result = db_ping(db_type=db_type, db_connection=db_connection)
 
-        if db_type == 'mysql':
-
-            ping_db = MyPyMysql(**db_connection)
-
-            try:
-                """
-                调试
-                sql = "SELECT id,case_name FROM ExileTestPlatform.exile_test_case WHERE id=1;"
-                result = ping_db.select(sql, only=True)
-                print(result)
-                """
-                print('ping:', ping_db.db_obj().open)
-                return api_result(code=200, message='操作成功', data="Ping成功")
-            except BaseException as e:
-                return api_result(code=400, message='db 连接失败，请检查配置', data="db 连接失败，请检查配置")
-
-        elif db_type == 'redis':
-
-            # TODO 使用一个 db ping 基类优化这里
-            a = {
-                "host": "localhost",
-                "port": "6379",
-                "password": "123456",
-                "db": 0
-            }
-
-            try:
-                POOL = redis.ConnectionPool(**db_connection)
-                R = redis.Redis(connection_pool=POOL)
-                print(R.ping())
-                if R.ping():
-                    return api_result(code=200, message='操作成功', data="Ping成功")
-                else:
-                    return api_result(code=200, message='操作成功', data="Ping失败")
-
-            except BaseException as e:
-                return api_result(code=400, message='db 连接失败，请检查配置', data="db 连接失败，请检查配置")
-        else:
-            return api_result(code=400, message=f'暂未支持：{db_type}', data=f'暂未支持：{db_type}')
+        return api_result(code=200 if _bool else 400, message=_result, data=_result)
