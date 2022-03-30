@@ -4,8 +4,7 @@
 # @Email   : yang6333yyx@126.com
 # @File    : case_exec_api.py
 # @Software: PyCharm
-import json
-import time
+
 from concurrent.futures import ThreadPoolExecutor
 
 from all_reference import *
@@ -587,9 +586,8 @@ class CaseExecApi(MethodView):
 
         execute_func = execute_func_dict.get(execute_type)
         __key = execute_type if '_' not in execute_type else execute_type.split("_")[0]
-        result = execute_func(**{f"{__key}_id": execute_id})
-        result_bool = result[0]
-        result_data = result[1]
+        result_bool, result_data = execute_func(**{f"{__key}_id": execute_id})
+
         if not result_bool:
             return api_result(code=400, message=result_data)
 
@@ -647,5 +645,6 @@ if __name__ == '__main__':
     def main():
         QueryExecuteData.query_task_all(30)
         # QueryExecuteData.query_version_all(4)
+
 
     main()
