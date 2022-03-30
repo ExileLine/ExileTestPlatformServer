@@ -7,9 +7,12 @@
 
 import json
 import decimal
+from abc import ABCMeta, abstractmethod
 from datetime import datetime
 
 import pymysql
+import psycopg2
+from psycopg2.extras import DictCursor, RealDictCursor
 
 from config.config import config_obj
 
@@ -26,7 +29,15 @@ DB = {
 }
 
 
-class MyPyMysql:
+class BaseDatabase(metaclass=ABCMeta):
+    """基类"""
+
+    @abstractmethod
+    def db_obj(self):
+        return
+
+
+class MyPyMysql(BaseDatabase):
     def __init__(self, host=None, port=None, user=None, password=None, db=None, debug=None):
         self.host = host
         self.port = port
@@ -141,16 +152,12 @@ class MyPyMysql:
                 cur.execute(sql)  # 执行sql语句
                 if only and not size:  # 唯一结果返回 json/dict
                     rs = cur.fetchone()
-                    result = __func(rs)
-                    return result
-                if size and not only:  # 按照需要的长度返回
+                elif size and not only:  # 按照需要的长度返回
                     rs = cur.fetchmany(size)
-                    result = __func(rs)
-                    return result
                 else:  # 返回结果集返回 list
                     rs = cur.fetchall()
-                    result = __func(rs)
-                    return result
+                result = __func(rs)
+                return result
         except BaseException as e:
             return 'select:出现错误:{}'.format(str(e) if self.debug else '')
 
@@ -164,16 +171,103 @@ class MyPyMysql:
         except BaseException as e:
             print(str(e))
 
+    def ping(self):
+        """ping"""
+        return self.db_obj().open
+
+
+class MyPostgreSql(BaseDatabase):
+
+    def __init__(self, host=None, port=None, user=None, password=None, database=None, debug=None):
+        self.host = host
+        self.port = port
+        self.user = user
+        self.password = password
+        self.database = database
+        self.debug = debug
+
+    def db_obj(self):
+        """
+        返回db对象
+        :return:
+        """
+        try:
+            database_obj = psycopg2.connect(
+                host=self.host,
+                port=self.port,
+                user=self.user,
+                password=self.password,
+                database=self.database)
+            return database_obj
+        except BaseException as e:
+            return '连接数据库参数异常{}'.format(str(e) if self.debug else '')
+
+    def __send(self, sql):
+        """执行语句"""
+
+        try:
+            db = self.db_obj()
+            with db.cursor() as cur:
+                result = cur.execute(sql)
+                db.commit()
+                return result
+        except BaseException as e:
+            cur.rollback()
+            return f"执行错误:{str(e)}"
+
+    def insert(self, sql):
+        return self.__send(sql)
+
+    def update(self, sql):
+        return self.__send(sql)
+
+    def delete(self, sql):
+        return self.__send(sql)
+
+    def select(self, sql=None, only=None, size=None):
+        try:
+            db = self.db_obj()
+            with db.cursor(cursor_factory=RealDictCursor) as cur:
+                cur.execute(sql)
+                if only and not size:
+                    results = cur.fetchone()
+                elif size and not only:
+                    results = cur.fetchmany(size)
+                else:
+                    results = cur.fetchall()
+                results_json = json.dumps(results, ensure_ascii=False)
+                return json.loads(results_json)
+        except Exception as e:
+            return 'select:出现错误:{}'.format(str(e) if self.debug else '')
+
+    def execute_sql(self, sql=None):
+        """execute_sql"""
+        try:
+            db = self.db_obj()
+            with db.cursor() as cur:
+                result = cur.execute(sql)
+                return result
+        except BaseException as e:
+            print(str(e))
+
+    def ping(self):
+        """ping"""
+        return self.db_obj().cursor()
+
 
 project_db = MyPyMysql(**DB, debug=CONFIG_OBJ.DEBUG)  # MySql实例
 
 if __name__ == '__main__':
     # 测试 MySql
     print('\n===test MySql===')
-    sql = "SELECT id, case_name FROM exile_test_case WHERE id=1;"
+    sql = "SELECT id, case_name FROM exile_test_case limit 0,6;"
     print('ping:', project_db.db_obj().open)
-    result = project_db.select(sql, only=True)
-    print(result)
+    result1 = project_db.select(sql, only=True)
+    result2 = project_db.select(sql, size=3)
+    result3 = project_db.select(sql)
+    print(result1, len(result1))
+    print(result2, len(result2))
+    print(result3, len(result3))
 
     # 测试 Redis
     print('\n===test Redis===')

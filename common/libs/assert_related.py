@@ -9,7 +9,7 @@ import json
 import redis
 
 from app.models.test_case_config.models import TestDatabases
-from common.libs.db import MyPyMysql
+from common.libs.db import MyPyMysql, MyPostgreSql
 from common.libs.execute_code import execute_code
 from common.libs.StringIOLog import StringIOLog
 from common.libs.data_dict import rule_dict, resp_source_tuple
@@ -188,7 +188,12 @@ class AssertFieldMain(AssertMain):
 
     def get_postgresql(self):
         """连接:PostgreSQL"""
-        return
+
+        db = MyPostgreSql(**self.db_connection)  # postgreSql实例
+        return {
+            "db": db,
+            "cmd": "select"
+        }
 
     def get_mongodb(self):
         """连接:Mongodb"""
@@ -318,7 +323,7 @@ class AssertFieldMain(AssertMain):
         :param assert_field_obj: 期望结果
         :return:
         """
-        print(json.dumps(assert_field_obj))
+        print(json.dumps(assert_field_obj, ensure_ascii=False))
         if self.db_type in ['mysql', 'postgresql']:
             # TODO 暂时支持唯一数据检验
             if len(self.query_result) == 1 and isinstance(self.query_result, list):
