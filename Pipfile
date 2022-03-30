@@ -16,6 +16,7 @@ shortuuid = "*"
 cryptography = "*"
 apscheduler = "*"
 flask-apscheduler = "*"
+psycopg2-binary = "*"
 
 [dev-packages]
 
