@@ -42,10 +42,6 @@ class AssertMain:
 
         return result
 
-    def go_test(self):
-        """调试"""
-        print('\n'.join(['%s:%s' % item for item in self.__dict__.items()]))
-
 
 class AssertResponseMain(AssertMain):
     """Response 断言类"""
@@ -125,11 +121,9 @@ class AssertResponseMain(AssertMain):
                 return False
 
         except BaseException as e:
-            self.sio.log('数据异常:{}'.format(str(e)), status='error')
-            self.sio.log('这种情况一般会因为以下两种原因导致:', status='error')
-            self.sio.log('1.查看数据库确认该数据是否有被手动修改过.', status='error')
+            self.sio.log(f'数据异常:{str(e)}', status='error')
             self.sio.log(
-                '2.查看: case_ass_rule_api.py 中的 RespAssertionRuleApi 中的逻辑是否被修改.',
+                '这种情况一般会因为以下两种原因导致:\n1.查看数据库确认该数据是否有被手动修改过\n2.查看: case_ass_rule_api.py 中的 RespAssertionRuleApi 中的逻辑是否被修改',
                 status='error')
             self.sio.log('=== 断言异常 ===', status="error")
             return False
@@ -503,4 +497,4 @@ if __name__ == '__main__':
 
 
     # test_resp_ass()
-    test_field_ass()
+    # test_field_ass()
