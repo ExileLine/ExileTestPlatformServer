@@ -362,60 +362,111 @@ class QueryExecuteData:
         return scenario_list
 
     @staticmethod
-    def gen_execute_name(_id):
-        """1"""
+    def gen_execute_name(id_key, id_val):
+        """
+        获取名称
+        :param id_key: 键
+        :param id_val: 值
+        :return:
+        """
         d = {
-            "task_id": TestVersionTask
+            "project_id": {
+                "class": TestProject,
+                "name": "project_name",
+                "title": "项目",
+            },
+            "version_id": {
+                "class": TestProjectVersion,
+                "name": "version_name",
+                "title": "版本迭代",
+            },
+            "task_id": {
+                "class": TestVersionTask,
+                "name": "task_name",
+                "title": "任务",
+            },
+            "module_id": {
+                "class": TestModuleApp,
+                "name": "module_name",
+                "title": "模块",
+            }
         }
-        # task_name = TestVersionTask.query.get(task_id).task_name
-        d.get(_id)
-        getattr(d.get(_id), 'query')
-        return execute_name
+        model = d.get(id_key).get('class')
+        name = d.get(id_key).get('name')
+        title = d.get(id_key).get('title')
+        query_result = model.query.get(id_val)
+        if query_result:
+            execute_name = getattr(query_result, name)
+            return title, execute_name
+        else:
+            return False, f'{title}id:{id_val}不存在或可执行用例为空'
+
+    @staticmethod
+    def gen_kv_tuple(**kwargs):
+        """
+        只能接受一个键值对
+        支持键: project_id, version_id, task_id, module_id
+        :param kwargs: {"project_id": "1"}
+        :return:
+        """
+
+        to_tuple = [(k, v) for k, v in kwargs.items()]
+        id_key = to_tuple[-1][0]
+        id_val = to_tuple[-1][1]
+        return id_key, id_val
 
     @staticmethod
     def execute_all(**kwargs):
         """执行全部用例以及场景"""
+
+        id_key, id_val = QueryExecuteData.gen_kv_tuple(**kwargs)
+        title, execute_name = QueryExecuteData.gen_execute_name(id_key=id_key, id_val=id_val)
+        if not title:
+            return title, execute_name
+
         case_list = QueryExecuteData.gen_execute_case_list(**kwargs)
         scenario_list = QueryExecuteData.gen_execute_scenario_list(**kwargs)
-        execute_name = "测试。。。"
-        return True, {
-            "execute_name": f"执行任务【{execute_name}】所有用例与场景",
+        data = {
+            "execute_name": f"执行{title}【{execute_name}】所有用例与场景",
             "is_execute_all": True,
             "execute_dict": {
                 "case_list": case_list,
                 "scenario_list": scenario_list
             }
         }
+        return True, data
 
     @staticmethod
     def execute_case(**kwargs):
         """执行全部用例"""
 
+        id_key, id_val = QueryExecuteData.gen_kv_tuple(**kwargs)
+        title, execute_name = QueryExecuteData.gen_execute_name(id_key=id_key, id_val=id_val)
+        if not title:
+            return title, execute_name
+
         case_list = QueryExecuteData.gen_execute_case_list(**kwargs)
-
-        # if not case_list:
-        #     return False, f'任务id:{task_id}不存在或可执行用例为空'
-
-        execute_name = "测试。。。"
-        return True, {
-            "execute_name": f"执行任务【{execute_name}】所有用例",
+        data = {
+            "execute_name": f"执行{title}【{execute_name}】所有用例",
             "send_test_case_list": case_list
         }
+        return True, data
 
     @staticmethod
     def execute_scenario(**kwargs):
         """执行全部场景"""
 
+        id_key, id_val = QueryExecuteData.gen_kv_tuple(**kwargs)
+        title, execute_name = QueryExecuteData.gen_execute_name(id_key=id_key, id_val=id_val)
+        if not title:
+            return title, execute_name
+
         scenario_list = QueryExecuteData.gen_execute_scenario_list(**kwargs)
-
-        # if not query_scenario:
-        #     return False, f'任务id:{task_id}不存在或可执行场景为空'
-
-        execute_name = "测试。。。"
-        return True, {
-            "execute_name": f"执行任务【{execute_name}】所有用例场景",
+        data = {
+            "execute_name": f"执行{title}【{execute_name}】所有场景",
             "send_test_case_list": scenario_list
         }
+        return True, data
 
     @staticmethod
     def execute_case_only(case_id):
@@ -450,10 +501,11 @@ class QueryExecuteData:
 
         execute_name = case_info.get('case_name')
 
-        return True, {
-            "execute_name": execute_name,
+        data = {
+            "execute_name": f"执行用例：【{execute_name}】",
             "send_test_case_list": [result]
         }
+        return True, data
 
     @staticmethod
     def execute_scenario_only(scenario_id):
@@ -488,10 +540,11 @@ class QueryExecuteData:
                 update_case_id.append(case_id)
                 send_test_case_list.append(result)
 
-        return True, {
-            "execute_name": execute_name,
+        data = {
+            "execute_name": f"执行场景：【{execute_name}】",
             "send_test_case_list": send_test_case_list
         }
+        return True, data
 
     @staticmethod
     def query_module_app(module_code):
@@ -637,14 +690,21 @@ class CaseExecApi(MethodView):
 
 
 if __name__ == '__main__':
-    pass
     from common.libs.set_app_context import set_app_context
 
 
     @set_app_context
     def main():
-        QueryExecuteData.query_task_all(30)
-        # QueryExecuteData.query_version_all(4)
+        """调试"""
+        # res = QueryExecuteData.execute_all(**{"project_id": "30"})
+        # res = QueryExecuteData.execute_all(**{"version_id": "6"})
+
+        # res = QueryExecuteData.execute_all(**{"task_id": "45"})
+        # res = QueryExecuteData.execute_case(**{"task_id": "45"})
+        # res = QueryExecuteData.execute_scenario(**{"task_id": "45"})
+
+        # res = QueryExecuteData.execute_all(**{"module_id": "3"})
+        # print(res)
 
 
     main()
