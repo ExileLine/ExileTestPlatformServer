@@ -265,7 +265,7 @@ class QueryExecuteData:
             AND B.is_deleted = 0
             AND C.is_deleted = 0
             AND B.case_id in {tuple(case_id_list)}
-            ORDER BY A.id;        
+            ORDER BY A.id;
 	    """
         result = project_db.select(sql)
         return result
@@ -531,24 +531,13 @@ class QueryExecuteData:
         if not case_list:  # 防止手动修改数据导致,在场景创建的接口中有对应的校验
             return False, f'场景id:{scenario_id}用例为空(错误数据)'
 
-        sort_case_list = list(
-            filter(lambda x: not x.get('is_active'), sorted(case_list, key=lambda x: x.get("index"), reverse=True)))
-        update_case_id = []
-        send_test_case_list = []
-
-        for case in sort_case_list:
-            case_id = case.get('case_id')
-            result = query_case_assemble(case_id=case_id)
-            if result:
-                update_case_id.append(case_id)
-                send_test_case_list.append(result)
-
-        QueryExecuteData.update_case_total_execution(update_case_id)
+        send_test_case_list = QueryExecuteData.query_scenario_assemble([result.to_json()])
 
         data = {
             "execute_name": f"执行场景:({execute_name})",
-            "send_test_case_list": send_test_case_list
+            "send_test_case_list": send_test_case_list[-1].get("case_list")
         }
+
         return True, data
 
     @staticmethod
@@ -699,6 +688,9 @@ if __name__ == '__main__':
     @set_app_context
     def main():
         """调试"""
+
+        res = QueryExecuteData.execute_scenario_only(42)
+
         # res = QueryExecuteData.execute_all(**{"project_id": "30"})
         # res = QueryExecuteData.execute_all(**{"version_id": "6"})
 
