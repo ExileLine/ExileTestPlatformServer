@@ -800,17 +800,3 @@ class MainTest:
 
     def __str__(self):
         return '\n'.join([f"{k}:{v}" for k, v in self.__dict__.items()])
-
-
-if __name__ == '__main__':
-    pass
-    # get_data = R.get("module_all_first_log:3")
-    # html_str = RepostTemplate(data=json.loads(get_data)).generate_html_report()
-    # print(html_str)
-    # report_name = f"Test_Report_{time.strftime('%Y-%m-%d_%H_%M_%S')}_.html"
-    # path = f"{os.getcwd().split('ExileTestPlatformServer')[0]}ExileTestPlatformServer/app/static/report/{report_name}"
-    # print(path)
-    # with open(path, "w",
-    #           encoding="utf-8") as f:
-    #     f.write(html_str)
-    # print(os.system(f'rm {path}'))
