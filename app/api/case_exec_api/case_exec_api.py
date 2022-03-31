@@ -493,6 +493,8 @@ class QueryExecuteData:
             "bind_info": bind_info
         }
 
+        query_case.add_total_execution()
+
         if not query_case:
             return False, f'用例id:{case_id}不存在'
 
@@ -505,6 +507,7 @@ class QueryExecuteData:
             "execute_name": f"执行用例:({execute_name})",
             "send_test_case_list": [result]
         }
+
         return True, data
 
     @staticmethod
@@ -539,6 +542,8 @@ class QueryExecuteData:
             if result:
                 update_case_id.append(case_id)
                 send_test_case_list.append(result)
+
+        QueryExecuteData.update_case_total_execution(update_case_id)
 
         data = {
             "execute_name": f"执行场景:({execute_name})",
