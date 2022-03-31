@@ -19,7 +19,7 @@ from app.models.push_reminder.models import DingDingConfModel, MailConfModel
 from common.libs.StringIOLog import StringIOLog
 from common.libs.set_app_context import set_app_context
 
-executor = ThreadPoolExecutor(200)
+# executor = ThreadPoolExecutor(200)
 
 
 @set_app_context
@@ -675,9 +675,9 @@ class CaseExecApi(MethodView):
         }
         main_test = MainTest(test_obj=test_obj)
 
-        executor.submit(main_test.main)
-        # thread1 = threading.Thread(target=main_test.main)
-        # thread1.start()
+        # executor.submit(main_test.main)
+        thread1 = threading.Thread(target=main_test.main)
+        thread1.start()
         return api_result(code=200, message='操作成功,请前往日志查看执行结果', data=[time.time()])
 
 
