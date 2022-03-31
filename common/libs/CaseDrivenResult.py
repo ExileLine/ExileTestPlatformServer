@@ -767,7 +767,7 @@ class MainTest:
         :return:
         """
 
-        self.report_name = f"Test_Report_{time.strftime('%Y-%m-%d_%H_%M_%S')}_.html"
+        self.report_name = f"Test_Report_{time.strftime('%Y-%m-%d_%H_%M_%S')}_{self.execute_name}.html"
 
         self.path = f"{os.getcwd().split('ExileTestPlatformServer')[0]}ExileTestPlatformServer/app/static/report/{self.report_name}"
 
@@ -797,8 +797,6 @@ class MainTest:
                 html_file_path=self.path,
                 mail_content="详情查看附件"
             )
-
-        # os.system(f'rm {self.path}')
 
     def __str__(self):
         return '\n'.join([f"{k}:{v}" for k, v in self.__dict__.items()])

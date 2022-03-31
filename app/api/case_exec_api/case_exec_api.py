@@ -428,7 +428,7 @@ class QueryExecuteData:
         case_list = QueryExecuteData.gen_execute_case_list(**kwargs)
         scenario_list = QueryExecuteData.gen_execute_scenario_list(**kwargs)
         data = {
-            "execute_name": f"执行{title}【{execute_name}】所有用例与场景",
+            "execute_name": f"执行{title}({execute_name})所有用例与场景",
             "is_execute_all": True,
             "execute_dict": {
                 "case_list": case_list,
@@ -448,7 +448,7 @@ class QueryExecuteData:
 
         case_list = QueryExecuteData.gen_execute_case_list(**kwargs)
         data = {
-            "execute_name": f"执行{title}【{execute_name}】所有用例",
+            "execute_name": f"执行{title}({execute_name})所有用例",
             "send_test_case_list": case_list
         }
         return True, data
@@ -464,7 +464,7 @@ class QueryExecuteData:
 
         scenario_list = QueryExecuteData.gen_execute_scenario_list(**kwargs)
         data = {
-            "execute_name": f"执行{title}【{execute_name}】所有场景",
+            "execute_name": f"执行{title}({execute_name})所有场景",
             "send_test_case_list": scenario_list
         }
         return True, data
@@ -503,7 +503,7 @@ class QueryExecuteData:
         execute_name = case_info.get('case_name')
 
         data = {
-            "execute_name": f"执行用例：【{execute_name}】",
+            "execute_name": f"执行用例:({execute_name})",
             "send_test_case_list": [result]
         }
         return True, data
@@ -542,7 +542,7 @@ class QueryExecuteData:
                 send_test_case_list.append(result)
 
         data = {
-            "execute_name": f"执行场景：【{execute_name}】",
+            "execute_name": f"执行场景:({execute_name})",
             "send_test_case_list": send_test_case_list
         }
         return True, data
