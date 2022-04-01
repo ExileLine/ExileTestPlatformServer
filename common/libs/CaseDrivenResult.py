@@ -357,6 +357,7 @@ class MainTest:
             self.current_case_resp_ass_error += 1
             self.logs_error_switch = True
             self.full_pass = False
+            self.execute_status = False
 
     def execute_field_ass(self, ass_json):
         """
@@ -375,6 +376,7 @@ class MainTest:
         if self.test_result.field_ass_fail != 0:
             self.logs_error_switch = True
             self.full_pass = False
+            self.execute_status = False
 
     def current_request(self, method=None, **kwargs):
         """
@@ -600,6 +602,8 @@ class MainTest:
 
             self.case_id = case_info.get('id')
             self.case_name = case_info.get('case_name')
+            self.creator = case_info.get('creator')
+            self.creator_id = case_info.get('creator_id')
 
             self.sio.log(f'=== case_id: {self.case_id} ===')
             self.sio.log(f'=== case_name: {self.case_name} ===')
@@ -630,6 +634,7 @@ class MainTest:
                     self.sio.log(f"=== 请求失败:{str(e)} ===", status="error")
                     self.test_result.req_error += 1
                     self.full_pass = False
+                    self.execute_status = False
                     self.sio.log("=== 跳过断言 ===")
                     continue
 
@@ -648,7 +653,7 @@ class MainTest:
             add_case = {
                 "report_tab": 1,
                 "case_id": self.case_id,
-                "case_name": self.case_name,
+                "case_name": f"{self.case_name}（ID:{self.creator_id}-创建人:{self.creator}）",
                 "case_log": self.sio.get_stringio().split('\n'),
                 "error": self.logs_error_switch
             }
@@ -673,6 +678,8 @@ class MainTest:
         for group_index, group in enumerate(new_scenario_generator, 1):
             scenario_id = group.get('scenario_id')
             scenario_title = group.get('scenario_title')
+            scenario_creator_id = group.get('creator_id')
+            scenario_creator = group.get('creator')
             case_list = group.get('case_list')
             self.sio.log(f'=== start {scenario_id}: scenario: {scenario_title} ===')
             self.logs_error_switch = False
@@ -686,6 +693,8 @@ class MainTest:
 
                 self.case_id = case_info.get('id')
                 self.case_name = case_info.get('case_name')
+                self.creator = case_info.get('creator')
+                self.creator_id = case_info.get('creator_id')
 
                 self.sio.log(f'=== case_id: {self.case_id} ===')
                 self.sio.log(f'=== case_name: {self.case_name} ===')
@@ -727,7 +736,7 @@ class MainTest:
 
                 add_case = {
                     "case_id": self.case_id,
-                    "case_name": self.case_name,
+                    "case_name": f"{self.case_name}（ID:{self.creator_id}-创建人:{self.creator}）",
                     "case_log": self.sio.get_stringio().split('\n'),
                     "error": self.logs_error_switch
                 }
