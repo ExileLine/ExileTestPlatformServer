@@ -204,7 +204,12 @@ class QueryExecuteData:
     def update_case_total_execution(case_id_list):
         """更新用例执行数"""
 
-        sql = f"""UPDATE exile_test_case SET total_execution = total_execution +1 WHERE id in {tuple(case_id_list)};"""
+        sql = f"""
+        UPDATE exile_test_case 
+        SET total_execution = total_execution +1 
+        WHERE 
+        {f'id={case_id_list[-1]}' if len(case_id_list) == 1 else f'id in {tuple(case_id_list)}'}
+        """
         project_db.update(sql)
         print(f'共 {len(case_id_list)} 条, 更新用例执行数成功:{case_id_list}')
 
@@ -265,7 +270,7 @@ class QueryExecuteData:
             A.is_deleted = 0
             AND B.is_deleted = 0
             AND C.is_deleted = 0
-            AND B.case_id in {tuple(case_id_list)}
+            {f'AND B.case_id={case_id_list[-1]}' if len(case_id_list) == 1 else f'AND B.case_id in {tuple(case_id_list)}'}
             ORDER BY A.id;
 	    """
         result = project_db.select(sql)
@@ -315,10 +320,11 @@ class QueryExecuteData:
 
         query_case = MidProjectVersionAndCase.query.filter_by(**kwargs, is_deleted=0).with_entities(
             MidProjectVersionAndCase.case_id).distinct().all()
-        case_id_list = [obj.case_id for obj in query_case]
 
+        case_id_list = [obj.case_id for obj in query_case]
         if not case_id_list:
             return []
+
         query_case_zip_list = QueryExecuteData.query_case_assemble(case_id_list)
         case_list = GenExecuteData.main(query_case_zip_list)
         QueryExecuteData.update_case_total_execution(case_id_list)
