@@ -19,6 +19,7 @@ from app.models.push_reminder.models import DingDingConfModel, MailConfModel
 from common.libs.StringIOLog import StringIOLog
 from common.libs.set_app_context import set_app_context
 
+
 # executor = ThreadPoolExecutor(200)
 
 
@@ -295,7 +296,6 @@ class QueryExecuteData:
                 }
 
                 scenario_list.append(scenario_obj)
-
         return scenario_list
 
     @staticmethod
@@ -316,6 +316,9 @@ class QueryExecuteData:
         query_case = MidProjectVersionAndCase.query.filter_by(**kwargs, is_deleted=0).with_entities(
             MidProjectVersionAndCase.case_id).distinct().all()
         case_id_list = [obj.case_id for obj in query_case]
+
+        if not case_id_list:
+            return []
         query_case_zip_list = QueryExecuteData.query_case_assemble(case_id_list)
         case_list = GenExecuteData.main(query_case_zip_list)
         QueryExecuteData.update_case_total_execution(case_id_list)
@@ -426,6 +429,9 @@ class QueryExecuteData:
 
         case_list = QueryExecuteData.gen_execute_case_list(**kwargs)
         scenario_list = QueryExecuteData.gen_execute_scenario_list(**kwargs)
+        if not case_list and not scenario_list:
+            return False, '用例与场景为空'
+
         data = {
             "execute_name": f"执行{title}({execute_name})所有用例与场景",
             "is_execute_all": True,
@@ -446,6 +452,9 @@ class QueryExecuteData:
             return title, execute_name
 
         case_list = QueryExecuteData.gen_execute_case_list(**kwargs)
+        if not case_list:
+            return False, '用例为空'
+
         data = {
             "execute_name": f"执行{title}({execute_name})所有用例",
             "send_test_case_list": case_list
@@ -462,6 +471,9 @@ class QueryExecuteData:
             return title, execute_name
 
         scenario_list = QueryExecuteData.gen_execute_scenario_list(**kwargs)
+        if not scenario_list:
+            return False, '场景为空'
+
         data = {
             "execute_name": f"执行{title}({execute_name})所有场景",
             "send_test_case_list": scenario_list
@@ -477,9 +489,8 @@ class QueryExecuteData:
         """
 
         query_case = TestCase.query.get(case_id)
-
         if not query_case:
-            return {}
+            return False, f'用例id:{case_id}不存在'
 
         case_info = query_case.to_json()
 
@@ -507,7 +518,6 @@ class QueryExecuteData:
             "execute_name": f"执行用例:({execute_name})",
             "send_test_case_list": [result]
         }
-
         return True, data
 
     @staticmethod
@@ -532,12 +542,13 @@ class QueryExecuteData:
             return False, f'场景id:{scenario_id}用例为空(错误数据)'
 
         send_test_case_list = QueryExecuteData.query_scenario_assemble([result.to_json()])
+        if not send_test_case_list:
+            return False, '场景为空'
 
         data = {
             "execute_name": f"执行场景:({execute_name})",
             "send_test_case_list": send_test_case_list[-1].get("case_list")
         }
-
         return True, data
 
     @staticmethod
