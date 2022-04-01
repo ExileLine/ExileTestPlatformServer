@@ -815,8 +815,8 @@ class MainTest:
         getattr(self, self.func_name)()
 
         get_data = R.get(self.save_key)  # 日志结果集
-        get_data_to_dict = json.loads(get_data)  # 日志结果集转JSON
-        test_repost = RepostTemplate(data=get_data_to_dict).generate_html_report()  # 测试报告渲染
+        # get_data_to_dict = json.loads(get_data)  # 日志结果集转JSON
+        test_repost = RepostTemplate(data=get_data).generate_html_report()  # 测试报告渲染
         self.save_test_repost(report_str=test_repost)  # 创建html测试报告
 
         report_url = self.gen_report_url()  # 生成测试报告链接

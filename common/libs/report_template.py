@@ -280,8 +280,8 @@ class RepostTemplate:
     def script_html(cls, data):
         """script"""
         _script = f"""
-                var resp = {data};
-                """
+  var resp = {data};
+        """
         return _script
 
     @classmethod
