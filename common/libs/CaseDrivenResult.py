@@ -207,9 +207,11 @@ class MainTest:
 
         self.current_assert_description = None
 
-        self.full_pass = True
-        self.current_case_resp_ass_error = 0  # 响应断言标识
-        self.logs_error_switch = False  # 日志标识
+        self.full_pass = True  # 本次是否完全通过
+        self.current_case_resp_ass_error = 0  # 当次用例响应断言错误数
+        self.current_logs_error_switch = False  # 日志错误标识(多场景中使用)
+        self.logs_error_switch = False  # 日志错误标识(都会用到)
+
         self.test_result = TestResult()  # 测试结果
         self.case_result_list = []  # 测试结果日志集
 
@@ -227,6 +229,8 @@ class MainTest:
         """重置"""
 
         self.full_pass = True
+        self.current_logs_error_switch = False
+        self.logs_error_switch = False
         self.current_case_resp_ass_error = 0
 
     def set_case_count(self):
@@ -355,8 +359,9 @@ class MainTest:
         else:
             self.test_result.resp_ass_fail += 1
             self.current_case_resp_ass_error += 1
-            self.logs_error_switch = True
             self.full_pass = False
+            self.current_logs_error_switch = True
+            self.logs_error_switch = True
             self.execute_status = False
 
     def execute_field_ass(self, ass_json):
@@ -374,8 +379,9 @@ class MainTest:
         self.test_result.field_ass_fail += field_ass_result.get('fail')
 
         if self.test_result.field_ass_fail != 0:
-            self.logs_error_switch = True
             self.full_pass = False
+            self.current_logs_error_switch = True
+            self.logs_error_switch = True
             self.execute_status = False
 
     def current_request(self, method=None, **kwargs):
@@ -594,7 +600,7 @@ class MainTest:
 
         for case_index, case in enumerate(self.case_generator, 1):
             self.sio.log(f'=== start case: {case_index} ===')
-            self.logs_error_switch = False
+
             self.reset_current_data()
 
             case_info = case.get('case_info', {})
@@ -634,6 +640,7 @@ class MainTest:
                     self.sio.log(f"=== 请求失败:{str(e)} ===", status="error")
                     self.test_result.req_error += 1
                     self.full_pass = False
+                    self.logs_error_switch = True
                     self.execute_status = False
                     self.sio.log("=== 跳过断言 ===")
                     continue
@@ -657,6 +664,7 @@ class MainTest:
                 "case_log": self.sio.get_stringio().split('\n'),
                 "error": self.logs_error_switch
             }
+
             self.case_result_list.append(add_case)
 
         if not self.is_execute_all:
@@ -678,16 +686,18 @@ class MainTest:
         for group_index, group in enumerate(new_scenario_generator, 1):
             scenario_id = group.get('scenario_id')
             scenario_title = group.get('scenario_title')
-            scenario_creator_id = group.get('creator_id')
-            scenario_creator = group.get('creator')
             case_list = group.get('case_list')
             self.sio.log(f'=== start {scenario_id}: scenario: {scenario_title} ===')
-            self.logs_error_switch = False
+
+            self.reset_current_data()
 
             scenario_log = []
+
             for case_index, case in enumerate(case_list, 1):
                 self.sio.log(f'=== start case: {case_index} ===')
-                self.reset_current_data()
+
+                self.logs_error_switch = False
+
                 case_info = case.get('case_info', {})
                 bind_info = case.get('bind_info', [])
 
@@ -718,11 +728,15 @@ class MainTest:
                     case_field_ass_info = bind.get('case_field_ass_info', [])
 
                     try:
-                        self.test_result.req_success += 1
                         self.assemble_data_send(case_data_info=case_data_info)
+                        self.test_result.req_success += 1
                     except BaseException as e:
                         self.sio.log(f"=== 请求失败:{str(e)} ===", status="error")
                         self.test_result.req_error += 1
+                        self.full_pass = False
+                        self.current_logs_error_switch = True
+                        self.logs_error_switch = True
+                        self.execute_status = False
                         self.sio.log("=== 跳过断言 ===")
                         continue
 
@@ -741,8 +755,6 @@ class MainTest:
                     "error": self.logs_error_switch
                 }
 
-                # self.set_case_count()
-
                 scenario_log.append(add_case)
 
                 self.sio.log(f'=== end {scenario_id}: scenario: {scenario_title} case: {case_index}===\n')
@@ -752,10 +764,10 @@ class MainTest:
                 "scenario_id": scenario_id,
                 "scenario_title": scenario_title,
                 "scenario_log": scenario_log,
-                "error": self.logs_error_switch
+                "error": self.current_logs_error_switch
             }
-            self.set_case_count()
             self.case_result_list.append(add_group)
+            self.set_case_count()
 
         if not self.is_execute_all:
             self.gen_logs()
