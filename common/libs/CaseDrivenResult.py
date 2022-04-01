@@ -219,6 +219,7 @@ class MainTest:
         self.total_time = 0
 
         self.save_key = ""
+        self.execute_status = True
         self.path = ""
         self.report_name = ""
 
@@ -531,20 +532,23 @@ class MainTest:
             self.sio.log(f'=== update history sql === 【 {sql2} 】', status='success')
             project_db.insert(sql2)
 
-    def save_logs(self, log_id):
+    def save_logs(self, redis_key, report_url):
         """
 
-        :param log_id: 日志id
+        :param redis_key: 日志key
+        :param report_url: 报告地址
         :return:
         """
 
-        sql = """INSERT INTO exile_test_execute_logs (`is_deleted`, `create_time`, `create_timestamp`,  `execute_id`, `execute_name`, `execute_type`, `redis_key`, `creator`, `creator_id`) VALUES (0,'{}','{}','{}','{}','{}','{}','{}','{}');""".format(
+        sql = """INSERT INTO exile_test_execute_logs (`is_deleted`, `create_time`, `create_timestamp`,  `execute_id`, `execute_name`, `execute_type`, `redis_key`, `report_url`, `execute_status`, `creator`, `creator_id`) VALUES (0,'{}','{}','{}','{}','{}','{}','{}','{}','{}','{}');""".format(
             self.create_time,
             int(self.start_time),
             self.execute_id,
             self.execute_name,
             self.execute_type,
-            log_id,
+            redis_key,
+            report_url,
+            int(self.execute_status),
             self.execute_username,
             self.execute_user_id
         )
@@ -577,7 +581,6 @@ class MainTest:
         save_obj_first = current_save_dict.get(self.execute_type, "未知执行类型")
         R.set(save_obj_first, json.dumps(return_case_result))
         logger.success('=== save redis ok ===')
-        self.save_logs(log_id=self.save_key)
 
     def only_execute(self):
         """
@@ -774,22 +777,33 @@ class MainTest:
         with open(self.path, "w", encoding="utf-8") as f:
             f.write(report_str)
 
+    def gen_report_url(self):
+        """
+        生成测试报告链接
+        :return:
+        """
+        server_url = project_db.select(
+            'SELECT server_url FROM exile_platform_conf WHERE weights = (SELECT max(weights) FROM exile_platform_conf);',
+            only=True)
+        report_url = f"{server_url.get('server_url', 'http://0.0.0.0:7272')}/static/report/{self.report_name}"
+        return report_url
+
     def main(self):
         """main"""
 
         getattr(self, self.func_name)()
 
-        get_data = R.get(self.save_key)
-        get_data_to_dict = json.loads(get_data)
-        test_repost = RepostTemplate(data=get_data_to_dict).generate_html_report()
-        # print(test_repost)
+        get_data = R.get(self.save_key)  # 日志结果集
+        get_data_to_dict = json.loads(get_data)  # 日志结果集转JSON
+        test_repost = RepostTemplate(data=get_data_to_dict).generate_html_report()  # 测试报告渲染
+        self.save_test_repost(report_str=test_repost)  # 创建html测试报告
 
-        self.save_test_repost(report_str=test_repost)
-
-        mt = f"#### 测试报告:{self.execute_name}  \n  > 测试人员:{self.execute_username}  \n  > 开始时间:{self.create_time}  \n  > 结束时间:{self.end_time}  \n  > 合计耗时:{self.total_time}s  \n  > 用例总数:{self.test_result.all_test_count}  \n  > 成功数:{self.test_result.pass_count}  \n  > 失败数:{self.test_result.fail_count}  \n  > 通过率:{self.test_result.pass_rate}  \n "
+        report_url = self.gen_report_url()  # 生成测试报告链接
+        self.save_logs(redis_key=self.save_key, report_url=report_url)
 
         if self.is_dd_push:
-            MessagePush.dd_push(ding_talk_url=self.ding_talk_url, report_name=self.report_name, markdown_text=mt)
+            mt = f"#### 测试报告:{self.execute_name}  \n  > 测试人员:{self.execute_username}  \n  > 开始时间:{self.create_time}  \n  > 结束时间:{self.end_time}  \n  > 合计耗时:{self.total_time}s  \n  > 用例总数:{self.test_result.all_test_count}  \n  > 成功数:{self.test_result.pass_count}  \n  > 失败数:{self.test_result.fail_count}  \n  > 通过率:{self.test_result.pass_rate}  \n "
+            MessagePush.dd_push(ding_talk_url=self.ding_talk_url, report_url=report_url, markdown_text=mt)
 
             # if self.is_send_mail:
             SendEmail(to_list=self.mail_list, ac_list=self.mail_list).send_attach(

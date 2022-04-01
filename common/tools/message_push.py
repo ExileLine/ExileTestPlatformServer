@@ -14,17 +14,16 @@ class MessagePush:
     """消息推送"""
 
     @staticmethod
-    def dd_push(ding_talk_url=None, report_name=None, markdown_text=None):
-        """钉钉推送"""
-
-        server_url = project_db.select(
-            'SELECT server_url FROM exile_platform_conf WHERE weights = (SELECT max(weights) FROM exile_platform_conf);',
-            only=True)
+    def dd_push(ding_talk_url=None, report_url=None, markdown_text=None):
+        """
+        钉钉推送
+        :param ding_talk_url: 钉钉群token
+        :param report_url: 测试报告链接
+        :param markdown_text: 推送模板
+        :return:
+        """
 
         url = ding_talk_url
-
-        print(server_url)
-        report_url = f"{server_url.get('server_url', 'http://0.0.0.0:7272')}/static/report/{report_name}"
 
         if not url.strip():
             raise TypeError('钉钉推送失败: DING_TALK_URL 未配置')

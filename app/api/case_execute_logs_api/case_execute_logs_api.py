@@ -82,6 +82,10 @@ class CaseExecuteLogsPageApi(MethodView):
     """
 
     def post(self):
+        """
+        执行日志分页模糊查询
+        :return:
+        """
         data = request.get_json()
         execute_id = data.get('execute_id')
         execute_name = data.get('execute_name')
