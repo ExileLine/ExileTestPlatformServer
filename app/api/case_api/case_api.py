@@ -320,7 +320,7 @@ class CasePageApi(MethodView):
                 AND is_deleted = {is_deleted}
                 AND case_name LIKE"%{case_name}%"
             ORDER BY
-                A.create_timestamp DESC
+                A.create_time DESC
             LIMIT {limit[0]},{limit[1]};
         """
 
