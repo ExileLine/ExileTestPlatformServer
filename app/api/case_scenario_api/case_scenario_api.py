@@ -290,7 +290,7 @@ class CaseScenarioPageApi(MethodView):
                 AND is_deleted = {is_deleted}
                 AND scenario_title LIKE"%{scenario_title}%"
             ORDER BY
-                A.create_timestamp DESC
+                A.create_time DESC
             LIMIT {limit[0]},{limit[1]};
         """
 
