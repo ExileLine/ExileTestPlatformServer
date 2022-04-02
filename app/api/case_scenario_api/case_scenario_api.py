@@ -86,7 +86,7 @@ class CaseScenarioApi(MethodView):
         project_id = data.get('project_id', 0)
         version_id_list = data.get('version_id_list', [])
         module_id = data.get('module_id')
-        scenario_title = data.get('scenario_title')
+        scenario_title = data.get('scenario_title', '').strip()
         case_list = data.get('case_list', [])
         is_shared = data.get('is_shared', 0)
         is_public = data.get('is_public', True)
@@ -105,6 +105,10 @@ class CaseScenarioApi(MethodView):
                 return api_result(code=400, message=f'模块: {module_id} 不存在')
         else:
             module_id = 0
+
+        if not scenario_title:
+            return api_result(code=400, message='场景名称不能为空')
+
         query_scenario = TestCaseScenario.query.filter_by(scenario_title=scenario_title).first()
 
         if query_scenario:
@@ -146,7 +150,7 @@ class CaseScenarioApi(MethodView):
         version_id_list = data.get('version_id_list', [])
         module_id = data.get('module_id')
         scenario_id = data.get('id')
-        scenario_title = data.get('scenario_title')
+        scenario_title = data.get('scenario_title', '').strip()
         case_list = data.get('case_list', [])
         is_shared = data.get('is_shared', 0)
         is_public = data.get('is_public', True)
@@ -165,6 +169,9 @@ class CaseScenarioApi(MethodView):
                 return api_result(code=400, message=f'模块: {module_id} 不存在')
         else:
             module_id = 0
+
+        if not scenario_title:
+            return api_result(code=400, message='场景名称不能为空')
 
         query_scenario = TestCaseScenario.query.get(scenario_id)
 
