@@ -582,6 +582,86 @@ class QueryExecuteData:
         else:
             return False, f'应用编号:{module_code}不存在或可执行为空'
 
+    @staticmethod
+    def module_execute_all(module_id):
+        """1"""
+
+        query_module = TestModuleApp.query.get(module_id)
+        if not query_module:
+            return False, f"模块:{module_id}不存在"
+
+        case_id_list = query_module.case_list
+        scenario_id_list = query_module.scenario_list
+
+        if not case_id_list and not scenario_id_list:
+            return False, '用例与场景为空'
+
+        query_case_zip_list = QueryExecuteData.query_case_assemble(case_id_list)
+        case_list = GenExecuteData.main(query_case_zip_list)
+        QueryExecuteData.update_case_total_execution(case_id_list)
+        scenario_list = QueryExecuteData.query_scenario_assemble(
+            [scenario.to_json() for scenario in
+             TestCaseScenario.query.filter(TestCaseScenario.id.in_(scenario_id_list)).all()]
+        )
+
+        title = "模块"
+        execute_name = "测试..."
+        data = {
+            "execute_name": f"执行{title}({execute_name})所有用例与场景",
+            "is_execute_all": True,
+            "execute_dict": {
+                "case_list": case_list,
+                "scenario_list": scenario_list
+            }
+        }
+        return True, data
+
+    @staticmethod
+    def module_execute_case(module_id):
+        """1"""
+        query_module = TestModuleApp.query.get(module_id)
+        if not query_module:
+            return False, f"模块:{module_id}不存在"
+
+        case_id_list = query_module.case_list
+        if not case_id_list:
+            return False, '用例为空'
+
+        query_case_zip_list = QueryExecuteData.query_case_assemble(case_id_list)
+        case_list = GenExecuteData.main(query_case_zip_list)
+        QueryExecuteData.update_case_total_execution(case_id_list)
+
+        title = "模块"
+        execute_name = "测试..."
+        data = {
+            "execute_name": f"执行{title}({execute_name})所有用例",
+            "send_test_case_list": case_list
+        }
+        return True, data
+
+    @staticmethod
+    def module_execute_scenario(module_id):
+        """1"""
+        query_module = TestModuleApp.query.get(module_id)
+        if not query_module:
+            return False, f"模块:{module_id}不存在"
+
+        scenario_id_list = query_module.scenario_list
+        if not scenario_id_list:
+            return False, '场景为空'
+
+        scenario_list = QueryExecuteData.query_scenario_assemble(
+            [scenario.to_json() for scenario in
+             TestCaseScenario.query.filter(TestCaseScenario.id.in_(scenario_id_list)).all()]
+        )
+        title = "模块"
+        execute_name = "测试..."
+        data = {
+            "execute_name": f"执行{title}({execute_name})所有用例",
+            "send_test_case_list": scenario_list
+        }
+        return True, data
+
 
 execute_func_dict = {
     "case": QueryExecuteData.execute_case_only,
@@ -601,9 +681,9 @@ execute_func_dict = {
 
     "module_app": QueryExecuteData.query_module_app,
 
-    "module_all": QueryExecuteData.execute_all,
-    "module_case": QueryExecuteData.execute_case,
-    "module_scenario": QueryExecuteData.execute_scenario
+    "module_all": QueryExecuteData.module_execute_all,
+    "module_case": QueryExecuteData.module_execute_case,
+    "module_scenario": QueryExecuteData.module_execute_scenario
 }
 
 
