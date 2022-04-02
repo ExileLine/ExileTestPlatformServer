@@ -38,7 +38,7 @@ class CaseVarApi(MethodView):
         query_var = TestVariable.query.get(var_id)
 
         if not query_var:
-            return api_result(code=400, message='用例变量id:{}数据不存在'.format(var_id))
+            return api_result(code=400, message=f'用例变量id:{var_id}数据不存在')
 
         return api_result(code=200, message='操作成功', data=query_var.to_json())
 
@@ -49,7 +49,7 @@ class CaseVarApi(MethodView):
         if not check_req_var(data):
             return ab_code(400)
 
-        var_name = data.get('var_name')
+        var_name = data.get('var_name', '').strip()
         var_value = data.get('var_value', "")
         var_type = data.get('var_type')
         var_source = data.get('var_source')
@@ -60,10 +60,13 @@ class CaseVarApi(MethodView):
         is_public = data.get('is_public', True)
         remark = data.get('remark')
 
-        query_var = TestVariable.query.filter_by(var_name=var_name).first()
+        if not var_name:
+            return api_result(code=400, message='变量名称不能为空')
+
+        query_var = TestVariable.query.filter_by(var_name=var_name, is_deleted=0).first()
 
         if query_var:
-            return api_result(code=200, message='变量:【{}】已存在'.format(var_name))
+            return api_result(code=400, message=f'变量:【{var_name}】已存在')
         else:
             if str(var_type) in var_func_dict.keys():
                 var_value = var_func_dict.get(str(var_type))()
@@ -93,7 +96,7 @@ class CaseVarApi(MethodView):
             return ab_code(400)
 
         var_id = data.get('id')
-        var_name = data.get('var_name')
+        var_name = data.get('var_name', '').strip()
         var_value = data.get('var_value', "")
         var_type = data.get('var_type')
         var_source = data.get('var_source')
@@ -117,10 +120,13 @@ class CaseVarApi(MethodView):
             if query_var.creator_id != g.app_user.id:
                 return api_result(code=400, message='该变量未开放,只能被创建人修改!')
 
-        query_var_filter = TestVariable.query.filter_by(var_name=var_name).first()
+        if not var_name:
+            return api_result(code=400, message='变量名称不能为空')
+
+        query_var_filter = TestVariable.query.filter_by(var_name=var_name, is_deleted=0).first()
 
         if query_var_filter and query_var.to_json().get('var_name') != var_name:
-            return api_result(code=400, message='变量名称:{} 已存在'.format(var_name))
+            return api_result(code=400, message=f'变量名称:{var_name} 已存在')
 
         if str(var_type) in var_func_dict.keys():
             var_value = var_func_dict.get(str(var_type))()
