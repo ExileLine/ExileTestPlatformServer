@@ -59,36 +59,41 @@ class TestResult:
         self.all_test_count = 0
         self.all_test_rate = 0
 
+    @classmethod
+    def gen_rate(cls, first, last):
+        """生成%,保留两位"""
+
+        return f"{Decimal(first / last * 100).quantize(Decimal('1.00'))}%"
+
     def get_test_result(self):
         """
-
+        获取测试结果
         :return:
         """
 
         self.req_count = self.req_success + self.req_error
         if self.req_count != 0:
-            self.req_success_rate = f"{Decimal(self.req_success / self.req_count).quantize(Decimal('1.00')) * 100}%"
-            self.req_error_rate = f"{Decimal(self.req_error / self.req_count).quantize(Decimal('1.00')) * 100}%"
+            self.req_success_rate = self.gen_rate(self.req_success, self.req_count)
+            self.req_error_rate = self.gen_rate(self.req_error, self.req_count)
 
             self.resp_ass_count = self.resp_ass_success + self.resp_ass_fail
-
             if self.resp_ass_count != 0:
-                self.resp_ass_success_rate = f"{Decimal(self.resp_ass_success / self.resp_ass_count).quantize(Decimal('1.00')) * 100}%"
-                self.resp_ass_fail_rate = f"{Decimal(self.resp_ass_fail / self.resp_ass_count).quantize(Decimal('1.00')) * 100}%"
+                self.resp_ass_success_rate = self.gen_rate(self.resp_ass_success, self.resp_ass_count)
+                self.resp_ass_fail_rate = self.gen_rate(self.resp_ass_fail, self.resp_ass_count)
 
             self.field_ass_count = self.field_ass_success + self.field_ass_fail
 
             if self.field_ass_count != 0:
-                self.field_ass_success_rate = f"{Decimal(self.field_ass_success / self.field_ass_count).quantize(Decimal('1.00')) * 100}%"
-                self.field_ass_fail_rate = f"{Decimal(self.field_ass_fail / self.field_ass_count).quantize(Decimal('1.00')) * 100}%"
+                self.field_ass_success_rate = self.gen_rate(self.field_ass_success, self.field_ass_count)
+                self.field_ass_fail_rate = self.gen_rate(self.field_ass_fail, self.field_ass_count)
 
             self.all_ass_count = self.resp_ass_count + self.field_ass_count
 
             self.all_test_count = self.pass_count + self.fail_count
 
             if self.all_test_count != 0:
-                self.pass_rate = f"{Decimal(self.pass_count / self.all_test_count).quantize(Decimal('1.00')) * 100}%"
-                self.fail_rate = f"{Decimal(self.fail_count / self.all_test_count).quantize(Decimal('1.00')) * 100}%"
+                self.pass_rate = self.gen_rate(self.pass_count, self.all_test_count)
+                self.fail_rate = self.gen_rate(self.fail_count, self.all_test_count)
 
         d = {
             "req_count": self.req_count,
