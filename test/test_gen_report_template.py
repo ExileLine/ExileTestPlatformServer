@@ -6,6 +6,7 @@
 # @Software: PyCharm
 
 import os
+import sys
 import time
 import json
 
@@ -27,3 +28,10 @@ def test_gen_repost():
 
 if __name__ == '__main__':
     test_gen_repost()
+
+    data1 = R.get('task_all_first_log:30')
+    data1_sizeof = sys.getsizeof(data1)
+    print(data1_sizeof, f"={int(data1_sizeof / 1024)}KB")
+    data2 = str(json.loads(R.get('task_all_first_log:30')))
+    data2_sizeof = sys.getsizeof(data2)
+    print(data2_sizeof, f"={int(data2_sizeof / 1024)}KB")
