@@ -4,10 +4,11 @@
 # @Email   : yang6333yyx@126.com
 # @File    : test_command_cli.py
 # @Software: PyCharm
+import json
 
 from common.libs.set_app_context import set_app_context
 from app.models.test_case.models import TestCase, db
-from app.models.test_case_assert.models import TestCaseAssResponse
+from app.models.test_case_assert.models import TestCaseAssResponse, TestCaseAssField
 from app.models.test_case_config.models import TestDatabases
 from app.models.test_project.models import TestProject, TestProjectVersion, MidProjectVersionAndCase, \
     MidProjectVersionAndScenario, TestModuleApp
@@ -108,8 +109,9 @@ def __scenario():
 
 @set_app_context
 def main():
-    __case()
-    __scenario()
+    """1"""
+    # __case()
+    # __scenario()
     # q = MidRelationCase.query.filter(
     #     MidRelationCase.is_deleted == 0,
     #     MidRelationCase.case_id == 175,
@@ -119,4 +121,17 @@ def main():
 
 if __name__ == '__main__':
     pass
-    main()
+    import requests
+
+    resp = requests.get(url='http://0.0.0.0:7272/api/index/1')
+    # print(resp.json())
+
+    # def gen_num():
+    #     for i in range(10):
+    #         print(f'生成数据：{i}')
+    #         yield i
+    #
+    #
+    # nums = gen_num()
+    # print([num for num in nums])
+    # print(f'打印数据：{num}')
