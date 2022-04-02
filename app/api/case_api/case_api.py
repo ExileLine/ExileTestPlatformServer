@@ -83,10 +83,10 @@ class CaseApi(MethodView):
         project_id = data.get('project_id', 0)
         version_id_list = data.get('version_id_list', [])
         module_id = data.get('module_id')
-        case_name = data.get('case_name')
+        case_name = data.get('case_name', '').strip()
         request_method = data.get('request_method')
-        request_base_url = data.get('request_base_url')
-        request_url = data.get('request_url')
+        request_base_url = data.get('request_base_url', '').strip()
+        request_url = data.get('request_url', '').strip()
         is_shared = data.get('is_shared', True)
         is_public = data.get('is_public', True)
         remark = data.get('remark')
@@ -117,6 +117,9 @@ class CaseApi(MethodView):
 
         if not request_method_result:
             return api_result(code=400, message=f'请求方式: {request_method} 不存在')
+
+        if not case_name:
+            return api_result(code=400, message='用例名称不能为空')
 
         query_case = TestCase.query.filter_by(case_name=case_name, is_deleted=0).first()
 
@@ -161,10 +164,10 @@ class CaseApi(MethodView):
         version_id_list = data.get('version_id_list', [])
         module_id = data.get('module_id')
         case_id = data.get('id')
-        case_name = data.get('case_name')
+        case_name = data.get('case_name', '').strip()
         request_method = data.get('request_method')
-        request_base_url = data.get('request_base_url')
-        request_url = data.get('request_url')
+        request_base_url = data.get('request_base_url', '').strip()
+        request_url = data.get('request_url', '').strip()
         is_shared = data.get('is_shared', True)
         is_public = data.get('is_public', True)
         remark = data.get('remark')
@@ -190,6 +193,9 @@ class CaseApi(MethodView):
         request_base_url = request_base_url.replace(" ", "")
         if not request_base_url:
             return api_result(code=400, message='环境不能为空')
+
+        if not case_name:
+            return api_result(code=400, message='用例名称不能为空')
 
         query_case = TestCase.query.get(case_id)
 
