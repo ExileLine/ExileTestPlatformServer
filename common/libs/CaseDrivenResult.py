@@ -283,8 +283,7 @@ class MainTest:
         err_var_list = []
         current_dict = {}
         for res in result_list:
-            sql = """select id, var_name, var_value, var_type, is_active from exile_test_variable where var_name='{}';""".format(
-                res)
+            sql = f"""select id, var_name, var_value, var_type, is_active from exile_test_variable where var_name='{res}' and is_deleted=0;"""
             query_result = project_db.select(sql=sql, only=True)
             if query_result:
                 var_id = query_result.get('id')
