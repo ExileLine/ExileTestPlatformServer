@@ -649,8 +649,10 @@ class CaseExecApi(MethodView):
             return api_result(code=400, message=f'execute_type:{execute_type}不存在')
 
         execute_func = execute_func_dict.get(execute_type)
+
         __key = execute_type if '_' not in execute_type else execute_type.split("_")[0]
-        result_bool, result_data = execute_func(**{f"{__key}_id": execute_id})
+        result_bool, result_data = execute_func(
+            **{f"{__key}_id" if execute_type != "module_app" else "module_code": execute_id})
 
         if not result_bool:
             return api_result(code=400, message=result_data)
