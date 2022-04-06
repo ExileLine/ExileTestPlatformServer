@@ -824,7 +824,7 @@ class MainTest:
         query = project_db.select(
             'SELECT server_url FROM exile_platform_conf WHERE weights = (SELECT max(weights) FROM exile_platform_conf);',
             only=True)
-        report_url = f"{query.get('server_url', 'http://0.0.0.0')}/report/{self.report_name}"
+        report_url = f"{query.get('server_url', 'http://0.0.0.0')}/{self.report_name}"
         return report_url
 
     def gen_safe_scan_url(self):
