@@ -810,7 +810,7 @@ class MainTest:
         server_url = project_db.select(
             'SELECT server_url FROM exile_platform_conf WHERE weights = (SELECT max(weights) FROM exile_platform_conf);',
             only=True)
-        report_url = f"{server_url.get('server_url', 'http://0.0.0.0:7272')}/static/report/{self.report_name}"
+        report_url = f"{server_url.get('server_url', 'http://0.0.0.0')}/report/{self.report_name}"
         return report_url
 
     def main(self):
