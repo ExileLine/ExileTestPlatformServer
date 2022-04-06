@@ -70,13 +70,13 @@ class CaseScenarioApi(MethodView):
         sorted_case_id_list = sorted(case_id_list, key=lambda x: x.get("index", x.get('case_id')), reverse=True)
         case_obj_list = list(filter(None, map(gen_case_zip, sorted_case_id_list)))
 
-        query_version_list = MidProjectVersionAndScenario.query.filter_by(scenario_id=scenario_id, is_deleted=0).all()
-        version_obj_list = list(filter(None, map(MapToJsonObj.gen_version_obj, query_version_list)))
-        module_id = query_version_list[-1].module_id
+        version_obj_list = MapToJsonObj.gen_scenario_version_list(scenario_id)
+
+        module_id = MapToJsonObj.gen_module_id('scenario', scenario_id)
 
         result['case_list'] = case_obj_list
         result["version_id_list"] = version_obj_list
-        result["module_id"] = module_id if module_id else ''
+        result["module_id"] = module_id
         return api_result(code=200, message='操作成功', data=result)
 
     def post(self):

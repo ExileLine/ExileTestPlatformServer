@@ -489,8 +489,7 @@ class QueryExecuteData:
 
         case_info = query_case.to_json()
 
-        query_case_mid = TestCaseDataAssBind.query.filter_by(case_id=case_id).all()
-        bind_info = list(map(MapToJsonObj.gen_bind_info, query_case_mid))
+        bind_info = MapToJsonObj.gen_bind(case_id)
 
         case_info['is_public'] = bool(case_info.get('is_public'))
         case_info['is_shared'] = bool(case_info.get('is_shared'))
@@ -805,7 +804,6 @@ if __name__ == '__main__':
         print(QueryExecuteData.gen_execute_name(**{"version_id": "6"}))
         print(QueryExecuteData.gen_execute_name(**{"task_id": "45"}))
         print(QueryExecuteData.gen_execute_name(**{"module_id": "3"}))
-
 
     # main()
     # test_func()
