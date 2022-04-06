@@ -191,6 +191,11 @@ class MainTest:
         self.is_send_mail = test_obj.get('is_send_mail', False)
         self.mail_list = test_obj.get('mail_list')
 
+        self.is_safe_scan = test_obj.get('is_safe_scan', False)
+
+        if self.is_safe_scan:
+            self.proxies_url = self.gen_safe_scan_url()
+
         if not isinstance(self.case_list, list):
             raise TypeError('MainTest.__init__.case_list 类型错误')
 
@@ -454,6 +459,15 @@ class MainTest:
             before_send.update(req_json_data)
 
         send = self.var_conversion(before_send)
+
+        if self.is_safe_scan:
+            proxies = {
+                # 'http': '192.168.14.214:7777',
+                # 'https': '192.168.14.214:7777',
+                'http': self.proxies_url,
+                'https': self.proxies_url
+            }
+            send['proxies'] = proxies
 
         self.sio.log('=== send ===')
         resp = self.current_request(method=method, timeout=3, **send)
@@ -807,11 +821,22 @@ class MainTest:
         生成测试报告链接
         :return:
         """
-        server_url = project_db.select(
+        query = project_db.select(
             'SELECT server_url FROM exile_platform_conf WHERE weights = (SELECT max(weights) FROM exile_platform_conf);',
             only=True)
-        report_url = f"{server_url.get('server_url', 'http://0.0.0.0')}/report/{self.report_name}"
+        report_url = f"{query.get('server_url', 'http://0.0.0.0')}/report/{self.report_name}"
         return report_url
+
+    def gen_safe_scan_url(self):
+        """
+        生成安全扫描代理链接
+        :return:
+        """
+        query = project_db.select(
+            'SELECT safe_scan_url FROM exile_platform_conf WHERE weights = (SELECT max(weights) FROM exile_platform_conf);',
+            only=True)
+        safe_scan_url = query.get('safe_scan_url', 'http://0.0.0.0:7777')
+        return safe_scan_url
 
     def main(self):
         """main"""
