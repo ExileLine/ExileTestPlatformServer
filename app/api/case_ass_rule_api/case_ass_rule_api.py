@@ -7,7 +7,7 @@
 
 from all_reference import *
 from app.models.test_case_assert.models import TestCaseAssResponse, TestCaseAssField
-from app.models.test_case_config.models import TestDatabases
+from app.models.test_case_db.models import TestDatabases
 
 
 def gen_new_ass(ass_obj):

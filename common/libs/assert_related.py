@@ -8,7 +8,7 @@
 import json
 import redis
 
-from app.models.test_case_config.models import TestDatabases
+from app.models.test_case_db.models import TestDatabases
 from common.libs.db import MyPyMysql, MyPostgreSql
 from common.libs.execute_code import execute_code
 from common.libs.StringIOLog import StringIOLog

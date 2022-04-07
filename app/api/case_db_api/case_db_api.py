@@ -9,7 +9,7 @@ import redis
 
 from all_reference import *
 from common.libs.db import MyPyMysql, MyPostgreSql
-from app.models.test_case_config.models import TestDatabases
+from app.models.test_case_db.models import TestDatabases
 
 db_list = ("mysql", "redis", "postgresql")
 

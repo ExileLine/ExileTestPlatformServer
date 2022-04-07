@@ -9,7 +9,7 @@ import json
 from common.libs.set_app_context import set_app_context
 from app.models.test_case.models import TestCase, db
 from app.models.test_case_assert.models import TestCaseAssResponse, TestCaseAssField
-from app.models.test_case_config.models import TestDatabases
+from app.models.test_case_db.models import TestDatabases
 from app.models.test_project.models import TestProject, TestProjectVersion, MidProjectVersionAndCase, \
     MidProjectVersionAndScenario, TestModuleApp
 from app.models.push_reminder.models import DingDingConfModel, MailConfModel

@@ -24,7 +24,7 @@ from app.models.platform_conf.models import PlatformConfModel
 from app.models.ui_auto_file.models import UiAutoFile
 from app.models.test_project.models import TestProject, TestProjectVersion, TestVersionTask, TestModuleApp, \
     MidProjectVersionAndCase, MidProjectVersionAndScenario, MidRelationCase, MidRelationScenario
-from app.models.test_case_config.models import TestDatabases
+from app.models.test_case_db.models import TestDatabases
 
 """
 export FLASK_APP=ApplicationExample.py
