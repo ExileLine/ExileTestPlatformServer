@@ -709,8 +709,17 @@ class CaseExecApi(MethodView):
         dd_push_id = data.get('dd_push_id')
         ding_talk_url = ""
         is_send_mail = data.get('is_send_mail', False)
-        # mail_list = data.get('mail_list')
-        mail_list = [m.mail for m in MailConfModel.query.all()]
+
+        """
+        is_all_mail = data.get('is_all_mail', False)
+        
+        if is_all_mail:
+            mail_list = [m.mail for m in MailConfModel.query.filter_by(is_deleted=0).all()]
+        else:
+            mail_list = data.get('mail_list')
+        """
+
+        mail_list = [m.mail for m in MailConfModel.query.filter_by(is_deleted=0).all()]
 
         if isinstance(use_base_url, bool) and use_base_url:
             query_base_url = TestEnv.query.get(base_url_id)
