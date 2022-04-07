@@ -23,7 +23,8 @@ from app.models.push_reminder.models import MailConfModel, DingDingConfModel
 from app.models.platform_conf.models import PlatformConfModel
 from app.models.ui_auto_file.models import UiAutoFile
 from app.models.test_project.models import TestProject, TestProjectVersion, TestVersionTask, TestModuleApp, \
-    MidProjectVersionAndCase, MidProjectVersionAndScenario
+    MidProjectVersionAndCase, MidProjectVersionAndScenario, MidProjectAndCase, MidVersionAndCase, MidTaskAndCase, \
+    MidModuleAndCase
 from app.models.test_case_db.models import TestDatabases
 from app.models.safe_scan_conf.models import SafeScanConf
 
