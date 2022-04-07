@@ -36,6 +36,7 @@ from .project_api.project_api import ProjectApi, ProjectPageApi
 from .project_api.version_api import ProjectVersionApi, ProjectVersionPageApi, VersionBindCaseApi
 from .project_api.version_task_api import VersionTaskApi, VersionTaskPageApi
 from .project_api.module_app_api import ModuleAppApi, ModuleAppPageApi
+from .safe_scan_conf_api.safe_scan_conf_api import SafeScanConfApi, SafeScanConfPageApi
 
 api = Blueprint('api', __name__)
 crm = Blueprint('crm', __name__)
@@ -136,3 +137,7 @@ api.add_url_rule('/version_task_page', view_func=VersionTaskPageApi.as_view('ver
 api.add_url_rule('/module_app', view_func=ModuleAppApi.as_view('module_app'))
 api.add_url_rule('/module_app/<module_id>', view_func=ModuleAppApi.as_view('module_app_detail'))
 api.add_url_rule('/module_app_page', view_func=ModuleAppPageApi.as_view('module_app_page'))
+
+api.add_url_rule('/safe_scan_conf/<safe_id>', view_func=SafeScanConfApi.as_view('safe_scan_conf_detail'))
+api.add_url_rule('/safe_scan_conf', view_func=SafeScanConfApi.as_view('safe_scan_conf'))
+api.add_url_rule('/safe_scan_conf_page', view_func=SafeScanConfPageApi.as_view('safe_scan_conf_page'))
