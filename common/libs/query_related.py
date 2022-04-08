@@ -12,7 +12,8 @@ from common.libs.db import project_db
 from common.libs.set_app_context import set_app_context
 from app.models.test_case.models import TestCase, TestCaseData
 from app.models.test_case_assert.models import TestCaseDataAssBind, TestCaseAssResponse, TestCaseAssField
-from app.models.test_project.models import TestProjectVersion, MidProjectVersionAndCase, MidProjectVersionAndScenario
+from app.models.test_project.models import TestProjectVersion, MidProjectVersionAndCase, MidProjectVersionAndScenario, \
+    MidVersionAndCase, MidModuleAndCase, TestModuleApp
 
 
 def page_size(page=None, size=None, **kwargs):
@@ -187,7 +188,7 @@ class MapToJsonObj:
 
 
 @set_app_context
-def query_case_assemble(case_id):
+def query_case_assemble(case_id, is_new=False):
     """用例组装"""
 
     query_case = TestCase.query.get(case_id)
@@ -197,17 +198,26 @@ def query_case_assemble(case_id):
 
     case_info = query_case.to_json()
 
-    # 版本组装
-    version_obj_list = MapToJsonObj.gen_case_version_list(case_id)
+    if is_new:
+        version_id_list = [m.version_id for m in MidVersionAndCase.query.filter_by(case_id=case_id).all()]
+        version_list = [m.to_json() for m in
+                        TestProjectVersion.query.filter(TestProjectVersion.id.in_(version_id_list)).all()]
 
-    # 模块
-    module_id = MapToJsonObj.gen_module_id('case', case_id)
+        module_id_list = [m.module_id for m in MidModuleAndCase.query.filter_by(case_id=case_id).all()]
+        module_list = [m.to_json() for m in TestModuleApp.query.filter(TestModuleApp.id.in_(module_id_list)).all()]
+
+    else:
+        # 版本组装
+        version_list = MapToJsonObj.gen_case_version_list(case_id)
+
+        # 模块
+        module_list = MapToJsonObj.gen_module_id('case', case_id)
 
     # 参数与响应断言、字段断言组装
     bind_info = MapToJsonObj.gen_bind(case_id)
 
-    case_info["version_id_list"] = version_obj_list
-    case_info["module_id"] = module_id
+    case_info["version_list"] = version_list
+    case_info["module_list"] = module_list
     case_info['is_public'] = bool(case_info.get('is_public'))
     case_info['is_shared'] = bool(case_info.get('is_shared'))
     result = {
@@ -215,68 +225,6 @@ def query_case_assemble(case_id):
         "bind_info": bind_info
     }
     return result
-
-
-# 待删除
-@set_app_context
-def query_case_zip(case_id):
-    """组装查询用例"""
-
-    # TODO 后面需要优化这个查询
-
-    query_case = TestCase.query.get(case_id)
-
-    if not query_case:
-        return False
-
-    query_mid = MidProjectVersionAndCase.query.filter_by(case_id=case_id, is_deleted=0).all()
-
-    version_id_list = [mid.version_id for mid in query_mid]
-    version_model_list = TestProjectVersion.query.filter(
-        TestProjectVersion.id.in_(version_id_list),
-        TestProjectVersion.is_deleted == 0).all()
-    version_obj_list = [v.to_json() for v in version_model_list]
-
-    query_binds = TestCaseDataAssBind.query.filter_by(case_id=case_id, is_deleted=0).all()
-
-    bind_info_list = []
-
-    case_info = query_case.to_json()
-    case_info['is_public'] = bool(case_info.get('is_public'))
-    case_info['is_shared'] = bool(case_info.get('is_shared'))
-    case_info["version_id_list"] = version_obj_list
-
-    result_data = {
-        "case_info": case_info,
-        "bind_info": bind_info_list
-    }
-
-    if not query_binds:
-        return result_data
-
-    for bind in query_binds:
-        data_id = bind.data_id
-        if not data_id:
-            continue
-        ass_resp_ids = [] if not bind.ass_resp_id_list else bind.ass_resp_id_list
-        ass_field_ids = [] if not bind.ass_field_id_list else bind.ass_field_id_list
-
-        query_data = TestCaseData.query.get(data_id)
-        query_ass_resp = TestCaseAssResponse.query.filter(TestCaseAssResponse.id.in_(ass_resp_ids)).all()
-        query_ass_field = TestCaseAssField.query.filter(TestCaseAssField.id.in_(ass_field_ids)).all()
-
-        case_data_info = query_data.to_json()
-        case_resp_ass_info = [resp.to_json() for resp in query_ass_resp] if query_ass_resp else []
-        case_field_ass_info = [field.to_json() for field in query_ass_field] if query_ass_field else []
-
-        bind_info = {
-            "case_data_info": case_data_info,
-            "case_resp_ass_info": case_resp_ass_info,
-            "case_field_ass_info": case_field_ass_info
-        }
-        bind_info_list.append(bind_info)
-
-    return result_data
 
 
 @set_app_context
@@ -405,6 +353,5 @@ if __name__ == '__main__':
     def main_test():
         """test"""
         MapToJsonObj.gen_bind(190)
-        print(MapToJsonObj.gen_module_id('case', 190))
 
     # main_test()
