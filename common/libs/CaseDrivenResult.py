@@ -6,10 +6,12 @@
 # @Software: PyCharm
 
 import os
+import sys
 import re
 import json
 import time
 import datetime
+import traceback
 from decimal import Decimal
 
 import requests
@@ -844,9 +846,19 @@ class MainTest:
         getattr(self, self.func_name)()
 
         get_data = R.get(self.save_key)  # 日志结果集
-        # get_data_to_dict = json.loads(get_data)  # 日志结果集转JSON
         test_repost = RepostTemplate(data=get_data).generate_html_report()  # 测试报告渲染
-        self.save_test_repost(report_str=test_repost)  # 创建html测试报告
+        test_repost_sizeof = sys.getsizeof(test_repost)
+
+        try:
+            self.save_test_repost(report_str=test_repost)  # 创建html测试报告
+        except BaseException as e:
+            error_info = {
+                "test_repost": test_repost_sizeof,
+                "test_repost_kb": f"={int(test_repost_sizeof / 1024)}KB",
+                "traceback": traceback.print_exc(),
+                "e": str(e)
+            }
+            R.set(f'gen_repost_error_{str(int(time.time()))}', json.dumps(error_info))
 
         report_url = self.gen_report_url()  # 生成测试报告链接
         self.save_logs(redis_key=self.save_key, report_url=report_url)
