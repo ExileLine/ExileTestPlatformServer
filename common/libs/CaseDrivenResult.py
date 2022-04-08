@@ -817,6 +817,8 @@ class MainTest:
 
         with open(self.path, "w", encoding="utf-8") as f:
             f.write(report_str)
+            f.flush()
+            os.fsync(report_str)
 
     def gen_report_url(self):
         """
