@@ -271,7 +271,7 @@ class QueryExecuteData:
             AND B.is_deleted = 0
             AND C.is_deleted = 0
             {f'AND B.case_id={case_id_list[-1]}' if len(case_id_list) == 1 else f'AND B.case_id in {tuple(case_id_list)}'}
-            ORDER BY A.id;
+            {'' if len(case_id_list) == 1 else f"ORDER BY FIELD(A.id,{','.join(list(map(str, case_id_list)))})"}
 	    """
         result = project_db.select(sql)
         return result
