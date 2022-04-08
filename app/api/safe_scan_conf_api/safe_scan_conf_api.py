@@ -34,6 +34,7 @@ class SafeScanConfApi(MethodView):
         is_global_open = data.get('is_global_open', False)
         safe_scan_url = data.get('safe_scan_url').strip()
         weights = data.get('weights', 0)
+        remark = data.get('remark')
 
         if not description:
             return api_result(code=400, message='描述不能为空')
@@ -50,8 +51,12 @@ class SafeScanConfApi(MethodView):
             description=description,
             is_global_open=bool(is_global_open),
             safe_scan_url=safe_scan_url,
-            weights=weights
+            weights=weights,
+            remark=remark,
+            creator=g.app_user.username,
+            creator_id=g.app_user.id
         )
+
         new_safe_scan.save()
         return api_result(code=201, message='操作成功')
 
@@ -64,6 +69,8 @@ class SafeScanConfApi(MethodView):
         is_global_open = data.get('is_global_open', False)
         safe_scan_url = data.get('safe_scan_url').strip()
         weights = data.get('weights', 0)
+        remark = data.get('remark')
+        is_deleted = data.get('is_deleted', 0)
 
         if not description:
             return api_result(code=400, message='描述不能为空')
@@ -84,6 +91,8 @@ class SafeScanConfApi(MethodView):
         query_safe_scan.is_global_open = is_global_open
         query_safe_scan.safe_scan_url = safe_scan_url
         query_safe_scan.weights = weights
+        query_safe_scan.remark = remark
+        query_safe_scan.is_deleted = is_deleted
         query_safe_scan.modifier = g.app_user.username
         query_safe_scan.modifier_id = g.app_user.id
         db.session.commit()
