@@ -6,8 +6,7 @@
 # @Software: PyCharm
 
 from all_reference import *
-from app.models.test_case.models import TestCase
-from app.models.test_project.models import TestProject, TestProjectVersion, MidProjectVersionAndCase
+from app.models.test_project.models import TestProject, TestProjectVersion
 
 
 class ProjectVersionApi(MethodView):
@@ -170,14 +169,5 @@ class VersionBindCaseApi(MethodView):
         version_id = data.get('version_id')
         case_id_list = data.get('case_id_list', [])
 
-        query_version = TestProjectVersion.query.get(version_id)
-        if not query_version:
-            return api_result(code=400, message=f'版本迭代id: {version_id} 不存在')
-
-        query_project = TestProject.query.get(query_version.project_id)
-        if not query_project:
-            return api_result(code=400, message="该版本迭代缺少上级项目")
-
-        query_mid = MidProjectVersionAndCase.query.filter_by(version_id=version_id).all()
-        # TODO
+        # TODO 暂时不需要这个接口
         return api_result(code=203, message="操作成功")
