@@ -10,33 +10,7 @@ from all_reference import *
 from app.models.admin.models import Admin
 from app.models.test_case.models import TestCase
 from app.models.test_case_scenario.models import TestCaseScenario
-from app.models.test_project.models import TestProjectVersion, MidProjectVersionAndCase, MidProjectVersionAndScenario, \
-    TestVersionTask
-
-
-def gen_mid(project_id, version_id, task_id, case_list, scenario_list):
-    """gen mid"""
-    for case_id in case_list:
-        mid_vc = MidProjectVersionAndCase(
-            project_id=project_id,
-            version_id=version_id,
-            case_id=case_id,
-            task_id=task_id,
-            creator=g.app_user.username,
-            creator_id=g.app_user.id
-        )
-        db.session.add(mid_vc)
-
-    for scenario_id in scenario_list:
-        mid_vs = MidProjectVersionAndScenario(
-            project_id=project_id,
-            version_id=version_id,
-            scenario_id=scenario_id,
-            task_id=task_id,
-            creator=g.app_user.username,
-            creator_id=g.app_user.id
-        )
-        db.session.add(mid_vs)
+from app.models.test_project.models import TestProjectVersion, TestVersionTask, MidTaskAndCase, MidTaskAndScenario
 
 
 class VersionTaskApi(MethodView):
@@ -58,19 +32,13 @@ class VersionTaskApi(MethodView):
         query_user_list = Admin.query.filter(Admin.id.in_(query_task.user_list)).all()
         user_list = [user.to_json() for user in query_user_list]
 
-        query_task_case_list = MidProjectVersionAndCase.query.filter_by(task_id=query_task.id).with_entities(
-            MidProjectVersionAndCase.case_id).all()
+        case_id_list = [mid.case_id for mid in MidTaskAndCase.query.filter_by(task_id=task_id).all()]
+        query_case = TestCase.query.filter(TestCase.id.in_(case_id_list)).all()
+        case_list = [case.to_json() for case in query_case if query_case]
 
-        query_task_scenario_list = MidProjectVersionAndScenario.query.filter_by(task_id=query_task.id).with_entities(
-            MidProjectVersionAndScenario.scenario_id).all()
-
-        current_case_list = [i[0] for i in query_task_case_list]
-        current_scenario_list = [i[0] for i in query_task_scenario_list]
-        query_case = TestCase.query.filter(TestCase.id.in_(current_case_list)).all()
-        query_scenario = TestCaseScenario.query.filter(TestCaseScenario.id.in_(current_scenario_list)).all()
-
-        case_list = [case.to_json() for case in query_case]
-        scenario_list = [scenario.to_json() for scenario in query_scenario]
+        scenario_id_list = [mid.scenario_id for mid in MidTaskAndScenario.query.filter_by(task_id=task_id).all()]
+        query_scenario = TestCaseScenario.query.filter(TestCaseScenario.id.in_(scenario_id_list)).all()
+        scenario_list = [scenario.to_json() for scenario in query_scenario if query_scenario]
 
         result = query_task.to_json()
         result['user_list'] = user_list
@@ -114,12 +82,18 @@ class VersionTaskApi(MethodView):
         new_version_task.save()
         task_id = new_version_task.id
 
-        query_task_mid = MidProjectVersionAndCase.query.filter_by(version_id=version_id, task_id=task_id).first()
+        if case_list:
+            list(map(lambda case_id: db.session.add(
+                MidTaskAndCase(
+                    task_id=task_id, case_id=case_id, creator=g.app_user.username, creator_id=g.app_user.id)),
+                     case_list))
 
-        if query_task_mid:
-            return api_result(code=400, message=f"数据异常:版本迭代 {version_id} 已经存在任务 {task_id}")
+        if scenario_list:
+            list(map(lambda scenario_id: db.session.add(
+                MidTaskAndScenario(
+                    task_id=task_id, scenario_id=scenario_id, creator=g.app_user.username, creator_id=g.app_user.id)),
+                     scenario_list))
 
-        gen_mid(project_id, version_id, task_id, case_list, scenario_list)
         db.session.commit()
         return api_result(code=201, message="操作成功")
 
@@ -158,15 +132,25 @@ class VersionTaskApi(MethodView):
         query_task.modifier = g.app_user.username,
         query_task.modifier_id = g.app_user.id
 
-        db.session.query(MidProjectVersionAndCase).filter_by(version_id=version_id, task_id=task_id).delete(
-            synchronize_session=False)
+        if case_list:
+            db.session.query(MidTaskAndCase).filter(MidTaskAndCase.task_id == task_id).delete(
+                synchronize_session=False)
 
-        db.session.query(MidProjectVersionAndScenario).filter_by(version_id=version_id, task_id=task_id).delete(
-            synchronize_session=False)
+            list(map(lambda case_id: db.session.add(
+                MidTaskAndCase(
+                    task_id=task_id, case_id=case_id, creator=g.app_user.username, creator_id=g.app_user.id)),
+                     case_list))
 
-        gen_mid(project_id, version_id, task_id, case_list, scenario_list)
+        if scenario_list:
+            db.session.query(MidTaskAndScenario).filter(MidTaskAndScenario.task_id == task_id).delete(
+                synchronize_session=False)
+
+            list(map(lambda scenario_id: db.session.add(
+                MidTaskAndScenario(
+                    task_id=task_id, scenario_id=scenario_id, creator=g.app_user.username, creator_id=g.app_user.id)),
+                     scenario_list))
+
         db.session.commit()
-
         return api_result(code=203, message="操作成功")
 
     def delete(self):
@@ -182,8 +166,11 @@ class VersionTaskApi(MethodView):
         query_task.is_deleted = query_task.id
         query_task.modifier = g.app_user.username
         query_task.modifier_id = g.app_user.id
-        db.session.commit()
 
+        db.session.query(MidTaskAndCase).filter(MidTaskAndCase.task_id == task_id).delete(synchronize_session=False)
+        db.session.query(MidTaskAndScenario).filter(MidTaskAndScenario.task_id == task_id).delete(
+            synchronize_session=False)
+        db.session.commit()
         return api_result(code=204, message="操作成功")
 
 
