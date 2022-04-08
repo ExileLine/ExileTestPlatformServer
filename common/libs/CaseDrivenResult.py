@@ -816,9 +816,10 @@ class MainTest:
         self.path = f"{os.getcwd().split('ExileTestPlatformServer')[0]}ExileTestPlatformServer/app/static/report/{self.report_name}"
 
         with open(self.path, "w", encoding="utf-8") as f:
-            f.write(report_str)
-            f.flush()
-            os.fsync(report_str)
+            f.writelines(report_str)
+            # f.write(report_str)
+            # f.flush()
+            # os.fsync(report_str)
 
     def gen_report_url(self):
         """
@@ -856,7 +857,7 @@ class MainTest:
         except BaseException as e:
             error_info = {
                 "test_repost": test_repost_sizeof,
-                "test_repost_kb": f"={int(test_repost_sizeof / 1024)}KB",
+                "test_repost_kb": f"{int(test_repost_sizeof / 1024)}KB",
                 "traceback": traceback.print_exc(),
                 "e": str(e)
             }
