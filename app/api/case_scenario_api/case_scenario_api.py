@@ -5,43 +5,63 @@
 # @File    : case_scenario_api.py
 # @Software: PyCharm
 
+from functools import wraps
 
 from all_reference import *
-from app.models.test_case.models import TestCase
 from app.models.test_case_scenario.models import TestCaseScenario
-from app.models.test_project.models import TestProject, TestProjectVersion, TestModuleApp, MidProjectVersionAndScenario
-from app.api.case_api.case_api import check_version
-from common.libs.query_related import MapToJsonObj
+from app.models.test_project.models import TestProject, TestProjectVersion, TestModuleApp, MidProjectAndScenario, \
+    MidVersionAndScenario, MidTaskAndScenario, MidModuleAndScenario
+from app.api.case_api.case_api import new_check_version, new_check_module
 
 
-def create_mid_scenario(project_id, version_id, scenario_id, module_id):
-    new_mid = MidProjectVersionAndScenario(
-        project_id=project_id,
-        version_id=version_id,
-        task_id=0,
-        scenario_id=scenario_id,
-        module_id=module_id,
-        creator=g.app_user.username,
-        creator_id=g.app_user.id
-    )
-    db.session.add(new_mid)
-
-
-def gen_case_zip(case):
+def query_case_order_by_field(case_id_list):
     """
-
-    :param case: {"index": 9, "case_id": 190, "is_active": 0}
+    查询用例根据in排序
+    :param case_id_list: 用例id列表
     :return:
     """
-    case_id = case.get('case_id')
-    is_active = case.get('is_active')
-    index = case.get('index', case_id)
-    query_case = TestCase.query.get(case_id)
-    if query_case:
-        case_obj = query_case.to_json()
-        case_obj['index'] = index
-        case_obj['is_active'] = is_active
-        return case_obj
+
+    sql = f"""SELECT * FROM exile_test_case WHERE id in {tuple(case_id_list)} ORDER BY FIELD(id,{','.join(list(map(str, case_id_list)))});"""
+    result = project_db.select(sql)
+    return result
+
+
+def scenario_decorator(func):
+    @wraps(func)
+    def wrapper(*args, **kwargs):
+        data = request.get_json()
+        project_id = data.get('project_id', 0)
+        version_list = data.get('version_list', [])
+        module_list = data.get('module_list', [])
+        scenario_title = data.get('scenario_title', '').strip()
+        case_list = data.get('case_list', [])
+        is_shared = data.get('is_shared', 0)
+        is_public = data.get('is_public', True)
+
+        query_project = TestProject.query.get(project_id)
+
+        if not query_project:
+            return api_result(code=400, message=f'项目: {project_id} 不存在')
+
+        if version_list:
+            _bool, _msg = new_check_version(project_id, version_list)
+            if not _bool:
+                return api_result(code=400, message=f'版本迭代:{_msg}不存在或不在项目:{project_id}下关联')
+
+        if module_list:
+            _bool, _msg = new_check_module(project_id, module_list)
+            if not _bool:
+                return api_result(code=400, message=f'模块:{_msg}不存在或不在项目:{project_id}下关联')
+
+        if not scenario_title:
+            return api_result(code=400, message='场景名称不能为空')
+
+        if not case_list or len(case_list) <= 1:
+            return api_result(code=400, message='用例列表不能为空,或需要一条以上的用例组成')
+
+        return func(*args, **kwargs)
+
+    return wrapper
 
 
 class CaseScenarioApi(MethodView):
@@ -68,54 +88,37 @@ class CaseScenarioApi(MethodView):
             return api_result(code=400, message='异常的数据')
 
         sorted_case_id_list = sorted(case_id_list, key=lambda x: x.get("index", x.get('case_id')), reverse=True)
-        case_obj_list = list(filter(None, map(gen_case_zip, sorted_case_id_list)))
+        case_list = query_case_order_by_field(sorted_case_id_list)
 
-        version_obj_list = MapToJsonObj.gen_scenario_version_list(scenario_id)
+        version_id_list = [m.version_id for m in MidVersionAndScenario.query.filter_by(scenario_id=scenario_id).all()]
+        version_list = [m.to_json() for m in
+                        TestProjectVersion.query.filter(TestProjectVersion.id.in_(version_id_list)).all()]
 
-        module_id = MapToJsonObj.gen_module_id('scenario', scenario_id)
+        module_id_list = [m.module_id for m in MidModuleAndScenario.query.filter_by(scenario_id=scenario_id).all()]
+        module_list = [m.to_json() for m in TestModuleApp.query.filter(TestModuleApp.id.in_(module_id_list)).all()]
 
-        result['case_list'] = case_obj_list
-        result["version_id_list"] = version_obj_list
-        result["module_id"] = module_id
+        result['case_list'] = case_list
+        result["version_list"] = version_list
+        result["module_list"] = module_list
         return api_result(code=200, message='操作成功', data=result)
 
+    @scenario_decorator
     def post(self):
         """用例场景新增"""
 
         data = request.get_json()
         project_id = data.get('project_id', 0)
-        version_id_list = data.get('version_id_list', [])
-        module_id = data.get('module_id')
+        version_list = data.get('version_list', [])
+        module_list = data.get('module_list', [])
         scenario_title = data.get('scenario_title', '').strip()
         case_list = data.get('case_list', [])
         is_shared = data.get('is_shared', 0)
         is_public = data.get('is_public', True)
 
-        query_project = TestProject.query.get(project_id)
-
-        if not query_project:
-            return api_result(code=400, message=f'项目: {project_id} 不存在')
-
-        if version_id_list and not check_version(project_id=project_id, version_id_list=version_id_list):
-            return api_result(code=400, message=f'版本迭代不存在或不在项目: {query_project.project_name} 中关联')
-
-        if module_id:
-            query_module = TestModuleApp.query.get(module_id)
-            if not query_module:
-                return api_result(code=400, message=f'模块: {module_id} 不存在')
-        else:
-            module_id = 0
-
-        if not scenario_title:
-            return api_result(code=400, message='场景名称不能为空')
-
         query_scenario = TestCaseScenario.query.filter_by(scenario_title=scenario_title).first()
 
         if query_scenario:
-            return api_result(code=400, message='用例场景标题:{} 已经存在'.format(scenario_title))
-
-        if not case_list or len(case_list) <= 1:
-            return api_result(code=400, message='用例列表不能为空,或需要一条以上的用例组成')
+            return api_result(code=400, message=f'用例场景标题: {scenario_title} 已经存在')
 
         new_scenario = TestCaseScenario(
             scenario_title=scenario_title,
@@ -128,62 +131,46 @@ class CaseScenarioApi(MethodView):
         new_scenario.save()
         scenario_id = new_scenario.id
 
-        if version_id_list:
-            for version_obj in version_id_list:
-                version_id = version_obj.get('id')
-                create_mid_scenario(
-                    project_id=project_id,
-                    version_id=version_id,
-                    scenario_id=scenario_id,
-                    module_id=module_id
-                )
-        else:
-            create_mid_scenario(project_id=project_id, version_id=0, scenario_id=scenario_id, module_id=module_id)
+        version_id_list = [obj.get('id') for obj in version_list]
+        module_id_list = [obj.get('id') for obj in module_list]
+
+        mid_pc = MidProjectAndScenario(
+            project_id=project_id, scenario_id=scenario_id, creator=g.app_user.username, creator_id=g.app_user.id
+        )
+        db.session.add(mid_pc)
+        list(map(lambda version_id: db.session.add(
+            MidVersionAndScenario(
+                version_id=version_id, scenario_id=scenario_id, creator=g.app_user.username, creator_id=g.app_user.id)),
+                 version_id_list))
+        list(map(lambda module_id: db.session.add(
+            MidModuleAndScenario(
+                module_id=module_id, scenario_id=scenario_id, creator=g.app_user.username, creator_id=g.app_user.id)),
+                 module_id_list))
         db.session.commit()
         return api_result(code=201, message='创建成功')
 
+    @scenario_decorator
     def put(self):
         """用例场景编辑"""
 
         data = request.get_json()
         project_id = data.get('project_id', 0)
-        version_id_list = data.get('version_id_list', [])
-        module_id = data.get('module_id')
+        version_list = data.get('version_list', [])
+        module_list = data.get('module_list', [])
         scenario_id = data.get('id')
         scenario_title = data.get('scenario_title', '').strip()
         case_list = data.get('case_list', [])
         is_shared = data.get('is_shared', 0)
         is_public = data.get('is_public', True)
 
-        query_project = TestProject.query.get(project_id)
-
-        if not query_project:
-            return api_result(code=400, message=f'项目: {project_id} 不存在')
-
-        if version_id_list and not check_version(project_id=project_id, version_id_list=version_id_list):
-            return api_result(code=400, message=f'版本迭代不存在或不在项目: {query_project.project_name} 中关联')
-
-        if module_id:
-            query_module = TestModuleApp.query.get(module_id)
-            if not query_module:
-                return api_result(code=400, message=f'模块: {module_id} 不存在')
-        else:
-            module_id = 0
-
-        if not scenario_title:
-            return api_result(code=400, message='场景名称不能为空')
-
         query_scenario = TestCaseScenario.query.get(scenario_id)
 
-        if not case_list or len(case_list) <= 1:
-            return api_result(code=400, message='用例列表不能为空,或需要一条以上的用例组成')
-
         if not query_scenario:
-            return api_result(code=400, message='场景id:{}数据不存在'.format(scenario_id))
+            return api_result(code=400, message=f'场景id:{scenario_id}数据不存在')
 
         if query_scenario.scenario_title != scenario_title:
             if TestCaseScenario.query.filter_by(scenario_title=scenario_title).all():
-                return api_result(code=400, message='用例场景:{} 已经存在'.format(scenario_title))
+                return api_result(code=400, message=f'用例场景:{scenario_title} 已经存在')
 
         query_scenario.scenario_title = scenario_title
         query_scenario.case_list = case_list
@@ -192,24 +179,28 @@ class CaseScenarioApi(MethodView):
         query_scenario.modifier = g.app_user.username
         query_scenario.modifier_id = g.app_user.id
 
-        query_mid_all = MidProjectVersionAndScenario.query.filter_by(scenario_id=scenario_id, task_id=0).all()
+        if version_list:
+            version_id_list = [obj.get('id') for obj in version_list]
+            db.session.query(MidVersionAndScenario).filter(MidVersionAndScenario.scenario_id == scenario_id).delete(
+                synchronize_session=False)
 
-        obj_id_list = list(map(lambda obj: obj.id, query_mid_all))
+            list(map(lambda version_id: db.session.add(
+                MidVersionAndScenario(
+                    version_id=version_id, scenario_id=scenario_id, modifier=g.app_user.username,
+                    modifier_id=g.app_user.id)),
+                     version_id_list))
 
-        db.session.query(MidProjectVersionAndScenario).filter(MidProjectVersionAndScenario.id.in_(obj_id_list)).delete(
-            synchronize_session=False)
+        if module_list:
+            module_id_list = [obj.get('id') for obj in module_list]
+            db.session.query(MidModuleAndScenario).filter(MidModuleAndScenario.scenario_id == scenario_id).delete(
+                synchronize_session=False)
 
-        if version_id_list:
-            for version_obj in version_id_list:
-                version_id = version_obj.get('id')
-                create_mid_scenario(
-                    project_id=project_id,
-                    version_id=version_id,
-                    scenario_id=scenario_id,
-                    module_id=module_id
-                )
-        else:
-            create_mid_scenario(project_id=project_id, version_id=0, scenario_id=scenario_id, module_id=module_id)
+            list(map(lambda module_id: db.session.add(
+                MidModuleAndScenario(
+                    module_id=module_id, scenario_id=scenario_id, modifier=g.app_user.username,
+                    modifier_id=g.app_user.id)),
+                     module_id_list))
+
         db.session.commit()
         return api_result(code=203, message='编辑成功')
 
@@ -221,13 +212,15 @@ class CaseScenarioApi(MethodView):
         query_scenario = TestCaseScenario.query.get(scenario_id)
 
         if not query_scenario:
-            return api_result(code=400, message='场景id:{}数据不存在'.format(scenario_id))
+            return api_result(code=400, message=f'场景id:{scenario_id}数据不存在')
 
         if query_scenario.creator_id != g.app_user.id:
             return api_result(code=400, message='非管理员不能删除其他人的用例场景！')
 
-        db.session.query(MidProjectVersionAndScenario).filter_by(scenario_id=scenario_id).delete(
-            synchronize_session=False)
+        db.session.query(MidProjectAndScenario).filter_by(scenario_id=scenario_id).delete(synchronize_session=False)
+        db.session.query(MidVersionAndScenario).filter_by(scenario_id=scenario_id).delete(synchronize_session=False)
+        db.session.query(MidModuleAndScenario).filter_by(scenario_id=scenario_id).delete(synchronize_session=False)
+        db.session.query(MidTaskAndScenario).filter_by(scenario_id=scenario_id).delete(synchronize_session=False)
         query_scenario.modifier_id = g.app_user.id
         query_scenario.modifier = g.app_user.username
         query_scenario.delete()
@@ -254,73 +247,53 @@ class CaseScenarioPageApi(MethodView):
         is_deleted = data.get('is_deleted', False)
         page = data.get('page')
         size = data.get('size')
-
-        # TODO 旧数据 version_id 为 0,后续去除
-        if not version_id:
-            query_version = TestProjectVersion.query.filter_by(project_id=project_id).all()
-            version_id_tuple = tuple([version.id for version in query_version])
-            version_id_list = (0,) + version_id_tuple if version_id_tuple else (0, 0)
-        else:
-            version_id_list = (0, version_id)
-
         limit = page_size(page=page, size=size)
 
         sql = f"""
         SELECT
-            A.id,
-            A.scenario_title,
-            A.is_public,
-            A.is_shared,
-            A.total_execution,
-            A.case_list,
-            A.creator,
-            A.create_time,
-            A.create_timestamp,
-            A.modifier,
-            A.update_time,
-            A.update_timestamp
+            *
         FROM
-            exile_test_case_scenario A
+            exile_test_case_scenario
         WHERE
-            EXISTS (
-                SELECT
-                    B.id, B.scenario_id, B.version_id, B.module_id
-                FROM
-                    exile_test_mid_version_scenario B
+            id in( SELECT DISTINCT
+                    A.id FROM exile_test_case_scenario AS A
+                    INNER JOIN exile_test_mid_project_scenario AS B ON A.id = B.scenario_id
+                    {'INNER JOIN exile_test_mid_version_iter_scenario AS C ON A.id = C.scenario_id' if version_id else ''}
+                    {'INNER JOIN exile_test_mid_module_scenario AS D ON A.id = D.scenario_id' if module_id else ''}
                 WHERE
-                    B.scenario_id = A.id 
-                    AND B.is_deleted = 0
+                    A.is_deleted = 0
                     AND B.project_id = {project_id}
-                    {f'AND module_id={module_id}' if module_id else ''}
-                    AND B.version_id in {version_id_list})
-                {f'AND creator_id={creator_id}' if creator_id else ''}
-                AND is_deleted = {is_deleted}
-                AND scenario_title LIKE"%{scenario_title}%"
-            ORDER BY
-                A.create_time DESC
-            LIMIT {limit[0]},{limit[1]};
+                    {f'AND C.version_id={version_id}' if version_id else ''}
+                    {f'AND D.module_id={module_id}' if module_id else ''}
+                )
+            AND is_deleted = 0
+            AND scenario_title LIKE "%{scenario_title}%"
+            {f'AND creator_id={creator_id}' if creator_id else ''}
+        ORDER BY
+            create_time DESC
+        LIMIT {limit[0]},{limit[1]};
         """
 
         sql_count = f"""
-        SELECT 
+        SELECT
             COUNT(*)
         FROM
-            exile_test_case_scenario A
+            exile_test_case_scenario
         WHERE
-            EXISTS (
-                SELECT
-                    B.id, B.scenario_id, B.version_id, B.module_id
-                FROM
-                    exile_test_mid_version_scenario B
+            id in( SELECT DISTINCT
+                    A.id FROM exile_test_case_scenario AS A
+                    INNER JOIN exile_test_mid_project_scenario AS B ON A.id = B.scenario_id
+                    {'INNER JOIN exile_test_mid_version_iter_scenario AS C ON A.id = C.scenario_id' if version_id else ''}
+                    {'INNER JOIN exile_test_mid_module_scenario AS D ON A.id = D.scenario_id' if module_id else ''}
                 WHERE
-                    B.scenario_id = A.id
-                    AND B.is_deleted = 0
-                    AND B.project_id = {project_id} 
-                    {f'AND module_id={module_id}' if module_id else ''}
-                    AND B.version_id in {version_id_list})
-                {f'AND creator_id={creator_id}' if creator_id else ''}
-                AND is_deleted = {is_deleted}
-                AND scenario_title LIKE"%{scenario_title}%";
+                    A.is_deleted = 0
+                    AND B.project_id = {project_id}
+                    {f'AND C.version_id={version_id}' if version_id else ''}
+                    {f'AND D.module_id={module_id}' if module_id else ''}
+                )
+            AND is_deleted = 0
+            AND scenario_title LIKE "%{scenario_title}%"
+            {f'AND creator_id={creator_id}' if creator_id else ''}
         """
 
         result_list = project_db.select(sql)
