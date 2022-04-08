@@ -82,6 +82,7 @@ class TestModuleApp(BaseModel):
         )
 
 
+# TODO 暂时保留旧表数据源,后续删除
 class MidProjectVersionAndCase(BaseModel):
     __tablename__ = 'exile_test_mid_version_case'
     __table_args__ = (
@@ -105,6 +106,7 @@ class MidProjectVersionAndCase(BaseModel):
         )
 
 
+# TODO 暂时保留旧表数据源,后续删除
 class MidProjectVersionAndScenario(BaseModel):
     __tablename__ = 'exile_test_mid_version_scenario'
     __table_args__ = (
@@ -199,3 +201,75 @@ class MidModuleAndCase(BaseModel):
 
     def __repr__(self):
         return f'MidModuleAndCase 模型对象-> ID:{self.id} 模块id:{self.module_id} 用例id:{self.case_id}'
+
+
+class MidProjectAndScenario(BaseModel):
+    __tablename__ = 'exile_test_mid_project_scenario'
+    __table_args__ = (
+        db.Index('idx_project_scenario', 'project_id', 'scenario_id'),
+        {'comment': '项目-场景中间表'}
+    )
+    project_id = db.Column(BIGINT(20, unsigned=True), comment='项目id')
+    scenario_id = db.Column(BIGINT(20, unsigned=True), comment='场景id')
+    creator = db.Column(db.String(32), comment='创建人')
+    creator_id = db.Column(BIGINT(20, unsigned=True), comment='创建人id')
+    modifier = db.Column(db.String(32), comment='更新人')
+    modifier_id = db.Column(BIGINT(20, unsigned=True), comment='更新人id')
+    remark = db.Column(db.String(255), comment='备注')
+
+    def __repr__(self):
+        return f'MidProjectAndScenario 模型对象-> ID:{self.id} 项目id:{self.project_id} 场景id:{self.scenario_id}'
+
+
+class MidVersionAndScenario(BaseModel):
+    __tablename__ = 'exile_test_mid_version_iter_scenario'
+    __table_args__ = (
+        db.Index('idx_version_scenario', 'version_id', 'scenario_id'),
+        {'comment': '版本迭代-场景中间表'}
+    )
+    version_id = db.Column(BIGINT(20, unsigned=True), comment='迭代id')
+    scenario_id = db.Column(BIGINT(20, unsigned=True), comment='场景id')
+    creator = db.Column(db.String(32), comment='创建人')
+    creator_id = db.Column(BIGINT(20, unsigned=True), comment='创建人id')
+    modifier = db.Column(db.String(32), comment='更新人')
+    modifier_id = db.Column(BIGINT(20, unsigned=True), comment='更新人id')
+    remark = db.Column(db.String(255), comment='备注')
+
+    def __repr__(self):
+        return f'MidVersionAndScenario 模型对象-> ID:{self.id} 迭代id:{self.version_id} 场景id:{self.scenario_id}'
+
+
+class MidTaskAndScenario(BaseModel):
+    __tablename__ = 'exile_test_mid_task_scenario'
+    __table_args__ = (
+        db.Index('idx_task_scenario', 'task_id', 'scenario_id'),
+        {'comment': '任务-用例中间表'}
+    )
+    task_id = db.Column(BIGINT(20, unsigned=True), comment='任务id')
+    scenario_id = db.Column(BIGINT(20, unsigned=True), comment='场景id')
+    creator = db.Column(db.String(32), comment='创建人')
+    creator_id = db.Column(BIGINT(20, unsigned=True), comment='创建人id')
+    modifier = db.Column(db.String(32), comment='更新人')
+    modifier_id = db.Column(BIGINT(20, unsigned=True), comment='更新人id')
+    remark = db.Column(db.String(255), comment='备注')
+
+    def __repr__(self):
+        return f'MidTaskAndScenario 模型对象-> ID:{self.id} 任务id:{self.task_id} 场景id:{self.scenario_id}'
+
+
+class MidModuleAndScenario(BaseModel):
+    __tablename__ = 'exile_test_mid_module_scenario'
+    __table_args__ = (
+        db.Index('idx_module_scenario', 'module_id', 'scenario_id'),
+        {'comment': '模块-用例中间表'}
+    )
+    module_id = db.Column(BIGINT(20, unsigned=True), comment='模块id')
+    scenario_id = db.Column(BIGINT(20, unsigned=True), comment='场景id')
+    creator = db.Column(db.String(32), comment='创建人')
+    creator_id = db.Column(BIGINT(20, unsigned=True), comment='创建人id')
+    modifier = db.Column(db.String(32), comment='更新人')
+    modifier_id = db.Column(BIGINT(20, unsigned=True), comment='更新人id')
+    remark = db.Column(db.String(255), comment='备注')
+
+    def __repr__(self):
+        return f'MidModuleAndScenario 模型对象-> ID:{self.id} 模块id:{self.module_id} 场景id:{self.scenario_id}'
