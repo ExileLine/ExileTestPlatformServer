@@ -16,26 +16,123 @@ from app.models.push_reminder.models import DingDingConfModel, MailConfModel
 from app.models.admin.models import Admin
 from common.libs.query_related import general_query
 from app.models.test_project.models import TestProject, TestProjectVersion, TestVersionTask, TestModuleApp, \
-    MidProjectVersionAndCase, MidProjectVersionAndScenario
+    MidProjectVersionAndCase, MidProjectVersionAndScenario, MidProjectAndCase, MidVersionAndCase, MidTaskAndCase, \
+    MidModuleAndCase
 
 
 @set_app_context
-def main():
-    """1"""
-    # __case()
-    # __scenario()
-    # q = MidRelationCase.query.filter(
-    #     MidRelationCase.is_deleted == 0,
-    #     MidRelationCase.case_id == 175,
-    #     MidRelationCase.task_id != 0
-    # ).all()
+def gen_new_project():
+    """MidProjectVersionAndCase -> MidProjectAndCase"""
+    hash_map = {}
+    query_list = MidProjectVersionAndCase.query.all()
+    for index, i in enumerate(query_list, 1):
+        case_id = i.case_id
+        project_id = i.project_id
+        if hash_map.get(case_id):
+            pass
+        else:
+            hash_map[case_id] = project_id
+
+    for k, v in hash_map.items():
+        new_mid = MidProjectAndCase(project_id=int(v), case_id=int(k), remark='刷数据')
+        db.session.add(new_mid)
+    db.session.commit()
+
+
+@set_app_context
+def gen_new_version():
+    """MidProjectVersionAndCase -> MidVersionAndCase"""
+    hash_map = {}
+    query_list = MidProjectVersionAndCase.query.all()
+    for index, i in enumerate(query_list, 1):
+        case_id = i.case_id
+        version_id = i.version_id
+
+        if hash_map.get(version_id):
+            if case_id in hash_map.get(version_id):
+                pass
+            else:
+                hash_map.get(version_id).append(case_id)
+        else:
+            if version_id:
+                hash_map[version_id] = [case_id]
+
+    print(hash_map)
+    for version_id, case_id_list in hash_map.items():
+        print(version_id, case_id_list)
+
+        list(map(lambda case_id: db.session.add(
+            MidVersionAndCase(version_id=int(version_id), case_id=int(case_id), remark='刷数据')), case_id_list))
+    db.session.commit()
+
+
+@set_app_context
+def gen_new_task():
+    """MidProjectVersionAndCase -> MidTaskAndCase"""
+    hash_map = {}
+    query_list = MidProjectVersionAndCase.query.all()
+    for index, i in enumerate(query_list, 1):
+        case_id = i.case_id
+        task_id = i.task_id
+
+        if hash_map.get(task_id):
+            if case_id in hash_map.get(task_id):
+                pass
+            else:
+                hash_map.get(task_id).append(case_id)
+        else:
+            if task_id:
+                hash_map[task_id] = [case_id]
+
+    print(hash_map)
+    for task_id, case_id_list in hash_map.items():
+        print(task_id, case_id_list)
+        list(map(lambda case_id: db.session.add(
+            MidTaskAndCase(task_id=int(task_id), case_id=int(case_id), remark='刷数据')), case_id_list))
+    db.session.commit()
+
+
+@set_app_context
+def gen_new_module():
+    """MidProjectVersionAndCase -> MidModuleAndCase"""
+    hash_map = {}
+    query_list1 = TestModuleApp.query.all()
+    query_list2 = MidProjectVersionAndCase.query.all()
+    for index, i in enumerate(query_list1, 1):
+        module_id = i.id
+        case_list = i.case_list
+        if case_list:
+            if hash_map.get(module_id):
+                pass
+            else:
+                hash_map[module_id] = case_list
+
+    print(hash_map)
+
+    for index, i in enumerate(query_list2, 1):
+        module_id = i.module_id
+        case_id = i.case_id
+        if module_id:
+            if hash_map.get(module_id):
+                if case_id not in hash_map.get(module_id):
+                    hash_map.get(module_id).append(case_id)
+            else:
+                hash_map[module_id] = [case_id]
+
+    print(hash_map)
+
+    for module_id, case_id_list in hash_map.items():
+        print(module_id, case_id_list)
+        list(map(lambda case_id: db.session.add(
+            MidModuleAndCase(module_id=int(module_id), case_id=int(case_id), remark='刷数据')), case_id_list))
+    db.session.commit()
 
 
 if __name__ == '__main__':
     pass
     import requests
 
-    resp = requests.get(url='http://0.0.0.0:7272/api/index/1')
+    # resp = requests.get(url='http://0.0.0.0:7272/api/index/1')
     # print(resp.json())
 
     # def gen_num():
@@ -47,3 +144,11 @@ if __name__ == '__main__':
     # nums = gen_num()
     # print([num for num in nums])
     # print(f'打印数据：{num}')
+
+    # gen_new_project()
+
+    # gen_new_version()
+
+    # gen_new_task()
+
+    # gen_new_module()
