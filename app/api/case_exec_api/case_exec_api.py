@@ -709,17 +709,16 @@ class CaseExecApi(MethodView):
         dd_push_id = data.get('dd_push_id')
         ding_talk_url = ""
         is_send_mail = data.get('is_send_mail', False)
-
-        """
         is_all_mail = data.get('is_all_mail', False)
-        
+
         if is_all_mail:
             mail_list = [m.mail for m in MailConfModel.query.filter_by(is_deleted=0).all()]
         else:
             mail_list = data.get('mail_list')
-        """
-
-        mail_list = [m.mail for m in MailConfModel.query.filter_by(is_deleted=0).all()]
+            mail_list = [m.mail for m in MailConfModel.query.filter(
+                MailConfModel.id.in_(mail_list),
+                MailConfModel.is_deleted == 0
+            ).all()]
 
         if isinstance(use_base_url, bool) and use_base_url:
             query_base_url = TestEnv.query.get(base_url_id)
@@ -752,7 +751,7 @@ class CaseExecApi(MethodView):
             ding_talk_url = query_dd.ding_talk_url
 
         if is_send_mail and not mail_list:
-            return api_result(code=400, message="邮件不能为空")
+            return api_result(code=400, message="邮件不能为空，或者邮件已禁用")
 
         execute_name = result_data.get('execute_name', '')
         is_execute_all = result_data.get('is_execute_all', False)
