@@ -33,7 +33,8 @@ class GenNewCaseData:
             if hash_map.get(case_id):
                 pass
             else:
-                hash_map[case_id] = project_id
+                if project_id:
+                    hash_map[case_id] = project_id
 
         for k, v in hash_map.items():
             new_mid = MidProjectAndCase(project_id=int(v), case_id=int(k), remark='刷数据')
@@ -119,7 +120,8 @@ class GenNewCaseData:
                     if case_id not in hash_map.get(module_id):
                         hash_map.get(module_id).append(case_id)
                 else:
-                    hash_map[module_id] = [case_id]
+                    if module_id:
+                        hash_map[module_id] = [case_id]
 
         print(hash_map)
 
@@ -145,7 +147,8 @@ class GenNewScenarioData:
             if hash_map.get(scenario_id):
                 pass
             else:
-                hash_map[scenario_id] = project_id
+                if project_id:
+                    hash_map[scenario_id] = project_id
 
         for k, v in hash_map.items():
             new_mid = MidProjectAndScenario(project_id=int(v), scenario_id=int(k), remark='刷数据')
@@ -233,7 +236,8 @@ class GenNewScenarioData:
                     if scenario_id not in hash_map.get(module_id):
                         hash_map.get(module_id).append(scenario_id)
                 else:
-                    hash_map[module_id] = [scenario_id]
+                    if module_id:
+                        hash_map[module_id] = [scenario_id]
 
         print(hash_map)
 
