@@ -8,7 +8,7 @@
 from all_reference import *
 from app.models.test_case.models import TestCase
 from app.models.test_case_scenario.models import TestCaseScenario
-from app.models.test_project.models import TestModuleApp, TestProject
+from app.models.test_project.models import TestModuleApp, TestProject, MidModuleAndCase, MidModuleAndScenario
 
 
 class ModuleAppApi(MethodView):
@@ -26,19 +26,18 @@ class ModuleAppApi(MethodView):
         query_module = TestModuleApp.query.get(module_id)
         if not query_module:
             return api_result(code=400, message=f'功能模块或应用不存在:{module_id}')
-        project_id = query_module.project_id
-        case_list = query_module.case_list
-        scenario_list = query_module.scenario_list
+
+        case_id_list = [mid.case_id for mid in MidModuleAndCase.query.filter_by(module_id=module_id).all()]
+        query_case = TestCase.query.filter(TestCase.id.in_(case_id_list)).all()
+        case_list = [case.to_json() for case in query_case if query_case]
+
+        scenario_id_list = [mid.scenario_id for mid in MidModuleAndScenario.query.filter_by(module_id=module_id).all()]
+        query_scenario = TestCaseScenario.query.filter(TestCaseScenario.id.in_(scenario_id_list)).all()
+        scenario_list = [scenario.to_json() for scenario in query_scenario if query_scenario]
+
         result = query_module.to_json()
-        query_project = TestProject.query.get(project_id)
-        if query_project:
-            result['project_obj'] = query_project.to_json()
-
-        cl = [case.to_json() for case in TestCase.query.filter(TestCase.id.in_(case_list)).all()]
-        sl = [case.to_json() for case in TestCaseScenario.query.filter(TestCaseScenario.id.in_(scenario_list)).all()]
-
-        result['case_list'] = cl if cl else []
-        result['scenario_list'] = sl if sl else []
+        result['case_list'] = case_list
+        result['scenario_list'] = scenario_list
 
         return api_result(code=200, message='操作成功', data=result)
 
@@ -83,6 +82,22 @@ class ModuleAppApi(MethodView):
             creator_id=g.app_user.id
         )
         new_module.save()
+        module_id = new_module.id
+
+        if case_list:
+            list(map(lambda case_id: db.session.add(
+                MidModuleAndCase(
+                    module_id=module_id, case_id=case_id, creator=g.app_user.username, creator_id=g.app_user.id)),
+                     case_list))
+
+        if scenario_list:
+            list(map(lambda scenario_id: db.session.add(
+                MidModuleAndScenario(
+                    module_id=module_id, scenario_id=scenario_id, creator=g.app_user.username,
+                    creator_id=g.app_user.id)),
+                     scenario_list))
+
+        db.session.commit()
         return api_result(code=201, message='操作成功')
 
     def put(self):
@@ -128,6 +143,26 @@ class ModuleAppApi(MethodView):
         query_module.remark = remark
         query_module.modifier = g.app_user.username,
         query_module.modifier_id = g.app_user.id
+
+        if case_list:
+            db.session.query(MidModuleAndCase).filter(MidModuleAndCase.module_id == module_id).delete(
+                synchronize_session=False)
+
+            list(map(lambda case_id: db.session.add(
+                MidModuleAndCase(
+                    module_id=module_id, case_id=case_id, creator=g.app_user.username, creator_id=g.app_user.id)),
+                     case_list))
+
+        if scenario_list:
+            db.session.query(MidModuleAndScenario).filter(MidModuleAndScenario.module_id == module_id).delete(
+                synchronize_session=False)
+
+            list(map(lambda scenario_id: db.session.add(
+                MidModuleAndScenario(
+                    module_id=module_id, scenario_id=scenario_id, creator=g.app_user.username,
+                    creator_id=g.app_user.id)),
+                     scenario_list))
+
         db.session.commit()
         return api_result(code=203, message='操作成功')
 
@@ -139,13 +174,17 @@ class ModuleAppApi(MethodView):
         query_module = TestModuleApp.query.get(module_id)
         if not query_module:
             return api_result(code=400, message=f'功能模块或应用不存在:{module_id}')
+
+        query_module.is_deleted = query_module.id
         query_module.modifier = g.app_user.username,
         query_module.modifier_id = g.app_user.id
-        query_module.delete()
-        return api_result(code=204, message='操作成功')
 
-    def patch(self):
-        return api_result(code=200, message='patch')
+        db.session.query(MidModuleAndCase).filter(MidModuleAndCase.module_id == module_id).delete(
+            synchronize_session=False)
+        db.session.query(MidModuleAndScenario).filter(MidModuleAndScenario.module_id == module_id).delete(
+            synchronize_session=False)
+        query_module.commit()
+        return api_result(code=204, message='操作成功')
 
 
 class ModuleAppPageApi(MethodView):
