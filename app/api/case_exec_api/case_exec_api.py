@@ -9,18 +9,40 @@ from concurrent.futures import ThreadPoolExecutor
 
 from all_reference import *
 from app.models.test_case.models import TestCase
-from app.models.test_case_assert.models import TestCaseAssResponse, TestCaseAssField, TestCaseDataAssBind
+from app.models.test_case_assert.models import TestCaseAssResponse, TestCaseAssField
 from app.models.test_case_scenario.models import TestCaseScenario
-from app.models.test_project.models import TestProject, TestProjectVersion, MidProjectVersionAndCase, TestVersionTask, \
-    TestModuleApp
+from app.models.test_project.models import (
+    TestProject, TestProjectVersion, TestVersionTask, TestModuleApp,
+    MidProjectAndCase, MidVersionAndCase, MidTaskAndCase, MidModuleAndCase,
+    MidProjectAndScenario, MidVersionAndScenario, MidTaskAndScenario, MidModuleAndScenario
+)
 from app.models.test_env.models import TestEnv
 from app.models.test_logs.models import TestLogs
 from app.models.push_reminder.models import DingDingConfModel, MailConfModel
 from common.libs.StringIOLog import StringIOLog
 from common.libs.set_app_context import set_app_context
 
-
 # executor = ThreadPoolExecutor(200)
+
+
+model_dict = {
+    "project": {
+        "case": MidProjectAndCase,
+        "scenario": MidProjectAndScenario,
+    },
+    "version": {
+        "case": MidVersionAndCase,
+        "scenario": MidVersionAndScenario,
+    },
+    "task": {
+        "case": MidTaskAndCase,
+        "scenario": MidTaskAndScenario,
+    },
+    "module": {
+        "case": MidModuleAndCase,
+        "scenario": MidModuleAndScenario,
+    }
+}
 
 
 @set_app_context
@@ -306,25 +328,19 @@ class QueryExecuteData:
     @staticmethod
     def gen_execute_case_list(**kwargs):
         """
-        生成需要执行的用例数据
-        PS:每次只能选择其中一个 key:val 作为查询参数
-        {
-            "project_id": 3
-            # "version_id": 4,
-            # "task_id": 30,
-            # "module_id": 30,
-        }
+        生成需要执行【用例】数据
         :param kwargs:
         :return:
         """
+        execute_type = kwargs.get('execute_dict_key', '')
+        query = kwargs.get('query')
+        model = model_dict.get(execute_type).get('case')
+        query_pc = model.query.filter_by(**query, is_deleted=0).all()
 
-        query_case = MidProjectVersionAndCase.query.filter_by(**kwargs, is_deleted=0).with_entities(
-            MidProjectVersionAndCase.case_id).distinct().all()
-
-        case_id_list = [obj.case_id for obj in query_case]
-        if not case_id_list:
+        if not query_pc:
             return []
 
+        case_id_list = [obj.case_id for obj in query_pc]
         query_case_zip_list = QueryExecuteData.query_case_assemble(case_id_list)
         case_list = GenExecuteData.main(query_case_zip_list)
         QueryExecuteData.update_case_total_execution(case_id_list)
@@ -333,41 +349,25 @@ class QueryExecuteData:
     @staticmethod
     def gen_execute_scenario_list(**kwargs):
         """
-        生成需要执行的场景数据
-        PS:每次只能选择其中一个 key:val 作为查询参数
-        {
-            "project_id": 3
-            # "version_id": 4,
-            # "task_id": 30,
-            # "module_id": 30,
-        }
+        生成需要执行【场景】数据
         :param kwargs:
         :return:
         """
-        t = [(k, v) for k, v in kwargs.items()]
-        k = t[-1][0]
-        v = t[-1][1]
-        sql = f"""
-            SELECT
-                A.id,
-                A.scenario_title,
-                A.case_list
-            FROM
-                exile_test_case_scenario A
-            WHERE
-                EXISTS (
-                    SELECT
-                        B.id, B.scenario_id, B.version_id
-                    FROM
-                        exile_test_mid_version_scenario B
-                    WHERE
-                        B.scenario_id = A.id
-                        AND B.is_deleted = 0
-                        AND {k}={v})
-                    AND A.is_deleted = 0;
-            """
-        query_scenario = project_db.select(sql)
-        scenario_list = QueryExecuteData.query_scenario_assemble(query_scenario if query_scenario else [])
+        execute_type = kwargs.get('execute_dict_key', '')
+        query = kwargs.get('query')
+        model = model_dict.get(execute_type).get('scenario')
+        query_pc = model.query.filter_by(**query, is_deleted=0).all()
+
+        if not query_pc:
+            return []
+
+        scenario_id_list = [obj.scenario_id for obj in query_pc]
+        query_scenario_list = TestCaseScenario.query.filter(TestCaseScenario.id.in_(scenario_id_list)).all()
+        if query_scenario_list:
+            scenario_obj_list = [obj.to_json() for obj in query_scenario_list]
+        else:
+            scenario_obj_list = []
+        scenario_list = QueryExecuteData.query_scenario_assemble(scenario_obj_list)
         return scenario_list
 
     @staticmethod
@@ -379,37 +379,35 @@ class QueryExecuteData:
         :return:
         """
 
-        kv_to_tuple = [(k, v) for k, v in kwargs.items()]
-        id_key = kv_to_tuple[-1][0]
-        id_val = kv_to_tuple[-1][1]
-
+        execute_type = kwargs.get('execute_dict_key', '')
+        model_id = kwargs.get('model_id')
         key_dict = {
-            "project_id": {
+            "project": {
                 "class": TestProject,
                 "name": "project_name",
                 "title": "项目",
             },
-            "version_id": {
+            "version": {
                 "class": TestProjectVersion,
                 "name": "version_name",
                 "title": "版本迭代",
             },
-            "task_id": {
+            "task": {
                 "class": TestVersionTask,
                 "name": "task_name",
                 "title": "任务",
             },
-            "module_id": {
+            "module": {
                 "class": TestModuleApp,
                 "name": "module_name",
                 "title": "模块",
             }
         }
 
-        model = key_dict.get(id_key).get('class')
-        name = key_dict.get(id_key).get('name')
-        title = key_dict.get(id_key).get('title')
-        query_result = model.query.get(id_val)
+        model = key_dict.get(execute_type).get('class')
+        name = key_dict.get(execute_type).get('name')
+        title = key_dict.get(execute_type).get('title')
+        query_result = model.query.get(model_id)
         if query_result:
             execute_name = getattr(query_result, name)
             return title, execute_name
@@ -418,7 +416,16 @@ class QueryExecuteData:
 
     @staticmethod
     def execute_all(**kwargs):
-        """执行全部用例以及场景"""
+        """
+        执行全部用例以及场景
+        {
+            "execute_dict_key": "project", -> 用于model_dict取值
+            "query": {"project_id": "30"}, -> 用于中间表查询取值
+            "model_id": 30                 -> 用于对象直接查询
+        }
+        :param kwargs:
+        :return:
+        """
 
         title, execute_name = QueryExecuteData.gen_execute_name(**kwargs)
         if not title:
@@ -441,7 +448,16 @@ class QueryExecuteData:
 
     @staticmethod
     def execute_case(**kwargs):
-        """执行全部用例"""
+        """
+        执行全部用例
+        {
+            "execute_dict_key": "project", -> 用于model_dict取值
+            "query": {"project_id": "30"}, -> 用于中间表查询取值
+            "model_id": 30                 -> 用于对象直接查询
+        }
+        :param kwargs:
+        :return:
+        """
 
         title, execute_name = QueryExecuteData.gen_execute_name(**kwargs)
         if not title:
@@ -459,7 +475,16 @@ class QueryExecuteData:
 
     @staticmethod
     def execute_scenario(**kwargs):
-        """执行全部场景"""
+        """
+        执行全部场景
+        {
+            "execute_dict_key": "project", -> 用于model_dict取值
+            "query": {"project_id": "30"}, -> 用于中间表查询取值
+            "model_id": 30                 -> 用于对象直接查询
+        }
+        :param kwargs:
+        :return:
+        """
 
         title, execute_name = QueryExecuteData.gen_execute_name(**kwargs)
         if not title:
@@ -476,13 +501,14 @@ class QueryExecuteData:
         return True, data
 
     @staticmethod
-    def execute_case_only(case_id):
+    def execute_case_only(**kwargs):
         """
         查询单个用例组装
-        :param case_id: 用例id
+        :param kwargs: model_id 即 case_id
         :return:
         """
 
+        case_id = kwargs.get('model_id')
         query_case = TestCase.query.get(case_id)
         if not query_case:
             return False, f'用例id:{case_id}不存在'
@@ -515,13 +541,14 @@ class QueryExecuteData:
         return True, data
 
     @staticmethod
-    def execute_scenario_only(scenario_id):
+    def execute_scenario_only(**kwargs):
         """
         查询单个场景组装
-        :param scenario_id: 场景id
+        :param kwargs: model_id 即 scenario_id
         :return:
         """
 
+        scenario_id = kwargs.get('model_id')
         result = TestCaseScenario.query.get(scenario_id)
         if not result:
             return False, f'场景id:{scenario_id}不存在'
@@ -529,13 +556,14 @@ class QueryExecuteData:
         if not bool(result.is_shared):
             return False, '执行失败,该场景是私有的,仅创建者执行!'
 
-        execute_name = result.to_json().get('scenario_title')
-        case_list = result.to_json().get('case_list')
+        scenario_obj = result.to_json()
+        execute_name = scenario_obj.get('scenario_title')
+        case_list = scenario_obj.get('case_list')
 
         if not case_list:  # 防止手动修改数据导致,在场景创建的接口中有对应的校验
             return False, f'场景id:{scenario_id}用例为空(错误数据)'
 
-        send_test_case_list = QueryExecuteData.query_scenario_assemble([result.to_json()])
+        send_test_case_list = QueryExecuteData.query_scenario_assemble([scenario_obj])
         if not send_test_case_list:
             return False, '场景为空'
 
@@ -546,19 +574,22 @@ class QueryExecuteData:
         return True, data
 
     @staticmethod
-    def module_execute_app(module_code):
+    def module_execute_app(**kwargs):
         """
-
-        :param module_code: 应用编号
+        :param kwargs:
         :return:
         """
-
+        module_code = kwargs.get('query').get('module_code')
         query_app = TestModuleApp.query.filter_by(module_code=module_code).first()
         if query_app:
-            case_list = list(map(query_case_assemble, query_app.case_list))
-            query_scenario_list = TestCaseScenario.query.filter(TestCaseScenario.id.in_(query_app.scenario_list)).all()
-            scenario_list = QueryExecuteData.query_scenario_assemble([s.to_json() for s in query_scenario_list])
-
+            module_id = query_app.id
+            d = {
+                "execute_dict_key": "module",
+                "query": {"module_id": module_id},
+                "model_id": module_id
+            }
+            case_list = QueryExecuteData.gen_execute_case_list(**d)
+            scenario_list = QueryExecuteData.gen_execute_scenario_list(**d)
             return True, {
                 "execute_name": f"发布应用调用【{module_code}】所有用例与场景",
                 "is_execute_all": True,
@@ -569,98 +600,6 @@ class QueryExecuteData:
             }
         else:
             return False, f'应用编号:{module_code}不存在或可执行为空'
-
-    @staticmethod
-    def module_execute_all(module_id):
-        """
-        执行模块下的所有用例与场景
-        :param module_id:
-        :return:
-        """
-
-        query_module = TestModuleApp.query.get(module_id)
-        if not query_module:
-            return False, f"模块:{module_id}不存在"
-
-        execute_name = query_module.module_name
-        case_id_list = query_module.case_list
-        scenario_id_list = query_module.scenario_list
-
-        if not case_id_list and not scenario_id_list:
-            return False, '用例与场景为空'
-
-        query_case_zip_list = QueryExecuteData.query_case_assemble(case_id_list)
-        case_list = GenExecuteData.main(query_case_zip_list)
-        QueryExecuteData.update_case_total_execution(case_id_list)
-        scenario_list = QueryExecuteData.query_scenario_assemble(
-            [scenario.to_json() for scenario in
-             TestCaseScenario.query.filter(TestCaseScenario.id.in_(scenario_id_list)).all()]
-        )
-
-        data = {
-            "execute_name": f"执行模块({execute_name})所有用例与场景",
-            "is_execute_all": True,
-            "execute_dict": {
-                "case_list": case_list,
-                "scenario_list": scenario_list
-            }
-        }
-        return True, data
-
-    @staticmethod
-    def module_execute_case(module_id):
-        """
-        执行模块下的所有用例
-        :param module_id:
-        :return:
-        """
-
-        query_module = TestModuleApp.query.get(module_id)
-        if not query_module:
-            return False, f"模块:{module_id}不存在"
-
-        execute_name = query_module.module_name
-        case_id_list = query_module.case_list
-        if not case_id_list:
-            return False, '用例为空'
-
-        query_case_zip_list = QueryExecuteData.query_case_assemble(case_id_list)
-        case_list = GenExecuteData.main(query_case_zip_list)
-        QueryExecuteData.update_case_total_execution(case_id_list)
-
-        data = {
-            "execute_name": f"执行模块({execute_name})所有用例",
-            "send_test_case_list": case_list
-        }
-        return True, data
-
-    @staticmethod
-    def module_execute_scenario(module_id):
-        """
-        执行模块下的所有场景
-        :param module_id:
-        :return:
-        """
-
-        query_module = TestModuleApp.query.get(module_id)
-        if not query_module:
-            return False, f"模块:{module_id}不存在"
-
-        execute_name = query_module.module_name
-        scenario_id_list = query_module.scenario_list
-        if not scenario_id_list:
-            return False, '场景为空'
-
-        scenario_list = QueryExecuteData.query_scenario_assemble(
-            [scenario.to_json() for scenario in
-             TestCaseScenario.query.filter(TestCaseScenario.id.in_(scenario_id_list)).all()]
-        )
-
-        data = {
-            "execute_name": f"执行模块({execute_name})所有用例",
-            "send_test_case_list": scenario_list
-        }
-        return True, data
 
 
 execute_func_dict = {
@@ -679,10 +618,10 @@ execute_func_dict = {
     "task_case": QueryExecuteData.execute_case,
     "task_scenario": QueryExecuteData.execute_scenario,
 
-    "module_app": QueryExecuteData.module_execute_app,
-    "module_all": QueryExecuteData.module_execute_all,
-    "module_case": QueryExecuteData.module_execute_case,
-    "module_scenario": QueryExecuteData.module_execute_scenario
+    "module_all": QueryExecuteData.execute_all,
+    "module_case": QueryExecuteData.execute_case,
+    "module_scenario": QueryExecuteData.execute_scenario,
+    "module_app": QueryExecuteData.module_execute_app
 }
 
 
@@ -738,8 +677,12 @@ class CaseExecApi(MethodView):
         execute_func = execute_func_dict.get(execute_type)
 
         __key = execute_type if '_' not in execute_type else execute_type.split("_")[0]
-        result_bool, result_data = execute_func(
-            **{f"{__key}_id" if execute_type != "module_app" else "module_code": execute_id})
+        d = {
+            "execute_dict_key": execute_type.split('_')[0],
+            "query": {f"{__key}_id" if execute_type != "module_app" else "module_code": execute_id},
+            "model_id": execute_id
+        }
+        result_bool, result_data = execute_func(**d)
 
         if not result_bool:
             return api_result(code=400, message=result_data)
@@ -788,30 +731,29 @@ class CaseExecApi(MethodView):
 
 
 if __name__ == '__main__':
-    from common.libs.set_app_context import set_app_context
-
-
     @set_app_context
     def main():
         """测试"""
 
-        # res = QueryExecuteData.execute_scenario_only(42)
-        # res = QueryExecuteData.execute_all(**{"project_id": "30"})
-        # res = QueryExecuteData.execute_all(**{"version_id": "6"})
-        # res = QueryExecuteData.execute_all(**{"task_id": "45"})
-        # res = QueryExecuteData.execute_case(**{"task_id": "45"})
-        # res = QueryExecuteData.execute_scenario(**{"task_id": "45"})
-        # res = QueryExecuteData.execute_all(**{"module_id": "3"})
-        # print(res)
+        p1 = QueryExecuteData.execute_all(
+            **{"execute_dict_key": "project", "query": {"project_id": "30"}, "model_id": 30}
+        )
+        # print(p1)
+
+        v1 = QueryExecuteData.execute_all(
+            **{"execute_dict_key": "version", "query": {"version_id": "9"}, "model_id": 9}
+        )
+        # print(v1)
+
+        t1 = QueryExecuteData.execute_all(
+            **{"execute_dict_key": "task", "query": {"task_id": "47"}, "model_id": 47}
+        )
+        # print(t1)
+
+        m1 = QueryExecuteData.execute_all(
+            **{"execute_dict_key": "module", "query": {"module_id": "14"}, "model_id": 14}
+        )
+        # print(m1)
 
 
-    @set_app_context
-    def test_func():
-        """测试"""
-        print(QueryExecuteData.gen_execute_name(**{"project_id": "1"}))
-        print(QueryExecuteData.gen_execute_name(**{"version_id": "6"}))
-        print(QueryExecuteData.gen_execute_name(**{"task_id": "45"}))
-        print(QueryExecuteData.gen_execute_name(**{"module_id": "3"}))
-
-    # main()
-    # test_func()
+    main()
