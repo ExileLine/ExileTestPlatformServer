@@ -373,9 +373,7 @@ class QueryExecuteData:
     @staticmethod
     def gen_execute_name(**kwargs):
         """
-        只能接受一个键值对
-        支持键: project_id, version_id, task_id, module_id
-        :param kwargs: 如:{"project_id": "1"}
+        :param kwargs:
         :return:
         """
 

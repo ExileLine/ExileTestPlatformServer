@@ -12,8 +12,7 @@ from common.libs.db import project_db
 from common.libs.set_app_context import set_app_context
 from app.models.test_case.models import TestCase, TestCaseData
 from app.models.test_case_assert.models import TestCaseDataAssBind, TestCaseAssResponse, TestCaseAssField
-from app.models.test_project.models import TestProjectVersion, MidProjectVersionAndCase, MidProjectVersionAndScenario, \
-    MidVersionAndCase, MidModuleAndCase, TestModuleApp
+from app.models.test_project.models import TestProjectVersion, MidVersionAndCase, MidModuleAndCase, TestModuleApp
 
 
 def page_size(page=None, size=None, **kwargs):
@@ -32,99 +31,6 @@ def page_size(page=None, size=None, **kwargs):
 
 class MapToJsonObj:
     """模型转Json"""
-
-    @staticmethod
-    def gen_module_id(q_type, q_value):
-        """
-
-        :param q_type:
-        :param q_value:
-        :return:
-        """
-
-        query_module = None
-        if q_type == 'case':
-            query_module = MidProjectVersionAndCase.query.filter(
-                MidProjectVersionAndCase.case_id == q_value,
-                MidProjectVersionAndCase.module_id != None,
-                MidProjectVersionAndCase.module_id != 0,
-            ).all()
-        if q_type == 'scenario':
-            query_module = MidProjectVersionAndScenario.query.filter(
-                MidProjectVersionAndScenario.scenario_id == q_value,
-                MidProjectVersionAndScenario.module_id != None,
-                MidProjectVersionAndScenario.module_id != 0,
-            ).all()
-        if query_module:
-            return query_module[-1].module_id
-        else:
-            return ''
-
-    @staticmethod
-    def gen_case_version_list(case_id):
-        """
-
-        :param case_id: 用例id
-        :return:
-        """
-        sql = f"""
-        SELECT DISTINCT
-            A.id,
-            A.version_name,
-            A.version_number,
-            A.project_id,
-            A.creator,
-            A.creator_id,
-            A.modifier,
-            A.creator_id,
-            A.create_time,
-            A.create_timestamp,
-            A.update_time,
-            A.create_timestamp,
-            A.remark,
-            A.is_deleted
-        FROM
-            exile_test_project_version AS A
-            INNER JOIN exile_test_mid_version_case AS B ON A.id = B.version_id
-        WHERE
-            A.is_deleted = 0
-            AND B.case_id = {case_id};
-        """
-        query_result = project_db.select(sql)
-        return query_result
-
-    @staticmethod
-    def gen_scenario_version_list(scenario_id):
-        """
-
-        :param scenario_id:
-        :return:
-        """
-        sql = f"""
-        SELECT DISTINCT
-            A.id,
-            A.version_name,
-            A.version_number,
-            A.project_id,
-            A.creator,
-            A.creator_id,
-            A.modifier,
-            A.creator_id,
-            A.create_time,
-            A.create_timestamp,
-            A.update_time,
-            A.create_timestamp,
-            A.remark,
-            A.is_deleted
-        FROM
-            exile_test_project_version AS A
-            INNER JOIN exile_test_mid_version_scenario AS B ON A.id = B.version_id
-        WHERE
-            A.is_deleted = 0
-            AND B.scenario_id = {scenario_id};
-        """
-        query_result = project_db.select(sql)
-        return query_result
 
     @staticmethod
     def gen_resp_ass_list(ass_resp_id_list):
@@ -188,7 +94,7 @@ class MapToJsonObj:
 
 
 @set_app_context
-def query_case_assemble(case_id, is_new=False):
+def query_case_assemble(case_id):
     """用例组装"""
 
     query_case = TestCase.query.get(case_id)
@@ -198,20 +104,12 @@ def query_case_assemble(case_id, is_new=False):
 
     case_info = query_case.to_json()
 
-    if is_new:
-        version_id_list = [m.version_id for m in MidVersionAndCase.query.filter_by(case_id=case_id).all()]
-        version_list = [m.to_json() for m in
-                        TestProjectVersion.query.filter(TestProjectVersion.id.in_(version_id_list)).all()]
+    version_id_list = [m.version_id for m in MidVersionAndCase.query.filter_by(case_id=case_id).all()]
+    version_list = [m.to_json() for m in
+                    TestProjectVersion.query.filter(TestProjectVersion.id.in_(version_id_list)).all()]
 
-        module_id_list = [m.module_id for m in MidModuleAndCase.query.filter_by(case_id=case_id).all()]
-        module_list = [m.to_json() for m in TestModuleApp.query.filter(TestModuleApp.id.in_(module_id_list)).all()]
-
-    else:
-        # 版本组装
-        version_list = MapToJsonObj.gen_case_version_list(case_id)
-
-        # 模块
-        module_list = MapToJsonObj.gen_module_id('case', case_id)
+    module_id_list = [m.module_id for m in MidModuleAndCase.query.filter_by(case_id=case_id).all()]
+    module_list = [m.to_json() for m in TestModuleApp.query.filter(TestModuleApp.id.in_(module_id_list)).all()]
 
     # 参数与响应断言、字段断言组装
     bind_info = MapToJsonObj.gen_bind(case_id)

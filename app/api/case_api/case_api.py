@@ -124,7 +124,7 @@ class CaseApi(MethodView):
     def get(self, case_id):
         """用例详情"""
 
-        result = query_case_assemble(case_id=case_id, is_new=True)
+        result = query_case_assemble(case_id=case_id)
 
         if not result:
             return api_result(code=400, message=f'用例id:{case_id}不存在')
