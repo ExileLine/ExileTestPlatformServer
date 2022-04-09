@@ -855,20 +855,31 @@ class MainTest:
         try:
             self.save_test_repost(report_str=test_repost)  # 创建html测试报告
         except BaseException as e:
+            t = datetime.datetime.now()
             error_info = {
+                "time": t,
                 "test_repost": test_repost_sizeof,
                 "test_repost_kb": f"{int(test_repost_sizeof / 1024)}KB",
                 "traceback": traceback.print_exc(),
                 "e": str(e)
             }
-            R.set(f'gen_repost_error_{str(int(time.time()))}', json.dumps(error_info))
+            R.set(f'gen_repost_error_{t}', json.dumps(error_info))
 
         report_url = self.gen_report_url()  # 生成测试报告链接
         self.save_logs(redis_key=self.save_key, report_url=report_url)
 
         if self.is_dd_push:
-            mt = f"#### 测试报告:{self.execute_name}  \n  > 测试人员:{self.execute_username}  \n  > 开始时间:{self.create_time}  \n  > 结束时间:{self.end_time}  \n  > 合计耗时:{self.total_time}s  \n  > 用例总数:{self.test_result.all_test_count}  \n  > 成功数:{self.test_result.pass_count}  \n  > 失败数:{self.test_result.fail_count}  \n  > 通过率:{self.test_result.pass_rate}  \n "
-            MessagePush.dd_push(ding_talk_url=self.ding_talk_url, report_url=report_url, markdown_text=mt)
+            try:
+                mt = f"#### 测试报告:{self.execute_name}  \n  > 测试人员:{self.execute_username}  \n  > 开始时间:{self.create_time}  \n  > 结束时间:{self.end_time}  \n  > 合计耗时:{self.total_time}s  \n  > 用例总数:{self.test_result.all_test_count}  \n  > 成功数:{self.test_result.pass_count}  \n  > 失败数:{self.test_result.fail_count}  \n  > 通过率:{self.test_result.pass_rate}  \n "
+                MessagePush.dd_push(ding_talk_url=self.ding_talk_url, report_url=report_url, markdown_text=mt)
+            except BaseException as e:
+                t = datetime.datetime.now()
+                error_info = {
+                    "time": t,
+                    "traceback": traceback.print_exc(),
+                    "e": str(e)
+                }
+                R.set(f'gen_dd_push_error_{t}', json.dumps(error_info))
 
         if self.is_send_mail:
             SendEmail(to_list=self.mail_list, ac_list=self.mail_list).send_attach(
