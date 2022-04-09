@@ -871,8 +871,11 @@ class MainTest:
         if self.is_dd_push:
             try:
                 mt = f"#### 测试报告:{self.execute_name}  \n  > 测试人员:{self.execute_username}  \n  > 开始时间:{self.create_time}  \n  > 结束时间:{self.end_time}  \n  > 合计耗时:{self.total_time}s  \n  > 用例总数:{self.test_result.all_test_count}  \n  > 成功数:{self.test_result.pass_count}  \n  > 失败数:{self.test_result.fail_count}  \n  > 通过率:{self.test_result.pass_rate}  \n "
+                print(mt)
+                print(self.ding_talk_url)
                 MessagePush.dd_push(ding_talk_url=self.ding_talk_url, report_url=report_url, markdown_text=mt)
             except BaseException as e:
+                print(str(e))
                 t = datetime.datetime.now()
                 error_info = {
                     "time": t,
