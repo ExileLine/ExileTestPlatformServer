@@ -87,8 +87,20 @@ class CaseScenarioApi(MethodView):
         if not case_id_list:
             return api_result(code=400, message='异常的数据')
 
+        # TODO 后面新增中间表后修改这个逻辑
         sorted_case_id_list = sorted(case_id_list, key=lambda x: x.get("index", x.get('case_id')), reverse=True)
-        case_list = query_case_order_by_field(sorted_case_id_list)
+        sorted_case_hash_map = {}
+        for i in sorted_case_id_list:
+            case_id = i.get('case_id')
+            sorted_case_hash_map[case_id] = i
+
+        query_case_id_list = [k for k in sorted_case_hash_map.keys()]
+        query_case_list = query_case_order_by_field(query_case_id_list)
+        
+        for case in query_case_list:
+            case_id = case.get('id')
+            if sorted_case_hash_map.get(case_id):
+                case.update(sorted_case_hash_map.get(case_id))
 
         version_id_list = [m.version_id for m in MidVersionAndScenario.query.filter_by(scenario_id=scenario_id).all()]
         version_list = [m.to_json() for m in
@@ -97,7 +109,7 @@ class CaseScenarioApi(MethodView):
         module_id_list = [m.module_id for m in MidModuleAndScenario.query.filter_by(scenario_id=scenario_id).all()]
         module_list = [m.to_json() for m in TestModuleApp.query.filter(TestModuleApp.id.in_(module_id_list)).all()]
 
-        result['case_list'] = case_list
+        result['case_list'] = query_case_list
         result["version_list"] = version_list
         result["module_list"] = module_list
         return api_result(code=200, message='操作成功', data=result)
