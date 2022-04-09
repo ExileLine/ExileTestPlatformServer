@@ -6,6 +6,7 @@
 # @Software: PyCharm
 
 from concurrent.futures import ThreadPoolExecutor
+import queue
 
 from all_reference import *
 from app.models.test_case.models import TestCase
@@ -22,7 +23,20 @@ from app.models.push_reminder.models import DingDingConfModel, MailConfModel
 from common.libs.StringIOLog import StringIOLog
 from common.libs.set_app_context import set_app_context
 
-executor = ThreadPoolExecutor(200)
+# executor = ThreadPoolExecutor(200)
+
+
+class BoundThreadPoolExecutor(ThreadPoolExecutor):
+    """
+    对ThreadPoolExecutor 进行重写，给队列设置边界
+    """
+
+    def __init__(self, qsize: int = None, *args, **kwargs):
+        super(BoundThreadPoolExecutor, self).__init__(*args, **kwargs)
+        self._work_queue = queue.Queue(qsize)
+
+
+executor = BoundThreadPoolExecutor(qsize=200, max_workers=200)
 
 model_dict = {
     "project": {
