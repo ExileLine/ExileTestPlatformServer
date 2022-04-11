@@ -107,9 +107,11 @@ class ProjectDataInit:
         print('创建模块完成')
 
     @set_app_context
-    def create_case(self):
+    def create_case(self, num=None):
+        """创建用例并关联"""
         request_method = ["GET", "POST", "PUT", "DELETE"]
-        for index in range(1, 100):
+        num = num if num else 100
+        for index in range(1, num):
             new_test_case = TestCase(
                 case_name=f"测试{index}",
                 request_method=random.choice(request_method),
@@ -173,10 +175,11 @@ class ProjectDataInit:
         print('用例关联项目，用例关联版本，用例关联模块 完成')
 
     @set_app_context
-    def create_case_data(self):
+    def create_case_data(self, num=None):
         """创建参数"""
 
-        for index in range(1, 100):
+        num = num if num else 100
+        for index in range(1, num):
             tcd = TestCaseData(
                 data_name=f"测试数据:{index}",
                 request_headers={
@@ -198,7 +201,7 @@ class ProjectDataInit:
         print('创建参数完成')
 
     @set_app_context
-    def create_ass_response(self):
+    def create_ass_response(self, num=None):
         """创建响应断言"""
         x = [
             {
@@ -229,7 +232,8 @@ class ProjectDataInit:
                 "response_source": "response_body"
             }
         ]
-        for index in range(1, 100):
+        num = num if num else 100
+        for index in range(1, num):
             new_ass_resp = TestCaseAssResponse(
                 assert_description=f"响应断言:{index}",
                 ass_json=[random.choice(x)],
@@ -242,7 +246,7 @@ class ProjectDataInit:
         print('创建响应断言完成')
 
     @set_app_context
-    def create_ass_field(self):
+    def create_ass_field(self, num=None):
         """创建字段断言"""
         x1 = [
             {
@@ -285,7 +289,8 @@ class ProjectDataInit:
                 ]
             }
         ]
-        for index in range(1, 100):
+        num = num if num else 100
+        for index in range(1, num):
             new_ass_field = TestCaseAssField(
                 assert_description=f"响应断言:{index}",
                 ass_json=[random.choice([x1, x2])],
@@ -381,10 +386,10 @@ if __name__ == '__main__':
     project_data_init.create_admin()
     project_data_init.create_project_version()
     project_data_init.create_module()
-    project_data_init.create_case()
-    project_data_init.create_case_data()
-    project_data_init.create_ass_response()
-    project_data_init.create_ass_field()
+    project_data_init.create_case(num=10000)
+    project_data_init.create_case_data(num=10000)
+    project_data_init.create_ass_response(num=10000)
+    project_data_init.create_ass_field(num=10000)
     project_data_init.create_case_bind()
     project_data_init.create_var()
     project_data_init.create_db()
