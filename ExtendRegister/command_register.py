@@ -7,25 +7,13 @@
 
 import os
 import click
-import random
 import shutil
 
 from sqlalchemy import or_, and_
 
 from common.libs.db import project_db
-from ExtendRegister.db_register import db
+from common.libs.project_init import db, ProjectDataInit
 from app.models.admin.models import Admin, Role, Permission, MidAdminAndRole, MidPermissionAndRole, ApiResource
-from app.models.test_case.models import TestCase, TestCaseData
-from app.models.test_case_scenario.models import TestCaseScenario
-from app.models.test_variable.models import TestVariable
-from app.models.test_case_assert.models import TestCaseAssResponse, TestCaseAssField
-from app.models.push_reminder.models import MailConfModel, DingDingConfModel
-from app.models.platform_conf.models import PlatformConfModel
-from app.models.ui_auto_file.models import UiAutoFile
-from app.models.test_project.models import TestProject, TestProjectVersion, TestVersionTask, TestModuleApp, \
-    MidProjectVersionAndCase, MidProjectVersionAndScenario, MidProjectAndCase, MidVersionAndCase, MidTaskAndCase, \
-    MidModuleAndCase, MidProjectAndScenario, MidVersionAndScenario, MidTaskAndScenario, MidModuleAndScenario
-from app.models.test_case_db.models import TestDatabases
 
 """
 export FLASK_APP=ApplicationExample.py
@@ -109,8 +97,8 @@ def register_commands(app):
             db.session.commit()
             print('用户: {} 添加成功'.format(username))
 
-    @app.cli.command("crm_init", help='CRM初始化')
-    def crm_init():
+    @app.cli.command("auth_init", help='鉴权初始化')
+    def auth_init():
         """
         CRM初始化
         """
@@ -388,291 +376,21 @@ def register_commands(app):
                 print('用户:{} 添加 角色:{} 完成'.format(root_admin.username, role.name))
         db.session.commit()
 
-    @app.cli.command("create_test_data", help='生成测试数据')
-    def create_test_data():
-        request_method = ["GET", "POST", "PUT", "DELETE"]
-
-        def create_platform_conf():
-            pc = PlatformConfModel(
-                platform_name="放逐测试平台-demo",
-                platform_login_msg="Sign in to Exile Test Platform",
-                weights=9999,
-                remark="脚本生成",
-                creator="shell",
-                creator_id=999999
-            )
-            db.session.add(pc)
-            db.session.commit()
-
-        def create_project_version():
-            new_project = TestProject(
-                project_name='初始化项目',
-                remark="脚本生成",
-                creator="shell",
-                creator_id=999999,
-            )
-            db.session.add(new_project)
-            db.session.commit()
-            project_id = new_project.id
-
-            for index, i in enumerate(range(0, 5), 1):
-                new_version = TestProjectVersion(
-                    version_name=f"版本迭代:{index}",
-                    version_number=f"v1.{index}",
-                    project_id=project_id,
-                    remark="脚本生成",
-                    creator="shell",
-                    creator_id=999999,
-                )
-                db.session.add(new_version)
-            db.session.commit()
-
-        def create_case():
-            api_list = [
-                '/api/case_execute_logs_page',
-                '/api/field_ass_rule_page',
-                '/api/case_bind_field_ass',
-                '/api/case_req_data_page',
-                '/api/resp_ass_rule_page',
-                '/api/case_bind_resp_ass',
-                '/api/case_scenario_page',
-                '/api/case_execute_logs',
-                '/api/case_logs_page',
-                '/api/field_ass_rule',
-                '/api/case_bind_data',
-                '/api/case_env_page',
-                '/api/case_req_data',
-                '/api/case_var_page',
-                '/api/resp_ass_rule',
-                '/api/case_scenario',
-                '/api/case_db_page',
-                '/api/case_report',
-                '/api/user_page',
-                '/api/case_page',
-                '/api/case_bind',
-                '/api/rule_test',
-                '/api/case_send',
-                '/api/case_exec',
-                '/api/case_env',
-                '/api/case_var',
-                '/api/case_set',
-                '/api/tourist',
-                '/api/case_db',
-                '/api/index',
-                '/api/login',
-                '/api/case',
-                '/api/field_ass_rule/<ass_field_id>',
-                '/api/case_req_data/<req_data_id>',
-                '/api/resp_ass_rule/<ass_resp_id>',
-                '/api/case_scenario/<scenario_id>',
-                '/api/case_env/<env_id>',
-                '/api/case_var/<var_id>',
-                '/api/case_db/<db_id>',
-                '/api/case/<case_id>',
-                '/static/<filename>'
-            ]
-            for index, url in enumerate(api_list, 1):
-                new_test_case = TestCase(
-                    case_name="测试:" + url,
-                    request_method=random.choice(request_method),
-                    request_base_url="http://0.0.0.0:7272",
-                    request_url=url,
-                    is_shared=True,
-                    is_public=True,
-                    remark="脚本生成:{}".format(index),
-                    creator="脚本生成:{}".format(index),
-                    creator_id=999999,
-                    total_execution=random.randint(1, 99)
-                )
-                db.session.add(new_test_case)
-            db.session.commit()
-
-        def update_case():
-            all_case = TestCase.query.all()
-            for index, case in enumerate(all_case, 1):
-                case.request_method = random.choice(request_method)
-                case.modifier = "脚本生成:{}".format(random.randint(1, len(all_case)))
-                case.modifier_id = 888888
-            db.session.commit()
-
-        def set_case_version():
-            all_case = TestCase.query.all()
-            all_version_id = [v.id for v in TestProjectVersion.query.all()]
-
-            for case in all_case:
-                mid = MidProjectVersionAndCase(
-                    version_id=random.choice(all_version_id),
-                    task_id=0,
-                    case_id=case.id,
-                    remark="脚本生成",
-                    creator="shell",
-                    creator_id=999999
-                )
-                db.session.add(mid)
-            db.session.commit()
-
-        def create_case_data():
-            for index, i in enumerate(range(0, 33)):
-                tcd = TestCaseData(
-                    data_name="测试数据:{}".format(index),
-                    request_headers={
-                        "token": "${token}"
-                    },
-                    request_params={},
-                    request_body={
-                        "user_id": "${user_id}",
-                        "password": index * random.randint(111111, 333333)
-                    },
-                    request_body_type=1,
-                    update_var_list=[],
-                    remark="脚本生成",
-                    creator="shell",
-                    creator_id=999999
-                )
-                db.session.add(tcd)
-            db.session.commit()
-
-        def create_var():
-            for index, i in enumerate(range(0, 13)):
-                tv = TestVariable(
-                    var_name="变量:{}".format(index),
-                    var_value="变量的值:{}".format(index),
-                    var_type=random.choice(list(range(1, 13))),
-                    var_source=random.choice(["resp_data", "resp_headers"]),
-                    var_get_key="code",
-                    expression="obj.get('message')",
-                    is_expression=1,
-                    remark="脚本生成",
-                    creator="shell",
-                    creator_id=999999
-                )
-                db.session.add(tv)
-            db.session.commit()
-
-        def create_db():
-            mysql_db = TestDatabases(
-                name='测试环境:mysql',
-                db_type='mysql',
-                db_connection={"host": "127.0.0.1", "password": "1234567890", "port": 33060, "user": "root"},
-                remark="脚本生成",
-                creator="shell",
-                creator_id=999999,
-            )
-            redis_db = TestDatabases(
-                name='测试环境:redis',
-                db_type='redis',
-                db_connection={"db": 0, "host": "127.0.0.1", "password": "1234567890", "port": 63790},
-                remark="脚本生成",
-                creator="shell",
-                creator_id=999999,
-            )
-            es_db = TestDatabases(
-                name='测试环境:ES',
-                db_type='redis',
-                db_connection={},
-                remark="脚本生成",
-                creator="shell",
-                creator_id=999999,
-            )
-            db.session.add_all([mysql_db, redis_db, es_db])
-            db.session.commit()
-
-        def create_ass_resp():
-            for index, i in enumerate(range(0, 13)):
-                ar = TestCaseAssResponse(
-                    assert_description="业务逻辑断言:{}".format(index),
-                    ass_json=[
-                        {
-                            "response_source": "response_body",
-                            "assert_key": "code",
-                            "expect_val": "200",
-                            "expect_val_type": "1",
-                            "rule": "==",
-                            "is_expression": 0,
-                            "python_val_exp": "okc.get('a').get('b').get('c')[0]"
-                        },
-                        {
-                            "response_source": "response_headers",
-                            "assert_key": "log_uuid",
-                            "expect_val": "qwertyuiop",
-                            "expect_val_type": "2",
-                            "rule": ">=",
-                            "is_expression": 0,
-                            "python_val_exp": "okc.get('a').get('b').get('c')[0]"
-                        },
-                        {
-                            "response_source": "response_body",
-                            "assert_key": "message",
-                            "expect_val": "index",
-                            "expect_val_type": "2",
-                            "rule": "==",
-                            "is_expression": 0,
-                            "python_val_exp": "okc.get('a').get('b').get('c')[0]"
-                        },
-                        {
-                            "response_source": "response_body",
-                            "assert_key": "message",
-                            "expect_val": "index",
-                            "expect_val_type": "2",
-                            "rule": "==",
-                            "is_expression": 1,
-                            "python_val_exp": "okc.get('message')"
-                        },
-                        {
-                            "response_source": "response_body",
-                            "assert_key": "message",
-                            "expect_val": "yangyuexiongyyx",
-                            "expect_val_type": "2",
-                            "rule": "==",
-                            "is_expression": 1,
-                            "python_val_exp": "okc.get('token')"
-                        }
-                    ],
-                    remark="脚本生成",
-                    creator="shell",
-                    creator_id=999999
-                )
-                db.session.add(ar)
-            db.session.commit()
-
-        def create_ass_field():
-            for index, i in enumerate(range(0, 13)):
-                af = TestCaseAssField(
-                    assert_description="数据字段断言:{}".format(index),
-                    ass_json=[
-                        {
-                            "db_id": 1,
-                            "assert_list": [
-                                {
-                                    "query": "select id, case_name FROM ExileTestPlatform.exile_test_case WHERE id=1;",
-                                    "assert_field_list": [
-                                        {
-                                            "rule": "==",
-                                            "assert_key": "id",
-                                            "expect_val": 11,
-                                            "is_expression": 1,
-                                            "python_val_exp": "obj.get('id')",
-                                            "expect_val_type": "1"
-                                        }
-                                    ]
-                                }
-                            ]
-                        }
-                    ],
-                    remark="脚本生成",
-                    creator="shell",
-                    creator_id=999999
-                )
-                db.session.add(af)
-            db.session.commit()
-
-        create_platform_conf()
-        create_project_version()
-        create_case()
-        update_case()
-        set_case_version()
-        create_case_data()
-        create_var()
-        create_db()
-        create_ass_resp()
-        create_ass_field()
+    @app.cli.command("project_init", help='项目初始化')
+    def project_init():
+        """
+        项目初始化
+        :return:
+        """
+        project_data_init = ProjectDataInit()
+        project_data_init.create_platform_conf()
+        project_data_init.create_admin()
+        project_data_init.create_project_version()
+        project_data_init.create_module()
+        project_data_init.create_case()
+        project_data_init.create_case_data()
+        project_data_init.create_ass_response()
+        project_data_init.create_ass_field()
+        project_data_init.create_case_bind()
+        project_data_init.create_var()
+        project_data_init.create_db()
