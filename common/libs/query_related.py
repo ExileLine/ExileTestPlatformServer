@@ -190,12 +190,8 @@ def general_query(model, page, size, like_rule="and_", field_list=[], query_list
         per_page=int(size),
         error_out=False
     )
-    result_list = []
+    result_list = [res.to_json() for res in result.items]
     total = result.total
-    for res in result.items:
-        case_var_json = res.to_json()
-        result_list.append(case_var_json)
-
     result_data = {
         'records': result_list,
         'now_page': page,
