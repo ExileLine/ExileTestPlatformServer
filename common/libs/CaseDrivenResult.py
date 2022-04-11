@@ -194,9 +194,7 @@ class MainTest:
         self.mail_list = test_obj.get('mail_list')
 
         self.is_safe_scan = test_obj.get('is_safe_scan', False)
-
-        if self.is_safe_scan:
-            self.proxies_url = test_obj.get('safe_scan_url')
+        self.safe_scan_url = test_obj.get('safe_scan_url', False)
 
         if not isinstance(self.case_list, list):
             raise TypeError('MainTest.__init__.case_list 类型错误')
@@ -466,8 +464,8 @@ class MainTest:
             proxies = {
                 # 'http': '192.168.14.214:7777',
                 # 'https': '192.168.14.214:7777',
-                'http': self.proxies_url,
-                'https': self.proxies_url
+                'http': self.safe_scan_url,
+                'https': self.safe_scan_url
             }
             send['proxies'] = proxies
 
