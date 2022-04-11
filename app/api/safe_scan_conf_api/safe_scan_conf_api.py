@@ -42,10 +42,11 @@ class SafeScanConfApi(MethodView):
         if not safe_scan_url:
             return api_result(code=400, message='安全代理url不能为空')
 
-        query_safe_scan = SafeScanConf.query.filter_by(safe_scan_url=safe_scan_url).first()
+        query_safe_scan = SafeScanConf.query.filter(
+            or_(SafeScanConf.safe_scan_url == safe_scan_url, SafeScanConf.weights == weights)).all()
 
         if query_safe_scan:
-            return api_result(code=400, message=f'{safe_scan_url} 已存在')
+            return api_result(code=400, message=f'{safe_scan_url} 已存在，或权重：{weights} 不唯一')
 
         new_safe_scan = SafeScanConf(
             description=description,
@@ -86,6 +87,9 @@ class SafeScanConfApi(MethodView):
         if query_safe_scan.safe_scan_url != safe_scan_url:
             if SafeScanConf.query.filter_by(safe_scan_url=safe_scan_url).all():
                 return api_result(code=400, message=f'安全代理url: {safe_scan_url} 已经存在')
+        if query_safe_scan.weights != weights:
+            if SafeScanConf.query.filter_by(weights=weights).all():
+                return api_result(code=400, message=f'权重: {weights} 已经存在')
 
         query_safe_scan.description = description
         query_safe_scan.is_global_open = is_global_open
