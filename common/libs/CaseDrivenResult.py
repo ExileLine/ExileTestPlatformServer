@@ -196,7 +196,7 @@ class MainTest:
         self.is_safe_scan = test_obj.get('is_safe_scan', False)
 
         if self.is_safe_scan:
-            self.proxies_url = self.gen_safe_scan_url()
+            self.proxies_url = test_obj.get('safe_scan_url')
 
         if not isinstance(self.case_list, list):
             raise TypeError('MainTest.__init__.case_list 类型错误')
@@ -831,17 +831,6 @@ class MainTest:
             only=True)
         report_url = f"{query.get('server_url', 'http://0.0.0.0')}/{self.report_name}"
         return report_url
-
-    def gen_safe_scan_url(self):
-        """
-        生成安全扫描代理链接
-        :return:
-        """
-        query = project_db.select(
-            'SELECT safe_scan_url FROM exile_platform_conf WHERE weights = (SELECT max(weights) FROM exile_platform_conf);',
-            only=True)
-        safe_scan_url = query.get('safe_scan_url', 'http://0.0.0.0:7777')
-        return safe_scan_url
 
     def main(self):
         """main"""

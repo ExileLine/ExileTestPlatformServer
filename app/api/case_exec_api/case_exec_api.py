@@ -726,12 +726,18 @@ class CaseExecApi(MethodView):
                     SELECT
                         MAX(weights)
                     FROM
-                        exile_safe_scan_conf)
+                        exile_safe_scan_conf
+                    WHERE
+                        is_deleted = 0
+                        AND is_global_open = 1)
                     AND is_deleted = 0
                     AND is_global_open = 1;
             """
             result = project_db.select(sql, only=True)
-            safe_scan_url = result.get("safe_scan_url")
+            if result:
+                safe_scan_url = result.get("safe_scan_url")
+            else:
+                safe_scan_url = None
         else:
             safe_scan_url = None
 
