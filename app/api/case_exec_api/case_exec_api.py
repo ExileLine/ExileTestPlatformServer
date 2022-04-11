@@ -9,6 +9,8 @@ from concurrent.futures import ThreadPoolExecutor
 import queue
 
 from all_reference import *
+from common.libs.StringIOLog import StringIOLog
+from common.libs.set_app_context import set_app_context
 from app.models.test_case.models import TestCase
 from app.models.test_case_assert.models import TestCaseAssResponse, TestCaseAssField
 from app.models.test_case_scenario.models import TestCaseScenario
@@ -20,8 +22,7 @@ from app.models.test_project.models import (
 from app.models.test_env.models import TestEnv
 from app.models.test_logs.models import TestLogs
 from app.models.push_reminder.models import DingDingConfModel, MailConfModel
-from common.libs.StringIOLog import StringIOLog
-from common.libs.set_app_context import set_app_context
+
 
 # executor = ThreadPoolExecutor(200)
 
@@ -660,6 +661,7 @@ class CaseExecApi(MethodView):
         ding_talk_url = ""
         is_send_mail = data.get('is_send_mail', False)
         is_all_mail = data.get('is_all_mail', False)
+        is_safe_scan = data.get('is_safe_scan', False)
 
         if is_all_mail:
             mail_list = [m.mail for m in MailConfModel.query.filter_by(is_deleted=0).all()]
@@ -713,6 +715,26 @@ class CaseExecApi(MethodView):
         send_test_case_list = result_data.get('send_test_case_list', [])
         sio = StringIOLog()
 
+        if is_safe_scan:
+            sql = """
+            SELECT
+                safe_scan_url
+            FROM
+                exile_safe_scan_conf
+            WHERE
+                weights = (
+                    SELECT
+                        MAX(weights)
+                    FROM
+                        exile_safe_scan_conf)
+                    AND is_deleted = 0
+                    AND is_global_open = 1;
+            """
+            result = project_db.select(sql, only=True)
+            safe_scan_url = result.get("safe_scan_url")
+        else:
+            safe_scan_url = None
+
         test_obj = {
             "execute_id": execute_id,
             "execute_name": execute_name,
@@ -731,7 +753,9 @@ class CaseExecApi(MethodView):
             "dd_push_id": dd_push_id,
             "ding_talk_url": ding_talk_url,
             "is_send_mail": is_send_mail,
-            "mail_list": mail_list
+            "mail_list": mail_list,
+            "is_safe_scan": is_safe_scan,
+            "safe_scan_url": safe_scan_url
         }
 
         main_test = MainTest(test_obj=test_obj)
@@ -768,5 +792,4 @@ if __name__ == '__main__':
         )
         # print(m1)
 
-
-    main()
+    # main()
