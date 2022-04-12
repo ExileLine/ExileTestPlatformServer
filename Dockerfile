@@ -33,8 +33,7 @@ RUN pip install uwsgi -i https://pypi.doubanio.com/simple --no-cache-dir
 # 时区
 RUN cp /usr/share/zoneinfo/Asia/Shanghai /etc/localtime
 
-# 启动项目
-CMD export FLASK_ENV='production' && uwsgi --ini exile_uwsgi_for_docker.ini
+# 启动项目,# 启动Celery
+CMD export FLASK_ENV='production' && uwsgi --ini exile_uwsgi_for_docker.ini && celery -A tasks multi start worker1 --pidfile="$HOME/run/celery/%n.pid" --logfile="$HOME/log/celery/%n%I.log"
 
-# 启动Celery
-RUN celery -A tasks multi start worker1 --pidfile="$HOME/run/celery/%n.pid" --logfile="$HOME/log/celery/%n%I.log"
+
