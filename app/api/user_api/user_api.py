@@ -21,6 +21,8 @@ class TouristApi(MethodView):
 
         user_ip = request.remote_addr
         print(user_ip)
+        user_ip = request.environ.get('HTTP_X_REAL_IP', request.remote_addr)
+        print(user_ip)
         query_tourist = R.get(user_ip)
 
         if query_tourist:
