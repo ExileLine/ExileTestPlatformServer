@@ -17,6 +17,7 @@ cryptography = "*"
 apscheduler = "*"
 flask-apscheduler = "*"
 psycopg2-binary = "*"
+celery = "*"
 
 [dev-packages]
 

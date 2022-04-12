@@ -23,6 +23,8 @@ from app.models.test_env.models import TestEnv
 from app.models.test_logs.models import TestLogs
 from app.models.push_reminder.models import DingDingConfModel, MailConfModel
 
+from tasks.task03 import execute_main
+
 
 # executor = ThreadPoolExecutor(200)
 
@@ -755,7 +757,7 @@ class CaseExecApi(MethodView):
             "is_execute_all": is_execute_all,
             "case_list": send_test_case_list,
             "execute_dict": execute_dict,
-            "sio": sio,
+            # "sio": sio,
             "is_dd_push": is_dd_push,
             "dd_push_id": dd_push_id,
             "ding_talk_url": ding_talk_url,
@@ -765,13 +767,16 @@ class CaseExecApi(MethodView):
             "safe_scan_url": safe_scan_url
         }
 
-        main_test = MainTest(test_obj=test_obj)
-
-        executor.submit(main_test.main)
+        # main_test = MainTest(test_obj=test_obj)
+        # executor.submit(main_test.main)
         # thread1 = threading.Thread(target=main_test.main)
         # thread1.daemon = True
         # thread1.start()
-        return api_result(code=200, message='操作成功,请前往日志查看执行结果', data=[time.time()])
+
+        results = execute_main.delay(test_obj)
+        print(results)
+
+        return api_result(code=200, message='操作成功,请前往日志查看执行结果', data=[])
 
 
 if __name__ == '__main__':
