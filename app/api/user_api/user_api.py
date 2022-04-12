@@ -20,10 +20,9 @@ class TouristApi(MethodView):
         """获取游客账号密码"""
 
         user_ip = request.remote_addr
-        print(user_ip)
-        user_ip = request.environ.get('HTTP_X_REAL_IP', request.remote_addr)
-        print(user_ip)
+        print('===user_ip===', user_ip)
         query_tourist = R.get(user_ip)
+        print('===query_tourist===', query_tourist)
 
         if query_tourist:
             return api_result(code=200, message='操作成功', data=json.loads(query_tourist))

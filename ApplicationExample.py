@@ -10,7 +10,7 @@ import os
 from flask import Flask
 from flask_cors import CORS
 from flask_migrate import Migrate
-
+from werkzeug.middleware.proxy_fix import ProxyFix
 from ExtendRegister.command_register import register_commands  # commands
 from ExtendRegister.bp_register import register_bp  # 蓝图
 from ExtendRegister.conf_register import register_config  # 配置
@@ -25,6 +25,7 @@ def create_app():
         template_folder=os.getcwd() + '/app/templates',
         static_folder=os.getcwd() + '/app/static',
     )  # 实例
+    app.wsgi_app = ProxyFix(app.wsgi_app)
     CORS(app, supports_credentials=True)  # 跨域
     register_commands(app)  # flask cli 注册
     register_config(app)  # 配置注册
