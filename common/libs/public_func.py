@@ -5,7 +5,9 @@
 # @File    : public_func.py
 # @Software: PyCharm
 
+import time
 import json
+from functools import wraps
 
 from flask import request
 from loguru import logger
@@ -52,6 +54,24 @@ def json_format(data):
         logger.info(f'\n{result}')
     except BaseException as e:
         logger.info(f'\n{data}')
+
+
+def timer(func):
+    @wraps(func)
+    def wrapper(*args, **kwargs):
+        print('func name:{}'.format(func.__name__))
+        print('func doc:{}'.format(func.__doc__))
+        print('func param:{}'.format(args))
+        print('func param:{}'.format(kwargs))
+        print("计时开始")
+        start_time = time.time()
+        func(*args, **kwargs)
+        end_time = time.time()
+        total_time = end_time - start_time
+        print("计时结束")
+        print(f"程序用时{int(total_time // 60)}分{total_time % 60:.2f}秒")
+
+    return wrapper
 
 
 class RequestParamKeysCheck:

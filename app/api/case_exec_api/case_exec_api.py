@@ -57,6 +57,28 @@ model_dict = {
         "scenario": MidModuleAndScenario,
     }
 }
+key_dict = {
+    "project": {
+        "class": TestProject,
+        "name": "project_name",
+        "title": "项目",
+    },
+    "version": {
+        "class": TestProjectVersion,
+        "name": "version_name",
+        "title": "版本迭代",
+    },
+    "task": {
+        "class": TestVersionTask,
+        "name": "task_name",
+        "title": "任务",
+    },
+    "module": {
+        "class": TestModuleApp,
+        "name": "module_name",
+        "title": "模块",
+    }
+}
 
 
 @set_app_context
@@ -393,33 +415,12 @@ class QueryExecuteData:
 
         execute_type = kwargs.get('execute_dict_key', '')
         model_id = kwargs.get('model_id')
-        key_dict = {
-            "project": {
-                "class": TestProject,
-                "name": "project_name",
-                "title": "项目",
-            },
-            "version": {
-                "class": TestProjectVersion,
-                "name": "version_name",
-                "title": "版本迭代",
-            },
-            "task": {
-                "class": TestVersionTask,
-                "name": "task_name",
-                "title": "任务",
-            },
-            "module": {
-                "class": TestModuleApp,
-                "name": "module_name",
-                "title": "模块",
-            }
-        }
 
         model = key_dict.get(execute_type).get('class')
         name = key_dict.get(execute_type).get('name')
         title = key_dict.get(execute_type).get('title')
         query_result = model.query.get(model_id)
+
         if query_result:
             execute_name = getattr(query_result, name)
             return title, execute_name
