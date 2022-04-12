@@ -14,7 +14,7 @@ from loguru import logger
 def print_logs():
     """logs"""
     host = request.host
-    ip_address = request.headers['X-Forwarded-For']
+    ip_address = request.headers.get('X-Forwarded-For')
     method = request.method
     path = request.path
     headers = {k: v for k, v in request.headers.items()}
