@@ -59,6 +59,9 @@ def scenario_decorator(func):
         if not case_list or len(case_list) <= 1:
             return api_result(code=400, message='用例列表不能为空,或需要一条以上的用例组成')
 
+        if len(set(map(lambda obj: obj.get('index'), case_list))) != len(case_list):
+            return api_result(code=400, message='用例排序不能为空或重复')
+
         return func(*args, **kwargs)
 
     return wrapper
@@ -96,7 +99,7 @@ class CaseScenarioApi(MethodView):
 
         query_case_id_list = [k for k in sorted_case_hash_map.keys()]
         query_case_list = query_case_order_by_field(query_case_id_list)
-        
+
         for case in query_case_list:
             case_id = case.get('id')
             if sorted_case_hash_map.get(case_id):
