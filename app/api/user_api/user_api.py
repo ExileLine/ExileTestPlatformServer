@@ -20,6 +20,7 @@ class TouristApi(MethodView):
         """获取游客账号密码"""
 
         user_ip = request.remote_addr
+        user_ip = request.headers['X-Forwarded-For']
         print('===user_ip===', user_ip)
         query_tourist = R.get(user_ip)
         print('===query_tourist===', query_tourist)

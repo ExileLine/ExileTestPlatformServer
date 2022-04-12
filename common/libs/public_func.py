@@ -14,14 +14,16 @@ from loguru import logger
 def print_logs():
     """logs"""
     host = request.host
+    ip_address = request.headers['X-Forwarded-For']
     method = request.method
     path = request.path
     headers = {k: v for k, v in request.headers.items()}
     params = request.args.to_dict()
     form_data = request.form.to_dict()
-    logger.info(host)
-    logger.info(method)
-    logger.info(path)
+    logger.info(f"host:{host}")
+    logger.info(f"ip_address:{ip_address}")
+    logger.info(f"method:{method}")
+    logger.info(f"path:{path}")
     logger.info('=== headers ===')
     json_format(headers)
     logger.info('=== params ===')
