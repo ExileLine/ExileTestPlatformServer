@@ -10,12 +10,6 @@ from app.models.admin.models import Admin
 from app.models.test_case.models import TestCase, TestCaseData
 from app.models.test_case_scenario.models import TestCaseScenario
 from app.models.test_logs.models import TestLogs
-from tasks.task01 import send_email
-from tasks.task02 import send_msg
-
-
-def my_job():
-    R.set('scheduler', 'yyx123')
 
 
 class IndexApi(MethodView):
@@ -23,10 +17,9 @@ class IndexApi(MethodView):
     index Api
     """
 
-    async def get(self, version_id):
+    async def get(self):
         """统计"""
 
-        print('version_id', version_id)
         total_user = Admin.query.count()
         total_case = TestCase.query.count()
         total_case_execute = TestCase.query.with_entities(func.sum(TestCase.total_execution)).scalar()
@@ -48,20 +41,12 @@ class IndexApi(MethodView):
 
         return api_result(code=200, message='index', data=data)
 
-    def post(self):
+    async def post(self):
+        """2"""
         data = request.get_json()
-        d = data
+        return api_result(code=200, message='index', data=data)
 
-        results1 = send_email.delay('yyx123')
-        results2 = send_msg.delay('yyx456')
-        print(results1)
-        print(results2)
-
-        # from ExtendRegister.apscheduler_register import scheduler
-        # scheduler.add_job(func=my_job, id='1', trigger='interval', seconds=1, replace_existing=True)
-        return api_result(code=200, message='index', data=[])
-
-    def put(self):
+    async def put(self):
         """3"""
         tl = TestLogs(
             log_type='index',
