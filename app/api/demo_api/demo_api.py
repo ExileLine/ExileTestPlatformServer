@@ -5,25 +5,10 @@
 # @File    : demo_api.py
 # @Software: PyCharm
 
+
 from all_reference import *
-
-
-class DemoApi(MethodView):
-    """
-    demo api
-    """
-
-    def get(self):
-        return api_result(code=200)
-
-    def post(self):
-        return api_result(code=200)
-
-    def put(self):
-        return api_result(code=200)
-
-    def delete(self):
-        return api_result(code=200)
+from tasks.task01 import send_email
+from tasks.task02 import send_msg
 
 
 class TestApi(MethodView):
@@ -32,9 +17,24 @@ class TestApi(MethodView):
     """
 
     def get(self):
-        return api_result(code=200, message='test api', data=True)
+        return api_result(code=200, message='GET: test api', data=True)
 
     def post(self):
         data = request.get_json()
         print(data)
-        return api_result(code=200, message='test api', data=True)
+        return api_result(code=200, message='POST: test api', data=True)
+
+
+class TestCeleryAsyncTaskApi(MethodView):
+    """
+    调试Celery异步任务
+    GET: 触发
+    """
+
+    def get(self):
+        """调试Celery异步任务"""
+        results1 = send_email.delay('yyx123')
+        results2 = send_msg.delay('yyx456')
+        print(results1)
+        print(results2)
+        return api_result(code=200, message='调试Celery异步任务')
