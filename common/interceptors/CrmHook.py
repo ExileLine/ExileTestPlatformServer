@@ -11,16 +11,14 @@ import json
 from flask import request, g
 from loguru import logger
 
-from app.api import crm
 from app.models.admin.models import Admin
 from common.libs.auth import check_user, R, AdminRefreshCache
 from common.libs.public_func import print_logs
 from common.libs.customException import method_view_ab_code as ab_code
 
 
-@crm.before_request
-def before_request_cms():
-    logger.info('cms_before_request')
+def crm_before_request():
+    logger.info('crm_before_request')
     # logger.debug('cms_before_request')
     # logger.warning('cms_before_request')
     # logger.error('cms_before_request')
@@ -91,3 +89,8 @@ def before_request_cms():
 
     else:
         g.app_user = None
+
+
+def crm_after_request(response):
+    logger.info('crm_after_request')
+    return response

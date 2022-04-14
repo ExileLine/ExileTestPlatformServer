@@ -18,7 +18,8 @@ from common.libs.api_result import api_result
 from common.libs.public_func import print_logs
 
 
-@api.app_errorhandler(Exception)
+# @api.app_errorhandler(Exception)
+
 def errors(e):
     logger.error('异常:{}'.format(e))
     logger.error('异常类型:{}'.format(type(e)))
@@ -45,3 +46,8 @@ def errors(e):
     print_logs()
     traceback.print_exc()
     return api_result(code=code, message=message, data=data)
+
+
+def register_exception():
+    """全局异常注册"""
+    api.register_error_handler(Exception, errors)

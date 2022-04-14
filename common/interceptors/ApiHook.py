@@ -11,15 +11,13 @@ import shortuuid
 from loguru import logger
 from flask import request, g
 
-from app.api import api
 from app.models.admin.models import Admin
 from common.libs.public_func import print_logs
 from common.libs.auth import check_user
 from common.libs.customException import method_view_ab_code as ab_code
 
 
-@api.before_request
-def before_request_api():
+def api_before_request():
     g.log_uuid = "{}_{}".format(str(int(time.time())), shortuuid.uuid())
     logger.info('api_before_request')
     logger.info('request log_uuid:{}'.format(g.log_uuid))
@@ -27,7 +25,8 @@ def before_request_api():
 
     dev_host_list = ['0.0.0.0', 'localhost']
     open_api_list = ['/api/open_exec']
-    white_list = ['/api/login', '/api/auth', '/api/tourist', '/api/platform_conf']
+    white_list = ['/api/login', '/api/auth', '/api/tourist', '/api/platform_conf', '/scheduler', '/jobs']
+
     if request.path in white_list:
         return
 
@@ -53,8 +52,7 @@ def before_request_api():
         check_user(token=token, model=Admin)  # 通过 token 查找 user,将 user 存放在全局 g 对象中
 
 
-@api.after_request
-def after_request_api(response):
+def api_after_request(response):
     logger.info('after_request_api')
     logger.info('response log_uuid:{}'.format(g.log_uuid))
     logger.info('=== response ===')
