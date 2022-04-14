@@ -267,7 +267,7 @@ class CaseReqDataPageApi(MethodView):
             {f'AND data_name LIKE "%{data_name}%"' if data_name else ''}
             {f'AND creator_id={creator_id}' if creator_id else ''}
         ORDER BY
-            create_time DESC 
+            update_time DESC 
         LIMIT {limit[0]},{limit[1]};
         """
 
