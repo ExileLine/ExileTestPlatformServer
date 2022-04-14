@@ -35,16 +35,18 @@ def main():
     使用 uWsgi 部署时会执行
     使用 gunicorn 部署时不会执行
     """
+    host = app.config['RUN_HOST']
+    port = app.config['RUN_PORT']
+    debug = app.config['DEBUG']
 
     # Linux服务器启动
     if platform.system() == 'Linux':
-        app.run(host=app.config['RUN_HOST'], port=app.config['RUN_PORT'], use_reloader=False)
+        app.run(host=host, port=port)
 
     else:
         # app.run(debug=True, host='0.0.0.0', port=9999)
         os.environ['is_debug'] = "is_debug"
-        # app.run(debug=app.config.get('DEBUG'), host=app.config.get('RUN_HOST'), port=app.config.get('RUN_PORT'))
-        app.run(debug=False, host=app.config.get('RUN_HOST'), port=app.config.get('RUN_PORT'))
+        app.run(debug=debug, host=host, port=port)
 
 
 if __name__ == '__main__':

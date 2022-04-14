@@ -8,7 +8,7 @@
 
 from flask import Blueprint
 
-from .demo_api.demo_api import TestApi
+from .demo_api.demo_api import TestApi, TestCeleryAsyncTaskApi
 from .index_api.index_api import IndexApi
 from .login_api.login_api import LoginApi
 from .user_api.user_api import TouristApi, UserApi, UserPasswordApi, UserPageApi, UserProfileApi
@@ -37,11 +37,13 @@ from .project_api.version_api import ProjectVersionApi, ProjectVersionPageApi
 from .project_api.version_task_api import VersionTaskApi, VersionTaskPageApi
 from .project_api.module_app_api import ModuleAppApi, ModuleAppPageApi
 from .safe_scan_conf_api.safe_scan_conf_api import SafeScanConfApi, SafeScanConfPageApi
+from .timed_task_api.timed_task_api import APSchedulerTaskApi
 
 api = Blueprint('api', __name__)
 crm = Blueprint('crm', __name__)
 
 api.add_url_rule('/test', view_func=TestApi.as_view('test_api'))
+api.add_url_rule('/test_celery', view_func=TestCeleryAsyncTaskApi.as_view('test_celery'))
 
 api.add_url_rule('/index', view_func=IndexApi.as_view('index_api'))
 api.add_url_rule('/index/<version_id>', view_func=IndexApi.as_view('index_version_api'))
@@ -139,3 +141,6 @@ api.add_url_rule('/module_app_page', view_func=ModuleAppPageApi.as_view('module_
 api.add_url_rule('/safe_scan_conf/<safe_id>', view_func=SafeScanConfApi.as_view('safe_scan_conf_detail'))
 api.add_url_rule('/safe_scan_conf', view_func=SafeScanConfApi.as_view('safe_scan_conf'))
 api.add_url_rule('/safe_scan_conf_page', view_func=SafeScanConfPageApi.as_view('safe_scan_conf_page'))
+
+api.add_url_rule('/timed_task/<task_id>', view_func=APSchedulerTaskApi.as_view('timed_task_detail'))
+api.add_url_rule('/timed_task', view_func=APSchedulerTaskApi.as_view('timed_task'))

@@ -9,6 +9,8 @@ import configparser
 from datetime import timedelta
 
 import redis
+from flask_apscheduler.auth import HTTPBasicAuth
+from apscheduler.jobstores.sqlalchemy import SQLAlchemyJobStore
 
 PROJECT_NAME = 'ExileTestPlatformServer'
 
@@ -95,6 +97,25 @@ class NewConfig(BaseConfig):
     }
     POOL = redis.ConnectionPool(**redis_obj)
     R = redis.Redis(connection_pool=POOL)
+
+    # apscheduler
+    SCHEDULER_TIMEZONE = 'Asia/Shanghai'  # 配置时区
+    SCHEDULER_API_ENABLED = True  # 新增Api
+    SCHEDULER_API_PREFIX = "/api/scheduler"  # Api前缀
+    SCHEDULER_AUTH = HTTPBasicAuth()  # 鉴权
+    SCHEDULER_DB_URI = 'mysql+pymysql://{}:{}@{}:{}/{}?charset=utf8'.format(
+        MYSQL_USERNAME,
+        MYSQL_PASSWORD,
+        MYSQL_HOSTNAME,
+        MYSQL_PORT,
+        'APSchedulerJobs'
+    )
+    SCHEDULER_JOBSTORES = {
+        'default': SQLAlchemyJobStore(url=SCHEDULER_DB_URI)
+    }
+    SCHEDULER_EXECUTORS = {
+        'default': {'type': 'threadpool', 'max_workers': 20}
+    }
 
 
 config_obj = {
