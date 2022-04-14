@@ -255,31 +255,40 @@ class CaseReqDataPageApi(MethodView):
         creator_id = data.get('creator_id')
         page = data.get('page')
         size = data.get('size')
+        limit = page_size(page=page, size=size)
 
-        sql = """
-        SELECT * 
-        FROM exile_test_case_data  
-        WHERE 
-        id = "id" 
-        and case_name LIKE"%B1%" 
-        and is_deleted = 0
-        and creator_id = 1
-        ORDER BY create_timestamp LIMIT 0,20;
+        sql = f"""
+        SELECT
+            *
+        FROM
+            exile_test_case_data
+        WHERE
+            is_deleted = 0
+            {f'AND data_name LIKE "%{data_name}%"' if data_name else ''}
+            {f'AND creator_id={creator_id}' if creator_id else ''}
+        ORDER BY
+            create_time DESC 
+        LIMIT {limit[0]},{limit[1]};
         """
 
-        where_dict = {
-            "id": data_id,
-            "is_deleted": is_deleted,
-            "creator_id": creator_id
-        }
+        sql_count = f"""
+        SELECT
+            COUNT(*)
+        FROM
+            exile_test_case_data
+        WHERE
+            is_deleted = 0
+            {f'AND data_name LIKE "%{data_name}%"' if data_name else ''}
+            {f'AND creator_id={creator_id}' if creator_id else ''}
+        """
 
-        result_data = general_query(
-            model=TestCaseData,
-            field_list=['data_name'],
-            query_list=[data_name],
-            where_dict=where_dict,
-            page=page,
-            size=size
-        )
+        result_list = project_db.select(sql)
+        result_count = project_db.select(sql_count)
+
+        result_data = {
+            'records': result_list if result_list else [],
+            'now_page': page,
+            'total': result_count[0].get('COUNT(*)')
+        }
 
         return api_result(code=200, message='操作成功', data=result_data)
