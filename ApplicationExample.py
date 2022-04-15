@@ -35,5 +35,5 @@ def create_app():
     register_bp(app)  # 蓝图注册
     register_db(app)  # db注册
     Migrate(app, db)  # ORM迁移
-    register_apscheduler(app)  # 定时任务
+    # register_apscheduler(app)  # 定时任务
     return app
