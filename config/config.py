@@ -111,7 +111,7 @@ class NewConfig(BaseConfig):
         'APSchedulerJobs'
     )
     SCHEDULER_JOBSTORES = {
-        'default': SQLAlchemyJobStore(url=SCHEDULER_DB_URI)
+        'default': SQLAlchemyJobStore(url=DB_URI)
     }
     SCHEDULER_EXECUTORS = {
         'default': {'type': 'threadpool', 'max_workers': 20}
