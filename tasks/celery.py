@@ -31,7 +31,7 @@ celery --app=tasks worker -l info --detach
     celery -A tasks multi start worker1 --pidfile="$HOME/run/celery/%n.pid" --logfile="$HOME/log/celery/%n%I.log"
     
 重启并后台执行:
-    celery -A tasks multi restart worker1 --logfile="$HOME/log/celery/%n%I.log" --pidfile="$HOME/run/celery/%n.pid
+    celery -A tasks multi restart worker1 --pidfile="$HOME/run/celery/%n.pid" --logfile="$HOME/log/celery/%n%I.log"
 
 异步关闭(立即返回):
     celery multi stop worker1 --pidfile="$HOME/run/celery/%n.pid"
