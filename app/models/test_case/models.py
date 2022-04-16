@@ -48,6 +48,7 @@ class TestCaseData(BaseModel):
     var_list = db.Column(db.JSON, comment='引用变量列表')
     update_var_list = db.Column(db.JSON, comment='更新变量列表')
     is_public = db.Column(TINYINT(1, unsigned=True), default=1, comment='是否公共使用:0-否;1-是')
+    data_size = db.Column(BIGINT(20, unsigned=True), default=0, comment='参数字节数')
     creator = db.Column(db.String(32), comment='创建人')
     creator_id = db.Column(BIGINT(20, unsigned=True), comment='创建人id')
     modifier = db.Column(db.String(32), comment='更新人')

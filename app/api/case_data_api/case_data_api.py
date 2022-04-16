@@ -5,6 +5,8 @@
 # @File    : case_data_api.py
 # @Software: PyCharm
 
+import sys
+
 from all_reference import *
 from app.models.test_case.models import TestCaseData
 
@@ -140,6 +142,8 @@ class CaseReqDataApi(MethodView):
             request_params = d.get('request_params', {}) or {}
             request_headers = d.get('request_headers', {}) or {}
             request_body = d.get('request_body', {}) or {}
+            data_size = len(json.dumps(request_params)) + len(json.dumps(request_headers)) + len(
+                json.dumps(request_body))
 
             new_data = TestCaseData(
                 data_name=d.get('data_name'),
@@ -149,6 +153,7 @@ class CaseReqDataApi(MethodView):
                 request_body_type=d.get('request_body_type'),
                 update_var_list=update_var_list,
                 is_public=is_public,
+                data_size=data_size,
                 creator=g.app_user.username,
                 creator_id=g.app_user.id
             )
@@ -206,13 +211,19 @@ class CaseReqDataApi(MethodView):
             if TestCaseData.query.filter_by(data_name=data_name).all():
                 return api_result(code=400, message='测试数据名称:{} 已经存在'.format(data_name))
 
+        request_headers = req_data_json.get('request_headers', {})
+        request_params = req_data_json.get('request_params', {})
+        request_body = req_data_json.get('request_body', {})
+        data_size = len(json.dumps(request_params)) + len(json.dumps(request_headers)) + len(json.dumps(request_body))
+
         query_test_case_data.data_name = data_name
-        query_test_case_data.request_headers = req_data_json.get('request_headers', {})
-        query_test_case_data.request_params = req_data_json.get('request_params', {})
-        query_test_case_data.request_body = req_data_json.get('request_body', {})
+        query_test_case_data.request_headers = request_headers
+        query_test_case_data.request_params = request_params
+        query_test_case_data.request_body = request_body
         query_test_case_data.request_body_type = req_data_json.get('request_body_type')
         query_test_case_data.update_var_list = update_var_list
         query_test_case_data.is_public = is_public
+        query_test_case_data.data_size = data_size
         query_test_case_data.modifier = g.app_user.username
         query_test_case_data.modifier_id = g.app_user.id
         db.session.commit()
@@ -267,7 +278,7 @@ class CaseReqDataPageApi(MethodView):
             {f'AND data_name LIKE "%{data_name}%"' if data_name else ''}
             {f'AND creator_id={creator_id}' if creator_id else ''}
         ORDER BY
-            update_time DESC 
+            data_size 
         LIMIT {limit[0]},{limit[1]};
         """
 
