@@ -665,6 +665,7 @@ class CaseExecApi(MethodView):
         is_send_mail = data.get('is_send_mail', False)
         is_all_mail = data.get('is_all_mail', False)
         is_safe_scan = data.get('is_safe_scan', False)
+        trigger_type = data.get('trigger_type', 'user_execute')
 
         if is_all_mail:
             mail_list = [m.mail for m in MailConfModel.query.filter_by(is_deleted=0).all()]
@@ -764,18 +765,24 @@ class CaseExecApi(MethodView):
             "is_send_mail": is_send_mail,
             "mail_list": mail_list,
             "is_safe_scan": is_safe_scan,
-            "safe_scan_url": safe_scan_url
+            "safe_scan_url": safe_scan_url,
+            "trigger_type": trigger_type
         }
 
-        # main_test = MainTest(test_obj=test_obj)
-        # executor.submit(main_test.main)
-        # thread1 = threading.Thread(target=main_test.main)
-        # thread1.daemon = True
-        # thread1.start()
+        """
+        多线程/线程池模式(适用于轻量级,链路短的异步任务)
+        main_test = MainTest(test_obj=test_obj)
+        thread1 = threading.Thread(target=main_test.main)
+        thread1.daemon = True
+        thread1.start()
+        return api_result(code=200, message='操作成功,请前往日志查看执行结果')
+        """
 
+        """
+        Celery异步任务
+        """
         results = execute_main.delay(test_obj)
         print(results)
-
         return api_result(code=200, message='操作成功,请前往日志查看执行结果', data=[str(results)])
 
 

@@ -196,6 +196,8 @@ class MainTest:
         self.is_safe_scan = test_obj.get('is_safe_scan', False)
         self.safe_scan_url = test_obj.get('safe_scan_url', False)
 
+        self.trigger_type = test_obj.get('trigger_type', 'user_execute')
+
         if not isinstance(self.case_list, list):
             raise TypeError('MainTest.__init__.case_list 类型错误')
 
@@ -566,7 +568,7 @@ class MainTest:
         :return:
         """
 
-        sql = """INSERT INTO exile_test_execute_logs (`is_deleted`, `create_time`, `create_timestamp`,  `execute_id`, `execute_name`, `execute_type`, `redis_key`, `report_url`, `execute_status`, `creator`, `creator_id`) VALUES (0,'{}','{}','{}','{}','{}','{}','{}','{}','{}','{}');""".format(
+        sql = """INSERT INTO exile_test_execute_logs (`is_deleted`, `create_time`, `create_timestamp`,  `execute_id`, `execute_name`, `execute_type`, `redis_key`, `report_url`, `execute_status`, `creator`, `creator_id`, `trigger_type`) VALUES (0,'{}','{}','{}','{}','{}','{}','{}','{}','{}','{}','{}');""".format(
             self.create_time,
             int(self.start_time),
             self.execute_id,
@@ -576,7 +578,8 @@ class MainTest:
             report_url,
             int(self.execute_status),
             self.execute_username,
-            self.execute_user_id
+            self.execute_user_id,
+            self.trigger_type
         )
         project_db.insert(sql)
         logger.success('=== save_logs ok ===')

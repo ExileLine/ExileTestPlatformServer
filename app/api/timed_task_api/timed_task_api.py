@@ -51,6 +51,7 @@ def execute_case_job(*args, **kwargs):
         "execute_label": "only"
     }
     test_obj = kwargs.get('test_obj')
+    test_obj['trigger_type'] = 'timed_execute'
     if platform.system() == 'Linux':
         url = 'http://0.0.0.0:5000/api/case_exec'
     else:

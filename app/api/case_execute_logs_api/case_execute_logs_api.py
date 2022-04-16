@@ -89,6 +89,7 @@ class CaseExecuteLogsPageApi(MethodView):
         data = request.get_json()
         execute_id = data.get('execute_id')
         execute_name = data.get('execute_name')
+        trigger_type = data.get('trigger_type')
         execute_type = data.get('execute_type')
         creator_id = data.get('creator_id')
         page = data.get('page')
@@ -107,6 +108,7 @@ class CaseExecuteLogsPageApi(MethodView):
 
         where_dict = {
             "execute_id": execute_id,
+            "trigger_type": trigger_type,
             "execute_type": execute_type,
             "creator_id": creator_id
         }
