@@ -247,7 +247,12 @@ class APSchedulerTaskApi(MethodView):
         if not result_bool:
             return api_result(code=400, message=f'新增任务失败:{result_message}')
 
-        return api_result(code=201, message=f'新增任务成功:{result_message}')
+        return api_result(code=201, message=f'新增任务成功', data={
+            "id": result_message,
+            "父进程id": os.getppid(),
+            "子进程id": os.getpid(),
+            "线程id": threading.get_ident(),
+        })
 
     def put(self):
         """启动/编辑APScheduler任务"""

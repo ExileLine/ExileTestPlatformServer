@@ -11,6 +11,7 @@ from datetime import timedelta
 import redis
 from flask_apscheduler.auth import HTTPBasicAuth
 from apscheduler.jobstores.sqlalchemy import SQLAlchemyJobStore
+from apscheduler.jobstores.redis import RedisJobStore
 
 PROJECT_NAME = 'ExileTestPlatformServer'
 
@@ -88,12 +89,17 @@ class NewConfig(BaseConfig):
     SQLALCHEMY_MAX_OVERFLOW = 10
 
     # redis
+    REDIS_HOST = conf.get('redis', 'REDIS_HOST')
+    REDIS_PORT = conf.get('redis', 'REDIS_PORT')
+    REDIS_PWD = conf.get('redis', 'REDIS_PWD')
+    DECODE_RESPONSES = conf.getboolean('redis', 'DECODE_RESPONSES')
+    REDIS_DB = conf.getint('redis', 'REDIS_DB')
     redis_obj = {
-        'host': conf.get('redis', 'REDIS_HOST'),
-        'port': conf.get('redis', 'REDIS_PORT'),
-        'password': conf.get('redis', 'REDIS_PWD'),
-        'decode_responses': conf.getboolean('redis', 'DECODE_RESPONSES'),
-        'db': conf.getint('redis', 'REDIS_DB')
+        'host': REDIS_HOST,
+        'port': REDIS_PORT,
+        'password': REDIS_PWD,
+        'decode_responses': DECODE_RESPONSES,
+        'db': REDIS_DB
     }
     POOL = redis.ConnectionPool(**redis_obj)
     R = redis.Redis(connection_pool=POOL)
@@ -110,8 +116,16 @@ class NewConfig(BaseConfig):
         MYSQL_PORT,
         'APSchedulerJobs'
     )
+    SCHEDULER_REDIS_URI = {
+        'host': REDIS_HOST,
+        'port': REDIS_PORT,
+        'password': REDIS_PWD,
+        'db': 4
+    }
+
     SCHEDULER_JOBSTORES = {
-        'default': SQLAlchemyJobStore(url=SCHEDULER_DB_URI)
+        # 'default': SQLAlchemyJobStore(url=SCHEDULER_DB_URI)
+        'default': RedisJobStore(**SCHEDULER_REDIS_URI)
     }
     SCHEDULER_EXECUTORS = {
         'default': {'type': 'threadpool', 'max_workers': 20}
