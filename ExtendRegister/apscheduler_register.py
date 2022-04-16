@@ -17,6 +17,24 @@ scheduler = APScheduler()
 def register_apscheduler(app):
     """定时任务注册"""
 
+    scheduler.init_app(app)
+    scheduler.start()
+
+    @scheduler.authenticate
+    def authenticate(auth):
+        """Check auth."""
+        R = app.config.get("R")
+        username = R.get('apscheduler')
+        password = R.get('apscheduler_pwd')
+        # return auth["username"] == 'yyx' and auth["password"] == 'yyx'
+        return auth["username"] == username and auth["password"] == password
+
+    print('APScheduler start...')
+
+
+def __register_apscheduler(app):
+    """定时任务注册"""
+
     if os.environ.get('FLASK_ENV') == 'production':
         pf = platform.system()
         if pf != 'Windows':  # Linux,MacOS

@@ -124,8 +124,8 @@ class NewConfig(BaseConfig):
     }
 
     SCHEDULER_JOBSTORES = {
-        # 'default': SQLAlchemyJobStore(url=SCHEDULER_DB_URI)
-        'default': RedisJobStore(**SCHEDULER_REDIS_URI)
+        'default': SQLAlchemyJobStore(url=SCHEDULER_DB_URI)
+        # 'default': RedisJobStore(**SCHEDULER_REDIS_URI)
     }
     SCHEDULER_EXECUTORS = {
         'default': {'type': 'threadpool', 'max_workers': 20}
