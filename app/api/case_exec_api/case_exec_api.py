@@ -776,7 +776,7 @@ class CaseExecApi(MethodView):
         results = execute_main.delay(test_obj)
         print(results)
 
-        return api_result(code=200, message='操作成功,请前往日志查看执行结果', data=[])
+        return api_result(code=200, message='操作成功,请前往日志查看执行结果', data=[str(results)])
 
 
 if __name__ == '__main__':
