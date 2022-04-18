@@ -689,7 +689,7 @@ class CaseExecApi(MethodView):
             use_base_url = False
 
         if execute_type not in execute_type_tuple:
-            return api_result(code=400, message=f'execute_type:{execute_type}不存在')
+            return api_result(code=400, message='请先选择用例场景')
 
         execute_func = execute_func_dict.get(execute_type)
 
