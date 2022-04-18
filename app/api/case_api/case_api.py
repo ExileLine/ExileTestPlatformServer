@@ -231,11 +231,14 @@ class CaseApi(MethodView):
         query_case.modifier = g.app_user.username
         query_case.modifier_id = g.app_user.id
 
+        db.session.query(MidVersionAndCase).filter(MidVersionAndCase.case_id == case_id).delete(
+            synchronize_session=False)
+
+        db.session.query(MidModuleAndCase).filter(MidModuleAndCase.case_id == case_id).delete(
+            synchronize_session=False)
+
         if version_list:
             version_id_list = [obj.get('id') for obj in version_list]
-            db.session.query(MidVersionAndCase).filter(MidVersionAndCase.case_id == case_id).delete(
-                synchronize_session=False)
-
             list(map(lambda version_id: db.session.add(
                 MidVersionAndCase(
                     version_id=version_id, case_id=case_id, modifier=g.app_user.username, modifier_id=g.app_user.id)),
@@ -243,9 +246,6 @@ class CaseApi(MethodView):
 
         if module_list:
             module_id_list = [obj.get('id') for obj in module_list]
-            db.session.query(MidModuleAndCase).filter(MidModuleAndCase.case_id == case_id).delete(
-                synchronize_session=False)
-
             list(map(lambda module_id: db.session.add(
                 MidModuleAndCase(
                     module_id=module_id, case_id=case_id, modifier=g.app_user.username, modifier_id=g.app_user.id)),
