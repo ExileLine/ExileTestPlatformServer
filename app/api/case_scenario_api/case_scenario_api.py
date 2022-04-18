@@ -194,11 +194,14 @@ class CaseScenarioApi(MethodView):
         query_scenario.modifier = g.app_user.username
         query_scenario.modifier_id = g.app_user.id
 
+        db.session.query(MidVersionAndScenario).filter(MidVersionAndScenario.scenario_id == scenario_id).delete(
+            synchronize_session=False)
+
+        db.session.query(MidModuleAndScenario).filter(MidModuleAndScenario.scenario_id == scenario_id).delete(
+            synchronize_session=False)
+
         if version_list:
             version_id_list = [obj.get('id') for obj in version_list]
-            db.session.query(MidVersionAndScenario).filter(MidVersionAndScenario.scenario_id == scenario_id).delete(
-                synchronize_session=False)
-
             list(map(lambda version_id: db.session.add(
                 MidVersionAndScenario(
                     version_id=version_id, scenario_id=scenario_id, modifier=g.app_user.username,
@@ -207,9 +210,6 @@ class CaseScenarioApi(MethodView):
 
         if module_list:
             module_id_list = [obj.get('id') for obj in module_list]
-            db.session.query(MidModuleAndScenario).filter(MidModuleAndScenario.scenario_id == scenario_id).delete(
-                synchronize_session=False)
-
             list(map(lambda module_id: db.session.add(
                 MidModuleAndScenario(
                     module_id=module_id, scenario_id=scenario_id, modifier=g.app_user.username,
