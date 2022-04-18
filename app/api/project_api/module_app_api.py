@@ -144,19 +144,19 @@ class ModuleAppApi(MethodView):
         query_module.modifier = g.app_user.username,
         query_module.modifier_id = g.app_user.id
 
-        if case_list:
-            db.session.query(MidModuleAndCase).filter(MidModuleAndCase.module_id == module_id).delete(
-                synchronize_session=False)
+        db.session.query(MidModuleAndCase).filter(MidModuleAndCase.module_id == module_id).delete(
+            synchronize_session=False)
 
+        db.session.query(MidModuleAndScenario).filter(MidModuleAndScenario.module_id == module_id).delete(
+            synchronize_session=False)
+
+        if case_list:
             list(map(lambda case_id: db.session.add(
                 MidModuleAndCase(
                     module_id=module_id, case_id=case_id, creator=g.app_user.username, creator_id=g.app_user.id)),
                      case_list))
 
         if scenario_list:
-            db.session.query(MidModuleAndScenario).filter(MidModuleAndScenario.module_id == module_id).delete(
-                synchronize_session=False)
-
             list(map(lambda scenario_id: db.session.add(
                 MidModuleAndScenario(
                     module_id=module_id, scenario_id=scenario_id, creator=g.app_user.username,
