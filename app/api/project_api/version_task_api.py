@@ -132,19 +132,19 @@ class VersionTaskApi(MethodView):
         query_task.modifier = g.app_user.username,
         query_task.modifier_id = g.app_user.id
 
-        if case_list:
-            db.session.query(MidTaskAndCase).filter(MidTaskAndCase.task_id == task_id).delete(
-                synchronize_session=False)
+        db.session.query(MidTaskAndCase).filter(MidTaskAndCase.task_id == task_id).delete(
+            synchronize_session=False)
 
+        db.session.query(MidTaskAndScenario).filter(MidTaskAndScenario.task_id == task_id).delete(
+            synchronize_session=False)
+
+        if case_list:
             list(map(lambda case_id: db.session.add(
                 MidTaskAndCase(
                     task_id=task_id, case_id=case_id, creator=g.app_user.username, creator_id=g.app_user.id)),
                      case_list))
 
         if scenario_list:
-            db.session.query(MidTaskAndScenario).filter(MidTaskAndScenario.task_id == task_id).delete(
-                synchronize_session=False)
-
             list(map(lambda scenario_id: db.session.add(
                 MidTaskAndScenario(
                     task_id=task_id, scenario_id=scenario_id, creator=g.app_user.username, creator_id=g.app_user.id)),
