@@ -167,9 +167,12 @@ class RespAssertionRuleApi(MethodView):
             expect_val_type = expect_val_type_dict.get(str(a.get('expect_val_type')))
 
             try:
-                # a['rule'] = rule
-                a['expect_val'] = expect_val_type(expect_val)  # 类型转换
-                new_ass_json.append(a)
+                if str(expect_val)[0:2] == "${" and str(expect_val)[-1] == "}":
+                    new_ass_json.append(a)
+                else:
+                    # a['rule'] = rule
+                    a['expect_val'] = expect_val_type(expect_val)  # 类型转换
+                    new_ass_json.append(a)
             except BaseException as e:
                 return api_result(code=400, message='参数:{} 无法转换至 类型:{}'.format(expect_val, type(expect_val_type())))
 
@@ -243,9 +246,12 @@ class RespAssertionRuleApi(MethodView):
             expect_val_type_func = expect_val_type_dict.get(str(expect_val_type))
 
             try:
-                # a['rule'] = rule
-                a['expect_val'] = expect_val_type_func(expect_val)
-                new_ass_json.append(a)
+                if str(expect_val)[0:2] == "${" and str(expect_val)[-1] == "}":
+                    new_ass_json.append(a)
+                else:
+                    # a['rule'] = rule
+                    a['expect_val'] = expect_val_type_func(expect_val)
+                    new_ass_json.append(a)
             except BaseException as e:
                 return api_result(code=400,
                                   message='参数:{} 无法转换至 类型:{}'.format(expect_val, type(expect_val_type_func())))
