@@ -67,25 +67,30 @@ class CaseVarApi(MethodView):
 
         if query_var:
             return api_result(code=400, message=f'变量:【{var_name}】已存在')
+
+        if str(var_type) in var_func_dict.keys():
+            var_value = var_func_dict.get(str(var_type))()
         else:
-            if str(var_type) in var_func_dict.keys():
-                var_value = var_func_dict.get(str(var_type))()
-            new_var = TestVariable(
-                var_name=var_name,
-                var_value=var_value,
-                var_type=var_type,
-                var_source=var_source,
-                var_get_key=var_get_key,
-                expression=expression,
-                is_expression=is_expression,
-                is_active=is_active,
-                is_public=is_public if isinstance(is_public, bool) else True,
-                remark=remark,
-                creator=g.app_user.username,
-                creator_id=g.app_user.id
-            )
-            new_var.save()
-            return api_result(code=201, message='创建成功')
+            con_bool, var_value = type_conversion(var_type, var_value)
+            if not con_bool:
+                return api_result(code=400, message=var_value)
+
+        new_var = TestVariable(
+            var_name=var_name,
+            var_value=var_value,
+            var_type=var_type,
+            var_source=var_source,
+            var_get_key=var_get_key,
+            expression=expression,
+            is_expression=is_expression,
+            is_active=is_active,
+            is_public=is_public if isinstance(is_public, bool) else True,
+            remark=remark,
+            creator=g.app_user.username,
+            creator_id=g.app_user.id
+        )
+        new_var.save()
+        return api_result(code=201, message='创建成功')
 
     def put(self):
         """用例变量编辑"""
@@ -130,6 +135,10 @@ class CaseVarApi(MethodView):
 
         if str(var_type) in var_func_dict.keys():
             var_value = var_func_dict.get(str(var_type))()
+        else:
+            con_bool, var_value = type_conversion(var_type, var_value)
+            if not con_bool:
+                return api_result(code=400, message=var_value)
 
         query_var.var_name = var_name
         query_var.var_value = var_value

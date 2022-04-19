@@ -10,6 +10,7 @@ import time
 import datetime
 import shortuuid
 
+"""断言相关"""
 # 返回值来源
 resp_source_tuple = ("response_body", "response_headers")
 
@@ -58,8 +59,7 @@ rule_dict = {
     'in': '__contains__'
 }
 
-
-# 变量转换函数字典
+"""变量相关"""
 
 
 def gen_shortuuid_1():
@@ -86,6 +86,18 @@ def gen_timestamp():
     return str(int(time.time()))
 
 
+# 变量原生函数字典
+var_native_func_dict = {
+    "1": str,
+    "2": int,
+    "3": json.loads,
+    "4": json.dumps,
+    "5": json.loads,
+    "6": json.dumps,
+
+}
+
+# 变量转换函数字典
 var_func_dict = {
     "7": gen_shortuuid_1,  # uuid
     "8": gen_shortuuid_2,  # short_uuid
@@ -95,6 +107,26 @@ var_func_dict = {
     "12": gen_timestamp  # timestamp(时间戳)
 }
 
+
+def type_conversion(type_key, val):
+    """
+    类型转换
+    :param type_key: 类型字典key
+    :param val: 需要转换的值
+    :return:
+    """
+    bf = var_native_func_dict.get(str(type_key))
+    print(bf)
+    try:
+        new_val = bf(val)
+        print(f"值:{val}-{type(val)} 【func-{bf}】 {new_val}-{type(new_val)}")
+        return True, new_val
+    except BaseException as e:
+        print(f'参数:{val} 无法转换至 类型:{bf} ERROR:{e}')
+        return False, f'参数:{val} 无法转换至 类型:{bf}'
+
+
+"""执行相关"""
 # 执行类型
 execute_type_tuple = (
     "case", "scenario",
@@ -137,25 +169,6 @@ case_type_dict = {
     "3": "性能测试",
     "4": "安全测试"
 }
-
-
-def type_conversion(type_key, val):
-    """
-    类型转换
-    :param type_key: 类型字典key
-    :param val: 需要转换的值
-    :return:
-    """
-    bf = expect_val_type_dict.get(str(type_key))
-
-    try:
-        new_val = bf(val)
-        print(f"值:{val}-{type(val)} 【func-{bf}】 {new_val}-{type(new_val)}")
-        return new_val
-    except BaseException as e:
-        print(f'参数:{val} 无法转换至 类型:{bf} ERROR:{e}')
-        return False
-
 
 if __name__ == '__main__':
     a = "123a"
