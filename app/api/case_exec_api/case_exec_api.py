@@ -669,11 +669,15 @@ class CaseExecApi(MethodView):
         is_all_mail = data.get('is_all_mail', False)
         is_safe_scan = data.get('is_safe_scan', False)
         trigger_type = data.get('trigger_type', 'user_execute')
+        request_timeout = data.get('request_timeout', 3)
+
+        if not isinstance(request_timeout, int):
+            return api_result(code=400, message='请求超时填写错误')
 
         if is_all_mail:
             mail_list = [m.mail for m in MailConfModel.query.filter_by(is_deleted=0).all()]
         else:
-            mail_list = data.get('mail_list')
+            mail_list = data.get('mail_list', [])
             mail_list = [m.mail for m in MailConfModel.query.filter(
                 MailConfModel.id.in_(mail_list),
                 MailConfModel.is_deleted == 0
@@ -769,7 +773,8 @@ class CaseExecApi(MethodView):
             "mail_list": mail_list,
             "is_safe_scan": is_safe_scan,
             "safe_scan_url": safe_scan_url,
-            "trigger_type": trigger_type
+            "trigger_type": trigger_type,
+            "request_timeout": request_timeout
         }
 
         """

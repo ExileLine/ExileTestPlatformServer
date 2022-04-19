@@ -198,6 +198,8 @@ class MainTest:
 
         self.trigger_type = test_obj.get('trigger_type', 'user_execute')
 
+        self.request_timeout = test_obj.get('request_timeout', 3)
+
         if not isinstance(self.case_list, list):
             raise TypeError('MainTest.__init__.case_list 类型错误')
 
@@ -472,7 +474,7 @@ class MainTest:
             send['proxies'] = proxies
 
         self.sio.log('=== send ===')
-        resp = self.current_request(method=method, timeout=3, **send)
+        resp = self.current_request(method=method, timeout=self.request_timeout, **send)
         self.resp_json = resp.json()
         self.resp_headers = resp.headers
 
