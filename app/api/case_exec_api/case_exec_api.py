@@ -5,8 +5,8 @@
 # @File    : case_exec_api.py
 # @Software: PyCharm
 
-from concurrent.futures import ThreadPoolExecutor
 import queue
+from concurrent.futures import ThreadPoolExecutor
 
 from all_reference import *
 from common.libs.StringIOLog import StringIOLog
@@ -22,11 +22,7 @@ from app.models.test_project.models import (
 from app.models.test_env.models import TestEnv
 from app.models.test_logs.models import TestLogs
 from app.models.push_reminder.models import DingDingConfModel, MailConfModel
-
 from tasks.task03 import execute_main
-
-
-# executor = ThreadPoolExecutor(200)
 
 
 class BoundThreadPoolExecutor(ThreadPoolExecutor):
@@ -39,7 +35,8 @@ class BoundThreadPoolExecutor(ThreadPoolExecutor):
         self._work_queue = queue.Queue(qsize)
 
 
-executor = BoundThreadPoolExecutor(qsize=200, max_workers=200)
+if os.environ.get('is_debug'):
+    executor = BoundThreadPoolExecutor(qsize=200, max_workers=200)
 
 model_dict = {
     "project": {
@@ -235,12 +232,12 @@ class GenExecuteData:
         return [ass.to_json() for ass in query_ass]
 
     @staticmethod
-    def main(query_list):
+    def main(case_id_list=None, query_list=None):
         """main"""
 
         current_dict = {}
 
-        for query in query_list:
+        for index, query in enumerate(query_list):
             if query['id'] in current_dict:
                 case_data_info = GenExecuteData.gen_structure(before_dict=query, first=False)
                 current_dict[query['id']][-1]['bind_info'].append(case_data_info)
@@ -253,8 +250,12 @@ class GenExecuteData:
         for obj in current_dict.values():
             result_list += obj
 
+        # print(case_id_list)
         # print(json.dumps(result_list, ensure_ascii=False))
-        return result_list
+
+        current_dict = {case['case_info']['id']: case for case in result_list}
+        new_list = [current_dict.get(i) for i in case_id_list if i in current_dict]
+        return new_list
 
 
 class QueryExecuteData:
@@ -333,7 +334,9 @@ class QueryExecuteData:
             {f'AND B.case_id={case_id_list[-1]}' if len(case_id_list) == 1 else f'AND B.case_id in {tuple(case_id_list)}'}
             {'' if len(case_id_list) == 1 else f"ORDER BY FIELD(A.id,{','.join(list(map(str, case_id_list)))})"}
 	    """
+        # print(sql)
         result = project_db.select(sql)
+
         return result
 
     @staticmethod
@@ -352,7 +355,7 @@ class QueryExecuteData:
                 case_id_list = [obj.get('case_id') for obj in sort_case_list]
                 QueryExecuteData.update_case_total_execution(case_id_list)
                 query_case_zip_list = QueryExecuteData.query_case_assemble(case_id_list)
-                case_list = GenExecuteData.main(query_case_zip_list)
+                case_list = GenExecuteData.main(case_id_list, query_case_zip_list)
 
                 scenario_obj = {
                     "scenario_id": scenario.get('id'),
@@ -380,7 +383,7 @@ class QueryExecuteData:
 
         case_id_list = [obj.case_id for obj in query_pc]
         query_case_zip_list = QueryExecuteData.query_case_assemble(case_id_list)
-        case_list = GenExecuteData.main(query_case_zip_list)
+        case_list = GenExecuteData.main(case_id_list, query_case_zip_list)
         QueryExecuteData.update_case_total_execution(case_id_list)
         return case_list
 

@@ -14,6 +14,36 @@ from app.models.test_project.models import TestProject, TestProjectVersion, Test
 from app.api.case_api.case_api import new_check_version, new_check_module
 
 
+def zip_case(before_id_list, before_obj_list):
+    """
+    id_list = [1, 2, 5, 6, 1, 2, 7]
+
+    obj_list = [
+        {"id": 1},
+        {"id": 2},
+        {"id": 5},
+        {"id": 6},
+        {"id": 7}
+    ]
+    :param before_id_list:
+    :param before_obj_list:
+    :return:
+
+    new_list = [
+        {"id": 1},
+        {"id": 2},
+        {"id": 5},
+        {"id": 6},
+        {"id": 1},
+        {"id": 2},
+        {"id": 7}
+    ]
+    """
+    current_dict = {case.get("id"): case for case in before_obj_list}
+    new_list = [current_dict.get(i) for i in before_id_list if i in current_dict]
+    return new_list
+
+
 def query_case_order_by_field(case_id_list):
     """
     查询用例根据in排序
@@ -23,7 +53,11 @@ def query_case_order_by_field(case_id_list):
 
     sql = f"""SELECT * FROM exile_test_case WHERE id in {tuple(case_id_list)} ORDER BY FIELD(id,{','.join(list(map(str, case_id_list)))});"""
     result = project_db.select(sql)
-    return result
+
+    if len(set(case_id_list)) != len(case_id_list):
+        return zip_case(before_id_list=case_id_list, before_obj_list=result)
+    else:
+        return result
 
 
 def scenario_decorator(func):
@@ -92,18 +126,36 @@ class CaseScenarioApi(MethodView):
 
         # TODO 后面新增中间表后修改这个逻辑
         sorted_case_id_list = sorted(case_id_list, key=lambda x: x.get("index", x.get('case_id')), reverse=True)
-        sorted_case_hash_map = {}
-        for i in sorted_case_id_list:
-            case_id = i.get('case_id')
-            sorted_case_hash_map[case_id] = i
 
-        query_case_id_list = [k for k in sorted_case_hash_map.keys()]
+        # sorted_case_hash_map = {}
+        # for i in sorted_case_id_list:
+        #     case_id = i.get('case_id')
+        #     sorted_case_hash_map[case_id] = i
+        # query_case_id_list = [k for k in sorted_case_hash_map.keys()]
+        # query_case_list = query_case_order_by_field(query_case_id_list)
+
+        # for case in query_case_list:
+        #     case_id = case.get('id')
+        #     if sorted_case_hash_map.get(case_id):
+        #         case.update(sorted_case_hash_map.get(case_id))
+
+        query_case_id_list = [i.get('case_id') for i in sorted_case_id_list]
         query_case_list = query_case_order_by_field(query_case_id_list)
 
-        for case in query_case_list:
-            case_id = case.get('id')
-            if sorted_case_hash_map.get(case_id):
-                case.update(sorted_case_hash_map.get(case_id))
+        if len(sorted_case_id_list) == len(query_case_list):
+            d = {}
+            case_list = []
+            for index, case in enumerate(query_case_list):
+                case_id = case.get('id')
+                if case_id in d:
+                    case = copy.deepcopy(case)
+                    case.update(sorted_case_id_list[index])
+                else:
+                    case.update(sorted_case_id_list[index])
+                    d[case_id] = ''
+                case_list.append(case)
+        else:
+            return api_result(code=400, message='数据异常')
 
         version_id_list = [m.version_id for m in MidVersionAndScenario.query.filter_by(scenario_id=scenario_id).all()]
         version_list = [m.to_json() for m in
@@ -112,7 +164,7 @@ class CaseScenarioApi(MethodView):
         module_id_list = [m.module_id for m in MidModuleAndScenario.query.filter_by(scenario_id=scenario_id).all()]
         module_list = [m.to_json() for m in TestModuleApp.query.filter(TestModuleApp.id.in_(module_id_list)).all()]
 
-        result['case_list'] = query_case_list
+        result['case_list'] = case_list
         result["version_list"] = version_list
         result["module_list"] = module_list
         return api_result(code=200, message='操作成功', data=result)
