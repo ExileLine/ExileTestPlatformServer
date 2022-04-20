@@ -319,7 +319,7 @@ class CasePageApi(MethodView):
             AND case_name LIKE "%{case_name}%"
             {f'AND creator_id={creator_id}' if creator_id else ''}
         ORDER BY
-            create_time DESC
+            update_time DESC
         LIMIT {limit[0]},{limit[1]};
         """
 

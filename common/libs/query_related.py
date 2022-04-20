@@ -184,7 +184,7 @@ def general_query(model, page, size, like_rule="and_", field_list=[], query_list
         *where_list,
         *in_list
     ).order_by(
-        getattr(model, 'create_time').desc()
+        getattr(model, 'update_time').desc()
     ).paginate(
         page=int(page),
         per_page=int(size),

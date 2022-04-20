@@ -25,7 +25,8 @@ def gen_new_ass(ass_obj):
     """
 
     expect_val = ass_obj.get('expect_val')
-    if str(expect_val)[0:2] == "${" and str(expect_val)[-1] == "}":
+    check_expect_val = str(expect_val).strip()
+    if check_expect_val[0:2] == "${" and check_expect_val[-1] == "}":
         return ass_obj
 
     con_bool, new_expect_val = type_conversion(
@@ -175,7 +176,8 @@ class RespAssertionRuleApi(MethodView):
             expect_val_type = expect_val_type_dict.get(str(a.get('expect_val_type')))
 
             try:
-                if str(expect_val)[0:2] == "${" and str(expect_val)[-1] == "}":
+                check_expect_val = str(expect_val).strip()
+                if check_expect_val[0:2] == "${" and check_expect_val[-1] == "}":
                     new_ass_json.append(a)
                 else:
                     # a['rule'] = rule
@@ -254,7 +256,8 @@ class RespAssertionRuleApi(MethodView):
             expect_val_type_func = expect_val_type_dict.get(str(expect_val_type))
 
             try:
-                if str(expect_val)[0:2] == "${" and str(expect_val)[-1] == "}":
+                check_expect_val = str(expect_val).strip()
+                if check_expect_val[0:2] == "${" and check_expect_val[-1] == "}":
                     new_ass_json.append(a)
                 else:
                     # a['rule'] = rule
