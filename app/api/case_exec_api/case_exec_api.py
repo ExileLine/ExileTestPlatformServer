@@ -10,7 +10,6 @@ from concurrent.futures import ThreadPoolExecutor
 
 from all_reference import *
 from common.libs.StringIOLog import StringIOLog
-from common.libs.set_app_context import set_app_context
 from app.models.test_case.models import TestCase
 from app.models.test_case_assert.models import TestCaseAssResponse, TestCaseAssField
 from app.models.test_case_scenario.models import TestCaseScenario
@@ -23,20 +22,6 @@ from app.models.test_env.models import TestEnv
 from app.models.test_logs.models import TestLogs
 from app.models.push_reminder.models import DingDingConfModel, MailConfModel
 from tasks.task03 import execute_main
-
-
-class BoundThreadPoolExecutor(ThreadPoolExecutor):
-    """
-    对ThreadPoolExecutor 进行重写，给队列设置边界
-    """
-
-    def __init__(self, qsize: int = None, *args, **kwargs):
-        super(BoundThreadPoolExecutor, self).__init__(*args, **kwargs)
-        self._work_queue = queue.Queue(qsize)
-
-
-if os.environ.get('is_debug'):
-    executor = BoundThreadPoolExecutor(qsize=200, max_workers=200)
 
 model_dict = {
     "project": {
@@ -80,7 +65,6 @@ key_dict = {
 }
 
 
-@set_app_context
 def save_test_logs(execute_type):
     tl = TestLogs(
         log_type=execute_type,
@@ -776,12 +760,12 @@ class CaseExecApi(MethodView):
             "trigger_type": trigger_type,
             "request_timeout": request_timeout
         }
+        save_test_logs(execute_type)
 
         """
         多线程/线程池模式(适用于轻量级,链路短的异步任务)
         main_test = MainTest(test_obj=test_obj)
         thread1 = threading.Thread(target=main_test.main)
-        thread1.daemon = True
         thread1.start()
         return api_result(code=200, message='操作成功,请前往日志查看执行结果')
         """
@@ -795,6 +779,9 @@ class CaseExecApi(MethodView):
 
 
 if __name__ == '__main__':
+    from common.libs.set_app_context import set_app_context
+
+
     @set_app_context
     def main():
         """测试"""

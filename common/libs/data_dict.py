@@ -108,14 +108,18 @@ var_func_dict = {
 }
 
 
-def type_conversion(type_key, val):
+def type_conversion(type_key, val, type_dict=None):
     """
     类型转换
     :param type_key: 类型字典key
     :param val: 需要转换的值
+    :param type_dict: 使用那个字典
     :return:
     """
-    bf = var_native_func_dict.get(str(type_key))
+    if type_dict == 'ass':
+        bf = expect_val_type_dict.get(str(type_key))
+    else:
+        bf = var_native_func_dict.get(str(type_key))
     print(bf)
     try:
         new_val = bf(val)

@@ -12,7 +12,8 @@ from app.models.test_case_db.models import TestDatabases
 from common.libs.db import MyPyMysql, MyPostgreSql
 from common.libs.execute_code import execute_code
 from common.libs.StringIOLog import StringIOLog
-from common.libs.data_dict import rule_dict, resp_source_tuple
+from common.libs.data_dict import rule_dict, resp_source_tuple, expect_val_type_dict
+from common.libs.db import project_db
 
 
 class AssertMain:
@@ -113,7 +114,9 @@ class AssertResponseMain(AssertMain):
 
         try:
             rule = rule_dict.get(self.rule)  # 从字典中取出反射的规则函数
-            if self.get_assert(this_val=self.this_val, rule=rule, expect_val=self.expect_val):
+            __func = expect_val_type_dict.get(str(self.expect_val_type))
+            expect_val = __func(self.expect_val)
+            if self.get_assert(this_val=self.this_val, rule=rule, expect_val=expect_val):
                 self.sio.log('=== Response 断言通过 ===', status='success')
                 return True
             else:
@@ -204,19 +207,16 @@ class AssertFieldMain(AssertMain):
     def query_db_connection(self):
         """查询db配置是否存在或者可用"""
 
-        from ApplicationExample import create_app
-        app = create_app()
-        with app.app_context():
-            query_db = TestDatabases.query.get(self.db_id)
+        sql = f"""select * from exile_test_databases where id={self.db_id} and is_deleted=0;"""
+        query_db = project_db.select(sql=sql, only=True)
 
-        if not query_db or query_db.is_deleted != 0:
+        if not query_db:
             self.sio.log(f"=== 数据库不存在或禁用: {self.db_id} === ", status='error')
             self.ass_field_fail.append('数据库不存在或禁用')
             return False
 
-        db_obj = query_db.to_json()
-        self.db_type = db_obj.get('db_type', '')
-        self.db_connection = db_obj.get('db_connection')
+        self.db_type = query_db.get('db_type', '')
+        self.db_connection = query_db.get('db_connection')
         return True
 
     def ping_db_connection(self):
@@ -318,6 +318,9 @@ class AssertFieldMain(AssertMain):
         :return:
         """
         print(json.dumps(assert_field_obj, ensure_ascii=False))
+        __func = expect_val_type_dict.get(str(assert_field_obj.get('expect_val_type')))
+        assert_field_obj['expect_val'] = __func(assert_field_obj['expect_val'])
+
         if self.db_type in ['mysql', 'postgresql']:
             # TODO 暂时支持唯一数据检验
             if len(self.query_result) == 1 and isinstance(self.query_result, list):
@@ -359,7 +362,6 @@ class AssertFieldMain(AssertMain):
                 "success": len(self.ass_field_success),
                 "fail": len(self.ass_field_fail),
             }
-
         except BaseException as e:
             self.sio.log(f"=== {str(e)} ===", status='error')
             result = {
@@ -494,7 +496,6 @@ if __name__ == '__main__':
         ass_json_list = feild_ass_demo.get('ass_json')
         print(assert_description)
         list(map(__execute, ass_json_list))
-
 
     # test_resp_ass()
     # test_field_ass()

@@ -168,7 +168,11 @@ class MainTest:
     # TODO sio优化
     # TODO yield 优化 list 消费
 
-    def __init__(self, test_obj):
+    def __init__(self, test_obj=None):
+
+        if not test_obj:
+            test_obj = {}
+
         self.base_url = test_obj.get('base_url')
         self.use_base_url = test_obj.get('use_base_url')
         self.data_driven = test_obj.get('data_driven')
@@ -176,7 +180,7 @@ class MainTest:
         self.execute_id = test_obj.get('execute_id')
         self.execute_name = test_obj.get('execute_name')
         self.execute_type = test_obj.get('execute_type')
-        self.execute_label = test_obj.get('execute_label')
+        self.execute_label = test_obj.get('execute_label', '')
 
         self.execute_user_id = test_obj.get('execute_user_id')
         self.execute_username = test_obj.get('execute_username')
@@ -203,7 +207,7 @@ class MainTest:
         if not isinstance(self.case_list, list):
             raise TypeError('MainTest.__init__.case_list 类型错误')
 
-        if self.execute_label not in execute_label_tuple:
+        if test_obj and self.execute_label not in execute_label_tuple:
             raise TypeError('MainTest.__init__.execute_label 类型错误')
 
         self.func_name = self.execute_label + "_execute"
@@ -327,8 +331,8 @@ class MainTest:
         for k, v in current_dict.items():
             old_var = "${%s}" % (k)
             new_var = v
-            current_str = current_str.replace(old_var, new_var)
-        if isinstance(before_var_init, (list, dict)):
+            current_str = current_str.replace(old_var, str(new_var))
+        if isinstance(before_var_init, (list, dict)):  # 转换回最初的数据类型
             current_str = json.loads(current_str)
         # print(current_str)
         return current_str
@@ -359,6 +363,8 @@ class MainTest:
             ]
         """
 
+        ass_json = self.var_conversion(ass_json)
+        self.sio.log(f'===转换resp_ass_json===\n{ass_json}')
         response_ass_result = AssertResponseMain(
             sio=self.sio,
             resp_json=self.resp_json,
@@ -382,6 +388,8 @@ class MainTest:
         执行Field断言
         """
 
+        ass_json = self.var_conversion(ass_json)
+        self.sio.log(f'===转换field_ass_json===\n{ass_json}')
         field_ass_result = AssertFieldMain(
             sio=self.sio,
             assert_description=self.current_assert_description,

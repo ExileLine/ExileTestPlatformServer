@@ -24,9 +24,17 @@ def gen_new_ass(ass_obj):
     :return:
     """
 
-    new_expect_val = type_conversion(type_key=ass_obj.get('expect_val_type'), val=ass_obj.get('expect_val'))
+    expect_val = ass_obj.get('expect_val')
+    if str(expect_val)[0:2] == "${" and str(expect_val)[-1] == "}":
+        return ass_obj
 
-    if not new_expect_val:
+    con_bool, new_expect_val = type_conversion(
+        type_key=ass_obj.get('expect_val_type'),
+        val=ass_obj.get('expect_val'),
+        type_dict='ass'
+    )
+
+    if not con_bool:
         return False
 
     ass_obj['expect_val'] = new_expect_val
