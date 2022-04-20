@@ -107,15 +107,16 @@ class AssertResponseMain(AssertMain):
             self.sio.log(f"获取需要断言的值:{str(e)}", status="error")
             return False
 
-        self.sio.log(f'=== 断言:{self.assert_description} ===')
-        self.sio.log('=== 键值:{} ==='.format({self.assert_key: self.this_val}))
-        message = f'{self.this_val}:{type(self.this_val)} [{self.rule}] {self.expect_val}:{type(self.expect_val)}'
-        self.sio.log(message)
-
         try:
             rule = rule_dict.get(self.rule)  # 从字典中取出反射的规则函数
             __func = expect_val_type_dict.get(str(self.expect_val_type))
             expect_val = __func(self.expect_val)
+
+            self.sio.log(f'=== 断言:{self.assert_description} ===')
+            self.sio.log('=== 键值:{} ==='.format({self.assert_key: self.this_val}))
+            message = f'{self.this_val}:{type(self.this_val)} [{self.rule}] {expect_val}:{type(expect_val)}'
+            self.sio.log(message)
+
             if self.get_assert(this_val=self.this_val, rule=rule, expect_val=expect_val):
                 self.sio.log('=== Response 断言通过 ===', status='success')
                 return True

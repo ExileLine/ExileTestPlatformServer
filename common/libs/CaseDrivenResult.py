@@ -364,7 +364,6 @@ class MainTest:
         """
 
         ass_json = self.var_conversion(ass_json)
-        self.sio.log(f'===转换resp_ass_json===\n{ass_json}')
         response_ass_result = AssertResponseMain(
             sio=self.sio,
             resp_json=self.resp_json,
@@ -389,7 +388,6 @@ class MainTest:
         """
 
         ass_json = self.var_conversion(ass_json)
-        self.sio.log(f'===转换field_ass_json===\n{ass_json}')
         field_ass_result = AssertFieldMain(
             sio=self.sio,
             assert_description=self.current_assert_description,
