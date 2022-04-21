@@ -8,50 +8,7 @@
 from decimal import Decimal
 
 from all_reference import *
-
-
-def var_conversion(before_var):
-    """变量转换参数"""
-
-    before_var_init = before_var
-
-    if isinstance(before_var_init, (list, dict)):
-        before_var = json.dumps(before_var, ensure_ascii=False)
-
-    result_list = re.findall('\\$\\{([^}]*)', before_var)
-
-    if not result_list:
-        return before_var_init
-
-    err_var_list = []
-    current_dict = {}
-    for res in result_list:
-        sql = f"""select id, var_name, var_value, var_type, is_active from exile_test_variable where var_name='{res}' and is_deleted=0;"""
-        query_result = project_db.select(sql=sql, only=True)
-        if query_result:
-            var_value = query_result.get('var_value')
-            var_type = str(query_result.get('var_type'))
-            if var_type in var_func_dict.keys():  # 函数
-                new_val = var_func_dict.get(var_type)()
-                current_dict[res] = new_val
-            else:
-                current_dict[res] = json.loads(var_value)
-
-        elif var_func_dict.get(res):
-            current_dict[res] = var_func_dict.get(res)
-        else:
-            err_var_list.append(res)
-    if not current_dict:
-        return before_var_init
-
-    current_str = before_var
-    for k, v in current_dict.items():
-        old_var = "${%s}" % (k)
-        new_var = v
-        current_str = current_str.replace(old_var, new_var)
-    if isinstance(before_var_init, (list, dict)):
-        current_str = json.loads(current_str)
-    return current_str
+from common.libs.CaseDrivenResult import MainTest
 
 
 class CaseReqTestApi(MethodView):
@@ -89,7 +46,7 @@ class CaseReqTestApi(MethodView):
             send.update(req_json_data)
             __key = "json" if "json" in send else "data"
 
-        send = var_conversion(send)
+        send = MainTest().var_conversion(send)
 
         if not hasattr(requests, method):
             return api_result(code=400, message=f'请求方式:{method}不存在')

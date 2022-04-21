@@ -277,7 +277,180 @@ class MainTest:
         self.json_format(resp_headers, msg='=== response headers ===')
         self.json_format(resp_json, msg='=== response json ===')
 
-    def var_conversion(self, before_var):
+    def var_conversion_main(self, json_str, d):
+        """
+        变量转换参数
+        :param json_str: json字符串
+        :param d: 数据字典
+        :return:
+        """
+        matchList = re.findall(r'("?\$\{.*?\}.*?")', json_str)
+        for match in matchList:
+            varList = re.findall(r'\$\{.*?\}', match)
+            if len(varList) > 1:
+                _match = match
+                for var in varList:
+                    key = var[2:-1]
+                    val = d.get(key)
+                    if val:
+                        if isinstance(val, int):
+                            _match = _match.replace('${' + key + '}', json.dumps(val, ensure_ascii=False))
+                        elif isinstance(val, str):
+                            _match = _match.replace('${' + key + '}', json.dumps(val, ensure_ascii=False)[1:-1])
+                        else:
+                            _match = _match.replace('${' + key + '}',
+                                                    re.sub(r'"', '\\"', json.dumps(val, ensure_ascii=False)))
+                json_str = json_str.replace(match, _match)
+            else:
+                _matchList = re.findall(r'\$\{(.*?)\}(.*?")', match)
+                key = _matchList[0][0]
+                val = d.get(key)
+                if val:
+                    if _matchList[0][1] == '"':
+                        if isinstance(val, str):
+                            json_str = json_str.replace(match, match.replace('${' + key + '}', val))
+                        else:
+                            json_str = json_str.replace(match, match.replace('${' + key + '}',
+                                                                             json.dumps(val, ensure_ascii=False))[1:-1])
+                    else:
+                        if isinstance(val, str):
+                            json_str = json_str.replace(match, match.replace('${' + key + '}', val))
+                        else:
+                            res = match.replace('${' + key + '}',
+                                                re.sub(r'"', '\\"', json.dumps(val, ensure_ascii=False)))
+                            json_str = json_str.replace(match, res)
+
+        result_data = json.loads(json_str)
+        print(">>>", json_str)
+        print(">>>", result_data)
+        return result_data
+
+    def var_conversion(self, before_value):
+        """
+        变量转换参数
+        :param before_value:
+        :return:
+        """
+        if isinstance(before_value, int):
+            return before_value
+
+        json_str = json.dumps(before_value, ensure_ascii=False)
+        var_name_list = re.findall('\\$\\{([^}]*)', json_str)  # 找出参数中带 ${} 的字符串
+        print(var_name_list)
+
+        if not var_name_list:
+            return before_value
+
+        sql = f"""
+        select id, var_name, var_value, var_type, is_active 
+        from exile_test_variable 
+        where {f"var_name in {tuple(var_name_list)}" if len(var_name_list) > 1 else f"var_name='{var_name_list[-1]}'"} 
+        and is_deleted=0;
+        """
+        query_result = project_db.select(sql=sql)
+
+        d = {}
+        for obj in query_result:  # 生成: {"var_name":"var_value"}
+            var_id = obj.get('id')
+            var_name = obj.get('var_name')
+            var_value = obj.get('var_value')
+            var_type = obj.get('var_type')
+            is_active = obj.get('is_active')
+            print('===var_type===', var_type)
+            print('===var_name===', var_name)
+            if str(var_type) in var_func_dict.keys():  # 函数
+                if var_id not in self.var_conversion_active_list:
+                    new_val = var_func_dict.get(str(var_type))()  # 首次触函数
+                    d[var_name] = new_val
+                    self.current_var_value = new_val
+                    self.var_conversion_active_list.append(var_id)
+                else:
+                    if is_active == 1:
+                        new_val = var_func_dict.get(str(var_type))()
+                        d[var_name] = new_val
+                    else:
+                        d[var_name] = self.current_var_value
+            else:
+                if var_type in (1, 2):
+                    d[var_name] = json.loads(var_value)
+                else:
+                    d[var_name] = var_value
+        print(d)
+        return self.var_conversion_main(json_str=json_str, d=d)
+
+    def var_conversion2(self, before_value):
+        """
+        变量转换参数
+        :param before_value:
+        :return:
+        """
+        if isinstance(before_value, int):
+            return before_value
+
+        json_str = json.dumps(before_value, ensure_ascii=False)
+        var_name_list = re.findall('\\$\\{([^}]*)', json_str)  # 找出参数中带 ${} 的字符串
+        print(var_name_list)
+
+        if not var_name_list:
+            return before_value
+
+        sql = f"""
+        select id, var_name, var_value, var_type, is_active 
+        from exile_test_variable 
+        where {f"var_name in {tuple(var_name_list)}" if len(var_name_list) > 1 else f"var_name='{var_name_list[-1]}'"} 
+        and is_deleted=0;
+        """
+        query_result = project_db.select(sql=sql)
+
+        if not query_result:
+            return before_value
+
+        d = {obj.get('var_name'): obj.get('var_value') for obj in query_result}  # 生成: {"var_name":"var_value"}
+        print(d)
+
+        findall_list = re.findall(r'\$\{(.*?)\}(.*?")', json_str)  # [('user_id', '"'), ('token', '"')...]
+        print('=== findall_list:', findall_list)
+        # findall_list = re.findall(r'("?\$\{.*?\}.*?")', json_str)  # [('user_id', '"'), ('token', '"')...]
+        # print('=== findall_list:', findall_list)
+        findall_list2 = re.findall(r'\$\{.*?\}', json_str)
+        print('=== findall_list2:', findall_list2)
+
+        if len(findall_list2) > 1 and isinstance(before_value, str):
+            for i in findall_list2:
+                print(i)
+                _key = i[2:-1]
+                _val = d.get(_key)
+                if _val:
+                    _j = json.dumps(_val, ensure_ascii=False)
+                    _j = re.sub(r'\\?"', '', _j)
+                    json_str = json_str.replace("${" + _key + "}", _j)
+                    print(json_str)
+        if findall_list:
+            for i in findall_list:  # ('user_id', '"')
+                _key = i[0]  # user_id
+                _val = d.get(_key)
+                if _val:
+                    print(f'val:{_val}')
+                    if i[1] and i[1] != '"':
+                        _j = json.dumps(_val, ensure_ascii=False)
+                        _j = re.sub(r'\\?"', '', _j)
+                        json_str = json_str.replace("${" + _key + "}", _j)
+                        print(json_str)
+                    else:
+                        if isinstance(_val, str):
+                            print('=== str ===')
+                            json_str = json_str.replace('"${' + _key + '}"', _val)
+                            print(json_str)
+                        else:
+                            print("=== int,dict,list ===")
+                            _j = json.dumps(_val, ensure_ascii=False)
+                            json_str = json_str.replace('"${' + _key + '}"', _j)
+                            print(json_str)
+        print(json_str, type(json_str))
+        return json.loads(json_str)
+
+    # 就方法,后续删除
+    def var_conversion1(self, before_var):
         """
         变量转换参数
         :param before_var: 转换前的send参数
@@ -316,7 +489,10 @@ class MainTest:
                         else:
                             current_dict[res] = self.current_var_value
                 else:
-                    current_dict[res] = json.loads(var_value)
+                    if isinstance(var_value, (dict, list)):
+                        current_dict[res] = json.dumps(var_value)
+                    else:
+                        current_dict[res] = json.loads(var_value)
 
             elif var_func_dict.get(res):
                 current_dict[res] = var_func_dict.get(res)
@@ -328,10 +504,14 @@ class MainTest:
             return before_var_init
 
         current_str = before_var
+        print(current_str)
         for k, v in current_dict.items():
             old_var = "${%s}" % (k)
             new_var = v
-            current_str = current_str.replace(old_var, str(new_var))
+            if isinstance(new_var, (dict, list)):
+                current_str = current_str.replace(old_var, json.dumps(new_var))
+            else:
+                current_str = current_str.replace(old_var, str(new_var))
         if isinstance(before_var_init, (list, dict)):  # 转换回最初的数据类型
             current_str = json.loads(current_str)
         # print(current_str)
@@ -891,3 +1071,51 @@ class MainTest:
 
     def __str__(self):
         return '\n'.join([f"{k}:{v}" for k, v in self.__dict__.items()])
+
+
+if __name__ == '__main__':
+    def yyx(self, json_str, data_dict):
+        """
+        变量转换参数
+        :param before_value:
+        :return:
+        """
+        d = data_dict
+        matchList = re.findall(r'("?\$\{.*?\}.*?"?)', json_str)
+        for match in matchList:
+            varList = re.findall(r'\$\{.*?\}', match);
+            if len(varList) > 1:
+                _match = match
+                for var in varList:
+                    key = var[2:-1];
+                    val = d.get(key);
+                    if val:
+                        if isinstance(val, int):
+                            _match = _match.replace('${' + key + '}', json.dumps(val, ensure_ascii=False))
+                        elif isinstance(val, str):
+                            _match = _match.replace('${' + key + '}', json.dumps(val, ensure_ascii=False)[1:-1])
+                        else:
+                            _match = _match.replace('${' + key + '}',
+                                                    re.sub(r'"', '\\"', json.dumps(val, ensure_ascii=False)))
+                json_str = json_str.replace(match, _match)
+            else:
+                _matchList = re.findall(r'\$\{(.*?)\}(.*?"?)', match)
+                key = _matchList[0][0];
+                val = d.get(key);
+                if val:
+                    if _matchList[0][1] == '"':
+                        print(key, val)
+                        if isinstance(val, str):
+                            json_str = json_str.replace(match, match.replace('${' + key + '}', val))
+                        else:
+                            json_str = json_str.replace(match, match.replace('${' + key + '}',
+                                                                             json.dumps(val, ensure_ascii=False))[1:-1])
+                    else:
+                        if isinstance(val, str):
+                            json_str = json_str.replace(match, match.replace('${' + key + '}', val))
+                        else:
+                            res = match.replace('${' + key + '}',
+                                                re.sub(r'"', '\\"', json.dumps(val, ensure_ascii=False)))
+                            json_str = json_str.replace(match, res)
+        print(json_str)
+        return json.loads(json_str)
