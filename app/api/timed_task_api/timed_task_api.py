@@ -10,6 +10,7 @@ import platform
 from all_reference import *
 from apscheduler.triggers.cron import CronTrigger
 from ExtendRegister.apscheduler_register import scheduler
+from app.models.timed_task.models import TimedTaskModel
 
 trigger_tuple = ('date', 'interval', 'cron')
 
@@ -225,12 +226,12 @@ class APSchedulerTaskApi(MethodView):
     DELETE: 暂停/删除APScheduler任务
     """
 
-    def get(self, task_id):
+    def get(self, task_uuid):
         """获取APScheduler任务状态"""
 
         data = {
-            "id": task_id,
-            "job_detail": str(scheduler.get_job(task_id)),
+            "id": task_uuid,
+            "job_detail": str(scheduler.get_job(task_uuid)),
         }
         return api_result(code=200, message='操作成功', data=data)
 
@@ -238,15 +239,31 @@ class APSchedulerTaskApi(MethodView):
         """新增APScheduler任务"""
 
         data = request.get_json()
-        trigger = data.get('trigger', '')
+        project_id = data.get('project_id')
+        task_name = data.get('task_name', '').strip()
+        remark = data.get('remark', '').strip()
+        job = data.get('job')
+        trigger = job.get('trigger')
 
         if trigger not in trigger_tuple:
             return api_result(code=400, message=f'触发器类型错误:{trigger}')
 
-        result_bool, result_message = job_func_dict.get(trigger)(**data)
+        result_bool, result_message = job_func_dict.get(trigger)(**job)
 
         if not result_bool:
             return api_result(code=400, message=f'新增任务失败:{result_message}')
+
+        new_timed_task = TimedTaskModel(
+            project_id=project_id,
+            task_uuid=result_message,
+            task_name=task_name,
+            task_details=job,
+            task_type=trigger,
+            creator=g.app_user.username,
+            creator_id=g.app_user.id,
+            remark=remark
+        )
+        new_timed_task.save()
 
         return api_result(code=201, message=f'新增任务成功', data={
             "id": result_message,
@@ -260,18 +277,25 @@ class APSchedulerTaskApi(MethodView):
 
         data = request.get_json()
         action = data.get('action')
-        task_id = data.get('task_id')
+        task_uuid = data.get('task_uuid')
 
         if action not in ('start', 'edit'):
             return api_result(code=400, message=f'操作失败:{action}')
 
+        query_timed_task = TimedTaskModel.query.filter_by(task_uuid=task_uuid).first()
+
+        if not query_timed_task:
+            return api_result(code=400, message=f'任务: {task_uuid} 不存在')
+
         # 启动任务
         if action == 'start':
             try:
-                scheduler.resume_job(task_id)
-                return api_result(code=204, message=f'启动任务:{task_id}成功')
+                scheduler.resume_job(task_uuid)
+                query_timed_task.task_status = 'wait_start'
+                db.session.commit()
+                return api_result(code=204, message=f'启动任务:{task_uuid}成功')
             except BaseException as e:
-                return api_result(code=400, message=f'启动任务:{task_id}失败,{str(e)}')
+                return api_result(code=400, message=f'启动任务:{task_uuid}失败,{str(e)}')
 
         # 编辑任务
         if action == 'edit':
@@ -280,34 +304,109 @@ class APSchedulerTaskApi(MethodView):
                 # task_id = f"{shortuuid.uuid}_{int(time.time())}"
                 # seconds = int(data.get('seconds'))
                 # scheduler.add_job(func=test_job, id=task_id, trigger='interval', seconds=seconds, replace_existing=True)
-                return api_result(code=204, message=f'编辑任务:{task_id}成功')
+                return api_result(code=204, message=f'编辑任务:{task_uuid}成功')
             except BaseException as e:
-                return api_result(code=400, message=f'编辑任务:{task_id}失败,{str(e)}')
+                return api_result(code=400, message=f'编辑任务:{task_uuid}失败,{str(e)}')
 
     def delete(self):
         """暂停/删除APScheduler任务"""
 
         data = request.get_json()
         action = data.get('action')
-        task_id = data.get('task_id')
+        task_uuid = data.get('task_uuid')
 
         if action not in ('stop', 'del'):
             return api_result(code=400, message=f'操作失败:{action}')
 
+        query_timed_task = TimedTaskModel.query.filter_by(task_uuid=task_uuid).first()
+
+        if not query_timed_task:
+            return api_result(code=400, message=f'任务: {task_uuid} 不存在')
+
         # 暂停任务
         if action == 'stop':
             try:
-                scheduler.pause_job(task_id)
-                print(scheduler.get_job(task_id), type(scheduler.get_job(task_id)))
-                return api_result(code=204, message=f'暂停任务:{task_id}成功')
+                scheduler.pause_job(task_uuid)
+                query_timed_task.task_status = 'stop'
+                db.session.commit()
+                return api_result(code=204, message=f'暂停任务:{task_uuid}成功')
             except BaseException as e:
-                return api_result(code=400, message=f'暂停任务:{task_id}失败,{str(e)}')
+                return api_result(code=400, message=f'暂停任务:{task_uuid}失败,{str(e)}')
 
         # 删除任务
         if action == 'del':
             try:
-                scheduler.remove_job(task_id)
-
-                return api_result(code=204, message=f'删除任务:{task_id}成功')
+                scheduler.remove_job(task_uuid)
+                query_timed_task.task_status = 'deleted'
+                db.session.commit()
+                return api_result(code=204, message=f'删除任务:{task_uuid}成功')
             except BaseException as e:
-                return api_result(code=400, message=f'删除任务:{task_id}失败,{str(e)}')
+                return api_result(code=400, message=f'删除任务:{task_uuid}失败,{str(e)}')
+
+
+class APSchedulerTaskPageApi(MethodView):
+    """
+    APScheduler task page api
+    POST: 定时任务分页模糊查询
+    """
+
+    def post(self):
+        """定时任务分页模糊查询"""
+
+        data = request.get_json()
+        project_id = data.get('project_id')
+        creator_id = data.get('creator_id')
+        task_name = data.get('task_name', '')
+        task_type = data.get('task_type', '')
+        is_deleted = data.get('is_deleted', False)
+        page = data.get('page')
+        size = data.get('size')
+        limit = page_size(page=page, size=size)
+
+        sql = f"""
+        SELECT
+            A.id,
+            A.task_uuid,
+            A.task_name,
+            A.task_type,
+            A.task_details,
+            A.task_status,
+            A.creator,
+            A.create_time,
+            B.next_run_time
+        FROM
+            exile_timed_task A
+            LEFT JOIN APSchedulerJobs.apscheduler_jobs B ON A.task_uuid = B.id
+        WHERE
+            A.project_id = {project_id}
+            {f'AND A.creator_id={creator_id}' if creator_id else ''}
+            {f"AND A.task_type='{task_type}'" if task_type else ''}
+            AND A.task_name LIKE "%{task_name}%"
+        ORDER BY 
+        A.create_time DESC
+        LIMIT {limit[0]},{limit[1]};
+        """
+
+        sql_count = f"""
+        SELECT
+            COUNT(*)
+        FROM
+            exile_timed_task A
+            LEFT JOIN APSchedulerJobs.apscheduler_jobs B ON A.task_uuid = B.id
+        WHERE
+            A.project_id = {project_id}
+            {f'AND A.creator_id={creator_id}' if creator_id else ''}
+            {f"AND A.task_type='{task_type}'" if task_type else ''}
+            AND A.task_name LIKE "%{task_name}%";
+        """
+
+        result_list = project_db.select(sql)
+        result_count = project_db.select(sql_count)
+
+        result_data = {
+            'records': result_list if result_list else [],
+            'now_page': page,
+            'total': result_count[0].get('COUNT(*)')
+        }
+
+        return api_result(code=200, message='操作成功', data=result_data)
