@@ -91,6 +91,7 @@ class CaseExecuteLogsPageApi(MethodView):
         execute_name = data.get('execute_name')
         trigger_type = data.get('trigger_type')
         execute_type = data.get('execute_type')
+        execute_status = data.get('execute_status')
         creator_id = data.get('creator_id')
         page = data.get('page')
         size = data.get('size')
@@ -110,6 +111,7 @@ class CaseExecuteLogsPageApi(MethodView):
             "execute_id": execute_id,
             "trigger_type": trigger_type,
             "execute_type": execute_type,
+            "execute_status": execute_status,
             "creator_id": creator_id
         }
 
@@ -118,6 +120,7 @@ class CaseExecuteLogsPageApi(MethodView):
             field_list=['execute_name'],
             query_list=[execute_name],
             where_dict=where_dict,
+            field_order_by='create_time',
             page=page,
             size=size
         )

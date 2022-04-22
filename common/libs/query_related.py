@@ -127,7 +127,7 @@ def query_case_assemble(case_id):
 
 @set_app_context
 def general_query(model, page, size, like_rule="and_", field_list=[], query_list=[], where_dict={}, in_field_list=None,
-                  in_value_list=None):
+                  in_value_list=None, field_order_by=None):
     """
     通用分页模糊查询
     :param model: -> DefaultMeta
@@ -137,6 +137,7 @@ def general_query(model, page, size, like_rule="and_", field_list=[], query_list
     :param like_rule: -> str -> and;or; -> like规则目前仅支持使用其中一个
     :param in_field_list: -> list -> in的字段列表 如: ['id','username']
     :param in_value_list: -> list -> in的入参列表 如: ['id','username'] 对应 [[1,2,3],['y1','y2','y3']] => model.id.in_([1, 2, 3])
+    :param field_order_by: -> str -> 字段名称
     :param page: {"page":1,"size":20}
     :param size: {"page":1,"size":20}
     :return:
@@ -184,7 +185,7 @@ def general_query(model, page, size, like_rule="and_", field_list=[], query_list
         *where_list,
         *in_list
     ).order_by(
-        getattr(model, 'update_time').desc()
+        getattr(model, 'update_time').desc() if not field_order_by else getattr(model, field_order_by).desc()
     ).paginate(
         page=int(page),
         per_page=int(size),
