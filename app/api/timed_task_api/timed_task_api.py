@@ -8,11 +8,17 @@
 import platform
 
 from all_reference import *
+from config.config import config_obj
 from apscheduler.triggers.cron import CronTrigger
 from ExtendRegister.apscheduler_register import scheduler
 from app.models.timed_task.models import TimedTaskModel
 
 trigger_tuple = ('date', 'interval', 'cron')
+
+
+def gen_task_uuid():
+    task_id = f"{shortuuid.uuid()[0:10]}_{int(time.time())}"
+    return task_id
 
 
 def test_date(*args, **kwargs):
@@ -53,10 +59,13 @@ def execute_case_job(*args, **kwargs):
     }
     test_obj = kwargs.get('test_obj')
     test_obj['trigger_type'] = 'timed_execute'
+
+    port = config_obj['new'].RUN_PORT
+
     if platform.system() == 'Linux':
-        url = 'http://0.0.0.0:5000/api/case_exec'
+        url = f'http://0.0.0.0:{port}/api/case_exec'
     else:
-        url = 'http://0.0.0.0:7272/api/case_exec'
+        url = f'http://0.0.0.0:{port}/api/case_exec'
 
     resp = requests.post(url=url, json=test_obj)
     print(resp.json())
@@ -82,7 +91,7 @@ class GenAPSchedulerJob:
         :return:
         """
 
-        task_id = f"{shortuuid.uuid()}_{int(time.time())}"
+        task_id = gen_task_uuid()
         try:
             scheduler.add_job(
                 func=execute_case_job, id=task_id, **kwargs, replace_existing=True, coalesce=True
@@ -120,7 +129,7 @@ class GenAPSchedulerJob:
         :return:
         """
 
-        task_id = f"{shortuuid.uuid()}_{int(time.time())}"
+        task_id = gen_task_uuid()
         try:
             if not kwargs.get('start_date'):
                 del kwargs['start_date']
@@ -186,7 +195,7 @@ class GenAPSchedulerJob:
         :return:
         """
 
-        task_id = f"{shortuuid.uuid()}_{int(time.time())}"
+        task_id = gen_task_uuid()
         try:
             if not kwargs.get('start_date'):
                 del kwargs['start_date']
@@ -258,6 +267,7 @@ class APSchedulerTaskApi(MethodView):
             task_uuid=result_message,
             task_name=task_name,
             task_details=job,
+            task_status='wait_start',
             task_type=trigger,
             creator=g.app_user.username,
             creator_id=g.app_user.id,
@@ -373,7 +383,7 @@ class APSchedulerTaskPageApi(MethodView):
             A.task_status,
             A.creator,
             A.create_time,
-            B.next_run_time
+            FROM_UNIXTIME(B.next_run_time) as next_run_time
         FROM
             exile_timed_task A
             LEFT JOIN APSchedulerJobs.apscheduler_jobs B ON A.task_uuid = B.id
