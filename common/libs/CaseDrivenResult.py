@@ -814,6 +814,8 @@ class MainTest:
 
             case_info = case.get('case_info', {})
             bind_info = case.get('bind_info', [])
+            case_expand = case.get('case_expand', {})
+            case_sleep = case_expand.get('sleep')
 
             self.case_id = case_info.get('id')
             self.case_name = case_info.get('case_name')
@@ -857,6 +859,10 @@ class MainTest:
                 self.resp_check_ass_execute(case_resp_ass_info=case_resp_ass_info)
 
                 self.field_check_ass_execute(case_field_ass_info=case_field_ass_info)
+
+                if isinstance(case_sleep, int) and abs(case_sleep) != 0:
+                    time.sleep(abs(case_sleep))
+                    self.sio.log(f"=== 用例 {self.case_name} 执行后等待: {case_sleep}s ===")
 
                 if not self.data_driven:
                     self.sio.log("=== data_driven is false 只执行基础参数与断言 ===")

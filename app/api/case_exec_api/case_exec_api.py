@@ -4,7 +4,7 @@
 # @Email   : yang6333yyx@126.com
 # @File    : case_exec_api.py
 # @Software: PyCharm
-
+import json
 import queue
 from concurrent.futures import ThreadPoolExecutor
 
@@ -216,29 +216,46 @@ class GenExecuteData:
         return [ass.to_json() for ass in query_ass]
 
     @staticmethod
-    def main(case_id_list=None, query_list=None):
-        """main"""
+    def main(case_id_list=None, query_list=None, case_expand_map=None):
+        """
 
+        :param case_id_list: 用例id列表不去重
+        :param query_list:  用例查询结果
+        :param case_expand_map: 用例扩展参数
+        :return:
+        """
+
+        case_expand_map = case_expand_map if case_expand_map else {}
         current_dict = {}
 
         for index, query in enumerate(query_list):
             if query['id'] in current_dict:
                 case_data_info = GenExecuteData.gen_structure(before_dict=query, first=False)
-                current_dict[query['id']][-1]['bind_info'].append(case_data_info)
+                current_dict[query['id']]['bind_info'].append(case_data_info)
             else:
-                current_dict[query['id']] = [GenExecuteData.gen_structure(before_dict=query, first=True)]
+                current_dict[query['id']] = GenExecuteData.gen_structure(before_dict=query, first=True)
 
         # print(json.dumps(current_dict, ensure_ascii=False))
-
-        result_list = []
-        for obj in current_dict.values():
-            result_list += obj
-
         # print(case_id_list)
-        # print(json.dumps(result_list, ensure_ascii=False))
 
-        current_dict = {case['case_info']['id']: case for case in result_list}
-        new_list = [current_dict.get(i) for i in case_id_list if i in current_dict]
+        new_list = []
+        for _id in case_id_list:
+            if _id in current_dict:
+                case = current_dict.get(_id)
+                if _id in case_expand_map:
+                    case_expand_list = case_expand_map.get(_id)
+                    if len(case_expand_list) > 1:
+                        cp_case = copy.deepcopy(case)
+                        cp_case['case_expand'] = case_expand_list[0]
+                        del case_expand_map.get(_id)[0]
+                        new_list.append(cp_case)
+                    else:
+                        case['case_expand'] = case_expand_list[0]
+                        new_list.append(case)
+                else:
+                    new_list.append(case)
+
+        # print(json.dumps(new_list, ensure_ascii=False))
         return new_list
 
 
@@ -336,10 +353,19 @@ class QueryExecuteData:
             if case_list:
                 sort_case_list = list(filter(lambda x: not x.get('is_active'),
                                              sorted(case_list, key=lambda x: x.get("index"), reverse=True)))
+
+                case_expand_map = {}
+                for obj in sort_case_list:
+                    case_id = obj.get('case_id')
+                    if case_id in case_expand_map:
+                        case_expand_map.get(case_id).append(obj)
+                    else:
+                        case_expand_map[case_id] = [obj]
+
                 case_id_list = [obj.get('case_id') for obj in sort_case_list]
                 QueryExecuteData.update_case_total_execution(case_id_list)
                 query_case_zip_list = QueryExecuteData.query_case_assemble(case_id_list)
-                case_list = GenExecuteData.main(case_id_list, query_case_zip_list)
+                case_list = GenExecuteData.main(case_id_list, query_case_zip_list, case_expand_map)
 
                 scenario_obj = {
                     "scenario_id": scenario.get('id'),

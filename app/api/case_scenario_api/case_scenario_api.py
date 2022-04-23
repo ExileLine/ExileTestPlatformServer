@@ -96,6 +96,9 @@ def scenario_decorator(func):
         if len(set(map(lambda obj: obj.get('index'), case_list))) != len(case_list):
             return api_result(code=400, message='用例排序不能为空或重复')
 
+        if False in list(map(lambda obj: obj.get('sleep') if obj.get('sleep', 0) <= 30 else False, case_list)):
+            return api_result(code=400, message='执行后等待时间不能大于30秒')
+
         return func(*args, **kwargs)
 
     return wrapper
