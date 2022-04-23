@@ -53,7 +53,7 @@ def api_before_request():
 
 
 def api_after_request(response):
-    logger.info('after_request_api')
+    logger.info('api_after_request')
     logger.info('response log_uuid:{}'.format(g.log_uuid))
     logger.info('=== response ===')
     response.headers['log_uuid'] = g.log_uuid
