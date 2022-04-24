@@ -18,6 +18,7 @@ class TimedTaskModel(BaseModel):
     task_type = db.Column(db.String(255), comment='任务类型')
     task_details = db.Column(db.JSON, comment='任务明细')
     task_status = db.Column(db.String(255), comment='任务状态')
+    execute_type = db.Column(db.String(255), comment='执行类型')
     creator = db.Column(db.String(32), comment='创建人')
     creator_id = db.Column(BIGINT(20, unsigned=True), comment='创建人id')
     modifier = db.Column(db.String(32), comment='更新人')
