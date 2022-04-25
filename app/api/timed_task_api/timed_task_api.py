@@ -131,9 +131,9 @@ class GenAPSchedulerJob:
 
         task_id = gen_task_uuid()
         try:
-            if not kwargs.get('start_date'):
+            if 'start_date' in kwargs and not kwargs.get('start_date'):
                 del kwargs['start_date']
-            if not kwargs.get('end_date'):
+            if 'end_date' in kwargs and not kwargs.get('end_date'):
                 del kwargs['end_date']
 
             seconds = int(kwargs.get('seconds'))
@@ -197,9 +197,9 @@ class GenAPSchedulerJob:
 
         task_id = gen_task_uuid()
         try:
-            if not kwargs.get('start_date'):
+            if 'start_date' in kwargs and not kwargs.get('start_date'):
                 del kwargs['start_date']
-            if not kwargs.get('end_date'):
+            if 'end_date' in kwargs and not kwargs.get('end_date'):
                 del kwargs['end_date']
 
             # seconds = int(kwargs.get('seconds'))
@@ -384,7 +384,8 @@ class APSchedulerTaskPageApi(MethodView):
             A.task_status,
             A.creator,
             A.create_time,
-            FROM_UNIXTIME(B.next_run_time) as next_run_time
+            FROM_UNIXTIME(B.next_run_time) as next_run_time,
+            A.remark
         FROM
             exile_timed_task A
             LEFT JOIN APSchedulerJobs.apscheduler_jobs B ON A.task_uuid = B.id
