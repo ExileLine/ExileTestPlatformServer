@@ -348,6 +348,7 @@ class APSchedulerTaskApi(MethodView):
             try:
                 scheduler.remove_job(task_uuid)
                 query_timed_task.task_status = 'deleted'
+                query_timed_task.is_deleted = query_timed_task.id
                 db.session.commit()
                 return api_result(code=204, message=f'删除任务:{task_uuid}成功')
             except BaseException as e:
@@ -389,6 +390,7 @@ class APSchedulerTaskPageApi(MethodView):
             LEFT JOIN APSchedulerJobs.apscheduler_jobs B ON A.task_uuid = B.id
         WHERE
             A.project_id = {project_id}
+            AND A.is_deleted=0
             {f'AND A.creator_id={creator_id}' if creator_id else ''}
             {f"AND A.task_type='{task_type}'" if task_type else ''}
             AND A.task_name LIKE "%{task_name}%"
@@ -405,6 +407,7 @@ class APSchedulerTaskPageApi(MethodView):
             LEFT JOIN APSchedulerJobs.apscheduler_jobs B ON A.task_uuid = B.id
         WHERE
             A.project_id = {project_id}
+            AND A.is_deleted=0
             {f'AND A.creator_id={creator_id}' if creator_id else ''}
             {f"AND A.task_type='{task_type}'" if task_type else ''}
             AND A.task_name LIKE "%{task_name}%";
