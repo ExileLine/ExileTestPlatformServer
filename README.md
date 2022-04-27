@@ -29,21 +29,34 @@
 
 - 无法查看图片可以前往码云：https://gitee.com/yangyuexiong/ExileTestPlatformServer
 
-![系统架构图](docs/ExileTestPlatform整体架构.png)
+![系统逻辑架构图](docs/架构图/ExileTestPlatform逻辑架构图.png)
+![业务处理模型](docs/架构图/ExileTestPlatform业务处理模型.png)
+![分层结构图](docs/架构图/分层结构图.png)
 
 ### 业务流程图
 
-![业务流程图](docs/ExileTestPlatform业务流程.png)
+![业务流程图](docs/领域模型/ExileTestPlatform业务流程.png)
+
+### 领域模型图
+
+![业务领域模型](docs/领域模型/业务领域模型.png)
+![系统领域模型](docs/领域模型/系统领域模型.png)
 
 ### 数据库表设计
 
-- [SQL文件：ExileTestPlatform.sql](./docs/ExileTestPlatform.sql)
+- [SQL文件：ExileTestPlatform.sql](./docs/SQL/ExileTestPlatform.sql)
 
 - 数据库表设计总览
-  ![数据库表设计总览](docs/ExileTestPlatform数据库表设计总览.png)
+  ![数据库表设计总览](docs/ER图/总览.png)
 
 - 核心业务数据库表设计
-  ![数据库表设计总览](docs/ExileTestPlatform核心业务数据库表设计.png)
+  ![数据库表设计总览1](docs/ER图/核心业务1.png)
+  ![数据库表设计总览2](docs/ER图/核心业务2.png)
+
+### UML类图
+
+![UML类图1](docs/UML类图/UML类图1.png)
+![UML类图2](docs/UML类图/UML类图2.png)
 
 ### 后端技术
 
@@ -81,7 +94,7 @@
 
 ### 接口清单
 
-- [Postman文件](docs/ExileTestPlatform.postman_collection.json)
+- [Postman文件](docs/接口文档/ExileTestPlatform.postman_collection.json)
 
 |ID|接口名称|请求方式|功能描述|备注|
 |---|--------------------|-----------|--------|--------|

@@ -4,7 +4,7 @@
 -- https://tableplus.com/
 --
 -- Database: ExileTestPlatform
--- Generation Time: 2022-01-16 20:24:07.3800
+-- Generation Time: 2022-04-27 15:57:06.7310
 -- -------------------------------------------------------------
 
 
@@ -38,8 +38,9 @@ CREATE TABLE `exile_ass_bind` (
   `modifier_id` bigint(20) unsigned DEFAULT NULL COMMENT '更新人id',
   `remark` varchar(255) COLLATE utf8mb4_bin DEFAULT NULL COMMENT '备注',
   `is_base` tinyint(1) unsigned DEFAULT NULL COMMENT '基础数据',
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=47 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin COMMENT='用例断言关系绑定';
+  PRIMARY KEY (`id`),
+  KEY `idx_case_data` (`case_id`,`data_id`,`is_deleted`)
+) ENGINE=InnoDB AUTO_INCREMENT=283 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin COMMENT='用例断言关系绑定';
 
 CREATE TABLE `exile_ass_field` (
   `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT COMMENT 'id',
@@ -58,7 +59,7 @@ CREATE TABLE `exile_ass_field` (
   `remark` varchar(255) COLLATE utf8mb4_bin DEFAULT NULL COMMENT '备注',
   `is_public` tinyint(1) unsigned DEFAULT NULL COMMENT '是否公共使用:0-否;1-是',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=58 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin COMMENT='断言字段规则';
+) ENGINE=InnoDB AUTO_INCREMENT=73 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin COMMENT='断言字段规则';
 
 CREATE TABLE `exile_ass_response` (
   `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT COMMENT 'id',
@@ -77,7 +78,7 @@ CREATE TABLE `exile_ass_response` (
   `remark` varchar(255) COLLATE utf8mb4_bin DEFAULT NULL COMMENT '备注',
   `is_public` tinyint(1) unsigned DEFAULT NULL COMMENT '是否公共使用:0-否;1-是',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=60 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin COMMENT='断言返回值规则';
+) ENGINE=InnoDB AUTO_INCREMENT=91 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin COMMENT='断言返回值规则';
 
 CREATE TABLE `exile_auth_admin` (
   `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT COMMENT 'id',
@@ -104,7 +105,7 @@ CREATE TABLE `exile_auth_admin` (
   UNIQUE KEY `phone` (`phone`),
   UNIQUE KEY `mail` (`mail`),
   UNIQUE KEY `nickname` (`nickname`)
-) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin COMMENT='后台用户表';
+) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin COMMENT='后台用户表';
 
 CREATE TABLE `exile_auth_api_resource` (
   `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT COMMENT 'id',
@@ -244,7 +245,7 @@ CREATE TABLE `exile_ding_ding_conf` (
   `modifier_id` bigint(20) unsigned DEFAULT NULL COMMENT '更新人id',
   `remark` varchar(255) COLLATE utf8mb4_bin DEFAULT NULL COMMENT '备注',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin COMMENT='钉钉推送配置表';
+) ENGINE=InnoDB AUTO_INCREMENT=14 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin COMMENT='钉钉推送配置表';
 
 CREATE TABLE `exile_mail_conf` (
   `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT COMMENT 'id',
@@ -261,8 +262,10 @@ CREATE TABLE `exile_mail_conf` (
   `modifier` varchar(32) COLLATE utf8mb4_bin DEFAULT NULL COMMENT '更新人',
   `modifier_id` bigint(20) unsigned DEFAULT NULL COMMENT '更新人id',
   `remark` varchar(255) COLLATE utf8mb4_bin DEFAULT NULL COMMENT '备注',
+  `is_send` tinyint(1) unsigned DEFAULT '1' COMMENT '是否为发送账号',
+  `send_pwd` varchar(255) COLLATE utf8mb4_bin DEFAULT NULL COMMENT '发件邮箱的授权码',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin COMMENT='邮件推送配置表';
+) ENGINE=InnoDB AUTO_INCREMENT=11 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin COMMENT='邮件推送配置表';
 
 CREATE TABLE `exile_platform_conf` (
   `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT COMMENT 'id',
@@ -282,8 +285,30 @@ CREATE TABLE `exile_platform_conf` (
   `modifier_id` bigint(20) unsigned DEFAULT NULL COMMENT '更新人id',
   `remark` varchar(255) COLLATE utf8mb4_bin DEFAULT NULL COMMENT '备注',
   `weights` bigint(20) unsigned DEFAULT NULL COMMENT '权重',
+  `server_url` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin DEFAULT NULL COMMENT '测试报告url',
+  `safe_scan_url` varchar(255) COLLATE utf8mb4_bin DEFAULT NULL COMMENT '安全扫码url',
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin COMMENT='平台配置表';
+
+CREATE TABLE `exile_safe_scan_conf` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT COMMENT 'id',
+  `create_time` datetime DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间(结构化时间)',
+  `create_timestamp` bigint(20) unsigned DEFAULT NULL COMMENT '创建时间(时间戳)',
+  `update_time` datetime DEFAULT NULL COMMENT '更新时间(结构化时间)',
+  `update_timestamp` bigint(20) unsigned DEFAULT NULL COMMENT '更新时间(时间戳)',
+  `is_deleted` bigint(20) unsigned DEFAULT NULL COMMENT '0正常;其他:已删除',
+  `status` tinyint(3) unsigned DEFAULT '1' COMMENT '状态',
+  `description` varchar(255) COLLATE utf8mb4_bin DEFAULT NULL COMMENT '描述',
+  `is_global_open` tinyint(1) unsigned DEFAULT NULL COMMENT '是否全局开启',
+  `safe_scan_url` varchar(255) COLLATE utf8mb4_bin DEFAULT NULL COMMENT '安全扫码url',
+  `weights` bigint(20) unsigned DEFAULT NULL COMMENT '权重',
+  `creator` varchar(32) COLLATE utf8mb4_bin DEFAULT NULL COMMENT '创建人',
+  `creator_id` bigint(20) unsigned DEFAULT NULL COMMENT '创建人id',
+  `modifier` varchar(32) COLLATE utf8mb4_bin DEFAULT NULL COMMENT '更新人',
+  `modifier_id` bigint(20) unsigned DEFAULT NULL COMMENT '更新人id',
+  `remark` varchar(255) COLLATE utf8mb4_bin DEFAULT NULL COMMENT '备注',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin COMMENT='安全扫描配置表';
 
 CREATE TABLE `exile_test_case` (
   `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT COMMENT 'id',
@@ -307,7 +332,7 @@ CREATE TABLE `exile_test_case` (
   `modifier_id` bigint(20) unsigned DEFAULT NULL COMMENT '更新人id',
   `remark` varchar(255) COLLATE utf8mb4_bin DEFAULT NULL COMMENT '备注',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=93 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin COMMENT='测试用例';
+) ENGINE=InnoDB AUTO_INCREMENT=243 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin COMMENT='测试用例';
 
 CREATE TABLE `exile_test_case_after` (
   `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT COMMENT 'id',
@@ -354,8 +379,9 @@ CREATE TABLE `exile_test_case_data` (
   `modifier` varchar(32) COLLATE utf8mb4_bin DEFAULT NULL COMMENT '更新人',
   `modifier_id` bigint(20) unsigned DEFAULT NULL COMMENT '更新人id',
   `remark` varchar(255) COLLATE utf8mb4_bin DEFAULT NULL COMMENT '备注',
+  `data_size` bigint(20) unsigned DEFAULT NULL COMMENT '参数字节数',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=73 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin COMMENT='测试用例参数';
+) ENGINE=InnoDB AUTO_INCREMENT=221 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin COMMENT='测试用例参数';
 
 CREATE TABLE `exile_test_case_scenario` (
   `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT COMMENT 'id',
@@ -376,7 +402,7 @@ CREATE TABLE `exile_test_case_scenario` (
   `modifier_id` bigint(20) unsigned DEFAULT NULL COMMENT '更新人id',
   `remark` varchar(255) COLLATE utf8mb4_bin DEFAULT NULL COMMENT '备注',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin COMMENT='测试用例场景';
+) ENGINE=InnoDB AUTO_INCREMENT=57 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin COMMENT='测试用例场景';
 
 CREATE TABLE `exile_test_case_set` (
   `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT COMMENT 'id',
@@ -387,15 +413,16 @@ CREATE TABLE `exile_test_case_set` (
   `is_deleted` bigint(20) unsigned DEFAULT NULL COMMENT '0正常;其他:已删除',
   `status` tinyint(3) unsigned DEFAULT '1' COMMENT '状态',
   `user_id` bigint(20) unsigned DEFAULT NULL COMMENT '用户id',
-  `case_id_list` json DEFAULT NULL COMMENT '用例id列表',
-  `scenario_id_list` json DEFAULT NULL COMMENT '场景id列表',
+  `case_id` bigint(20) unsigned DEFAULT NULL COMMENT '用例id',
+  `scenario_id` bigint(20) unsigned DEFAULT NULL COMMENT '场景id',
+  `is_set` tinyint(1) unsigned DEFAULT '0' COMMENT '是否收藏0/1',
   `creator` varchar(32) COLLATE utf8mb4_bin DEFAULT NULL COMMENT '创建人',
   `creator_id` bigint(20) unsigned DEFAULT NULL COMMENT '创建人id',
   `modifier` varchar(32) COLLATE utf8mb4_bin DEFAULT NULL COMMENT '更新人',
   `modifier_id` bigint(20) unsigned DEFAULT NULL COMMENT '更新人id',
   `remark` varchar(255) COLLATE utf8mb4_bin DEFAULT NULL COMMENT '备注',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin COMMENT='用户用例收藏';
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin COMMENT='用户用例收藏';
 
 CREATE TABLE `exile_test_databases` (
   `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT COMMENT 'id',
@@ -414,7 +441,7 @@ CREATE TABLE `exile_test_databases` (
   `modifier_id` bigint(20) unsigned DEFAULT NULL COMMENT '更新人id',
   `remark` varchar(255) COLLATE utf8mb4_bin DEFAULT NULL COMMENT '备注',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin COMMENT='测试用例-databases';
+) ENGINE=InnoDB AUTO_INCREMENT=15 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin COMMENT='测试用例-databases';
 
 CREATE TABLE `exile_test_env` (
   `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT COMMENT 'id',
@@ -432,7 +459,7 @@ CREATE TABLE `exile_test_env` (
   `modifier_id` bigint(20) unsigned DEFAULT NULL COMMENT '更新人id',
   `remark` varchar(255) COLLATE utf8mb4_bin DEFAULT NULL COMMENT '备注',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin COMMENT='测试环境';
+) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin COMMENT='测试环境';
 
 CREATE TABLE `exile_test_execute_logs` (
   `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT COMMENT 'id',
@@ -442,15 +469,18 @@ CREATE TABLE `exile_test_execute_logs` (
   `update_timestamp` bigint(20) unsigned DEFAULT NULL COMMENT '更新时间(时间戳)',
   `is_deleted` bigint(20) unsigned DEFAULT NULL COMMENT '0正常;其他:已删除',
   `status` tinyint(3) unsigned DEFAULT '1' COMMENT '状态',
-  `execute_id` bigint(20) unsigned DEFAULT NULL COMMENT '用例id/场景id',
+  `execute_id` varchar(255) COLLATE utf8mb4_bin DEFAULT NULL COMMENT '用例id/场景id/module_code',
   `execute_name` varchar(255) COLLATE utf8mb4_bin NOT NULL COMMENT '用例名称/场景名称',
   `execute_type` varchar(255) COLLATE utf8mb4_bin NOT NULL COMMENT '执行类型',
   `redis_key` varchar(255) COLLATE utf8mb4_bin NOT NULL COMMENT 'Redis的key',
   `creator` varchar(32) COLLATE utf8mb4_bin DEFAULT NULL COMMENT '创建人',
   `creator_id` bigint(20) unsigned DEFAULT NULL COMMENT '创建人id',
   `remark` varchar(255) COLLATE utf8mb4_bin DEFAULT NULL COMMENT '备注',
+  `report_url` varchar(1024) COLLATE utf8mb4_bin NOT NULL COMMENT '报告地址',
+  `execute_status` tinyint(1) unsigned DEFAULT NULL COMMENT '执行状态',
+  `trigger_type` varchar(255) COLLATE utf8mb4_bin DEFAULT NULL COMMENT '触发类型:user_execute;timed_execute',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=17 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin COMMENT='用例执行记录表';
+) ENGINE=InnoDB AUTO_INCREMENT=1175 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin COMMENT='用例执行记录表';
 
 CREATE TABLE `exile_test_logs` (
   `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT COMMENT 'id',
@@ -465,7 +495,264 @@ CREATE TABLE `exile_test_logs` (
   `creator_id` bigint(20) unsigned DEFAULT NULL COMMENT '创建人id',
   `remark` varchar(255) COLLATE utf8mb4_bin DEFAULT NULL COMMENT '备注',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=19 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin COMMENT='日志记录表';
+) ENGINE=InnoDB AUTO_INCREMENT=828 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin COMMENT='日志记录表';
+
+CREATE TABLE `exile_test_mid_module_case` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT COMMENT 'id',
+  `create_time` datetime DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间(结构化时间)',
+  `create_timestamp` bigint(20) unsigned DEFAULT NULL COMMENT '创建时间(时间戳)',
+  `update_time` datetime DEFAULT NULL COMMENT '更新时间(结构化时间)',
+  `update_timestamp` bigint(20) unsigned DEFAULT NULL COMMENT '更新时间(时间戳)',
+  `is_deleted` bigint(20) unsigned DEFAULT NULL COMMENT '0正常;其他:已删除',
+  `status` tinyint(3) unsigned DEFAULT '1' COMMENT '状态',
+  `module_id` bigint(20) unsigned DEFAULT NULL COMMENT '模块id',
+  `case_id` bigint(20) unsigned DEFAULT NULL COMMENT '用例id',
+  `creator` varchar(32) COLLATE utf8mb4_bin DEFAULT NULL COMMENT '创建人',
+  `creator_id` bigint(20) unsigned DEFAULT NULL COMMENT '创建人id',
+  `modifier` varchar(32) COLLATE utf8mb4_bin DEFAULT NULL COMMENT '更新人',
+  `modifier_id` bigint(20) unsigned DEFAULT NULL COMMENT '更新人id',
+  `remark` varchar(255) COLLATE utf8mb4_bin DEFAULT NULL COMMENT '备注',
+  PRIMARY KEY (`id`),
+  KEY `idx_module_case` (`module_id`,`case_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=188 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin COMMENT='模块-用例中间表';
+
+CREATE TABLE `exile_test_mid_module_scenario` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT COMMENT 'id',
+  `create_time` datetime DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间(结构化时间)',
+  `create_timestamp` bigint(20) unsigned DEFAULT NULL COMMENT '创建时间(时间戳)',
+  `update_time` datetime DEFAULT NULL COMMENT '更新时间(结构化时间)',
+  `update_timestamp` bigint(20) unsigned DEFAULT NULL COMMENT '更新时间(时间戳)',
+  `is_deleted` bigint(20) unsigned DEFAULT NULL COMMENT '0正常;其他:已删除',
+  `status` tinyint(3) unsigned DEFAULT '1' COMMENT '状态',
+  `module_id` bigint(20) unsigned DEFAULT NULL COMMENT '模块id',
+  `scenario_id` bigint(20) unsigned DEFAULT NULL COMMENT '场景id',
+  `creator` varchar(32) COLLATE utf8mb4_bin DEFAULT NULL COMMENT '创建人',
+  `creator_id` bigint(20) unsigned DEFAULT NULL COMMENT '创建人id',
+  `modifier` varchar(32) COLLATE utf8mb4_bin DEFAULT NULL COMMENT '更新人',
+  `modifier_id` bigint(20) unsigned DEFAULT NULL COMMENT '更新人id',
+  `remark` varchar(255) COLLATE utf8mb4_bin DEFAULT NULL COMMENT '备注',
+  PRIMARY KEY (`id`),
+  KEY `idx_module_scenario` (`module_id`,`scenario_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=31 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin COMMENT='模块-用例中间表';
+
+CREATE TABLE `exile_test_mid_project_case` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT COMMENT 'id',
+  `create_time` datetime DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间(结构化时间)',
+  `create_timestamp` bigint(20) unsigned DEFAULT NULL COMMENT '创建时间(时间戳)',
+  `update_time` datetime DEFAULT NULL COMMENT '更新时间(结构化时间)',
+  `update_timestamp` bigint(20) unsigned DEFAULT NULL COMMENT '更新时间(时间戳)',
+  `is_deleted` bigint(20) unsigned DEFAULT NULL COMMENT '0正常;其他:已删除',
+  `status` tinyint(3) unsigned DEFAULT '1' COMMENT '状态',
+  `project_id` bigint(20) unsigned DEFAULT NULL COMMENT '项目id',
+  `case_id` bigint(20) unsigned DEFAULT NULL COMMENT '用例id',
+  `creator` varchar(32) COLLATE utf8mb4_bin DEFAULT NULL COMMENT '创建人',
+  `creator_id` bigint(20) unsigned DEFAULT NULL COMMENT '创建人id',
+  `modifier` varchar(32) COLLATE utf8mb4_bin DEFAULT NULL COMMENT '更新人',
+  `modifier_id` bigint(20) unsigned DEFAULT NULL COMMENT '更新人id',
+  `remark` varchar(255) COLLATE utf8mb4_bin DEFAULT NULL COMMENT '备注',
+  PRIMARY KEY (`id`),
+  KEY `idx_project_case` (`project_id`,`case_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=241 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin COMMENT='项目-用例中间表';
+
+CREATE TABLE `exile_test_mid_project_scenario` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT COMMENT 'id',
+  `create_time` datetime DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间(结构化时间)',
+  `create_timestamp` bigint(20) unsigned DEFAULT NULL COMMENT '创建时间(时间戳)',
+  `update_time` datetime DEFAULT NULL COMMENT '更新时间(结构化时间)',
+  `update_timestamp` bigint(20) unsigned DEFAULT NULL COMMENT '更新时间(时间戳)',
+  `is_deleted` bigint(20) unsigned DEFAULT NULL COMMENT '0正常;其他:已删除',
+  `status` tinyint(3) unsigned DEFAULT '1' COMMENT '状态',
+  `project_id` bigint(20) unsigned DEFAULT NULL COMMENT '项目id',
+  `scenario_id` bigint(20) unsigned DEFAULT NULL COMMENT '场景id',
+  `creator` varchar(32) COLLATE utf8mb4_bin DEFAULT NULL COMMENT '创建人',
+  `creator_id` bigint(20) unsigned DEFAULT NULL COMMENT '创建人id',
+  `modifier` varchar(32) COLLATE utf8mb4_bin DEFAULT NULL COMMENT '更新人',
+  `modifier_id` bigint(20) unsigned DEFAULT NULL COMMENT '更新人id',
+  `remark` varchar(255) COLLATE utf8mb4_bin DEFAULT NULL COMMENT '备注',
+  PRIMARY KEY (`id`),
+  KEY `idx_project_scenario` (`project_id`,`scenario_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=38 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin COMMENT='项目-场景中间表';
+
+CREATE TABLE `exile_test_mid_task_case` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT COMMENT 'id',
+  `create_time` datetime DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间(结构化时间)',
+  `create_timestamp` bigint(20) unsigned DEFAULT NULL COMMENT '创建时间(时间戳)',
+  `update_time` datetime DEFAULT NULL COMMENT '更新时间(结构化时间)',
+  `update_timestamp` bigint(20) unsigned DEFAULT NULL COMMENT '更新时间(时间戳)',
+  `is_deleted` bigint(20) unsigned DEFAULT NULL COMMENT '0正常;其他:已删除',
+  `status` tinyint(3) unsigned DEFAULT '1' COMMENT '状态',
+  `task_id` bigint(20) unsigned DEFAULT NULL COMMENT '任务id',
+  `case_id` bigint(20) unsigned DEFAULT NULL COMMENT '用例id',
+  `creator` varchar(32) COLLATE utf8mb4_bin DEFAULT NULL COMMENT '创建人',
+  `creator_id` bigint(20) unsigned DEFAULT NULL COMMENT '创建人id',
+  `modifier` varchar(32) COLLATE utf8mb4_bin DEFAULT NULL COMMENT '更新人',
+  `modifier_id` bigint(20) unsigned DEFAULT NULL COMMENT '更新人id',
+  `remark` varchar(255) COLLATE utf8mb4_bin DEFAULT NULL COMMENT '备注',
+  PRIMARY KEY (`id`),
+  KEY `idx_task_case` (`task_id`,`case_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=147 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin COMMENT='任务-用例中间表';
+
+CREATE TABLE `exile_test_mid_task_scenario` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT COMMENT 'id',
+  `create_time` datetime DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间(结构化时间)',
+  `create_timestamp` bigint(20) unsigned DEFAULT NULL COMMENT '创建时间(时间戳)',
+  `update_time` datetime DEFAULT NULL COMMENT '更新时间(结构化时间)',
+  `update_timestamp` bigint(20) unsigned DEFAULT NULL COMMENT '更新时间(时间戳)',
+  `is_deleted` bigint(20) unsigned DEFAULT NULL COMMENT '0正常;其他:已删除',
+  `status` tinyint(3) unsigned DEFAULT '1' COMMENT '状态',
+  `task_id` bigint(20) unsigned DEFAULT NULL COMMENT '任务id',
+  `scenario_id` bigint(20) unsigned DEFAULT NULL COMMENT '场景id',
+  `creator` varchar(32) COLLATE utf8mb4_bin DEFAULT NULL COMMENT '创建人',
+  `creator_id` bigint(20) unsigned DEFAULT NULL COMMENT '创建人id',
+  `modifier` varchar(32) COLLATE utf8mb4_bin DEFAULT NULL COMMENT '更新人',
+  `modifier_id` bigint(20) unsigned DEFAULT NULL COMMENT '更新人id',
+  `remark` varchar(255) COLLATE utf8mb4_bin DEFAULT NULL COMMENT '备注',
+  PRIMARY KEY (`id`),
+  KEY `idx_task_scenario` (`task_id`,`scenario_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=111 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin COMMENT='任务-用例中间表';
+
+CREATE TABLE `exile_test_mid_version_case` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT COMMENT 'id',
+  `create_time` datetime DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间(结构化时间)',
+  `create_timestamp` bigint(20) unsigned DEFAULT NULL COMMENT '创建时间(时间戳)',
+  `update_time` datetime DEFAULT NULL COMMENT '更新时间(结构化时间)',
+  `update_timestamp` bigint(20) unsigned DEFAULT NULL COMMENT '更新时间(时间戳)',
+  `is_deleted` bigint(20) unsigned DEFAULT NULL COMMENT '0正常;其他:已删除',
+  `status` tinyint(3) unsigned DEFAULT '1' COMMENT '状态',
+  `version_id` bigint(20) unsigned DEFAULT NULL COMMENT '版本迭代id',
+  `case_id` bigint(20) unsigned DEFAULT NULL COMMENT '用例id',
+  `creator` varchar(32) COLLATE utf8mb4_bin DEFAULT NULL COMMENT '创建人',
+  `creator_id` bigint(20) unsigned DEFAULT NULL COMMENT '创建人id',
+  `modifier` varchar(32) COLLATE utf8mb4_bin DEFAULT NULL COMMENT '更新人',
+  `modifier_id` bigint(20) unsigned DEFAULT NULL COMMENT '更新人id',
+  `remark` varchar(255) COLLATE utf8mb4_bin DEFAULT NULL COMMENT '备注',
+  `task_id` bigint(20) unsigned DEFAULT NULL COMMENT '任务id',
+  `project_id` bigint(20) unsigned DEFAULT NULL COMMENT '项目id',
+  `module_id` bigint(20) unsigned DEFAULT NULL COMMENT '功能模块或应用id',
+  PRIMARY KEY (`id`),
+  KEY `idx_version_case` (`project_id`,`version_id`,`task_id`,`module_id`,`case_id`,`is_deleted`)
+) ENGINE=InnoDB AUTO_INCREMENT=1151 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin COMMENT='版本迭代用例中间表';
+
+CREATE TABLE `exile_test_mid_version_iter_case` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT COMMENT 'id',
+  `create_time` datetime DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间(结构化时间)',
+  `create_timestamp` bigint(20) unsigned DEFAULT NULL COMMENT '创建时间(时间戳)',
+  `update_time` datetime DEFAULT NULL COMMENT '更新时间(结构化时间)',
+  `update_timestamp` bigint(20) unsigned DEFAULT NULL COMMENT '更新时间(时间戳)',
+  `is_deleted` bigint(20) unsigned DEFAULT NULL COMMENT '0正常;其他:已删除',
+  `status` tinyint(3) unsigned DEFAULT '1' COMMENT '状态',
+  `version_id` bigint(20) unsigned DEFAULT NULL COMMENT '迭代id',
+  `case_id` bigint(20) unsigned DEFAULT NULL COMMENT '用例id',
+  `creator` varchar(32) COLLATE utf8mb4_bin DEFAULT NULL COMMENT '创建人',
+  `creator_id` bigint(20) unsigned DEFAULT NULL COMMENT '创建人id',
+  `modifier` varchar(32) COLLATE utf8mb4_bin DEFAULT NULL COMMENT '更新人',
+  `modifier_id` bigint(20) unsigned DEFAULT NULL COMMENT '更新人id',
+  `remark` varchar(255) COLLATE utf8mb4_bin DEFAULT NULL COMMENT '备注',
+  PRIMARY KEY (`id`),
+  KEY `idx_version_case` (`version_id`,`case_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=205 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin COMMENT='版本迭代-用例中间表';
+
+CREATE TABLE `exile_test_mid_version_iter_scenario` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT COMMENT 'id',
+  `create_time` datetime DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间(结构化时间)',
+  `create_timestamp` bigint(20) unsigned DEFAULT NULL COMMENT '创建时间(时间戳)',
+  `update_time` datetime DEFAULT NULL COMMENT '更新时间(结构化时间)',
+  `update_timestamp` bigint(20) unsigned DEFAULT NULL COMMENT '更新时间(时间戳)',
+  `is_deleted` bigint(20) unsigned DEFAULT NULL COMMENT '0正常;其他:已删除',
+  `status` tinyint(3) unsigned DEFAULT '1' COMMENT '状态',
+  `version_id` bigint(20) unsigned DEFAULT NULL COMMENT '迭代id',
+  `scenario_id` bigint(20) unsigned DEFAULT NULL COMMENT '场景id',
+  `creator` varchar(32) COLLATE utf8mb4_bin DEFAULT NULL COMMENT '创建人',
+  `creator_id` bigint(20) unsigned DEFAULT NULL COMMENT '创建人id',
+  `modifier` varchar(32) COLLATE utf8mb4_bin DEFAULT NULL COMMENT '更新人',
+  `modifier_id` bigint(20) unsigned DEFAULT NULL COMMENT '更新人id',
+  `remark` varchar(255) COLLATE utf8mb4_bin DEFAULT NULL COMMENT '备注',
+  PRIMARY KEY (`id`),
+  KEY `idx_version_scenario` (`version_id`,`scenario_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=58 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin COMMENT='版本迭代-场景中间表';
+
+CREATE TABLE `exile_test_mid_version_scenario` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT COMMENT 'id',
+  `create_time` datetime DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间(结构化时间)',
+  `create_timestamp` bigint(20) unsigned DEFAULT NULL COMMENT '创建时间(时间戳)',
+  `update_time` datetime DEFAULT NULL COMMENT '更新时间(结构化时间)',
+  `update_timestamp` bigint(20) unsigned DEFAULT NULL COMMENT '更新时间(时间戳)',
+  `is_deleted` bigint(20) unsigned DEFAULT NULL COMMENT '0正常;其他:已删除',
+  `status` tinyint(3) unsigned DEFAULT '1' COMMENT '状态',
+  `version_id` bigint(20) unsigned DEFAULT NULL COMMENT '版本迭代id',
+  `scenario_id` bigint(20) unsigned DEFAULT NULL COMMENT '场景id',
+  `creator` varchar(32) COLLATE utf8mb4_bin DEFAULT NULL COMMENT '创建人',
+  `creator_id` bigint(20) unsigned DEFAULT NULL COMMENT '创建人id',
+  `modifier` varchar(32) COLLATE utf8mb4_bin DEFAULT NULL COMMENT '更新人',
+  `modifier_id` bigint(20) unsigned DEFAULT NULL COMMENT '更新人id',
+  `remark` varchar(255) COLLATE utf8mb4_bin DEFAULT NULL COMMENT '备注',
+  `task_id` bigint(20) unsigned DEFAULT NULL COMMENT '任务id',
+  `project_id` bigint(20) unsigned DEFAULT NULL COMMENT '项目id',
+  `module_id` bigint(20) unsigned DEFAULT NULL COMMENT '功能模块或应用id',
+  PRIMARY KEY (`id`),
+  KEY `idx_version_scenario` (`project_id`,`version_id`,`task_id`,`module_id`,`scenario_id`,`is_deleted`)
+) ENGINE=InnoDB AUTO_INCREMENT=347 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin COMMENT='版本迭代场景中间表';
+
+CREATE TABLE `exile_test_module_app` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT COMMENT 'id',
+  `create_time` datetime DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间(结构化时间)',
+  `create_timestamp` bigint(20) unsigned DEFAULT NULL COMMENT '创建时间(时间戳)',
+  `update_time` datetime DEFAULT NULL COMMENT '更新时间(结构化时间)',
+  `update_timestamp` bigint(20) unsigned DEFAULT NULL COMMENT '更新时间(时间戳)',
+  `is_deleted` bigint(20) unsigned DEFAULT NULL COMMENT '0正常;其他:已删除',
+  `status` tinyint(3) unsigned DEFAULT '1' COMMENT '状态',
+  `module_name` varchar(128) COLLATE utf8mb4_bin NOT NULL COMMENT '模块应用名称',
+  `module_type` varchar(128) COLLATE utf8mb4_bin DEFAULT NULL COMMENT '模块应用名称类型(暂时未用上)',
+  `creator` varchar(32) COLLATE utf8mb4_bin DEFAULT NULL COMMENT '创建人',
+  `creator_id` bigint(20) unsigned DEFAULT NULL COMMENT '创建人id',
+  `modifier` varchar(32) COLLATE utf8mb4_bin DEFAULT NULL COMMENT '更新人',
+  `modifier_id` bigint(20) unsigned DEFAULT NULL COMMENT '更新人id',
+  `remark` varchar(255) COLLATE utf8mb4_bin DEFAULT NULL COMMENT '备注',
+  `module_source` varchar(512) COLLATE utf8mb4_bin DEFAULT NULL COMMENT '模块应用来源',
+  `module_code` varchar(128) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin DEFAULT NULL COMMENT '模块应用名称类型',
+  `project_id` bigint(20) unsigned DEFAULT NULL COMMENT '项目id',
+  `case_list` json DEFAULT NULL COMMENT '用例id列表',
+  `scenario_list` json DEFAULT NULL COMMENT '场景id列表',
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `module_code` (`module_code`)
+) ENGINE=InnoDB AUTO_INCREMENT=18 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin COMMENT='功能模块与应用';
+
+CREATE TABLE `exile_test_project` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT COMMENT 'id',
+  `create_time` datetime DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间(结构化时间)',
+  `create_timestamp` bigint(20) unsigned DEFAULT NULL COMMENT '创建时间(时间戳)',
+  `update_time` datetime DEFAULT NULL COMMENT '更新时间(结构化时间)',
+  `update_timestamp` bigint(20) unsigned DEFAULT NULL COMMENT '更新时间(时间戳)',
+  `is_deleted` bigint(20) unsigned DEFAULT NULL COMMENT '0正常;其他:已删除',
+  `status` tinyint(3) unsigned DEFAULT '1' COMMENT '状态',
+  `project_name` varchar(128) COLLATE utf8mb4_bin NOT NULL COMMENT '项目名称',
+  `creator` varchar(32) COLLATE utf8mb4_bin DEFAULT NULL COMMENT '创建人',
+  `creator_id` bigint(20) unsigned DEFAULT NULL COMMENT '创建人id',
+  `modifier` varchar(32) COLLATE utf8mb4_bin DEFAULT NULL COMMENT '更新人',
+  `modifier_id` bigint(20) unsigned DEFAULT NULL COMMENT '更新人id',
+  `remark` varchar(255) COLLATE utf8mb4_bin DEFAULT NULL COMMENT '备注',
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `project_name` (`project_name`)
+) ENGINE=InnoDB AUTO_INCREMENT=31 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin COMMENT='项目表';
+
+CREATE TABLE `exile_test_project_version` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT COMMENT 'id',
+  `create_time` datetime DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间(结构化时间)',
+  `create_timestamp` bigint(20) unsigned DEFAULT NULL COMMENT '创建时间(时间戳)',
+  `update_time` datetime DEFAULT NULL COMMENT '更新时间(结构化时间)',
+  `update_timestamp` bigint(20) unsigned DEFAULT NULL COMMENT '更新时间(时间戳)',
+  `is_deleted` bigint(20) unsigned DEFAULT NULL COMMENT '0正常;其他:已删除',
+  `status` tinyint(3) unsigned DEFAULT '1' COMMENT '状态',
+  `version_name` varchar(128) COLLATE utf8mb4_bin NOT NULL COMMENT '版本名称',
+  `version_number` varchar(32) COLLATE utf8mb4_bin NOT NULL COMMENT '版本号',
+  `project_id` bigint(20) unsigned DEFAULT NULL COMMENT '项目id',
+  `creator` varchar(32) COLLATE utf8mb4_bin DEFAULT NULL COMMENT '创建人',
+  `creator_id` bigint(20) unsigned DEFAULT NULL COMMENT '创建人id',
+  `modifier` varchar(32) COLLATE utf8mb4_bin DEFAULT NULL COMMENT '更新人',
+  `modifier_id` bigint(20) unsigned DEFAULT NULL COMMENT '更新人id',
+  `remark` varchar(255) COLLATE utf8mb4_bin DEFAULT NULL COMMENT '备注',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=10 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin COMMENT='项目版本迭代表';
 
 CREATE TABLE `exile_test_variable` (
   `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT COMMENT 'id',
@@ -490,8 +777,9 @@ CREATE TABLE `exile_test_variable` (
   `modifier` varchar(32) COLLATE utf8mb4_bin DEFAULT NULL COMMENT '更新人',
   `modifier_id` bigint(20) unsigned DEFAULT NULL COMMENT '更新人id',
   `remark` varchar(255) COLLATE utf8mb4_bin DEFAULT NULL COMMENT '备注',
+  `is_active` tinyint(1) unsigned DEFAULT NULL COMMENT '是否每次更新(针对函数变量,在用例场景中):0-否;1-是',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=29 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin COMMENT='测试用例变量';
+) ENGINE=InnoDB AUTO_INCREMENT=80 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin COMMENT='测试用例变量';
 
 CREATE TABLE `exile_test_variable_history` (
   `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT COMMENT 'id',
@@ -511,7 +799,69 @@ CREATE TABLE `exile_test_variable_history` (
   `modifier_id` bigint(20) unsigned DEFAULT NULL COMMENT '更新人id',
   `remark` varchar(255) COLLATE utf8mb4_bin DEFAULT NULL COMMENT '备注',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin COMMENT='测试用例变量更新历史';
+) ENGINE=InnoDB AUTO_INCREMENT=137 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin COMMENT='测试用例变量更新历史';
+
+CREATE TABLE `exile_test_version_task` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT COMMENT 'id',
+  `create_time` datetime DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间(结构化时间)',
+  `create_timestamp` bigint(20) unsigned DEFAULT NULL COMMENT '创建时间(时间戳)',
+  `update_time` datetime DEFAULT NULL COMMENT '更新时间(结构化时间)',
+  `update_timestamp` bigint(20) unsigned DEFAULT NULL COMMENT '更新时间(时间戳)',
+  `is_deleted` bigint(20) unsigned DEFAULT NULL COMMENT '0正常;其他:已删除',
+  `status` tinyint(3) unsigned DEFAULT '1' COMMENT '状态',
+  `version_id` bigint(20) unsigned DEFAULT NULL COMMENT '版本迭代id(冗余字段)',
+  `task_name` varchar(128) COLLATE utf8mb4_bin NOT NULL COMMENT '任务名称',
+  `task_type` varchar(128) COLLATE utf8mb4_bin NOT NULL COMMENT '任务类型',
+  `user_list` json NOT NULL COMMENT '参与的人员',
+  `creator` varchar(32) COLLATE utf8mb4_bin DEFAULT NULL COMMENT '创建人',
+  `creator_id` bigint(20) unsigned DEFAULT NULL COMMENT '创建人id',
+  `modifier` varchar(32) COLLATE utf8mb4_bin DEFAULT NULL COMMENT '更新人',
+  `modifier_id` bigint(20) unsigned DEFAULT NULL COMMENT '更新人id',
+  `remark` varchar(255) COLLATE utf8mb4_bin DEFAULT NULL COMMENT '备注',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=54 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin COMMENT='版本迭代任务表';
+
+CREATE TABLE `exile_timed_task` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT COMMENT 'id',
+  `create_time` datetime DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间(结构化时间)',
+  `create_timestamp` bigint(20) unsigned DEFAULT NULL COMMENT '创建时间(时间戳)',
+  `update_time` datetime DEFAULT NULL COMMENT '更新时间(结构化时间)',
+  `update_timestamp` bigint(20) unsigned DEFAULT NULL COMMENT '更新时间(时间戳)',
+  `is_deleted` bigint(20) unsigned DEFAULT NULL COMMENT '0正常;其他:已删除',
+  `status` tinyint(3) unsigned DEFAULT '1' COMMENT '状态',
+  `task_uuid` varchar(1024) COLLATE utf8mb4_bin DEFAULT NULL COMMENT '任务UUID',
+  `task_name` varchar(255) COLLATE utf8mb4_bin DEFAULT NULL COMMENT '任务名称',
+  `task_type` varchar(255) COLLATE utf8mb4_bin DEFAULT NULL COMMENT '任务类型',
+  `task_details` json DEFAULT NULL COMMENT '任务明细',
+  `task_status` varchar(255) COLLATE utf8mb4_bin DEFAULT NULL COMMENT '任务状态',
+  `creator` varchar(32) COLLATE utf8mb4_bin DEFAULT NULL COMMENT '创建人',
+  `creator_id` bigint(20) unsigned DEFAULT NULL COMMENT '创建人id',
+  `modifier` varchar(32) COLLATE utf8mb4_bin DEFAULT NULL COMMENT '更新人',
+  `modifier_id` bigint(20) unsigned DEFAULT NULL COMMENT '更新人id',
+  `remark` varchar(255) COLLATE utf8mb4_bin DEFAULT NULL COMMENT '备注',
+  `project_id` bigint(20) unsigned DEFAULT NULL COMMENT '项目id',
+  `execute_type` varchar(255) COLLATE utf8mb4_bin DEFAULT NULL COMMENT '执行类型',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=42 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin COMMENT='定时任务';
+
+CREATE TABLE `exile_ui_auto_file` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT COMMENT 'id',
+  `create_time` datetime DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间(结构化时间)',
+  `create_timestamp` bigint(20) unsigned DEFAULT NULL COMMENT '创建时间(时间戳)',
+  `update_time` datetime DEFAULT NULL COMMENT '更新时间(结构化时间)',
+  `update_timestamp` bigint(20) unsigned DEFAULT NULL COMMENT '更新时间(时间戳)',
+  `is_deleted` bigint(20) unsigned DEFAULT NULL COMMENT '0正常;其他:已删除',
+  `status` tinyint(3) unsigned DEFAULT '1' COMMENT '状态',
+  `title` varchar(255) COLLATE utf8mb4_bin NOT NULL COMMENT '脚本描述',
+  `file_name` varchar(255) COLLATE utf8mb4_bin NOT NULL COMMENT '文件名称',
+  `file_path` varchar(255) COLLATE utf8mb4_bin NOT NULL COMMENT '存放路径',
+  `creator` varchar(32) COLLATE utf8mb4_bin DEFAULT NULL COMMENT '创建人',
+  `creator_id` bigint(20) unsigned DEFAULT NULL COMMENT '创建人id',
+  `modifier` varchar(32) COLLATE utf8mb4_bin DEFAULT NULL COMMENT '更新人',
+  `modifier_id` bigint(20) unsigned DEFAULT NULL COMMENT '更新人id',
+  `remark` varchar(255) COLLATE utf8mb4_bin DEFAULT NULL COMMENT '备注',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin COMMENT='UI自动化脚本目录';
 
 
 
