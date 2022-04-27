@@ -440,7 +440,7 @@ class QueryExecuteData:
             execute_name = getattr(query_result, name)
             return title, execute_name
         else:
-            return False, f'{title}id:{id_val}不存在或可执行用例为空'
+            return False, f'{title}id:{model_id}不存在或可执行用例为空'
 
     @staticmethod
     def execute_all(**kwargs):
@@ -812,24 +812,26 @@ if __name__ == '__main__':
     def main():
         """测试"""
 
-        p1 = QueryExecuteData.execute_all(
-            **{"execute_dict_key": "project", "query": {"project_id": "30"}, "model_id": 30}
-        )
+        # p1 = QueryExecuteData.execute_all(
+        #     **{"execute_dict_key": "project", "query": {"project_id": "30"}, "model_id": 30}
+        # )
         # print(p1)
 
-        v1 = QueryExecuteData.execute_all(
-            **{"execute_dict_key": "version", "query": {"version_id": "9"}, "model_id": 9}
-        )
+        # v1 = QueryExecuteData.execute_all(
+        #     **{"execute_dict_key": "version", "query": {"version_id": "9"}, "model_id": 9}
+        # )
         # print(v1)
 
         t1 = QueryExecuteData.execute_all(
             **{"execute_dict_key": "task", "query": {"task_id": "47"}, "model_id": 47}
         )
-        # print(t1)
+        # 调试生成数据: **{"execute_dict_key": "task", "query": {"task_id": "30"}, "model_id": 30}
+        print(t1)
 
-        m1 = QueryExecuteData.execute_all(
-            **{"execute_dict_key": "module", "query": {"module_id": "14"}, "model_id": 14}
-        )
+        # m1 = QueryExecuteData.execute_all(
+        #     **{"execute_dict_key": "module", "query": {"module_id": "14"}, "model_id": 14}
+        # )
         # print(m1)
 
-    # main()
+
+    main()
