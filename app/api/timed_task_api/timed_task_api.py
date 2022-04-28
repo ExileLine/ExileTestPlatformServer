@@ -202,10 +202,6 @@ class GenAPSchedulerJob:
             if 'end_date' in kwargs and not kwargs.get('end_date'):
                 del kwargs['end_date']
 
-            # seconds = int(kwargs.get('seconds'))
-            # if seconds <= 0:
-            #     return False, 'seconds(秒) 不能为 0'
-
             cron = kwargs.get('cron')
             _args = kwargs.get('args')
             _kwargs = kwargs.get('kwargs')
@@ -226,13 +222,22 @@ job_func_dict = {
 }
 
 
+def check_timed_task(task_uuid):
+    """检查timed_task"""
+    query_timed_task = TimedTaskModel.query.filter_by(task_uuid=task_uuid).first()
+
+    if not query_timed_task:
+        return api_result(code=400, message=f'任务: {task_uuid} 不存在')
+    else:
+        return query_timed_task
+
+
 class APSchedulerTaskApi(MethodView):
     """
-    调试APScheduler任务
-    GET: 获取APScheduler任务
-    POST: 新增APScheduler任务
-    PUT: 启动/编辑APScheduler任务
-    DELETE: 暂停/删除APScheduler任务
+    APScheduler任务
+    GET: 获取
+    POST: 新增
+    PUT: 编辑
     """
 
     def get(self, task_uuid):
@@ -286,73 +291,76 @@ class APSchedulerTaskApi(MethodView):
         """启动/编辑APScheduler任务"""
 
         data = request.get_json()
-        action = data.get('action')
         task_uuid = data.get('task_uuid')
 
-        if action not in ('start', 'edit'):
-            return api_result(code=400, message=f'操作失败:{action}')
+        query_timed_task = check_timed_task(task_uuid)
 
-        query_timed_task = TimedTaskModel.query.filter_by(task_uuid=task_uuid).first()
+        try:
+            # TODO
+            # task_id = f"{shortuuid.uuid}_{int(time.time())}"
+            # seconds = int(data.get('seconds'))
+            # scheduler.add_job(func=test_job, id=task_id, trigger='interval', seconds=seconds, replace_existing=True)
+            return api_result(code=204, message=f'编辑任务:{task_uuid}成功')
+        except BaseException as e:
+            return api_result(code=400, message=f'编辑任务:{task_uuid}失败,{str(e)}')
 
-        if not query_timed_task:
-            return api_result(code=400, message=f'任务: {task_uuid} 不存在')
 
-        # 启动任务
-        if action == 'start':
-            try:
-                scheduler.resume_job(task_uuid)
-                query_timed_task.task_status = 'wait_start'
-                db.session.commit()
-                return api_result(code=204, message=f'启动任务:{task_uuid}成功')
-            except BaseException as e:
-                return api_result(code=400, message=f'启动任务:{task_uuid}失败,{str(e)}')
+class APSchedulerTaskStatusApi(MethodView):
+    """
+    APScheduler任务状态
+    POST: 启动
+    PUT: 暂停
+    DELETE: 删除
+    """
 
-        # 编辑任务
-        if action == 'edit':
-            try:
-                # TODO
-                # task_id = f"{shortuuid.uuid}_{int(time.time())}"
-                # seconds = int(data.get('seconds'))
-                # scheduler.add_job(func=test_job, id=task_id, trigger='interval', seconds=seconds, replace_existing=True)
-                return api_result(code=204, message=f'编辑任务:{task_uuid}成功')
-            except BaseException as e:
-                return api_result(code=400, message=f'编辑任务:{task_uuid}失败,{str(e)}')
-
-    def delete(self):
-        """暂停/删除APScheduler任务"""
+    def post(self):
+        """启动"""
 
         data = request.get_json()
-        action = data.get('action')
         task_uuid = data.get('task_uuid')
 
-        if action not in ('stop', 'del'):
-            return api_result(code=400, message=f'操作失败:{action}')
+        query_timed_task = check_timed_task(task_uuid)
 
-        query_timed_task = TimedTaskModel.query.filter_by(task_uuid=task_uuid).first()
+        try:
+            scheduler.resume_job(task_uuid)
+            query_timed_task.task_status = 'wait_start'
+            db.session.commit()
+            return api_result(code=204, message=f'启动任务:{task_uuid}成功')
+        except BaseException as e:
+            return api_result(code=400, message=f'启动任务:{task_uuid}失败,{str(e)}')
 
-        if not query_timed_task:
-            return api_result(code=400, message=f'任务: {task_uuid} 不存在')
+    def put(self):
+        """暂停"""
 
-        # 暂停任务
-        if action == 'stop':
-            try:
-                scheduler.pause_job(task_uuid)
-                query_timed_task.task_status = 'stop'
-                db.session.commit()
-                return api_result(code=204, message=f'暂停任务:{task_uuid}成功')
-            except BaseException as e:
-                return api_result(code=400, message=f'暂停任务:{task_uuid}失败,{str(e)}')
+        data = request.get_json()
+        task_uuid = data.get('task_uuid')
 
-        # 删除任务
-        if action == 'del':
-            try:
-                scheduler.remove_job(task_uuid)
-                query_timed_task.task_status = 'deleted'
-                query_timed_task.is_deleted = query_timed_task.id
-                db.session.commit()
-                return api_result(code=204, message=f'删除任务:{task_uuid}成功')
-            except BaseException as e:
-                return api_result(code=400, message=f'删除任务:{task_uuid}失败,{str(e)}')
+        query_timed_task = check_timed_task(task_uuid)
+
+        try:
+            scheduler.pause_job(task_uuid)
+            query_timed_task.task_status = 'stop'
+            db.session.commit()
+            return api_result(code=204, message=f'暂停任务:{task_uuid}成功')
+        except BaseException as e:
+            return api_result(code=400, message=f'暂停任务:{task_uuid}失败,{str(e)}')
+
+    def delete(self):
+        """删除"""
+
+        data = request.get_json()
+        task_uuid = data.get('task_uuid')
+
+        query_timed_task = check_timed_task(task_uuid)
+
+        try:
+            scheduler.remove_job(task_uuid)
+            query_timed_task.task_status = 'deleted'
+            query_timed_task.is_deleted = query_timed_task.id
+            db.session.commit()
+            return api_result(code=204, message=f'删除任务:{task_uuid}成功')
+        except BaseException as e:
+            return api_result(code=400, message=f'删除任务:{task_uuid}失败,{str(e)}')
 
 
 class APSchedulerTaskPageApi(MethodView):

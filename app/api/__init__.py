@@ -37,7 +37,7 @@ from .project_api.version_api import ProjectVersionApi, ProjectVersionPageApi
 from .project_api.version_task_api import VersionTaskApi, VersionTaskPageApi
 from .project_api.module_app_api import ModuleAppApi, ModuleAppPageApi
 from .safe_scan_conf_api.safe_scan_conf_api import SafeScanConfApi, SafeScanConfPageApi
-from .timed_task_api.timed_task_api import APSchedulerTaskApi, APSchedulerTaskPageApi
+from .timed_task_api.timed_task_api import APSchedulerTaskApi, APSchedulerTaskStatusApi, APSchedulerTaskPageApi
 
 api = Blueprint('api', __name__)
 crm = Blueprint('crm', __name__)
@@ -144,4 +144,5 @@ api.add_url_rule('/safe_scan_conf_page', view_func=SafeScanConfPageApi.as_view('
 
 api.add_url_rule('/timed_task/<task_uuid>', view_func=APSchedulerTaskApi.as_view('timed_task_detail'))
 api.add_url_rule('/timed_task', view_func=APSchedulerTaskApi.as_view('timed_task'))
+api.add_url_rule('/timed_task_status', view_func=APSchedulerTaskStatusApi.as_view('timed_task_status'))
 api.add_url_rule('/timed_task_page', view_func=APSchedulerTaskPageApi.as_view('timed_task_page'))
