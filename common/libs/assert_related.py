@@ -8,7 +8,6 @@
 import json
 import redis
 
-from app.models.test_case_db.models import TestDatabases
 from common.libs.db import MyPyMysql, MyPostgreSql
 from common.libs.execute_code import execute_code
 from common.libs.StringIOLog import StringIOLog
@@ -22,22 +21,38 @@ class AssertMain:
     """
 
     @classmethod
-    def get_assert(cls, this_val, rule, expect_val):
+    def gen_assert_result(cls, rule_key, this_val, expect_val_type, expect_val, sio=None):
         """
         断言
+        :param rule_key: 规则比较符
         :param this_val: 当前值
-        :param rule: 规则比较符
+        :param expect_val_type: 期望值类型
         :param expect_val: 期望值
+        :param sio: sio
         :return:
         """
+        rule = rule_dict.get(rule_key)  # 从字典中取出反射的规则函数 如: == 转 __eq__
+        native_function = expect_val_type_dict.get(str(expect_val_type))  # 从字典中取出反射的类型函数 如: "1" 转 int
+
+        if not isinstance(expect_val, native_function):
+            try:
+                expect_val = native_function(expect_val)  # 期望值根据类型转换
+            except BaseException as e:
+                raise ValueError(f'期望值:{expect_val} 转换:{native_function} 类型失败')
+
         this_val_type = type(this_val)
         expect_val_type = type(expect_val)
+
+        message = f'{this_val}:{this_val_type} [{rule_key}] {expect_val}:{expect_val_type}'
+        sio = sio if sio else StringIOLog()
+        sio.log(f'function: {native_function}')
+        sio.log(message)
 
         if not this_val_type == expect_val_type:
             raise TypeError(f"当前值:{this_val} 类型:{expect_val_type} 与 期望值:{expect_val} 类型:{expect_val_type} 不一致,无法用于比较")
 
         if not hasattr(this_val, rule):
-            raise AttributeError(f"当前值:{this_val} 没有属性:{rule}")
+            raise AttributeError(f"当前值:{this_val} 没有属性:{rule_key}")
 
         result = getattr(this_val, rule)(expect_val)
 
@@ -108,16 +123,11 @@ class AssertResponseMain(AssertMain):
             return False
 
         try:
-            rule = rule_dict.get(self.rule)  # 从字典中取出反射的规则函数
-            __func = expect_val_type_dict.get(str(self.expect_val_type))
-            expect_val = __func(self.expect_val)
-
             self.sio.log(f'=== 断言:{self.assert_description} ===')
             self.sio.log('=== 键值:{} ==='.format({self.assert_key: self.this_val}))
-            message = f'{self.this_val}:{type(self.this_val)} [{self.rule}] {expect_val}:{type(expect_val)}'
-            self.sio.log(message)
 
-            if self.get_assert(this_val=self.this_val, rule=rule, expect_val=expect_val):
+            if self.gen_assert_result(this_val=self.this_val, rule_key=self.rule, expect_val_type=self.expect_val_type,
+                                      expect_val=self.expect_val, sio=self.sio):
                 self.sio.log('=== Response 断言通过 ===', status='success')
                 return True
             else:
@@ -235,23 +245,23 @@ class AssertFieldMain(AssertMain):
     def ass_str_or_int_result(self, assert_field_obj):
         """查询结果为一个str或者int,直接使用 self.query_result 来检验"""
 
-        assert_key = self.query_result
+        print('ass_str_or_int_result')
+        this_val = self.query_result
         rule = assert_field_obj.get('rule')
         expect_val = assert_field_obj.get('expect_val')
+        expect_val_type = assert_field_obj.get('expect_val_type')
 
         self.sio.log(f'=== 断言:{self.assert_description} ===', status='success')
-        self.sio.log(f'=== 值:{assert_key} ===', status='success')
-        message = f'{assert_key}:{type(assert_key)} [{rule}] {expect_val}:{type(expect_val)}'
-        self.sio.log(message)
+        self.sio.log(f'=== 值:{this_val} ===', status='success')
 
         try:
-            rule = rule_dict.get(rule)  # 从字典中取出反射的规则函数
-            if self.get_assert(this_val=assert_key, rule=rule, expect_val=expect_val):
+            if self.gen_assert_result(this_val=this_val, rule_key=rule, expect_val_type=expect_val_type,
+                                      expect_val=expect_val, sio=self.sio):
                 self.sio.log('=== Field 断言通过 ===', status='success')
-                self.ass_field_success.append(message)
+                self.ass_field_success.append(True)
             else:
                 self.sio.log('=== Field 断言失败 ===', status='error')
-                self.ass_field_fail.append(message)
+                self.ass_field_fail.append(False)
 
         except BaseException as e:
             self.sio.log(f'数据异常:{str(e)}', status='error')
@@ -261,7 +271,7 @@ class AssertFieldMain(AssertMain):
                 '2.查看: case_ass_rule_api.py 中的 FieldAssertionRuleApi 中的逻辑是否被修改.',
                 status='error')
             self.sio.log('=== 断言异常 ===', status="error")
-            self.ass_field_fail.append(message)
+            self.ass_field_fail.append(False)
 
     def ass_dict_result(self, assert_field_obj):
         """
@@ -269,24 +279,24 @@ class AssertFieldMain(AssertMain):
         ps:如果该方法报错,问题会出现在 参数在入库的时候接口没有做好检验 或 者手动修改了数据库的数据
         """
 
+        print('ass_dict_result')
         assert_key = assert_field_obj.get('assert_key')
-        var_result = self.query_result.get(assert_key)
+        this_val = self.query_result.get(assert_key)
         rule = assert_field_obj.get('rule')
         expect_val = assert_field_obj.get('expect_val')
+        expect_val_type = assert_field_obj.get('expect_val_type')
 
-        self.sio.log('=== 断言:{} ==='.format(self.assert_description), status='success')
-        self.sio.log('=== 字段:{} ==='.format(assert_key), status='success')
-        message = f'{var_result}:{type(var_result)} [{rule}] {expect_val}:{type(expect_val)}'
-        self.sio.log(message)
+        self.sio.log(f'=== 断言:{self.assert_description} ===', status='success')
+        self.sio.log(f'=== 字段:{assert_key} ===', status='success')
 
         try:
-            rule = rule_dict.get(rule)  # 从字典中取出反射的规则函数
-            if self.get_assert(this_val=var_result, rule=rule, expect_val=expect_val):
+            if self.gen_assert_result(this_val=this_val, rule_key=rule, expect_val_type=expect_val_type,
+                                      expect_val=expect_val, sio=self.sio):
                 self.sio.log('=== Field 断言通过 ===', status='success')
-                self.ass_field_success.append(message)
+                self.ass_field_success.append(True)
             else:
                 self.sio.log('=== Field 断言失败 ===', status='error')
-                self.ass_field_fail.append(message)
+                self.ass_field_fail.append(False)
 
         except BaseException as e:
             self.sio.log(f'数据异常:{str(e)}', status='error')
@@ -296,7 +306,7 @@ class AssertFieldMain(AssertMain):
                 '2.查看: case_ass_rule_api.py 中的 FieldAssertionRuleApi 中的逻辑是否被修改.',
                 status='error')
             self.sio.log('=== 断言异常 ===', status="error")
-            self.ass_field_fail.append(message)
+            self.ass_field_fail.append(False)
 
     def ass_list_result(self, assert_field_obj):
         """
