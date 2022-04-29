@@ -294,6 +294,8 @@ class CasePageApi(MethodView):
         case_name = data.get('case_name', '')
         creator_id = data.get('creator_id')
         is_deleted = data.get('is_deleted', False)
+        field_order_by = data.get('field_order_by', 'update_time')
+        is_desc = data.get('is_desc', True)
         page = data.get('page')
         size = data.get('size')
         limit = page_size(page=page, size=size)
@@ -319,7 +321,7 @@ class CasePageApi(MethodView):
             AND case_name LIKE "%{case_name}%"
             {f'AND creator_id={creator_id}' if creator_id else ''}
         ORDER BY
-            update_time DESC
+            {field_order_by} {'DESC' if is_desc else ''}
         LIMIT {limit[0]},{limit[1]};
         """
 
