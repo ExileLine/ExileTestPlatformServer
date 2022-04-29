@@ -18,9 +18,9 @@ def execute_code(code, data):
     __obj = data
 
     if isinstance(__obj, dict):
-        rs = code.split('.')
-        rs[0] = '__obj'
-        new_rule_str = '.'.join(rs)
+        rs = code.split('.')  # okc.get('a').get('b').get('c')[0] 切片-> ['okc', "get('a')", "get('b')", "get('c')[0]"]
+        rs[0] = '__obj'  # 替换对象
+        new_rule_str = '.'.join(rs)  # 重新拼接:  __obj.get('a').get('b').get('c')[0]
     elif isinstance(__obj, list):
         rs = code.split("[")
         rs[0] = '__obj'
@@ -45,7 +45,7 @@ def execute_code(code, data):
         _locals = locals()
         # print(_locals)
         # print(globals())
-        exec(f"""rule_result={new_rule_str}""", globals(), _locals)
+        exec(f"""rule_result={new_rule_str}""", globals(), _locals)  # 执行
         rule_result = _locals['rule_result']
 
         print('数据源:', __obj)
@@ -102,7 +102,6 @@ if __name__ == '__main__':
     class A:
         pass
 
-
-    c3 = ""
-    a = A()
-    execute_code(code=c3, data=a)
+    # c3 = ""
+    # a = A()
+    # execute_code(code=c3, data=a)
