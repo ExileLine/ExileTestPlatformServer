@@ -609,15 +609,16 @@ class MainTest:
             self.sio.log(f'=== update history sql === 【 {sql2} 】', status='success')
             project_db.insert(sql2)
 
-    def save_logs(self, redis_key, report_url):
+    def save_logs(self, redis_key, report_url, file_name):
         """
 
         :param redis_key: 日志key
         :param report_url: 报告地址
+        :param file_name: 文件名称
         :return:
         """
 
-        sql = """INSERT INTO exile_test_execute_logs (`is_deleted`, `create_time`, `create_timestamp`,  `execute_id`, `execute_name`, `execute_type`, `redis_key`, `report_url`, `execute_status`, `creator`, `creator_id`, `trigger_type`) VALUES (0,'{}','{}','{}','{}','{}','{}','{}','{}','{}','{}','{}');""".format(
+        sql = """INSERT INTO exile_test_execute_logs (`is_deleted`, `create_time`, `create_timestamp`,  `execute_id`, `execute_name`, `execute_type`, `redis_key`, `report_url`, `execute_status`, `creator`, `creator_id`, `trigger_type`, `file_name`) VALUES (0,'{}','{}','{}','{}','{}','{}','{}','{}','{}','{}','{}','{}');""".format(
             self.create_time,
             int(self.start_time),
             self.execute_id,
@@ -628,7 +629,8 @@ class MainTest:
             int(self.execute_status),
             self.execute_username,
             self.execute_user_id,
-            self.trigger_type
+            self.trigger_type,
+            file_name
         )
         project_db.insert(sql)
         logger.success('=== save_logs ok ===')
@@ -911,7 +913,7 @@ class MainTest:
             R.set(f'gen_repost_error_{t}', json.dumps(error_info))
 
         report_url = self.gen_report_url()  # 生成测试报告链接
-        self.save_logs(redis_key=self.save_key, report_url=report_url)
+        self.save_logs(redis_key=self.save_key, report_url=report_url, file_name=self.report_name)
 
         if self.is_dd_push:
             try:

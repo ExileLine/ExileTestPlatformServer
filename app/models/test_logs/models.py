@@ -18,6 +18,7 @@ class TestExecuteLogs(BaseModel):
     execute_type = db.Column(db.String(255), nullable=False, comment='执行类型')
     redis_key = db.Column(db.String(255), nullable=False, comment='Redis的key')
     report_url = db.Column(db.String(1024), nullable=False, comment='报告地址')
+    file_name = db.Column(db.String(1024), nullable=False, comment='文件名称带后缀如: xxx.html')
     trigger_type = db.Column(db.String(255), default='user_execute', comment='触发类型:user_execute;timed_execute')
     execute_status = db.Column(TINYINT(1, unsigned=True), comment='执行状态')
     creator = db.Column(db.String(32), comment='创建人')

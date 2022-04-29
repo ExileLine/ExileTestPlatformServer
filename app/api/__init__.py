@@ -147,3 +147,5 @@ api.add_url_rule('/timed_task/<timed_task_uuid>', view_func=APSchedulerTaskApi.a
 api.add_url_rule('/timed_task', view_func=APSchedulerTaskApi.as_view('timed_task'))
 api.add_url_rule('/timed_task_status', view_func=APSchedulerTaskStatusApi.as_view('timed_task_status'))
 api.add_url_rule('/timed_task_page', view_func=APSchedulerTaskPageApi.as_view('timed_task_page'))
+
+api.add_url_rule('/download_file', view_func=DownloadFileApi.as_view('download_file'))
