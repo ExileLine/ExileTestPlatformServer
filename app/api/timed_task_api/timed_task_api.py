@@ -12,6 +12,7 @@ from config.config import config_obj
 from apscheduler.triggers.cron import CronTrigger
 from ExtendRegister.apscheduler_register import scheduler
 from app.models.timed_task.models import TimedTaskModel
+from app.models.test_project.models import TestVersionTask
 
 trigger_tuple = ('date', 'interval', 'cron')
 
@@ -240,14 +241,25 @@ class APSchedulerTaskApi(MethodView):
     PUT: 编辑
     """
 
-    def get(self, task_uuid):
+    def get(self, timed_task_uuid):
         """获取APScheduler任务状态"""
 
-        data = {
-            "id": task_uuid,
-            "job_detail": str(scheduler.get_job(task_uuid)),
-        }
-        return api_result(code=200, message='操作成功', data=data)
+        query_timed_task = TimedTaskModel.query.get(timed_task_uuid)
+
+        if not query_timed_task:
+            return api_result(code=400, message=f'任务:{timed_task_uuid}不存在')
+
+        version_id = None
+        execute_type = query_timed_task.execute_type
+
+        if execute_type == "task_all":
+            task_details = query_timed_task.task_details
+            execute_id = task_details.get('kwargs').get('test_obj').get('execute_id')
+            query_version_task = TestVersionTask.query.get(execute_id)
+            if query_version_task:
+                version_id = query_version_task.version_id
+
+        return api_result(code=200, message='操作成功', data={'version_id': version_id})
 
     def post(self):
         """新增APScheduler任务"""
@@ -256,8 +268,10 @@ class APSchedulerTaskApi(MethodView):
         project_id = data.get('project_id')
         task_name = data.get('task_name', '').strip()
         remark = data.get('remark', '').strip()
+
         job = data.get('job')
         trigger = job.get('trigger')
+        execute_type = job.get('kwargs').get('test_obj').get('execute_type')
 
         if trigger not in trigger_tuple:
             return api_result(code=400, message=f'触发器类型错误:{trigger}')
@@ -274,6 +288,7 @@ class APSchedulerTaskApi(MethodView):
             task_details=job,
             task_status='wait_start',
             task_type=trigger,
+            execute_type=execute_type,
             creator=g.app_user.username,
             creator_id=g.app_user.id,
             remark=remark
@@ -292,17 +307,38 @@ class APSchedulerTaskApi(MethodView):
 
         data = request.get_json()
         task_uuid = data.get('task_uuid')
+        task_name = data.get('task_name')
+        remark = data.get('remark')
+        job = data.get('job')
+        trigger = job.get('trigger')
+        execute_type = job.get('kwargs').get('test_obj').get('execute_type')
 
-        query_timed_task = check_timed_task(task_uuid)
+        if trigger not in trigger_tuple:
+            return api_result(code=400, message=f'触发器类型错误:{trigger}')
+
+        result_bool, result_message = job_func_dict.get(trigger)(**job)
+
+        if not result_bool:
+            return api_result(code=400, message=f'任务重建失败:{result_message}')
 
         try:
-            # TODO
-            # task_id = f"{shortuuid.uuid}_{int(time.time())}"
-            # seconds = int(data.get('seconds'))
-            # scheduler.add_job(func=test_job, id=task_id, trigger='interval', seconds=seconds, replace_existing=True)
-            return api_result(code=204, message=f'编辑任务:{task_uuid}成功')
+            scheduler.remove_job(task_uuid)
+            query_timed_task = check_timed_task(task_uuid)
+            query_timed_task.task_uuid = result_message
+            query_timed_task.task_name = task_name
+            query_timed_task.task_details = job
+            query_timed_task.task_status = 'stop'
+            query_timed_task.task_type = trigger
+            query_timed_task.execute_type = execute_type
+            query_timed_task.modifier = g.app_user.username,
+            query_timed_task.modifier_id = g.app_user.id,
+            query_timed_task.remark = remark
+            db.session.commit()
+            scheduler.pause_job(result_message)
         except BaseException as e:
-            return api_result(code=400, message=f'编辑任务:{task_uuid}失败,{str(e)}')
+            return api_result(code=400, message=f'编辑:{task_uuid}失败')
+
+        return api_result(code=204, message=f'编辑任务:{task_uuid}成功')
 
 
 class APSchedulerTaskStatusApi(MethodView):
@@ -392,6 +428,8 @@ class APSchedulerTaskPageApi(MethodView):
             A.task_status,
             A.creator,
             A.create_time,
+            A.modifier,
+            A.update_time,
             FROM_UNIXTIME(B.next_run_time) as next_run_time,
             A.remark
         FROM
