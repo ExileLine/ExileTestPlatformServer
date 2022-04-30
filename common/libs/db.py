@@ -124,10 +124,10 @@ class MyPyMysql(BaseDatabase):
                     result = result_format(query_result)
                 elif size and not only:  # 按照需要的长度返回
                     query_result = cur.fetchmany(size)
-                    result = [result_format(data) for data in query_result]
+                    result = list(map(result_format, query_result))
                 else:  # 返回结果集返回 list
                     query_result = cur.fetchall()
-                    result = [result_format(data) for data in query_result]
+                    result = list(map(result_format, query_result))
                 return result
         except BaseException as e:
             return 'select:出现错误:{}'.format(str(e) if self.debug else '')
