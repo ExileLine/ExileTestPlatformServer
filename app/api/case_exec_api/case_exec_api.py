@@ -363,7 +363,7 @@ class QueryExecuteData:
                         case_expand_map[case_id] = [obj]
 
                 case_id_list = [obj.get('case_id') for obj in sort_case_list]
-                QueryExecuteData.update_case_total_execution(case_id_list)
+                # QueryExecuteData.update_case_total_execution(case_id_list)
                 query_case_zip_list = QueryExecuteData.query_case_assemble(case_id_list)
                 case_list = GenExecuteData.main(case_id_list, query_case_zip_list, case_expand_map)
 
@@ -394,7 +394,7 @@ class QueryExecuteData:
         case_id_list = [obj.case_id for obj in query_pc]
         query_case_zip_list = QueryExecuteData.query_case_assemble(case_id_list)
         case_list = GenExecuteData.main(case_id_list, query_case_zip_list)
-        QueryExecuteData.update_case_total_execution(case_id_list)
+        # QueryExecuteData.update_case_total_execution(case_id_list)
         return case_list
 
     @staticmethod
@@ -552,7 +552,7 @@ class QueryExecuteData:
             "bind_info": bind_info
         }
 
-        query_case.add_total_execution()
+        # query_case.add_total_execution()
 
         if not query_case:
             return False, f'用例id:{case_id}不存在'

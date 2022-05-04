@@ -220,6 +220,8 @@ class MainTest:
         else:
             self.case_generator = (case for case in self.case_list)
 
+        self.id_after_execution = []  # 已经执行的用例id,用于在最后更新用例的执行次数
+
         self.var_conversion_active_list = []
         self.current_var_value = ""
 
@@ -276,6 +278,19 @@ class MainTest:
         self.json_format(req_json, msg='=== request json ===')
         self.json_format(resp_headers, msg='=== response headers ===')
         self.json_format(resp_json, msg='=== response json ===')
+
+    @staticmethod
+    def update_case_total_execution(case_id_list, n=1):
+        """更新用例执行数"""
+
+        sql = f"""
+        UPDATE exile_test_case 
+        SET total_execution = total_execution + {n} 
+        WHERE 
+        {f'id={case_id_list[-1]}' if len(case_id_list) == 1 else f'id in {tuple(case_id_list)}'}
+        """
+        project_db.update(sql)
+        print(f'共 {len(case_id_list)} 条, 更新用例执行数成功:{case_id_list}')
 
     def var_conversion_main(self, json_str, d):
         """
@@ -662,6 +677,8 @@ class MainTest:
         R.set(save_obj_first, json.dumps(return_case_result))
         logger.success('=== save redis ok ===')
 
+        MainTest.update_case_total_execution(self.id_after_execution)
+
     def only_execute(self):
         """
         执行一个用例 -> list[obj] 如: [{}]
@@ -710,6 +727,7 @@ class MainTest:
                 try:
                     self.assemble_data_send(case_data_info=case_data_info)  # 转换变量并发起请求
                     self.test_result.req_success += 1
+                    self.id_after_execution.append(self.case_id)
                 except BaseException as e:
                     self.sio.log(f"=== 请求失败:{str(e)} ===", status="error")
                     self.test_result.req_error += 1
