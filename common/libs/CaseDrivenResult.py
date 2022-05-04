@@ -679,6 +679,8 @@ class MainTest:
 
         MainTest.update_case_total_execution(self.id_after_execution)
 
+        logger.success('=== update case total ok ===')
+
     def only_execute(self):
         """
         执行一个用例 -> list[obj] 如: [{}]
@@ -826,6 +828,7 @@ class MainTest:
                     try:
                         self.assemble_data_send(case_data_info=case_data_info)
                         self.test_result.req_success += 1
+                        self.id_after_execution.append(self.case_id)
                     except BaseException as e:
                         self.sio.log(f"=== 请求失败:{str(e)} ===", status="error")
                         self.test_result.req_error += 1

@@ -597,7 +597,8 @@ class QueryExecuteData:
 
         data = {
             "execute_name": f"执行场景:({execute_name})",
-            "send_test_case_list": send_test_case_list[-1].get("case_list")
+            # "send_test_case_list": send_test_case_list[-1].get("case_list") # 入参 only
+            "send_test_case_list": send_test_case_list  # 入参 many
         }
         return True, data
 
