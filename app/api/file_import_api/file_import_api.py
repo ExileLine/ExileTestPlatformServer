@@ -12,541 +12,6 @@ from app.models.test_case_assert.models import TestCaseDataAssBind
 from app.models.test_project.models import TestProject, MidProjectAndCase, TestProjectVersion, TestModuleApp, \
     MidVersionAndCase, MidModuleAndCase
 
-ddd = {
-    "info": {
-        "_postman_id": "9b83fe72-aa8a-438b-9bb8-8f2e3acf6781",
-        "name": "zzzzzzz",
-        "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
-    },
-    "item": [
-        {
-            "name": "第一层001",
-            "item": [
-                {
-                    "name": "第二层001",
-                    "item": [
-                        {
-                            "name": "登录111",
-                            "event": [
-                                {
-                                    "listen": "test",
-                                    "script": {
-                                        "exec": [
-                                            "var json_data = JSON.parse(responseBody)",
-                                            "",
-                                            "var token = json_data.data.token",
-                                            "",
-                                            "pm.environment.set(\"token\", token)"
-                                        ],
-                                        "type": "text/javascript"
-                                    }
-                                }
-                            ],
-                            "request": {
-                                "method": "POST",
-                                "header": [],
-                                "body": {
-                                    "mode": "raw",
-                                    "raw": "{\n    \"username\": \"yyx\",\n    \"password\": \"123456\"\n}",
-                                    "options": {
-                                        "raw": {
-                                            "language": "json"
-                                        }
-                                    }
-                                },
-                                "url": {
-                                    "raw": "{{base_url}}/api/login",
-                                    "host": [
-                                        "{{base_url}}"
-                                    ],
-                                    "path": [
-                                        "api",
-                                        "login"
-                                    ]
-                                }
-                            },
-                            "response": []
-                        },
-                        {
-                            "name": "登录222",
-                            "event": [
-                                {
-                                    "listen": "test",
-                                    "script": {
-                                        "exec": [
-                                            "var json_data = JSON.parse(responseBody)",
-                                            "",
-                                            "var token = json_data.data.token",
-                                            "",
-                                            "pm.environment.set(\"token\", token)"
-                                        ],
-                                        "type": "text/javascript"
-                                    }
-                                }
-                            ],
-                            "request": {
-                                "method": "POST",
-                                "header": [],
-                                "body": {
-                                    "mode": "raw",
-                                    "raw": "{\n    \"username\": \"yyx\",\n    \"password\": \"123456\"\n}",
-                                    "options": {
-                                        "raw": {
-                                            "language": "json"
-                                        }
-                                    }
-                                },
-                                "url": {
-                                    "raw": "{{base_url}}/api/login",
-                                    "host": [
-                                        "{{base_url}}"
-                                    ],
-                                    "path": [
-                                        "api",
-                                        "login"
-                                    ]
-                                }
-                            },
-                            "response": []
-                        }
-                    ]
-                },
-                {
-                    "name": "第二层001 C",
-                    "item": [
-                        {
-                            "name": "登录333",
-                            "event": [
-                                {
-                                    "listen": "test",
-                                    "script": {
-                                        "exec": [
-                                            "var json_data = JSON.parse(responseBody)",
-                                            "",
-                                            "var token = json_data.data.token",
-                                            "",
-                                            "pm.environment.set(\"token\", token)"
-                                        ],
-                                        "type": "text/javascript"
-                                    }
-                                }
-                            ],
-                            "request": {
-                                "method": "POST",
-                                "header": [],
-                                "body": {
-                                    "mode": "raw",
-                                    "raw": "{\n    \"username\": \"yyx\",\n    \"password\": \"123456\"\n}",
-                                    "options": {
-                                        "raw": {
-                                            "language": "json"
-                                        }
-                                    }
-                                },
-                                "url": {
-                                    "raw": "{{base_url}}/api/login",
-                                    "host": [
-                                        "{{base_url}}"
-                                    ],
-                                    "path": [
-                                        "api",
-                                        "login"
-                                    ]
-                                }
-                            },
-                            "response": []
-                        },
-                        {
-                            "name": "登录444",
-                            "event": [
-                                {
-                                    "listen": "test",
-                                    "script": {
-                                        "exec": [
-                                            "var json_data = JSON.parse(responseBody)",
-                                            "",
-                                            "var token = json_data.data.token",
-                                            "",
-                                            "pm.environment.set(\"token\", token)"
-                                        ],
-                                        "type": "text/javascript"
-                                    }
-                                }
-                            ],
-                            "request": {
-                                "method": "POST",
-                                "header": [],
-                                "body": {
-                                    "mode": "raw",
-                                    "raw": "{\n    \"username\": \"yyx\",\n    \"password\": \"123456\"\n}",
-                                    "options": {
-                                        "raw": {
-                                            "language": "json"
-                                        }
-                                    }
-                                },
-                                "url": {
-                                    "raw": "{{base_url}}/api/login",
-                                    "host": [
-                                        "{{base_url}}"
-                                    ],
-                                    "path": [
-                                        "api",
-                                        "login"
-                                    ]
-                                }
-                            },
-                            "response": []
-                        }
-                    ]
-                },
-                {
-                    "name": "通过token获取用户111",
-                    "request": {
-                        "method": "GET",
-                        "header": [
-                            {
-                                "key": "token",
-                                "value": "d83cff2cYYxba11YYx11ecYYxb3c3YYxacde48001122",
-                                "type": "text"
-                            }
-                        ],
-                        "url": {
-                            "raw": "{{base_url}}/api/auth",
-                            "host": [
-                                "{{base_url}}"
-                            ],
-                            "path": [
-                                "api",
-                                "auth"
-                            ]
-                        }
-                    },
-                    "response": []
-                },
-                {
-                    "name": "通过token获取用户222",
-                    "request": {
-                        "method": "GET",
-                        "header": [
-                            {
-                                "key": "token",
-                                "value": "d83cff2cYYxba11YYx11ecYYxb3c3YYxacde48001122",
-                                "type": "text"
-                            }
-                        ],
-                        "url": {
-                            "raw": "{{base_url}}/api/auth",
-                            "host": [
-                                "{{base_url}}"
-                            ],
-                            "path": [
-                                "api",
-                                "auth"
-                            ]
-                        }
-                    },
-                    "response": []
-                }
-            ]
-        },
-        {
-            "name": "第一层002",
-            "item": [
-                {
-                    "name": "第二层002",
-                    "item": [
-                        {
-                            "name": "登录555",
-                            "event": [
-                                {
-                                    "listen": "test",
-                                    "script": {
-                                        "exec": [
-                                            "var json_data = JSON.parse(responseBody)",
-                                            "",
-                                            "var token = json_data.data.token",
-                                            "",
-                                            "pm.environment.set(\"token\", token)"
-                                        ],
-                                        "type": "text/javascript"
-                                    }
-                                }
-                            ],
-                            "request": {
-                                "method": "POST",
-                                "header": [],
-                                "body": {
-                                    "mode": "raw",
-                                    "raw": "{\n    \"username\": \"yyx\",\n    \"password\": \"123456\"\n}",
-                                    "options": {
-                                        "raw": {
-                                            "language": "json"
-                                        }
-                                    }
-                                },
-                                "url": {
-                                    "raw": "{{base_url}}/api/login",
-                                    "host": [
-                                        "{{base_url}}"
-                                    ],
-                                    "path": [
-                                        "api",
-                                        "login"
-                                    ]
-                                }
-                            },
-                            "response": []
-                        },
-                        {
-                            "name": "登录666",
-                            "event": [
-                                {
-                                    "listen": "test",
-                                    "script": {
-                                        "exec": [
-                                            "var json_data = JSON.parse(responseBody)",
-                                            "",
-                                            "var token = json_data.data.token",
-                                            "",
-                                            "pm.environment.set(\"token\", token)"
-                                        ],
-                                        "type": "text/javascript"
-                                    }
-                                }
-                            ],
-                            "request": {
-                                "method": "POST",
-                                "header": [],
-                                "body": {
-                                    "mode": "raw",
-                                    "raw": "{\n    \"username\": \"yyx\",\n    \"password\": \"123456\"\n}",
-                                    "options": {
-                                        "raw": {
-                                            "language": "json"
-                                        }
-                                    }
-                                },
-                                "url": {
-                                    "raw": "{{base_url}}/api/login",
-                                    "host": [
-                                        "{{base_url}}"
-                                    ],
-                                    "path": [
-                                        "api",
-                                        "login"
-                                    ]
-                                }
-                            },
-                            "response": []
-                        }
-                    ]
-                },
-                {
-                    "name": "第二层 002 C",
-                    "item": [
-                        {
-                            "name": "登录 777",
-                            "event": [
-                                {
-                                    "listen": "test",
-                                    "script": {
-                                        "exec": [
-                                            "var json_data = JSON.parse(responseBody)",
-                                            "",
-                                            "var token = json_data.data.token",
-                                            "",
-                                            "pm.environment.set(\"token\", token)"
-                                        ],
-                                        "type": "text/javascript"
-                                    }
-                                }
-                            ],
-                            "request": {
-                                "method": "POST",
-                                "header": [],
-                                "body": {
-                                    "mode": "raw",
-                                    "raw": "{\n    \"username\": \"yyx\",\n    \"password\": \"123456\"\n}",
-                                    "options": {
-                                        "raw": {
-                                            "language": "json"
-                                        }
-                                    }
-                                },
-                                "url": {
-                                    "raw": "{{base_url}}/api/login",
-                                    "host": [
-                                        "{{base_url}}"
-                                    ],
-                                    "path": [
-                                        "api",
-                                        "login"
-                                    ]
-                                }
-                            },
-                            "response": []
-                        },
-                        {
-                            "name": "登录888",
-                            "event": [
-                                {
-                                    "listen": "test",
-                                    "script": {
-                                        "exec": [
-                                            "var json_data = JSON.parse(responseBody)",
-                                            "",
-                                            "var token = json_data.data.token",
-                                            "",
-                                            "pm.environment.set(\"token\", token)"
-                                        ],
-                                        "type": "text/javascript"
-                                    }
-                                }
-                            ],
-                            "request": {
-                                "method": "POST",
-                                "header": [],
-                                "body": {
-                                    "mode": "raw",
-                                    "raw": "{\n    \"username\": \"yyx\",\n    \"password\": \"123456\"\n}",
-                                    "options": {
-                                        "raw": {
-                                            "language": "json"
-                                        }
-                                    }
-                                },
-                                "url": {
-                                    "raw": "{{base_url}}/api/login",
-                                    "host": [
-                                        "{{base_url}}"
-                                    ],
-                                    "path": [
-                                        "api",
-                                        "login"
-                                    ]
-                                }
-                            },
-                            "response": []
-                        }
-                    ]
-                },
-                {
-                    "name": "通过token获取用户333",
-                    "request": {
-                        "method": "GET",
-                        "header": [
-                            {
-                                "key": "token",
-                                "value": "d83cff2cYYxba11YYx11ecYYxb3c3YYxacde48001122",
-                                "type": "text"
-                            }
-                        ],
-                        "url": {
-                            "raw": "{{base_url}}/api/auth",
-                            "host": [
-                                "{{base_url}}"
-                            ],
-                            "path": [
-                                "api",
-                                "auth"
-                            ]
-                        }
-                    },
-                    "response": []
-                },
-                {
-                    "name": "通过token获取用户444",
-                    "request": {
-                        "method": "GET",
-                        "header": [
-                            {
-                                "key": "token",
-                                "value": "d83cff2cYYxba11YYx11ecYYxb3c3YYxacde48001122",
-                                "type": "text"
-                            }
-                        ],
-                        "url": {
-                            "raw": "{{base_url}}/api/auth",
-                            "host": [
-                                "{{base_url}}"
-                            ],
-                            "path": [
-                                "api",
-                                "auth"
-                            ]
-                        }
-                    },
-                    "response": []
-                }
-            ]
-        },
-        {
-            "name": "第一层003",
-            "item": [
-                {
-                    "name": "第二层003",
-                    "item": []
-                },
-                {
-                    "name": "第二层003 C",
-                    "item": []
-                }
-            ]
-        },
-        {
-            "name": "退出 111",
-            "request": {
-                "method": "DELETE",
-                "header": [
-                    {
-                        "key": "token",
-                        "value": "7694a270YYxba08YYx11ebYYx9da4YYxacde48001122",
-                        "type": "text",
-                        "disabled": True
-                    }
-                ],
-                "url": {
-                    "raw": "{{base_url}}/api/login",
-                    "host": [
-                        "{{base_url}}"
-                    ],
-                    "path": [
-                        "api",
-                        "login"
-                    ]
-                }
-            },
-            "response": []
-        },
-        {
-            "name": "退出 222",
-            "request": {
-                "method": "DELETE",
-                "header": [
-                    {
-                        "key": "token",
-                        "value": "7694a270YYxba08YYx11ebYYx9da4YYxacde48001122",
-                        "type": "text",
-                        "disabled": True
-                    }
-                ],
-                "url": {
-                    "raw": "{{base_url}}/api/login",
-                    "host": [
-                        "{{base_url}}"
-                    ],
-                    "path": [
-                        "api",
-                        "login"
-                    ]
-                }
-            },
-            "response": []
-        }
-    ]
-}
-
 
 class PostManFileImport:
     """导入postman接口文件"""
@@ -775,6 +240,540 @@ class InterfaceFileImportApi(MethodView):
 
 
 if __name__ == '__main__':
+    ddd = {
+        "info": {
+            "_postman_id": "9b83fe72-aa8a-438b-9bb8-8f2e3acf6781",
+            "name": "zzzzzzz",
+            "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+        },
+        "item": [
+            {
+                "name": "第一层001",
+                "item": [
+                    {
+                        "name": "第二层001",
+                        "item": [
+                            {
+                                "name": "登录111",
+                                "event": [
+                                    {
+                                        "listen": "test",
+                                        "script": {
+                                            "exec": [
+                                                "var json_data = JSON.parse(responseBody)",
+                                                "",
+                                                "var token = json_data.data.token",
+                                                "",
+                                                "pm.environment.set(\"token\", token)"
+                                            ],
+                                            "type": "text/javascript"
+                                        }
+                                    }
+                                ],
+                                "request": {
+                                    "method": "POST",
+                                    "header": [],
+                                    "body": {
+                                        "mode": "raw",
+                                        "raw": "{\n    \"username\": \"yyx\",\n    \"password\": \"123456\"\n}",
+                                        "options": {
+                                            "raw": {
+                                                "language": "json"
+                                            }
+                                        }
+                                    },
+                                    "url": {
+                                        "raw": "{{base_url}}/api/login",
+                                        "host": [
+                                            "{{base_url}}"
+                                        ],
+                                        "path": [
+                                            "api",
+                                            "login"
+                                        ]
+                                    }
+                                },
+                                "response": []
+                            },
+                            {
+                                "name": "登录222",
+                                "event": [
+                                    {
+                                        "listen": "test",
+                                        "script": {
+                                            "exec": [
+                                                "var json_data = JSON.parse(responseBody)",
+                                                "",
+                                                "var token = json_data.data.token",
+                                                "",
+                                                "pm.environment.set(\"token\", token)"
+                                            ],
+                                            "type": "text/javascript"
+                                        }
+                                    }
+                                ],
+                                "request": {
+                                    "method": "POST",
+                                    "header": [],
+                                    "body": {
+                                        "mode": "raw",
+                                        "raw": "{\n    \"username\": \"yyx\",\n    \"password\": \"123456\"\n}",
+                                        "options": {
+                                            "raw": {
+                                                "language": "json"
+                                            }
+                                        }
+                                    },
+                                    "url": {
+                                        "raw": "{{base_url}}/api/login",
+                                        "host": [
+                                            "{{base_url}}"
+                                        ],
+                                        "path": [
+                                            "api",
+                                            "login"
+                                        ]
+                                    }
+                                },
+                                "response": []
+                            }
+                        ]
+                    },
+                    {
+                        "name": "第二层001 C",
+                        "item": [
+                            {
+                                "name": "登录333",
+                                "event": [
+                                    {
+                                        "listen": "test",
+                                        "script": {
+                                            "exec": [
+                                                "var json_data = JSON.parse(responseBody)",
+                                                "",
+                                                "var token = json_data.data.token",
+                                                "",
+                                                "pm.environment.set(\"token\", token)"
+                                            ],
+                                            "type": "text/javascript"
+                                        }
+                                    }
+                                ],
+                                "request": {
+                                    "method": "POST",
+                                    "header": [],
+                                    "body": {
+                                        "mode": "raw",
+                                        "raw": "{\n    \"username\": \"yyx\",\n    \"password\": \"123456\"\n}",
+                                        "options": {
+                                            "raw": {
+                                                "language": "json"
+                                            }
+                                        }
+                                    },
+                                    "url": {
+                                        "raw": "{{base_url}}/api/login",
+                                        "host": [
+                                            "{{base_url}}"
+                                        ],
+                                        "path": [
+                                            "api",
+                                            "login"
+                                        ]
+                                    }
+                                },
+                                "response": []
+                            },
+                            {
+                                "name": "登录444",
+                                "event": [
+                                    {
+                                        "listen": "test",
+                                        "script": {
+                                            "exec": [
+                                                "var json_data = JSON.parse(responseBody)",
+                                                "",
+                                                "var token = json_data.data.token",
+                                                "",
+                                                "pm.environment.set(\"token\", token)"
+                                            ],
+                                            "type": "text/javascript"
+                                        }
+                                    }
+                                ],
+                                "request": {
+                                    "method": "POST",
+                                    "header": [],
+                                    "body": {
+                                        "mode": "raw",
+                                        "raw": "{\n    \"username\": \"yyx\",\n    \"password\": \"123456\"\n}",
+                                        "options": {
+                                            "raw": {
+                                                "language": "json"
+                                            }
+                                        }
+                                    },
+                                    "url": {
+                                        "raw": "{{base_url}}/api/login",
+                                        "host": [
+                                            "{{base_url}}"
+                                        ],
+                                        "path": [
+                                            "api",
+                                            "login"
+                                        ]
+                                    }
+                                },
+                                "response": []
+                            }
+                        ]
+                    },
+                    {
+                        "name": "通过token获取用户111",
+                        "request": {
+                            "method": "GET",
+                            "header": [
+                                {
+                                    "key": "token",
+                                    "value": "d83cff2cYYxba11YYx11ecYYxb3c3YYxacde48001122",
+                                    "type": "text"
+                                }
+                            ],
+                            "url": {
+                                "raw": "{{base_url}}/api/auth",
+                                "host": [
+                                    "{{base_url}}"
+                                ],
+                                "path": [
+                                    "api",
+                                    "auth"
+                                ]
+                            }
+                        },
+                        "response": []
+                    },
+                    {
+                        "name": "通过token获取用户222",
+                        "request": {
+                            "method": "GET",
+                            "header": [
+                                {
+                                    "key": "token",
+                                    "value": "d83cff2cYYxba11YYx11ecYYxb3c3YYxacde48001122",
+                                    "type": "text"
+                                }
+                            ],
+                            "url": {
+                                "raw": "{{base_url}}/api/auth",
+                                "host": [
+                                    "{{base_url}}"
+                                ],
+                                "path": [
+                                    "api",
+                                    "auth"
+                                ]
+                            }
+                        },
+                        "response": []
+                    }
+                ]
+            },
+            {
+                "name": "第一层002",
+                "item": [
+                    {
+                        "name": "第二层002",
+                        "item": [
+                            {
+                                "name": "登录555",
+                                "event": [
+                                    {
+                                        "listen": "test",
+                                        "script": {
+                                            "exec": [
+                                                "var json_data = JSON.parse(responseBody)",
+                                                "",
+                                                "var token = json_data.data.token",
+                                                "",
+                                                "pm.environment.set(\"token\", token)"
+                                            ],
+                                            "type": "text/javascript"
+                                        }
+                                    }
+                                ],
+                                "request": {
+                                    "method": "POST",
+                                    "header": [],
+                                    "body": {
+                                        "mode": "raw",
+                                        "raw": "{\n    \"username\": \"yyx\",\n    \"password\": \"123456\"\n}",
+                                        "options": {
+                                            "raw": {
+                                                "language": "json"
+                                            }
+                                        }
+                                    },
+                                    "url": {
+                                        "raw": "{{base_url}}/api/login",
+                                        "host": [
+                                            "{{base_url}}"
+                                        ],
+                                        "path": [
+                                            "api",
+                                            "login"
+                                        ]
+                                    }
+                                },
+                                "response": []
+                            },
+                            {
+                                "name": "登录666",
+                                "event": [
+                                    {
+                                        "listen": "test",
+                                        "script": {
+                                            "exec": [
+                                                "var json_data = JSON.parse(responseBody)",
+                                                "",
+                                                "var token = json_data.data.token",
+                                                "",
+                                                "pm.environment.set(\"token\", token)"
+                                            ],
+                                            "type": "text/javascript"
+                                        }
+                                    }
+                                ],
+                                "request": {
+                                    "method": "POST",
+                                    "header": [],
+                                    "body": {
+                                        "mode": "raw",
+                                        "raw": "{\n    \"username\": \"yyx\",\n    \"password\": \"123456\"\n}",
+                                        "options": {
+                                            "raw": {
+                                                "language": "json"
+                                            }
+                                        }
+                                    },
+                                    "url": {
+                                        "raw": "{{base_url}}/api/login",
+                                        "host": [
+                                            "{{base_url}}"
+                                        ],
+                                        "path": [
+                                            "api",
+                                            "login"
+                                        ]
+                                    }
+                                },
+                                "response": []
+                            }
+                        ]
+                    },
+                    {
+                        "name": "第二层 002 C",
+                        "item": [
+                            {
+                                "name": "登录 777",
+                                "event": [
+                                    {
+                                        "listen": "test",
+                                        "script": {
+                                            "exec": [
+                                                "var json_data = JSON.parse(responseBody)",
+                                                "",
+                                                "var token = json_data.data.token",
+                                                "",
+                                                "pm.environment.set(\"token\", token)"
+                                            ],
+                                            "type": "text/javascript"
+                                        }
+                                    }
+                                ],
+                                "request": {
+                                    "method": "POST",
+                                    "header": [],
+                                    "body": {
+                                        "mode": "raw",
+                                        "raw": "{\n    \"username\": \"yyx\",\n    \"password\": \"123456\"\n}",
+                                        "options": {
+                                            "raw": {
+                                                "language": "json"
+                                            }
+                                        }
+                                    },
+                                    "url": {
+                                        "raw": "{{base_url}}/api/login",
+                                        "host": [
+                                            "{{base_url}}"
+                                        ],
+                                        "path": [
+                                            "api",
+                                            "login"
+                                        ]
+                                    }
+                                },
+                                "response": []
+                            },
+                            {
+                                "name": "登录888",
+                                "event": [
+                                    {
+                                        "listen": "test",
+                                        "script": {
+                                            "exec": [
+                                                "var json_data = JSON.parse(responseBody)",
+                                                "",
+                                                "var token = json_data.data.token",
+                                                "",
+                                                "pm.environment.set(\"token\", token)"
+                                            ],
+                                            "type": "text/javascript"
+                                        }
+                                    }
+                                ],
+                                "request": {
+                                    "method": "POST",
+                                    "header": [],
+                                    "body": {
+                                        "mode": "raw",
+                                        "raw": "{\n    \"username\": \"yyx\",\n    \"password\": \"123456\"\n}",
+                                        "options": {
+                                            "raw": {
+                                                "language": "json"
+                                            }
+                                        }
+                                    },
+                                    "url": {
+                                        "raw": "{{base_url}}/api/login",
+                                        "host": [
+                                            "{{base_url}}"
+                                        ],
+                                        "path": [
+                                            "api",
+                                            "login"
+                                        ]
+                                    }
+                                },
+                                "response": []
+                            }
+                        ]
+                    },
+                    {
+                        "name": "通过token获取用户333",
+                        "request": {
+                            "method": "GET",
+                            "header": [
+                                {
+                                    "key": "token",
+                                    "value": "d83cff2cYYxba11YYx11ecYYxb3c3YYxacde48001122",
+                                    "type": "text"
+                                }
+                            ],
+                            "url": {
+                                "raw": "{{base_url}}/api/auth",
+                                "host": [
+                                    "{{base_url}}"
+                                ],
+                                "path": [
+                                    "api",
+                                    "auth"
+                                ]
+                            }
+                        },
+                        "response": []
+                    },
+                    {
+                        "name": "通过token获取用户444",
+                        "request": {
+                            "method": "GET",
+                            "header": [
+                                {
+                                    "key": "token",
+                                    "value": "d83cff2cYYxba11YYx11ecYYxb3c3YYxacde48001122",
+                                    "type": "text"
+                                }
+                            ],
+                            "url": {
+                                "raw": "{{base_url}}/api/auth",
+                                "host": [
+                                    "{{base_url}}"
+                                ],
+                                "path": [
+                                    "api",
+                                    "auth"
+                                ]
+                            }
+                        },
+                        "response": []
+                    }
+                ]
+            },
+            {
+                "name": "第一层003",
+                "item": [
+                    {
+                        "name": "第二层003",
+                        "item": []
+                    },
+                    {
+                        "name": "第二层003 C",
+                        "item": []
+                    }
+                ]
+            },
+            {
+                "name": "退出 111",
+                "request": {
+                    "method": "DELETE",
+                    "header": [
+                        {
+                            "key": "token",
+                            "value": "7694a270YYxba08YYx11ebYYx9da4YYxacde48001122",
+                            "type": "text",
+                            "disabled": True
+                        }
+                    ],
+                    "url": {
+                        "raw": "{{base_url}}/api/login",
+                        "host": [
+                            "{{base_url}}"
+                        ],
+                        "path": [
+                            "api",
+                            "login"
+                        ]
+                    }
+                },
+                "response": []
+            },
+            {
+                "name": "退出 222",
+                "request": {
+                    "method": "DELETE",
+                    "header": [
+                        {
+                            "key": "token",
+                            "value": "7694a270YYxba08YYx11ebYYx9da4YYxacde48001122",
+                            "type": "text",
+                            "disabled": True
+                        }
+                    ],
+                    "url": {
+                        "raw": "{{base_url}}/api/login",
+                        "host": [
+                            "{{base_url}}"
+                        ],
+                        "path": [
+                            "api",
+                            "login"
+                        ]
+                    }
+                },
+                "response": []
+            }
+        ]
+    }
     m = PostManFileImport()
     m.filter_case(ddd.get('item', []))
     m.gen_case(1, [], [], debug=True)
