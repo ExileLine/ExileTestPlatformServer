@@ -39,6 +39,7 @@ from .project_api.module_app_api import ModuleAppApi, ModuleAppPageApi
 from .safe_scan_conf_api.safe_scan_conf_api import SafeScanConfApi, SafeScanConfPageApi
 from .timed_task_api.timed_task_api import APSchedulerTaskApi, APSchedulerTaskStatusApi, APSchedulerTaskPageApi
 from .download_file_api.download_file_api import DownloadFileApi
+from .file_import_api.file_import_api import InterfaceFileImportApi
 
 api = Blueprint('api', __name__)
 crm = Blueprint('crm', __name__)
@@ -149,3 +150,5 @@ api.add_url_rule('/timed_task_status', view_func=APSchedulerTaskStatusApi.as_vie
 api.add_url_rule('/timed_task_page', view_func=APSchedulerTaskPageApi.as_view('timed_task_page'))
 
 api.add_url_rule('/download_file', view_func=DownloadFileApi.as_view('download_file'))
+
+api.add_url_rule('/import_file', view_func=InterfaceFileImportApi.as_view('import_file'))
