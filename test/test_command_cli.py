@@ -249,6 +249,42 @@ class GenNewScenarioData:
         db.session.commit()
 
 
+@set_app_context
+def create_user(user_list):
+    """
+    [
+        {
+            "name": "测试用户123",
+            "mail": "yangyuexiong@gmail.com"
+        },
+        ...
+    ]
+    :param user_list:
+    :return:
+    """
+    for i in user_list:
+        nickname = i.get('name')
+        mail = i.get('mail')
+        username = mail.split("@")[0]
+        query_user = Admin.query.filter_by(username=username).first()
+        if query_user:
+            print(f'用户:{username} 已存在')
+        else:
+            new_admin = Admin(
+                username=username,
+                password='123456',
+                nickname=nickname,
+                phone=None,
+                mail=mail,
+                creator='shell',
+                creator_id='0',
+                remark='manage shell')
+            new_admin.set_code()
+            db.session.add(new_admin)
+    db.session.commit()
+    print('添加成功')
+
+
 if __name__ == '__main__':
     pass
     # def gen_num():
@@ -271,3 +307,5 @@ if __name__ == '__main__':
     # GenNewScenarioData.gen_new_version()
     # GenNewScenarioData.gen_new_task()
     # GenNewScenarioData.gen_new_module()
+    """批量创建用户"""
+    # create_user()
