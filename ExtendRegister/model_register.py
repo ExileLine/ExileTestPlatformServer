@@ -26,3 +26,4 @@ from app.models.test_case_db.models import TestDatabases
 from app.models.push_reminder.models import MailConfModel, DingDingConfModel
 from app.models.safe_scan_conf.models import SafeScanConf
 from app.models.timed_task.models import TimedTaskModel
+from app.models.file_import.models import FileImportHistory

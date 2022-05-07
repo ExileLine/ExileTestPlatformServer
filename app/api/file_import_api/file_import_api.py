@@ -11,6 +11,7 @@ from app.models.test_case.models import TestCase, TestCaseData
 from app.models.test_case_assert.models import TestCaseDataAssBind
 from app.models.test_project.models import TestProject, MidProjectAndCase, TestProjectVersion, TestModuleApp, \
     MidVersionAndCase, MidModuleAndCase
+from app.models.file_import.models import FileImportHistory
 
 
 class PostManFileImport:
@@ -111,15 +112,16 @@ class PostManFileImport:
                 request_params = self.gen_request_params()
                 request_body, request_body_type = self.gen_request_body()
 
-                print(index, "=" * 100)
-                print(case_name)
-                print('request_method', request_method)
-                print('request_base_url', request_base_url)
-                print('request_url', request_url)
-                print('request_headers', request_headers, type(request_headers))
-                print('request_params', request_params, type(request_params))
-                print('request_body', request_body, type(request_body))
-                print('request_body_type', request_body_type)
+                if debug:
+                    print(index, "=" * 100)
+                    print(case_name)
+                    print('request_method', request_method)
+                    print('request_base_url', request_base_url)
+                    print('request_url', request_url)
+                    print('request_headers', request_headers, type(request_headers))
+                    print('request_params', request_params, type(request_params))
+                    print('request_body', request_body, type(request_body))
+                    print('request_body_type', request_body_type)
 
                 if not debug:
                     new_test_case = TestCase(
@@ -198,15 +200,19 @@ class InterfaceFileImportApi(MethodView):
         project_id = request.form.get('project_id')
         version_id_list = request.form.get('version_id_list')
         module_id_list = request.form.get('module_id_list')
+        import_type = request.form.get('import_type')
         remark = request.form.get('remark')
         file_name = file.filename
+
+        if file_name.split('.')[-1] not in ('json',):
+            return api_result(code=400, message="当前仅支持 .json 文件导入")
+
         file_content = str(file.read(), encoding="utf-8")
         file_content_json = json.loads(file_content)
-        version_id_list = json.loads(version_id_list)
-        module_id_list = json.loads(module_id_list)
+        version_id_list = json.loads(version_id_list) if version_id_list else []
+        module_id_list = json.loads(module_id_list) if module_id_list else []
+        print(file)
         print(file_name)
-        print(remark)
-        print(project_id)
         print(version_id_list, type(version_id_list))
         print(module_id_list, type(module_id_list))
 
@@ -235,6 +241,16 @@ class InterfaceFileImportApi(MethodView):
         main = PostManFileImport()
         main.filter_case(item=file_content_json.get('item', []))
         main.gen_case(project_id=project_id, version_id_list=version_id_list, module_id_list=module_id_list)
+
+        fih = FileImportHistory(
+            file_name=file_name,
+            file_type=import_type,
+            file_main_content=file_content_json,
+            creator=g.app_user.username,
+            creator_id=g.app_user.id,
+            remark=remark
+        )
+        fih.save()
 
         return api_result(code=201, message='操作成功')
 
