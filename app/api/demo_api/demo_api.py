@@ -24,6 +24,15 @@ class TestApi(MethodView):
         print(data)
         return api_result(code=200, message='POST: test api', data=True)
 
+    def delete(self):
+        """1"""
+        data = request.get_json()
+        p1 = request.args.get('p1')
+        p2 = request.args.get('p2')
+        p3 = request.args.get('p3')
+        p4 = request.args.get('p4')
+        return api_result(code=204, message='DELETE: test api', data=[p1, p2, p3, p4, data])
+
 
 class TestCeleryAsyncTaskApi(MethodView):
     """
