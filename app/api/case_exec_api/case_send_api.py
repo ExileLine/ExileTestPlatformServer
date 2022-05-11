@@ -31,13 +31,18 @@ class CaseReqTestApi(MethodView):
             "2": {"json": request_body},
             "3": {"data": request_body}
         }
+
+        method = request_method.lower()
+        if method == 'get':
+            if "?" in url:
+                url = url.split("?")[0]
+
         send = {
             "url": base_url + url if base_url else url,
             "headers": request_headers,
         }
-        req_json_data = req_type_dict.get(str(request_body_type))
 
-        method = request_method.lower()
+        req_json_data = req_type_dict.get(str(request_body_type))
 
         if method == 'get':
             send['params'] = request_params
