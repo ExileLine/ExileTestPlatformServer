@@ -509,7 +509,11 @@ class MainTest:
         }
 
         method = self.request_method.lower()
-        self.sio.log('=== method: {} ==='.format(method))
+        self.sio.log(f'=== method: {method} ===')
+
+        if method == 'get':
+            if "?" in self.request_url:
+                self.request_url = self.request_url.split("?")[0]
 
         url = self.base_url + self.request_url if self.use_base_url else self.request_base_url + self.request_url
 
