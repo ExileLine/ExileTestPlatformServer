@@ -131,6 +131,9 @@ class NewConfig(BaseConfig):
         'default': {'type': 'threadpool', 'max_workers': 20}
     }
 
+    # 外部ui自动化脚本保存位置
+    UPLOAD_PATH = conf.get('base', 'UPLOAD_PATH')
+
 
 config_obj = {
     'production': None,

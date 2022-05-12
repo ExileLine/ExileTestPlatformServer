@@ -31,7 +31,7 @@ from .case_set_api.case_set_api import CaseSetApi
 from .mail_api.mail_api import MailApi, MailPageApi
 from .dingding_api.dingding_api import DingDingApi, DingDingPushPageApi
 from .platform_conf_api.platform_conf_api import PlatformConfApi
-from .ui_auto_file_api.ui_auto_file_api import UiAutoFileApi, UiAutoFilePageApi
+from .ui_auto_file_api.ui_auto_file_api import UiAutoFileApi, UiAutoFilePageApi, UiAutoFileCallAioApi
 from .project_api.project_api import ProjectApi, ProjectPageApi
 from .project_api.version_api import ProjectVersionApi, ProjectVersionPageApi
 from .project_api.version_task_api import VersionTaskApi, VersionTaskPageApi
@@ -123,6 +123,7 @@ api.add_url_rule('/platform_conf', view_func=PlatformConfApi.as_view('platform_c
 api.add_url_rule('/ui_auto_file', view_func=UiAutoFileApi.as_view('ui_auto_file'))
 api.add_url_rule('/ui_auto_file/<file_id>', view_func=UiAutoFileApi.as_view('ui_auto_file_detail'))
 api.add_url_rule('/ui_auto_file_page', view_func=UiAutoFilePageApi.as_view('ui_auto_file_page'))
+api.add_url_rule('/ui_auto_call_aio', view_func=UiAutoFileCallAioApi.as_view('ui_auto_call_aio'))
 
 api.add_url_rule('/project', view_func=ProjectApi.as_view('project'))
 api.add_url_rule('/project/<project_id>', view_func=ProjectApi.as_view('project_detail'))
