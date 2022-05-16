@@ -134,6 +134,9 @@ class NewConfig(BaseConfig):
     # 外部ui自动化脚本保存位置
     UPLOAD_PATH = conf.get('base', 'UPLOAD_PATH')
 
+    # aio中间件服务
+    AIO_SERVER = conf.get('base', 'AIO_SERVER')
+
 
 config_obj = {
     'production': None,

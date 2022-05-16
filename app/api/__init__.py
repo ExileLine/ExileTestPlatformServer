@@ -31,7 +31,8 @@ from .case_set_api.case_set_api import CaseSetApi
 from .mail_api.mail_api import MailApi, MailPageApi
 from .dingding_api.dingding_api import DingDingApi, DingDingPushPageApi
 from .platform_conf_api.platform_conf_api import PlatformConfApi
-from .ui_auto_file_api.ui_auto_file_api import UiAutoFileApi, UiAutoFilePageApi, UiAutoFileCallAioApi
+from .ui_auto_file_api.ui_auto_file_api import UiAutoFileApi, UiAutoFileUploadApi, UiAutoFilePageApi, \
+    UiAutoFileCallAioApi
 from .project_api.project_api import ProjectApi, ProjectPageApi
 from .project_api.version_api import ProjectVersionApi, ProjectVersionPageApi
 from .project_api.version_task_api import VersionTaskApi, VersionTaskPageApi
@@ -120,6 +121,7 @@ api.add_url_rule('/dd_conf_page', view_func=DingDingPushPageApi.as_view('dd_conf
 
 api.add_url_rule('/platform_conf', view_func=PlatformConfApi.as_view('platform_conf'))
 
+api.add_url_rule('/ui_auto_file_upload', view_func=UiAutoFileUploadApi.as_view('ui_auto_file_upload'))
 api.add_url_rule('/ui_auto_file', view_func=UiAutoFileApi.as_view('ui_auto_file'))
 api.add_url_rule('/ui_auto_file/<file_id>', view_func=UiAutoFileApi.as_view('ui_auto_file_detail'))
 api.add_url_rule('/ui_auto_file_page', view_func=UiAutoFilePageApi.as_view('ui_auto_file_page'))
