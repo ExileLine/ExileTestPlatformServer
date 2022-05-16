@@ -79,6 +79,9 @@ class UiAutoFileUploadApi(MethodView):
         if len(file_list) > 9:
             return api_result(code=400, message='单次文件上传不能多于9个')
 
+        if not os.path.exists(file_path):
+            os.mkdir(file_path)
+
         result_file_list = []
         for file in file_list:
             file_name = file.filename
