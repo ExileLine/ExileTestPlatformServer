@@ -24,7 +24,7 @@ def api_before_request():
     print_logs()
 
     dev_host_list = ['0.0.0.0', 'localhost']
-    open_api_list = ['/api/open_exec']
+    open_api_list = ['/api/open_exec', '/api/open_cicd']
     white_list = ['/api/login', '/api/auth', '/api/tourist', '/api/platform_conf']
 
     if request.path in white_list:
