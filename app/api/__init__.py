@@ -26,7 +26,7 @@ from .case_ass_rule_api.case_ass_rule_api import RespAssertionRuleApi, FieldAsse
 from .rule_test_api.rule_test_api import RuleTestApi
 from .case_exec_api.case_exec_api import CaseExecApi
 from .case_exec_api.case_send_api import CaseReqTestApi
-from .case_exec_api.case_cicd_api import CaseCICDApi
+from .case_exec_api.case_cicd_api import CaseCICDApi, CaseCICDMapApi, CaseCICDMapPageApi
 from .case_scenario_api.case_scenario_api import CaseScenarioApi, CaseScenarioPageApi
 from .case_set_api.case_set_api import CaseSetApi
 from .mail_api.mail_api import MailApi, MailPageApi
@@ -158,3 +158,5 @@ api.add_url_rule('/download_file', view_func=DownloadFileApi.as_view('download_f
 api.add_url_rule('/import_file', view_func=InterfaceFileImportApi.as_view('import_file'))
 
 api.add_url_rule('/open_cicd', view_func=CaseCICDApi.as_view('open_cicd'))
+api.add_url_rule('/cicd_map', view_func=CaseCICDMapApi.as_view('cicd_map'))
+api.add_url_rule('/cicd_map_page', view_func=CaseCICDMapPageApi.as_view('cicd_map_page'))
