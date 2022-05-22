@@ -20,6 +20,7 @@ class TestCiCdMap(BaseModel):
     obj_json = db.Column(db.JSON, comment='整个json')
     version_id = db.Column(BIGINT(20, unsigned=True), comment='平台版本id')
     task_id = db.Column(BIGINT(20, unsigned=True), comment='平台任务id')
+    dd_push_id = db.Column(BIGINT(20, unsigned=True), comment='平台钉钉推送id')
     creator = db.Column(db.String(32), comment='创建人')
     creator_id = db.Column(BIGINT(20, unsigned=True), comment='创建人id')
     modifier = db.Column(db.String(32), comment='更新人')

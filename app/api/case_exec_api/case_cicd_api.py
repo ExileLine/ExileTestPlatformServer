@@ -8,7 +8,8 @@
 
 from all_reference import *
 from app.models.test_cicd.models import TestCiCdMap
-from .case_exec_api import QueryExecuteData, save_test_logs
+from app.models.push_reminder.models import DingDingConfModel
+from .case_exec_api import QueryExecuteData
 from tasks.task03 import execute_main
 
 
@@ -24,6 +25,7 @@ class CaseCICDMapApi(MethodView):
         project_id = data.get('project_id')
         version_id = data.get('version_id')
         task_id = data.get('task_id')
+        dd_push_id = data.get('dd_push_id')
         project_name = data.get('project_name')
         app_name = data.get('app_name')
         mirror = data.get('mirror')
@@ -40,6 +42,7 @@ class CaseCICDMapApi(MethodView):
             project_id=project_id,
             version_id=version_id,
             task_id=task_id,
+            dd_push_id=dd_push_id,
             project_name=project_name,
             app_name=app_name,
             mirror=mirror,
@@ -58,6 +61,7 @@ class CaseCICDMapApi(MethodView):
         cicd_id = data.get('id')
         version_id = data.get('version_id')
         task_id = data.get('task_id')
+        dd_push_id = data.get('dd_push_id')
         project_name = data.get('project_name')
         app_name = data.get('app_name')
         mirror = data.get('mirror')
@@ -80,6 +84,7 @@ class CaseCICDMapApi(MethodView):
         query_cicd.url = url
         query_cicd.version_id = version_id
         query_cicd.task_id = task_id
+        query_cicd.dd_push_id = dd_push_id
         query_cicd.modifier = g.app_user.username
         query_cicd.modifier_id = g.app_user.id
         db.session.commit()
@@ -141,34 +146,49 @@ class CaseCICDApi(MethodView):
     def post(self):
         """提交代码调用"""
 
+        token = request.headers.get('token', '')
+        data = request.get_json()
         project_name = data.get('project_name')
         app_name = data.get('app_name')
         mirror = data.get('mirror')
         url = data.get('url')
 
-        # exile_cicd_repo_map
-        # result_bool, result_data = QueryExecuteData.execute_all(
-        #     **{"execute_dict_key": "task", "query": {"task_id": "47"}, "model_id": 47}
-        # )
-        # print(result_bool)
-        # print(result_data)
-        #
-        # test_obj = {
-        #     "execute_id": 47,
-        #     "execute_name": result_data.get("execute_name"),
-        #     "execute_type": "task_all",
-        #     "execute_label": "all",
-        #     "execute_user_id": 8888,
-        #     "execute_username": "CICD",
-        #     "use_base_url": False,
-        #     # "is_execute_all": is_execute_all,
-        #     # "case_list": send_test_case_list,
-        #     # "execute_dict": execute_dict,
-        #     # "is_dd_push": True,
-        #     # "dd_push_id": dd_push_id,
-        #     # "ding_talk_url": ding_talk_url,
-        #     "trigger_type": "CICD_execute"
-        # }
-        # results = execute_main.delay(test_obj)
-        # print(results)
-        return api_result(code=200, message='操作成功')
+        if R.get('cicd_token') != token:
+            return api_result(code=400, message='鉴权失效')
+
+        query_cicd_map = TestCiCdMap.query.filter_by(app_name=app_name, is_deleted=0).first()
+        if not query_cicd_map:
+            return api_result(code=400, message=f'应用: {app_name} 不存在')
+
+        dd_push_id = query_cicd_map.dd_push_id
+        query_dd = DingDingConfModel.query.get(dd_push_id)
+        if not query_dd:
+            return api_result(code=400, message=f'钉钉群id: {dd_push_id} 不存在')
+        ding_talk_url = query_dd.ding_talk_url
+
+        task_id = query_cicd_map.task_id
+        result_bool, result_data = QueryExecuteData.execute_all(
+            **{"execute_dict_key": "task", "query": {"task_id": task_id}, "model_id": task_id}
+        )
+        print(result_bool)
+        print(result_data)
+
+        test_obj = {
+            "execute_id": task_id,
+            "execute_name": f'CICD-{result_data.get("execute_name")}',
+            "execute_type": "task_all",
+            "execute_label": "all",
+            "execute_user_id": 9999999999,
+            "execute_username": "CICD",
+            "use_base_url": False,
+            "is_execute_all": result_data.get('is_execute_all'),
+            # "case_list": send_test_case_list,
+            "execute_dict": result_data.get('execute_dict'),
+            "is_dd_push": True,
+            "dd_push_id": dd_push_id,
+            "ding_talk_url": ding_talk_url,
+            "trigger_type": "CICD_execute"
+        }
+        results = execute_main.delay(test_obj)
+        print(results)
+        return api_result(code=200, message='操作成功', data=[str(results)])
