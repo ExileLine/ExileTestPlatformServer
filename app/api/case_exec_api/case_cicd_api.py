@@ -31,9 +31,9 @@ class CaseCICDMapApi(MethodView):
         mirror = data.get('mirror')
         url = data.get('url')
 
-        query_cicd = TestCiCdMap.query.filter_by(app_name=app_name, is_deleted=0).first()
+        query_cicd = TestCiCdMap.query.filter_by(app_name=app_name, project_name=project_name, is_deleted=0).first()
         if query_cicd:
-            return api_result(code=400, message='应用名已存在')
+            return api_result(code=400, message=f'应用名:{app_name} 已经存在分支: {project_name}')
 
         if not version_id or not task_id:
             return api_result(code=400, message='版本任务不能为空')
@@ -74,9 +74,9 @@ class CaseCICDMapApi(MethodView):
         if not version_id or not task_id:
             return api_result(code=400, message='版本任务不能为空')
 
-        if query_cicd.app_name != app_name:
-            if TestCiCdMap.query.filter_by(app_name=app_name, is_deleted=0).all():
-                return api_result(code=400, message=f'应用名已存在:{app_name} 已经存在')
+        check_cicd = TestCiCdMap.query.filter_by(app_name=app_name, project_name=project_name, is_deleted=0).first()
+        if check_cicd and query_cicd.id != check_cicd.id:
+            return api_result(code=400, message=f'应用名:{app_name} 已经存在分支: {project_name}')
 
         query_cicd.project_name = project_name
         query_cicd.app_name = app_name
