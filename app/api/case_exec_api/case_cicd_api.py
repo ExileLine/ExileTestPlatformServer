@@ -129,8 +129,8 @@ class CaseCICDMapPageApi(MethodView):
 
         result_data = general_query(
             model=TestCiCdMap,
-            field_list=['project_name', 'app_name', 'mirror'],
-            query_list=[project_name, app_name, mirror],
+            field_list=['project_name', 'app_name'],
+            query_list=[project_name, app_name],
             where_dict=where_dict,
             page=page,
             size=size
