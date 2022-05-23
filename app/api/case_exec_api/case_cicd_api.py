@@ -30,6 +30,7 @@ class CaseCICDMapApi(MethodView):
         app_name = data.get('app_name')
         mirror = data.get('mirror')
         url = data.get('url')
+        is_set_url = data.get('is_set_url')
 
         query_cicd = TestCiCdMap.query.filter_by(app_name=app_name, project_name=project_name, is_deleted=0).first()
         if query_cicd:
@@ -47,6 +48,7 @@ class CaseCICDMapApi(MethodView):
             app_name=app_name,
             mirror=mirror,
             url=url,
+            is_set_url=is_set_url,
             obj_json=data,
             creator=g.app_user.username,
             creator_id=g.app_user.id
@@ -66,6 +68,7 @@ class CaseCICDMapApi(MethodView):
         app_name = data.get('app_name')
         mirror = data.get('mirror')
         url = data.get('url')
+        is_set_url = data.get('is_set_url')
 
         query_cicd = TestCiCdMap.query.get(cicd_id)
         if not query_cicd:
@@ -82,6 +85,7 @@ class CaseCICDMapApi(MethodView):
         query_cicd.app_name = app_name
         query_cicd.mirror = mirror
         query_cicd.url = url
+        query_cicd.is_set_url = is_set_url
         query_cicd.version_id = version_id
         query_cicd.task_id = task_id
         query_cicd.dd_push_id = dd_push_id
@@ -166,6 +170,13 @@ class CaseCICDApi(MethodView):
             return api_result(code=400, message=f'钉钉群id: {dd_push_id} 不存在')
         ding_talk_url = query_dd.ding_talk_url
 
+        if query_cicd_map.is_set_url:
+            use_base_url = True
+            base_url = query_cicd_map.url
+        else:
+            use_base_url = False
+            base_url = ""
+
         task_id = query_cicd_map.task_id
         result_bool, result_data = QueryExecuteData.execute_all(
             **{"execute_dict_key": "task", "query": {"task_id": task_id}, "model_id": task_id}
@@ -180,7 +191,8 @@ class CaseCICDApi(MethodView):
             "execute_label": "all",
             "execute_user_id": 9999999999,
             "execute_username": "CICD",
-            "use_base_url": False,
+            "use_base_url": use_base_url,
+            "base_url": base_url,
             "is_execute_all": result_data.get('is_execute_all'),
             # "case_list": send_test_case_list,
             "execute_dict": result_data.get('execute_dict'),
