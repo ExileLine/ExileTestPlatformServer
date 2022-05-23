@@ -156,7 +156,7 @@ class CaseCICDApi(MethodView):
         if R.get('cicd_token') != token:
             return api_result(code=400, message='鉴权失效')
 
-        query_cicd_map = TestCiCdMap.query.filter_by(app_name=app_name, is_deleted=0).first()
+        query_cicd_map = TestCiCdMap.query.filter_by(app_name=app_name, project_name=project_name, is_deleted=0).first()
         if not query_cicd_map:
             return api_result(code=400, message=f'应用: {app_name} 不存在')
 
