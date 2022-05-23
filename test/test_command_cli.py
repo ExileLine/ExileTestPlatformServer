@@ -285,6 +285,26 @@ def create_user(user_list):
     print('添加成功')
 
 
+@set_app_context
+def create_user_one(username, nickname, mail):
+    """1"""
+    query_user = Admin.query.filter_by(username=username).first()
+    if query_user:
+        print(f'用户:{username} 已存在')
+    else:
+        new_admin = Admin(
+            username=username,
+            password='123456',
+            nickname=nickname,
+            phone=None,
+            mail=mail,
+            creator='shell',
+            creator_id='0',
+            remark='manage shell')
+        new_admin.set_code()
+        new_admin.save()
+
+
 if __name__ == '__main__':
     pass
     # def gen_num():
@@ -309,3 +329,4 @@ if __name__ == '__main__':
     # GenNewScenarioData.gen_new_module()
     """批量创建用户"""
     # create_user()
+    # create_user_one(username='yangyueixong', nickname='yyx', mail='yang@126.com')
