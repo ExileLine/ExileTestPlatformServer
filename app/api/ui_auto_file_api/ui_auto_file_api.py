@@ -6,6 +6,7 @@
 # @Software: PyCharm
 
 import os
+import platform
 import time
 import psutil
 import zipfile
@@ -45,7 +46,11 @@ def gen_execute_cmd(file_path, user):
     :param user: 用户名
     :return:
     """
-    user_cmd = f"""/usr/local/bin/node ./node_modules/.bin/cross-env MACACA_REPORTER_DIR={file_path}/{user} /usr/local/bin/node ./node_modules/.bin/macaca-mocha-parallel-tests "{user}/**/*.spec.js" --reporter macaca-reporter --reporter-options reportJSONFilename=index,processAlwaysExitWithZero=true --max-parallel 5 --bail"""
+
+    if platform.system() == 'Linux':
+        user_cmd = f"""/usr/local/bin/node cross-env MACACA_REPORTER_DIR=={file_path}/{user} /usr/local/bin/node ./node_modules/.bin/macaca-mocha-parallel-tests "{user}/**/*.spec.js" --reporter macaca-reporter --reporter-options reportJSONFilename=index,processAlwaysExitWithZero=true --max-parallel 5 --bail"""
+    else:
+        user_cmd = f"""/usr/local/bin/node ./node_modules/.bin/cross-env MACACA_REPORTER_DIR={file_path}/{user} /usr/local/bin/node ./node_modules/.bin/macaca-mocha-parallel-tests "{user}/**/*.spec.js" --reporter macaca-reporter --reporter-options reportJSONFilename=index,processAlwaysExitWithZero=true --max-parallel 5 --bail"""
     print(user_cmd)
     return user_cmd
 
@@ -274,6 +279,7 @@ class UiAutoFileCallAioApi(MethodView):
         }
         execute_command = gen_execute_cmd(file_path=upload_path, user=user)
         json_data = {
+            "execute_platform": platform.system(),
             "execute_user": user,
             "execute_path": upload_path,
             "execute_command": execute_command
