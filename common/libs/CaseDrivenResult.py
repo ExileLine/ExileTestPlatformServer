@@ -681,7 +681,7 @@ class MainTest:
         R.set(save_obj_first, json.dumps(return_case_result))
         logger.success('=== save redis ok ===')
 
-        MainTest.update_case_total_execution(self.id_after_execution)
+        # MainTest.update_case_total_execution(self.id_after_execution)
 
         logger.success('=== update case total ok ===')
 
