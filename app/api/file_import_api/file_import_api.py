@@ -63,7 +63,10 @@ class PostManFileImport:
             if mode == "raw":
                 print("=== json ===")
                 j_s = self.body.get(mode)
-                request_body = json.loads(j_s)
+                if j_s:
+                    request_body = json.loads(j_s)
+                else:
+                    request_body = {}
             elif mode in ('formdata', 'urlencoded'):
                 print(f"=== {mode} ===")
                 for i in self.body.get(mode):
