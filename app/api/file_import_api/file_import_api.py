@@ -104,7 +104,7 @@ class PostManFileImport:
                 case_name = case.get('name', f'用例名称为空:{shortuuid.uuid()[0:4]}{int(time.time())}')
                 request_method = method
                 request_url = '/' + '/'.join(path)
-                request_base_url = url.get('raw').strip(request_url)
+                request_base_url = url.get('raw').split(request_url)[0]
 
                 # 第二部分
                 request_headers = {}
