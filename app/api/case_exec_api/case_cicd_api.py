@@ -89,6 +89,7 @@ class CaseCICDMapApi(MethodView):
         query_cicd.version_id = version_id
         query_cicd.task_id = task_id
         query_cicd.dd_push_id = dd_push_id
+        query_cicd.obj_json = data
         query_cicd.modifier = g.app_user.username
         query_cicd.modifier_id = g.app_user.id
         db.session.commit()
@@ -171,10 +172,10 @@ class CaseCICDApi(MethodView):
         ding_talk_url = query_dd.ding_talk_url
 
         if query_cicd_map.is_set_url:
-            use_base_url = 1
+            use_base_url = True
             base_url = query_cicd_map.url
         else:
-            use_base_url = 0
+            use_base_url = False
             base_url = ""
 
         task_id = query_cicd_map.task_id
