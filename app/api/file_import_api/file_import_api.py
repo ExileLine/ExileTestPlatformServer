@@ -17,15 +17,17 @@ from app.models.file_import.models import FileImportHistory
 class PostManFileImport:
     """导入postman接口文件"""
 
-    case_list = []
-    query = None
-    body = None
     request_body_type_dict = {
         "raw": 2,
         "formdata": 1,
         "urlencoded": 3
     }
-    new_case_ids = []
+
+    def __init__(self):
+        self.case_list = []
+        self.query = None
+        self.body = None
+        self.new_case_ids = []
 
     def filter_case(self, item):
         """
