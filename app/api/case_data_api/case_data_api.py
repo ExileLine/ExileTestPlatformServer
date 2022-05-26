@@ -126,9 +126,9 @@ class CaseReqDataApi(MethodView):
         for index, d in enumerate(data_list):
             is_public = d.get('is_public', True)
             is_public = bool(is_public) if isinstance(is_public, bool) or isinstance(is_public, int) else True
-            check_result = check_variable(d)
-            if not check_result.get('status'):
-                return api_result(code=400, message="参数不存在:{}".format(check_result.get('query_none_list')))
+            # check_result = check_variable(d)
+            # if not check_result.get('status'):
+            #     return api_result(code=400, message="参数不存在:{}".format(check_result.get('query_none_list')))
 
             check_bool, check_msg = RequestParamKeysCheck(d, p).ck()
             if not check_bool:
@@ -196,9 +196,9 @@ class CaseReqDataApi(MethodView):
             if query_test_case_data.creator_id != g.app_user.id:
                 return api_result(code=400, message='该参数未开放,只能被创建人修改!')
 
-        check_result = check_variable(data)
-        if not check_result.get('status'):
-            return api_result(code=400, message="参数不存在:{}".format(check_result.get('query_none_list')))
+        # check_result = check_variable(data)
+        # if not check_result.get('status'):
+        #     return api_result(code=400, message="参数不存在:{}".format(check_result.get('query_none_list')))
 
         update_var_list = req_data_json.get('update_var_list')
         _update_var_list_bool, _update_var_list_msg = check_update_var(update_var_list=update_var_list)
