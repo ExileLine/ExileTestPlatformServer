@@ -171,12 +171,19 @@ class CaseCICDApi(MethodView):
         json_data = {
             "project_name": result.project_name,
             "app_name": result.app_name,
+            "branch_name": result.branch_name,
             "mirror": result.mirror,
             "url": result.url
         }
-        resp = requests.post(url=url, headers=headers, json=json_data)
+        send = {
+            "url": url,
+            "headers": headers,
+            "json": json_data
+        }
+        resp = requests.post(**send)
         resp_json = resp.json()
-        R.set(f'test_cicd_{g.app_user.username}_{int(time.time())}', json.dumps(resp_json))
+        send['resp_json'] = resp_json
+        R.set(f'test_cicd_{g.app_user.username}_{int(time.time())}', json.dumps(send))
         return api_result(code=200, message='操作成功')
 
     def post(self):
