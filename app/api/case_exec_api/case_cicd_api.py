@@ -5,6 +5,7 @@
 # @File    : case_cicd_api.py
 # @Software: PyCharm
 
+from flask import current_app
 
 from all_reference import *
 from app.models.test_cicd.models import TestCiCdMap
@@ -28,13 +29,14 @@ class CaseCICDMapApi(MethodView):
         dd_push_id = data.get('dd_push_id')
         project_name = data.get('project_name')
         app_name = data.get('app_name')
+        branch_name = data.get('branch_name')
         mirror = data.get('mirror')
         url = data.get('url')
         is_set_url = data.get('is_set_url')
 
-        query_cicd = TestCiCdMap.query.filter_by(app_name=app_name, project_name=project_name, is_deleted=0).first()
+        query_cicd = TestCiCdMap.query.filter_by(app_name=app_name, branch_name=branch_name, is_deleted=0).first()
         if query_cicd:
-            return api_result(code=400, message=f'应用名:{app_name} 已经存在分支: {project_name}')
+            return api_result(code=400, message=f'应用名:{app_name} 已经存在分支: {branch_name}')
 
         if not version_id or not task_id:
             return api_result(code=400, message='版本任务不能为空')
@@ -46,6 +48,7 @@ class CaseCICDMapApi(MethodView):
             dd_push_id=dd_push_id,
             project_name=project_name,
             app_name=app_name,
+            branch_name=branch_name,
             mirror=mirror,
             url=url,
             is_set_url=is_set_url,
@@ -66,6 +69,7 @@ class CaseCICDMapApi(MethodView):
         dd_push_id = data.get('dd_push_id')
         project_name = data.get('project_name')
         app_name = data.get('app_name')
+        branch_name = data.get('branch_name')
         mirror = data.get('mirror')
         url = data.get('url')
         is_set_url = data.get('is_set_url')
@@ -77,12 +81,13 @@ class CaseCICDMapApi(MethodView):
         if not version_id or not task_id:
             return api_result(code=400, message='版本任务不能为空')
 
-        check_cicd = TestCiCdMap.query.filter_by(app_name=app_name, project_name=project_name, is_deleted=0).first()
+        check_cicd = TestCiCdMap.query.filter_by(app_name=app_name, branch_name=branch_name, is_deleted=0).first()
         if check_cicd and query_cicd.id != check_cicd.id:
-            return api_result(code=400, message=f'应用名:{app_name} 已经存在分支: {project_name}')
+            return api_result(code=400, message=f'应用名:{app_name} 已经存在分支: {branch_name}')
 
         query_cicd.project_name = project_name
         query_cicd.app_name = app_name
+        query_cicd.branch_name = branch_name
         query_cicd.mirror = mirror
         query_cicd.url = url
         query_cicd.is_set_url = is_set_url
@@ -122,6 +127,7 @@ class CaseCICDMapPageApi(MethodView):
         cicd_id = data.get('id')
         project_name = data.get('project_name')
         app_name = data.get('app_name')
+        branch_name = data.get('branch_name')
         mirror = data.get('mirror')
         url = data.get('url')
         page = data.get('page')
@@ -134,8 +140,8 @@ class CaseCICDMapPageApi(MethodView):
 
         result_data = general_query(
             model=TestCiCdMap,
-            field_list=['project_name', 'app_name'],
-            query_list=[project_name, app_name],
+            field_list=['app_name', 'branch_name'],
+            query_list=[app_name, branch_name],
             where_dict=where_dict,
             page=page,
             size=size
@@ -148,6 +154,31 @@ class CaseCICDApi(MethodView):
     CICD Api
     """
 
+    def get(self, cicd_id):
+        """手动触发"""
+
+        result = TestCiCdMap.query.get(cicd_id)
+
+        if not result:
+            return api_result(code=400, message=f'CICD_id:{cicd_id}不存在')
+
+        RUN_HOST = current_app.config.get("RUN_HOST")
+        RUN_PORT = current_app.config.get("RUN_PORT")
+        url = f"http://{RUN_HOST}:{RUN_PORT}/api/open_cicd"
+        headers = {
+            "token": R.get('cicd_token')
+        }
+        json_data = {
+            "project_name": result.project_name,
+            "app_name": result.app_name,
+            "mirror": result.mirror,
+            "url": result.url
+        }
+        resp = requests.post(url=url, headers=headers, json=json_data)
+        resp_json = resp.json()
+        R.set(f'test_cicd_{g.app_user.username}_{int(time.time())}', json.dumps(resp_json))
+        return api_result(code=200, message='操作成功')
+
     def post(self):
         """提交代码调用"""
 
@@ -155,13 +186,14 @@ class CaseCICDApi(MethodView):
         data = request.get_json()
         project_name = data.get('project_name')
         app_name = data.get('app_name')
+        branch_name = data.get('branch_name')
         mirror = data.get('mirror')
         url = data.get('url')
 
         if R.get('cicd_token') != token:
             return api_result(code=400, message='鉴权失效')
 
-        query_cicd_map = TestCiCdMap.query.filter_by(app_name=app_name, project_name=project_name, is_deleted=0).first()
+        query_cicd_map = TestCiCdMap.query.filter_by(app_name=app_name, branch_name=branch_name, is_deleted=0).first()
         if not query_cicd_map:
             return api_result(code=400, message=f'应用: {app_name} 不存在')
 

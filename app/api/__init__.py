@@ -158,5 +158,6 @@ api.add_url_rule('/download_file', view_func=DownloadFileApi.as_view('download_f
 api.add_url_rule('/import_file', view_func=InterfaceFileImportApi.as_view('import_file'))
 
 api.add_url_rule('/open_cicd', view_func=CaseCICDApi.as_view('open_cicd'))
+api.add_url_rule('/open_cicd/<cicd_id>', view_func=CaseCICDApi.as_view('open_cicd_test'))
 api.add_url_rule('/cicd_map', view_func=CaseCICDMapApi.as_view('cicd_map'))
 api.add_url_rule('/cicd_map_page', view_func=CaseCICDMapPageApi.as_view('cicd_map_page'))
