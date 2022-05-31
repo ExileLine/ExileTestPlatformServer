@@ -244,6 +244,8 @@ class MainTest:
         self.execute_status = True
         self.path = ""
         self.report_name = ""
+        self.report_url = ""
+        self.safe_scan_report_path = ""
 
     def reset_current_data(self):
         """重置"""
@@ -619,13 +621,15 @@ class MainTest:
             new_var = json.dumps(update_val_result, ensure_ascii=False)
 
             sql = f"""UPDATE exile_test_variable SET var_value='{new_var}' WHERE id='{id}';"""
-            self.sio.log(f'=== update sql === 【 {sql} 】', status='success')
+            print(sql)
+            # self.sio.log(f'=== update sql === 【 {sql} 】', status='success')
             project_db.update(sql)
 
             sql2 = """INSERT INTO exile_test_variable_history ( `create_timestamp`, `is_deleted`, `var_id`, `update_type`, `creator`, `creator_id`, `before_var`, `after_var`) VALUES ('{}',  '0',  '{}', '执行用例更新', '{}', '{}', '{}', '{}');""".format(
                 int(self.start_time), id, self.execute_username, self.execute_user_id, old_var, new_var
             )
-            self.sio.log(f'=== update history sql === 【 {sql2} 】', status='success')
+            print(sql2)
+            # self.sio.log(f'=== update history sql === 【 {sql2} 】', status='success')
             project_db.insert(sql2)
 
     def save_logs(self, redis_key, report_url, file_name):
@@ -681,7 +685,11 @@ class MainTest:
         R.set(save_obj_first, json.dumps(return_case_result))
         logger.success('=== save redis ok ===')
 
-        # MainTest.update_case_total_execution(self.id_after_execution)
+        try:
+            MainTest.update_case_total_execution(self.id_after_execution)
+        except BaseException as e:
+            print(f"更新执行次数失败:{str(e)}")
+            print(f"id_after_execution:{self.id_after_execution}")
 
         logger.success('=== update case total ok ===')
 
@@ -910,10 +918,11 @@ class MainTest:
         :return:
         """
         query = project_db.select(
-            'SELECT server_url FROM exile_platform_conf WHERE weights = (SELECT max(weights) FROM exile_platform_conf);',
+            'SELECT server_url, safe_scan_report_path, safe_scan_report_name FROM exile_platform_conf WHERE weights = (SELECT max(weights) FROM exile_platform_conf);',
             only=True)
-        report_url = f"{query.get('server_url', 'http://0.0.0.0')}/{self.report_name}"
-        return report_url
+        def_url = 'http://0.0.0.0:5000'
+        self.report_url = f"{query.get('server_url', def_url)}/{self.report_name}"
+        self.safe_scan_report_path = f"{query.get('safe_scan_report_path', def_url)}/{query.get('safe_scan_report_name', 'test.html')}"
 
     def main(self):
         """main"""
@@ -937,15 +946,16 @@ class MainTest:
             }
             R.set(f'gen_repost_error_{t}', json.dumps(error_info))
 
-        report_url = self.gen_report_url()  # 生成测试报告链接
-        self.save_logs(redis_key=self.save_key, report_url=report_url, file_name=self.report_name)
+        self.gen_report_url()  # 生成测试报告链接
+        self.save_logs(redis_key=self.save_key, report_url=self.report_url, file_name=self.report_name)
 
         if self.is_dd_push:
             try:
                 mt = f"#### 测试报告:{self.execute_name}  \n  > 测试人员:{self.execute_username}  \n  > 开始时间:{self.create_time}  \n  > 结束时间:{self.end_time}  \n  > 合计耗时:{self.total_time}s  \n  > 用例总数:{self.test_result.all_test_count}  \n  > 成功数:{self.test_result.pass_count}  \n  > 失败数:{self.test_result.fail_count}  \n  > 通过率:{self.test_result.pass_rate}  \n "
                 print(mt)
                 print(self.ding_talk_url)
-                MessagePush.dd_push(ding_talk_url=self.ding_talk_url, report_url=report_url, markdown_text=mt)
+                MessagePush.dd_push(ding_talk_url=self.ding_talk_url, report_url=self.report_url,
+                                    safe_scan_report_path=self.safe_scan_report_path, markdown_text=mt)
             except BaseException as e:
                 print(str(e))
                 t = datetime.datetime.now()

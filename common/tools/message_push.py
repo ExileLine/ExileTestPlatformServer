@@ -14,11 +14,12 @@ class MessagePush:
     """消息推送"""
 
     @staticmethod
-    def dd_push(ding_talk_url=None, report_url=None, markdown_text=None):
+    def dd_push(ding_talk_url=None, report_url=None, safe_scan_report_path=None, markdown_text=None):
         """
         钉钉推送
         :param ding_talk_url: 钉钉群token
         :param report_url: 测试报告链接
+        :param safe_scan_report_path: 安全测试报告链接
         :param markdown_text: 推送模板
         :return:
         """
@@ -50,13 +51,14 @@ class MessagePush:
 
         demo_text = "#### 测试报告:{}  \n  > 测试人员:{}  \n  > 开始时间:{}  \n  > 结束时间:{}  \n  > 合计耗时:{}  \n  > 用例总数:{}  \n  > 成功数:{}  \n  > 失败数:{}  \n  > 错误数:{}  \n  > 通过率:{}  \n  > 报告地址:[前往](1)"
 
-        report_link = "  \n  > 报告地址:[{}]({})".format(report_url, report_url)
+        report_link = f"  \n  > 报告地址:[{report_url}]({report_url})"
+        safe_scan_report_link = f"  \n  > 安全报告:[{safe_scan_report_path}]({safe_scan_report_path})"
 
         json_data = {
             "msgtype": "markdown",
             "markdown": {
                 "title": "测试报告",
-                "text": markdown_text + report_link
+                "text": markdown_text + report_link + safe_scan_report_link
                 # "text": demo_text + report_link
             },
             "at": {
