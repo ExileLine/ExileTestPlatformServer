@@ -33,6 +33,7 @@ class CaseCICDMapApi(MethodView):
         mirror = data.get('mirror')
         url = data.get('url')
         is_set_url = data.get('is_set_url')
+        is_active = data.get('is_active', 1)
 
         query_cicd = TestCiCdMap.query.filter_by(app_name=app_name, branch_name=branch_name, is_deleted=0).first()
         if query_cicd:
@@ -52,6 +53,7 @@ class CaseCICDMapApi(MethodView):
             mirror=mirror,
             url=url,
             is_set_url=is_set_url,
+            is_active=is_active,
             obj_json=data,
             creator=g.app_user.username,
             creator_id=g.app_user.id
@@ -73,6 +75,7 @@ class CaseCICDMapApi(MethodView):
         mirror = data.get('mirror')
         url = data.get('url')
         is_set_url = data.get('is_set_url')
+        is_active = data.get('is_active', 1)
 
         query_cicd = TestCiCdMap.query.get(cicd_id)
         if not query_cicd:
@@ -91,6 +94,7 @@ class CaseCICDMapApi(MethodView):
         query_cicd.mirror = mirror
         query_cicd.url = url
         query_cicd.is_set_url = is_set_url
+        query_cicd.is_active = is_active
         query_cicd.version_id = version_id
         query_cicd.task_id = task_id
         query_cicd.dd_push_id = dd_push_id
@@ -204,6 +208,9 @@ class CaseCICDApi(MethodView):
         query_cicd_map = TestCiCdMap.query.filter_by(app_name=app_name, is_deleted=0).first()
         if not query_cicd_map:
             return api_result(code=400, message=f'应用: {app_name} 不存在')
+
+        if not query_cicd_map.is_active:
+            return api_result(code=200, message=f'调用成功，应用: {app_name} CICD配置未开启')
 
         dd_push_id = query_cicd_map.dd_push_id
         query_dd = DingDingConfModel.query.get(dd_push_id)

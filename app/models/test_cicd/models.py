@@ -23,6 +23,7 @@ class TestCiCdMap(BaseModel):
     task_id = db.Column(BIGINT(20, unsigned=True), comment='平台任务id')
     dd_push_id = db.Column(BIGINT(20, unsigned=True), comment='平台钉钉推送id')
     is_set_url = db.Column(BIGINT(20, unsigned=True), default=0, comment='是否使用cicd的url')
+    is_active = db.Column(BIGINT(20, unsigned=True), default=1, comment='是否激活')
     creator = db.Column(db.String(32), comment='创建人')
     creator_id = db.Column(BIGINT(20, unsigned=True), comment='创建人id')
     modifier = db.Column(db.String(32), comment='更新人')
