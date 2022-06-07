@@ -372,6 +372,10 @@ class CaseCopyApi(MethodView):
 
         data = request.get_json()
         case_id = data.get('case_id')
+        is_current = data.get('is_current', True)
+        project_id = data.get('project_id')
+        version_id = data.get('version_id')
+        module_id = data.get('module_id')
 
         query_case = TestCase.query.get(case_id)
 
@@ -407,22 +411,63 @@ class CaseCopyApi(MethodView):
                 )
                 db.session.add(new_bind)
 
-        query_pc = MidProjectAndCase.query.filter_by(case_id=case_id).all()
-        query_vc = MidVersionAndCase.query.filter_by(case_id=case_id).all()
-        query_mc = MidModuleAndCase.query.filter_by(case_id=case_id).all()
+        if is_current:  # 当前项目-迭代
 
-        if query_pc:
-            list(map(lambda mid_obj: db.session.add(
-                MidProjectAndCase(project_id=mid_obj.project_id, case_id=new_test_case_id, creator=g.app_user.username,
-                                  creator_id=g.app_user.id, remark="复制生成")), query_pc))
-        if query_vc:
-            list(map(lambda mid_obj: db.session.add(
-                MidVersionAndCase(version_id=mid_obj.version_id, case_id=new_test_case_id, creator=g.app_user.username,
-                                  creator_id=g.app_user.id, remark="复制生成")), query_vc))
-        if query_mc:
-            list(map(lambda mid_obj: db.session.add(
-                MidModuleAndCase(module_id=mid_obj.module_id, case_id=new_test_case_id, creator=g.app_user.username,
-                                 creator_id=g.app_user.id, remark="复制生成")), query_mc))
+            query_pc = MidProjectAndCase.query.filter_by(case_id=case_id).all()
+            query_vc = MidVersionAndCase.query.filter_by(case_id=case_id).all()
+            query_mc = MidModuleAndCase.query.filter_by(case_id=case_id).all()
+
+            if query_pc:
+                list(map(lambda mid_obj: db.session.add(
+                    MidProjectAndCase(project_id=mid_obj.project_id, case_id=new_test_case_id,
+                                      creator=g.app_user.username,
+                                      creator_id=g.app_user.id, remark="复制生成")), query_pc))
+            if query_vc:
+                list(map(lambda mid_obj: db.session.add(
+                    MidVersionAndCase(version_id=mid_obj.version_id, case_id=new_test_case_id,
+                                      creator=g.app_user.username,
+                                      creator_id=g.app_user.id, remark="复制生成")), query_vc))
+            if query_mc:
+                list(map(lambda mid_obj: db.session.add(
+                    MidModuleAndCase(module_id=mid_obj.module_id, case_id=new_test_case_id, creator=g.app_user.username,
+                                     creator_id=g.app_user.id, remark="复制生成")), query_mc))
+        else:
+            if not TestProject.query.get(project_id):
+                return api_result(code=400, message=f'项目 id:{project_id} 不存在')
+
+            if version_id:
+                if not TestProjectVersion.query.filter_by(id=version_id, project_id=project_id).first():
+                    return api_result(code=400, message=f'版本 id:{version_id} 不存在')
+
+            if module_id:
+                if not TestModuleApp.query.filter_by(id=module_id, project_id=project_id).first():
+                    return api_result(code=400, message=f'模块 id:{module_id} 不存在')
+
+            db.session.add(
+                MidProjectAndCase(
+                    project_id=project_id,
+                    case_id=new_test_case_id,
+                    creator=g.app_user.username,
+                    creator_id=g.app_user.id, remark="复制生成"
+                )
+            )
+            db.session.add(
+                MidVersionAndCase(
+                    version_id=version_id,
+                    case_id=new_test_case_id,
+                    creator=g.app_user.username,
+                    creator_id=g.app_user.id, remark="复制生成"
+                )
+            )
+            db.session.add(
+                MidModuleAndCase(
+                    module_id=module_id,
+                    case_id=new_test_case_id,
+                    creator=g.app_user.username,
+                    creator_id=g.app_user.id,
+                    remark="复制生成"
+                )
+            )
 
         db.session.commit()
         return api_result(code=200, message='操作成功')
