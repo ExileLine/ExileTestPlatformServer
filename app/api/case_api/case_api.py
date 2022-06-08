@@ -411,7 +411,7 @@ class CaseCopyApi(MethodView):
                 )
                 db.session.add(new_bind)
 
-        if is_current:  # 当前项目-迭代
+        if not is_current:  # 当前项目-迭代
 
             query_pc = MidProjectAndCase.query.filter_by(case_id=case_id).all()
             query_vc = MidVersionAndCase.query.filter_by(case_id=case_id).all()
@@ -432,16 +432,17 @@ class CaseCopyApi(MethodView):
                     MidModuleAndCase(module_id=mid_obj.module_id, case_id=new_test_case_id, creator=g.app_user.username,
                                      creator_id=g.app_user.id, remark="复制生成")), query_mc))
         else:
-            if not TestProject.query.get(project_id):
-                return api_result(code=400, message=f'项目 id:{project_id} 不存在')
+            if project_id:
+                if not TestProject.query.get(project_id):
+                    return api_result(code=400, message=f'项目 id:{project_id} 不存在')
 
-            if version_id:
-                if not TestProjectVersion.query.filter_by(id=version_id, project_id=project_id).first():
-                    return api_result(code=400, message=f'版本 id:{version_id} 不存在')
+                if version_id:
+                    if not TestProjectVersion.query.filter_by(id=version_id, project_id=project_id).first():
+                        return api_result(code=400, message=f'版本 id:{version_id} 不存在')
 
-            if module_id:
-                if not TestModuleApp.query.filter_by(id=module_id, project_id=project_id).first():
-                    return api_result(code=400, message=f'模块 id:{module_id} 不存在')
+                if module_id:
+                    if not TestModuleApp.query.filter_by(id=module_id, project_id=project_id).first():
+                        return api_result(code=400, message=f'模块 id:{module_id} 不存在')
 
             db.session.add(
                 MidProjectAndCase(

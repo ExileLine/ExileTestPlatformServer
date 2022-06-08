@@ -128,7 +128,6 @@ class ProjectPageApi(MethodView):
         """
 
         where_dict = {
-            "id": project_id,
             "is_deleted": is_deleted
         }
 
