@@ -247,7 +247,8 @@ class CaseCICDApi(MethodView):
             "is_dd_push": True,
             "dd_push_id": dd_push_id,
             "ding_talk_url": ding_talk_url,
-            "trigger_type": "CICD_execute"
+            "trigger_type": "CICD_execute",
+            "request_timeout": 20
         }
         results = execute_main.delay(test_obj)
         print(results)
