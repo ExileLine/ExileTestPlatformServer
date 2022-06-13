@@ -542,7 +542,7 @@ class MainTest:
             send['proxies'] = proxies
 
         self.sio.log('=== send ===')
-        resp = self.current_request(method=method, timeout=self.request_timeout, **send)
+        resp = self.current_request(method=method, timeout=(50, 60), **send)
         self.resp_json = resp.json()
         self.resp_headers = resp.headers
 
