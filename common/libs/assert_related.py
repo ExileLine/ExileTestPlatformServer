@@ -347,7 +347,7 @@ class AssertFieldMain(AssertMain):
         __func = expect_val_type_dict.get(str(assert_field_obj.get('expect_val_type')))
         assert_field_obj['expect_val'] = __func(assert_field_obj['expect_val'])
 
-        if self.db_type in ['mysql', 'postgresql']:
+        if self.db_type in ['mysql', 'postgresql', 'sqlserver']:
             # TODO 暂时支持唯一数据检验
             if len(self.query_result) == 1 and isinstance(self.query_result, list):
                 self.query_result = self.query_result[0]
@@ -380,7 +380,9 @@ class AssertFieldMain(AssertMain):
                 assert_field_list = ass.get('assert_field_list')
                 result_db = self.db_obj.get("db")
                 result_cmd = self.db_obj.get("cmd")
+                print(result_cmd)
                 query_result = getattr(result_db, result_cmd)(query)
+                print(query_result)
                 self.query_result = query_result
                 list(map(self.to_ass, assert_field_list))
 

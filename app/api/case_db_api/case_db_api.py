@@ -213,7 +213,7 @@ class CaseDBPingApi(MethodView):
                 "user": db_connection['user'],
                 "password": db_connection['password']
             }
-
+            print(db_connection)
         _bool, _result = db_ping(db_type=db_type, db_connection=db_connection)
 
         return api_result(code=200 if _bool else 400, message=_result, data=_result)
