@@ -8,7 +8,7 @@
 import json
 import redis
 
-from common.libs.db import MyPyMysql, MyPostgreSql
+from common.libs.db import MyPyMysql, MyPostgreSql, MySqlServer
 from common.libs.execute_code import execute_code
 from common.libs.StringIOLog import StringIOLog
 from common.libs.data_dict import rule_dict, resp_source_tuple, expect_val_type_dict
@@ -168,7 +168,8 @@ class AssertFieldMain(AssertMain):
             "mongodb": self.get_mongodb,
             'es': self.get_es,
             "oracle": self.get_oracle,
-            "db2": self.get_db2
+            "db2": self.get_db2,
+            "sqlserver": self.get_sqlserver
         }
 
     def get_mysql(self):
@@ -214,6 +215,20 @@ class AssertFieldMain(AssertMain):
 
     def get_db2(self):
         """连接:DB2"""
+
+    def get_sqlserver(self):
+        """连接:SqlServer"""
+
+        connection = {
+            "server": f"{self.db_connection['host']}:{self.db_connection['port']}",
+            "user": self.db_connection['user'],
+            "password": self.db_connection['password']
+        }
+        db = MySqlServer(**connection)  # Sqlserver实例
+        return {
+            "db": db,
+            "cmd": "select"
+        }
 
     def query_db_connection(self):
         """查询db配置是否存在或者可用"""

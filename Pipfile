@@ -19,6 +19,7 @@ flask-apscheduler = "*"
 psycopg2-binary = "*"
 celery = "*"
 psutil = "*"
+pymssql = "*"
 
 [dev-packages]
 

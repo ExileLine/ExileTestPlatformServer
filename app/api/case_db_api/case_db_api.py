@@ -8,10 +8,10 @@
 import redis
 
 from all_reference import *
-from common.libs.db import MyPyMysql, MyPostgreSql
+from common.libs.db import MyPyMysql, MyPostgreSql, MySqlServer
 from app.models.test_case_db.models import TestDatabases
 
-db_list = ("mysql", "redis", "postgresql")
+db_list = ("mysql", "redis", "postgresql", "sqlserver")
 
 db_ping_dict = {
     "mysql": {
@@ -24,6 +24,10 @@ db_ping_dict = {
     },
     "postgresql": {
         "class": MyPostgreSql,
+        "func": "ping"
+    },
+    "sqlserver": {
+        "class": MySqlServer,
         "func": "ping"
     }
 }

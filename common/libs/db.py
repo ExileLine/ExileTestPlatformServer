@@ -13,6 +13,7 @@ from datetime import datetime
 import pymysql
 import psycopg2
 from psycopg2.extras import DictCursor, RealDictCursor
+import pymssql
 
 from config.config import config_obj
 
@@ -223,6 +224,75 @@ class MyPostgreSql(BaseDatabase):
                 return result
         except BaseException as e:
             print(str(e))
+
+    def ping(self):
+        """ping"""
+        return self.db_obj().cursor()
+
+
+class MySqlServer(BaseDatabase):
+
+    def __init__(self, server=None, user=None, password=None, database=None, debug=None):
+        self.server = server
+        self.user = user
+        self.password = password
+        self.database = database
+        self.debug = debug
+
+    def db_obj(self):
+        """
+        返回db对象
+        :return:
+        """
+        try:
+            database_obj = pymssql.connect(
+                server=self.server,
+                user=self.user,
+                password=self.password,
+                database=self.database)
+            return database_obj
+        except BaseException as e:
+            return '连接数据库参数异常{}'.format(str(e) if self.debug else '')
+
+    def __send(self, sql):
+        """执行语句"""
+
+        try:
+            db = self.db_obj()
+            with db.cursor(as_dict=True) as cur:
+                result = cur.execute(sql)
+                db.commit()
+                return result
+        except BaseException as e:
+            cur.rollback()
+            return f"执行错误:{str(e)}"
+
+    def insert(self, sql):
+        return self.__send(sql)
+
+    def update(self, sql):
+        return self.__send(sql)
+
+    def delete(self, sql):
+        return self.__send(sql)
+
+    def select(self, sql=None, only=None, size=None):
+        try:
+            db = self.db_obj()
+            with db.cursor(as_dict=True) as cur:
+                cur.execute(sql)
+                if only and not size:
+                    query_result = cur.fetchone()
+                    results = result_format(query_result)
+                elif size and not only:
+                    query_result = cur.fetchmany(size)
+                    results = [result_format(data) for data in query_result]
+                else:
+                    query_result = cur.fetchall()
+                    results = [result_format(data) for data in query_result]
+                return results
+        except Exception as e:
+            return 'select:出现错误:{}'.format(str(e) if self.debug else '')
 
     def ping(self):
         """ping"""
