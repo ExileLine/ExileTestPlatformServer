@@ -43,10 +43,13 @@ def db_ping(db_type, db_connection):
 
     try:
         main = db_ping_dict.get(db_type).get('class')(**db_connection)
+        print(main)
         func = db_ping_dict.get(db_type).get('func')
+        print(func)
         getattr(main, func)()
         return True, 'Ping成功'
     except BaseException as e:
+        print(str(e))
         return False, 'db 连接失败，请检查配置'
 
 
@@ -207,6 +210,7 @@ class CaseDBPingApi(MethodView):
             return api_result(400, message=f'暂未支持：{db_type}')
 
         db_connection = query_db.to_json().get('db_connection', {})
+        print(db_connection)
         if db_type == 'sqlserver':
             db_connection = {
                 "server": f"{db_connection['host']}:{db_connection['port']}",
