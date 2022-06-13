@@ -41,8 +41,6 @@ def db_ping(db_type, db_connection):
     :return:
     """
 
-    if db_type not in db_list:
-        return False, f'暂未支持：{db_type}'
     try:
         main = db_ping_dict.get(db_type).get('class')(**db_connection)
         func = db_ping_dict.get(db_type).get('func')
@@ -202,10 +200,20 @@ class CaseDBPingApi(MethodView):
         query_db = TestDatabases.query.get(db_id)
 
         if not query_db:
-            return api_result(code=400, message='db_id:{}数据不存在'.format(db_id))
+            return api_result(code=400, message=f'db_id: {db_id} 数据不存在')
 
         db_type = query_db.to_json().get('db_type', {})
+        if db_type not in db_list:
+            return api_result(400, message=f'暂未支持：{db_type}')
+
         db_connection = query_db.to_json().get('db_connection', {})
+        if db_type == 'sqlserver':
+            db_connection = {
+                "server": f"{db_connection['host']}:{db_connection['port']}",
+                "user": db_connection['user'],
+                "password": db_connection['password']
+            }
+
         _bool, _result = db_ping(db_type=db_type, db_connection=db_connection)
 
         return api_result(code=200 if _bool else 400, message=_result, data=_result)
