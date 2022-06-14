@@ -223,13 +223,12 @@ class CaseApi(MethodView):
                 return api_result(code=400, message='该用例未开放,只能被创建人修改!')
 
         if query_case.case_name != case_name:
-            query_case = TestCase.query.join(MidProjectAndCase, TestCase.id == MidProjectAndCase.case_id).filter(
-                TestCase.case_name == case_name,
-                TestCase.is_deleted == 0,
-                MidProjectAndCase.project_id == project_id
-            ).all()
-            if query_case:
-            # if TestCase.query.filter_by(case_name=case_name, is_deleted=0).all():
+            if TestCase.query.join(MidProjectAndCase, TestCase.id == MidProjectAndCase.case_id).filter(
+                    TestCase.case_name == case_name,
+                    TestCase.is_deleted == 0,
+                    MidProjectAndCase.project_id == project_id
+            ).all():
+                # if TestCase.query.filter_by(case_name=case_name, is_deleted=0).all():
                 return api_result(code=400, message=f'用例名称:{case_name} 已经存在')
 
         query_case.case_name = case_name
