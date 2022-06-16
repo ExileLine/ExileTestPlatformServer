@@ -50,16 +50,9 @@ class CaseReqTestApi(MethodView):
         else:
             send.update(req_json_data)
             __key = "json" if "json" in send else "data"
-            if "json" in send:
-                __key = "json"
-            else:
-                __key = "data"
-                for k, v in send.get(__key).items():
-                    if not isinstance(v, str):
-                        send.get(__key)[k] = str(v)
 
         send = MainTest().var_conversion(send)
-        print(send)
+
         if not hasattr(requests, method):
             return api_result(code=400, message=f'请求方式:{method}不存在')
 
