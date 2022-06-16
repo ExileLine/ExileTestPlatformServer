@@ -527,10 +527,19 @@ class MainTest:
 
         if method == 'get':
             before_send['params'] = request_params
+            __key = "params"
         else:
             before_send.update(req_json_data)
+            if "json" in before_send:
+                __key = "json"
+            else:
+                __key = "data"
+                for k, v in before_send.get(__key).items():
+                    if not isinstance(v, str):
+                        before_send.get(__key)[k] = str(v)
 
         send = self.var_conversion(before_send)
+        print(send)
 
         if self.is_safe_scan:
             proxies = {
