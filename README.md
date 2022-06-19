@@ -19,7 +19,7 @@
 
 ### 项目演示
 
-- 项目演示地址：http://120.24.214.173/login
+- 项目演示地址：http://120.24.214.173/web
 - 操作文档(Github)：https://github.com/yangyuexiong/ExileTestPlatformServer/blob/main/DOC.md
 - 操作文档(Gitee)：https://gitee.com/yangyuexiong/ExileTestPlatformServer/blob/main/DOC.md
 - 前端项目地址-GitHub：https://github.com/yangyuexiong/ExileTestPlatformWeb
