@@ -323,21 +323,21 @@ class APSchedulerTaskApi(MethodView):
 
         try:
             scheduler.remove_job(task_uuid)
-            query_timed_task = check_timed_task(task_uuid)
-            query_timed_task.task_uuid = result_message
-            query_timed_task.task_name = task_name
-            query_timed_task.task_details = job
-            query_timed_task.task_status = 'stop'
-            query_timed_task.task_type = trigger
-            query_timed_task.execute_type = execute_type
-            query_timed_task.modifier = g.app_user.username,
-            query_timed_task.modifier_id = g.app_user.id,
-            query_timed_task.remark = remark
-            db.session.commit()
-            scheduler.pause_job(result_message)
         except BaseException as e:
-            return api_result(code=400, message=f'编辑:{task_uuid}失败')
+            pass
 
+        query_timed_task = check_timed_task(task_uuid)
+        query_timed_task.task_uuid = result_message
+        query_timed_task.task_name = task_name
+        query_timed_task.task_details = job
+        query_timed_task.task_status = 'stop'
+        query_timed_task.task_type = trigger
+        query_timed_task.execute_type = execute_type
+        query_timed_task.modifier = g.app_user.username,
+        query_timed_task.modifier_id = g.app_user.id,
+        query_timed_task.remark = remark
+        db.session.commit()
+        scheduler.pause_job(result_message)
         return api_result(code=204, message=f'编辑任务:{task_uuid}成功')
 
 
@@ -354,49 +354,48 @@ class APSchedulerTaskStatusApi(MethodView):
 
         data = request.get_json()
         task_uuid = data.get('task_uuid')
-
         query_timed_task = check_timed_task(task_uuid)
-
         try:
             scheduler.resume_job(task_uuid)
             query_timed_task.task_status = 'wait_start'
             db.session.commit()
-            return api_result(code=204, message=f'启动任务:{task_uuid}成功')
+            return api_result(code=204, message=f'启动任务:{task_uuid}成功1')
         except BaseException as e:
-            return api_result(code=400, message=f'启动任务:{task_uuid}失败,{str(e)}')
+            result_bool, result_message = job_func_dict.get(query_timed_task.task_type)(**query_timed_task.task_details)
+            if not result_bool:
+                return api_result(code=400, message=f'启动任务:{task_uuid}失败,{result_message}')
+            query_timed_task.task_status = 'wait_start'
+            db.session.commit()
+            return api_result(code=204, message=f'启动任务:{result_message}成功2')
 
     def put(self):
         """暂停"""
 
         data = request.get_json()
         task_uuid = data.get('task_uuid')
-
         query_timed_task = check_timed_task(task_uuid)
-
         try:
             scheduler.pause_job(task_uuid)
-            query_timed_task.task_status = 'stop'
-            db.session.commit()
-            return api_result(code=204, message=f'暂停任务:{task_uuid}成功')
         except BaseException as e:
-            return api_result(code=400, message=f'暂停任务:{task_uuid}失败,{str(e)}')
+            query_timed_task.status = 88
+        query_timed_task.task_status = 'stop'
+        db.session.commit()
+        return api_result(code=204, message=f'暂停任务:{task_uuid}成功')
 
     def delete(self):
         """删除"""
 
         data = request.get_json()
         task_uuid = data.get('task_uuid')
-
         query_timed_task = check_timed_task(task_uuid)
-
         try:
             scheduler.remove_job(task_uuid)
-            query_timed_task.task_status = 'deleted'
-            query_timed_task.is_deleted = query_timed_task.id
-            db.session.commit()
-            return api_result(code=204, message=f'删除任务:{task_uuid}成功')
         except BaseException as e:
-            return api_result(code=400, message=f'删除任务:{task_uuid}失败,{str(e)}')
+            query_timed_task.status = 99
+        query_timed_task.task_status = 'deleted'
+        query_timed_task.is_deleted = query_timed_task.id
+        db.session.commit()
+        return api_result(code=204, message=f'删除任务:{task_uuid}成功')
 
 
 class APSchedulerTaskPageApi(MethodView):
