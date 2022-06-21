@@ -244,7 +244,7 @@ class MainTest:
         self.save_key = ""
         self.execute_status = True
         self.report_name = ""
-        self.path = f"{config_obj['new'].STATIC_FOLDER}/report/"
+        self.path = f"{config_obj['new'].STATIC_FOLDER}/api/"
         self.report_url = ""
         self.safe_scan_report_path = ""
 
