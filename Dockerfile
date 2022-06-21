@@ -15,6 +15,7 @@ RUN pip install pipenv -i https://pypi.doubanio.com/simple
 
 # 项目
 WORKDIR /srv
+RUN mkdir test_reports
 COPY . /srv/ExileTestPlatformServer
 RUN mkdir logs
 
