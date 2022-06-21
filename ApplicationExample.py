@@ -6,6 +6,7 @@
 # @Software: PyCharm
 
 import os
+import platform
 
 from flask import Flask
 from flask_cors import CORS
@@ -19,13 +20,18 @@ from ExtendRegister.conf_register import register_config  # 配置
 from ExtendRegister.db_register import register_db, db  # db
 from ExtendRegister.apscheduler_register import register_apscheduler  # scheduler
 from ExtendRegister.model_register import *  # models
+from config.config import config_obj
+
+STATIC_FOLDER = config_obj['new'].STATIC_FOLDER
 
 
 def create_app():
     app = Flask(
         __name__,
-        template_folder=os.getcwd() + '/app/templates',
-        static_folder=os.getcwd() + '/app/static',
+        # template_folder=os.getcwd() + '/app/templates',
+        # static_folder=os.getcwd() + '/app/static',
+        template_folder=f"{os.getcwd()}/app/templates",
+        static_folder=STATIC_FOLDER,
     )  # 实例
     CORS(app, supports_credentials=True)  # 跨域
     register_commands(app)  # flask cli 注册

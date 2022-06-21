@@ -26,6 +26,7 @@ from common.libs.execute_code import execute_code
 from common.libs.data_dict import var_func_dict, execute_label_tuple, gen_redis_first_logs
 from common.tools.send_mail import SendEmail
 from common.tools.message_push import MessagePush
+from config.config import config_obj
 
 
 class TestResult:
@@ -242,8 +243,8 @@ class MainTest:
 
         self.save_key = ""
         self.execute_status = True
-        self.path = ""
         self.report_name = ""
+        self.path = f"{config_obj['new'].STATIC_FOLDER}/report/"
         self.report_url = ""
         self.safe_scan_report_path = ""
 
@@ -422,6 +423,8 @@ class MainTest:
         """
 
         ass_json = self.var_conversion(ass_json)
+        print('=== 转换后的resp_ass ===')
+        print(ass_json)
         response_ass_result = AssertResponseMain(
             sio=self.sio,
             resp_json=self.resp_json,
@@ -446,6 +449,8 @@ class MainTest:
         """
 
         ass_json = self.var_conversion(ass_json)
+        print('=== 转换后的field_ass ===')
+        print(ass_json)
         field_ass_result = AssertFieldMain(
             sio=self.sio,
             assert_description=self.current_assert_description,
@@ -913,9 +918,9 @@ class MainTest:
 
         self.report_name = f"Test_Report_{time.strftime('%Y-%m-%d_%H_%M_%S')}_{self.execute_name}.html"
 
-        self.path = f"{os.getcwd().split('ExileTestPlatformServer')[0]}ExileTestPlatformServer/app/static/report/{self.report_name}"
+        # self.path = f"{os.getcwd().split('ExileTestPlatformServer')[0]}ExileTestPlatformServer/app/static/report/{self.report_name}"
 
-        with open(self.path, "w", encoding="utf-8") as f:
+        with open(self.path + self.report_name, "w", encoding="utf-8") as f:
             f.writelines(report_str)
             # f.write(report_str)
             # f.flush()
