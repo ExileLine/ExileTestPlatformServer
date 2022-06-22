@@ -10,6 +10,7 @@ from app.models.admin.models import Admin
 from app.models.test_case.models import TestCase, TestCaseData
 from app.models.test_case_scenario.models import TestCaseScenario
 from app.models.test_logs.models import TestLogs
+from common.tools.clear_cache import ClearCache
 
 
 class IndexApi(MethodView):
@@ -43,11 +44,13 @@ class IndexApi(MethodView):
 
     async def post(self):
         """2"""
+
         data = request.get_json()
         return api_result(code=200, message='index', data=data)
 
     async def put(self):
         """3"""
+
         tl = TestLogs(
             log_type='index',
             creator=g.app_user.username,
@@ -58,13 +61,9 @@ class IndexApi(MethodView):
 
     async def delete(self):
         """4"""
-        r1 = R.keys(pattern="test_log_*")
-        r2 = R.keys(pattern="case_first_log:*")
-        r3 = R.keys(pattern="scenario_first_log:*")
-        __len = len(r1)
-        list(map(lambda x: R.delete(x), r1))
-        list(map(lambda x: R.delete(x), r2))
-        list(map(lambda x: R.delete(x), r3))
-        ex1 = project_db.execute_sql("""TRUNCATE exile_test_logs;""")
-        ex2 = project_db.execute_sql("""TRUNCATE exile_test_execute_logs;""")
-        return api_result(code=203, message='index', data=[__len, ex1, ex2])
+
+        r1 = ClearCache.clear_test_log()
+        r2 = ClearCache.clear_first_log()
+        r3 = ClearCache.clear_cicd()
+        r4 = ClearCache.clear_exile_test_logs()
+        return api_result(code=204, message='index', data=[r1, r2, r3, r4])
