@@ -200,6 +200,13 @@
 |94|/api/module_app|PUT|编辑模块|
 |95|/api/module_app|DELETE|删除模块|
 |96|/api/module_app_page|POST|模块分页查询|
+|97|/api/timed_task/{timed_task_uuid}|GET|获取定时任务状态|
+|98|/api/timed_task|POST|新增定时任务|
+|99|/api/timed_task|PUT|编辑定时任务|
+|100|/api/timed_task_status|POST|启动定时任务|
+|101|/api/timed_task_status|PUt|暂停定时任务|
+|102|/api/timed_task_status|DELETE|删除定时任务|
+|103|/api/timed_task_page|POST|定时任务分页查询|
 
 ### 项目部署
 
