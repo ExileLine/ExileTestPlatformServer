@@ -74,6 +74,63 @@ def save_test_logs(execute_type):
     tl.save()
 
 
+def safe_scan():
+    """安全扫描"""
+    sql = """
+            SELECT
+                safe_scan_url
+            FROM
+                exile_safe_scan_conf
+            WHERE
+                weights = (
+                    SELECT
+                        MAX(weights)
+                    FROM
+                        exile_safe_scan_conf
+                    WHERE
+                        is_deleted = 0
+                        AND is_global_open = 1)
+                    AND is_deleted = 0
+                    AND is_global_open = 1;
+            """
+    query_safe_scan_conf = project_db.select(sql, only=True)
+    safe_scan_url = query_safe_scan_conf.get('safe_scan_url')
+    if not safe_scan_url:
+        return {}
+
+    safe_scan_port = R.get("safe_scan_port")
+    if not safe_scan_port or int(safe_scan_port) > 7999:
+        R.set("safe_scan_port", "7000")
+        safe_scan_port = "7000"
+        safe_scan_report = "safe_scan_port_7000.html"
+        cmd = f"./xray_linux_386 webscan --listen 0.0.0.0:7000 --html-output {safe_scan_report}"
+    else:
+        safe_scan_report = f"safe_scan_port_{safe_scan_port}.html"
+        cmd = f"./xray_linux_386 webscan --listen 0.0.0.0:{safe_scan_port} --html-output {safe_scan_report}"
+
+    sql2 = "SELECT safe_scan_url, safe_scan_report_path FROM exile_platform_conf WHERE weights = (SELECT max(weights) FROM exile_platform_conf);"
+    query_platform_conf = project_db.select(sql2, only=True)
+    aio_url = query_platform_conf.get('safe_scan_url')
+    safe_scan_report_path = query_platform_conf.get('safe_scan_report_path')
+
+    call_safe_scan = {
+        "url": aio_url,
+        "json": {
+            "cmd": cmd
+        }
+    }
+
+    R.set("safe_scan_port", f"{int(safe_scan_port) + 1}")
+
+    result = {
+        "safe_scan_proxies_url": f":{safe_scan_url}:{safe_scan_port}",  # 安全代理代理ip拼接端口
+        "call_safe_scan_data": call_safe_scan,  # 调用Aio启动安全代理
+        "safe_scan_report_url": f"{safe_scan_report_path}/{safe_scan_report}",  # 安全报告地址
+    }
+
+    return result
+
+
 class GenExecuteData:
     """生成执行数据结构的用例"""
 
@@ -680,7 +737,7 @@ class CaseExecApi(MethodView):
         is_all_mail = data.get('is_all_mail', False)
         is_safe_scan = data.get('is_safe_scan', False)
         trigger_type = data.get('trigger_type', 'user_execute')
-        request_timeout = data.get('request_timeout', 3)
+        request_timeout = data.get('request_timeout', 20)
 
         if not isinstance(request_timeout, int):
             return api_result(code=400, message='请求超时填写错误')
@@ -737,31 +794,10 @@ class CaseExecApi(MethodView):
         send_test_case_list = result_data.get('send_test_case_list', [])
         sio = StringIOLog()
 
+        safe_scan_obj = {}
         if is_safe_scan:
-            sql = """
-            SELECT
-                safe_scan_url
-            FROM
-                exile_safe_scan_conf
-            WHERE
-                weights = (
-                    SELECT
-                        MAX(weights)
-                    FROM
-                        exile_safe_scan_conf
-                    WHERE
-                        is_deleted = 0
-                        AND is_global_open = 1)
-                    AND is_deleted = 0
-                    AND is_global_open = 1;
-            """
-            result = project_db.select(sql, only=True)
-            if result:
-                safe_scan_url = result.get("safe_scan_url")
-            else:
-                safe_scan_url = None
-        else:
-            safe_scan_url = None
+            safe_scan_obj = safe_scan()
+            print(safe_scan_obj)
 
         test_obj = {
             "execute_id": execute_id,
@@ -782,11 +818,15 @@ class CaseExecApi(MethodView):
             "ding_talk_url": ding_talk_url,
             "is_send_mail": is_send_mail,
             "mail_list": mail_list,
-            "is_safe_scan": is_safe_scan,
-            "safe_scan_url": safe_scan_url,
             "trigger_type": trigger_type,
-            "request_timeout": request_timeout
+            "request_timeout": request_timeout,
+
+            "is_safe_scan": is_safe_scan,
+            "safe_scan_proxies_url": "",
+            "call_safe_scan_data": {},
+            "safe_scan_report_url": ""
         }
+        test_obj.update(safe_scan_obj)
         save_test_logs(execute_type)
 
         """
@@ -802,6 +842,7 @@ class CaseExecApi(MethodView):
         """
         results = execute_main.delay(test_obj)
         print(results)
+        print(test_obj)
         return api_result(code=200, message='操作成功,请前往日志查看执行结果', data=[str(results)])
 
 

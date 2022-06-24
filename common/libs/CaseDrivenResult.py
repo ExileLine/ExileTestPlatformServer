@@ -199,7 +199,9 @@ class MainTest:
         self.mail_list = test_obj.get('mail_list')
 
         self.is_safe_scan = test_obj.get('is_safe_scan', False)
-        self.safe_scan_url = test_obj.get('safe_scan_url', False)
+        self.safe_scan_proxies_url = test_obj.get('safe_scan_proxies_url', False)
+        self.call_safe_scan_data = test_obj.get('call_safe_scan_data')
+        self.safe_scan_report_url = test_obj.get('safe_scan_report_url')
 
         self.trigger_type = test_obj.get('trigger_type', 'user_execute')
 
@@ -246,7 +248,6 @@ class MainTest:
         self.report_name = ""
         self.path = f"{config_obj['new'].STATIC_FOLDER}/api/"
         self.report_url = ""
-        self.safe_scan_report_path = ""
 
     def reset_current_data(self):
         """重置"""
@@ -547,13 +548,23 @@ class MainTest:
         print(send)
 
         if self.is_safe_scan:
-            proxies = {
-                # 'http': '192.168.14.214:7777',
-                # 'https': '192.168.14.214:7777',
-                'http': self.safe_scan_url,
-                'https': self.safe_scan_url
-            }
-            send['proxies'] = proxies
+            try:
+                print('=== 启动安全扫描 ===')
+                resp = requests.post(**self.call_safe_scan_data)
+                print(resp.json())
+                code = resp.json().get("code")
+                if code == 200:
+                    proxies = {
+                        # 'http': '192.168.14.214:7777',
+                        # 'https': '192.168.14.214:7777',
+                        'http': self.safe_scan_proxies_url,
+                        'https': self.safe_scan_proxies_url
+                    }
+                    send['proxies'] = proxies
+                else:
+                    self.sio.log(f'=== 启动安全扫描失败:{code} ===')
+            except BaseException as e:
+                self.sio.log(f'=== 启动安全扫描失败:{str(e)} ===')
 
         self.sio.log('=== send ===')
         resp = self.current_request(method=method, timeout=(50, 60), **send)
@@ -936,7 +947,6 @@ class MainTest:
             only=True)
         def_url = 'http://0.0.0.0:5000'
         self.report_url = f"{query.get('server_url', def_url)}/{self.report_name}"
-        self.safe_scan_report_path = f"{query.get('safe_scan_report_path', def_url)}/{query.get('safe_scan_report_name', 'test.html')}"
 
     def main(self):
         """main"""
@@ -968,8 +978,13 @@ class MainTest:
                 mt = f"#### 测试报告:{self.execute_name}  \n  > 测试人员:{self.execute_username}  \n  > 开始时间:{self.create_time}  \n  > 结束时间:{self.end_time}  \n  > 合计耗时:{self.total_time}s  \n  > 用例总数:{self.test_result.all_test_count}  \n  > 成功数:{self.test_result.pass_count}  \n  > 失败数:{self.test_result.fail_count}  \n  > 通过率:{self.test_result.pass_rate}  \n "
                 print(mt)
                 print(self.ding_talk_url)
-                MessagePush.dd_push(ding_talk_url=self.ding_talk_url, report_url=self.report_url,
-                                    safe_scan_report_path=self.safe_scan_report_path, markdown_text=mt)
+                MessagePush.dd_push(
+                    ding_talk_url=self.ding_talk_url,
+                    report_url=self.report_url,
+                    is_safe_scan=self.is_safe_scan,
+                    safe_scan_report_path=self.safe_scan_report_url,
+                    markdown_text=mt
+                )
             except BaseException as e:
                 print(str(e))
                 t = datetime.datetime.now()
