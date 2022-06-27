@@ -229,8 +229,8 @@ class CaseCICDApi(MethodView):
         result_bool, result_data = QueryExecuteData.execute_all(
             **{"execute_dict_key": "task", "query": {"task_id": task_id}, "model_id": task_id}
         )
-        print(result_bool)
-        print(result_data)
+        # print(result_bool)
+        # print(result_data)
 
         test_obj = {
             "execute_id": task_id,
