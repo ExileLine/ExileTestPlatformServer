@@ -550,10 +550,12 @@ class MainTest:
         if self.is_safe_scan:
             try:
                 print('=== 启动安全扫描 ===')
-                resp = requests.post(**self.call_safe_scan_data)
+                print(self.call_safe_scan_data)
+                resp = requests.post(**self.call_safe_scan_data, timeout=5)
                 print(resp.json())
                 code = resp.json().get("code")
                 if code == 200:
+                    time.sleep(5)
                     proxies = {
                         # 'http': '192.168.14.214:7777',
                         # 'https': '192.168.14.214:7777',
@@ -567,6 +569,7 @@ class MainTest:
                 self.sio.log(f'=== 启动安全扫描失败:{str(e)} ===')
 
         self.sio.log('=== send ===')
+        print(json.dumps(send, ensure_ascii=False))
         resp = self.current_request(method=method, timeout=(50, 60), **send)
         self.resp_json = resp.json()
         self.resp_headers = resp.headers

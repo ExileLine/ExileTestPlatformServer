@@ -103,19 +103,21 @@ def safe_scan():
         R.set("safe_scan_port", "7000")
         safe_scan_port = "7000"
         safe_scan_report = "safe_scan_port_7000.html"
-        cmd = f"./xray_linux_386 webscan --listen 0.0.0.0:7000 --html-output {safe_scan_report}"
+        cmd = f"/home/iotmp/xray_linux_386 webscan --listen 0.0.0.0:7000 --html-output {safe_scan_report} &"
     else:
         safe_scan_report = f"safe_scan_port_{safe_scan_port}.html"
-        cmd = f"./xray_linux_386 webscan --listen 0.0.0.0:{safe_scan_port} --html-output {safe_scan_report}"
+        cmd = f"/home/iotmp/xray_linux_386 webscan --listen 0.0.0.0:{safe_scan_port} --html-output {safe_scan_report} &"
 
     sql2 = "SELECT safe_scan_url, safe_scan_report_path FROM exile_platform_conf WHERE weights = (SELECT max(weights) FROM exile_platform_conf);"
     query_platform_conf = project_db.select(sql2, only=True)
     aio_url = query_platform_conf.get('safe_scan_url')
     safe_scan_report_path = query_platform_conf.get('safe_scan_report_path')
 
+    folder = f"t_{safe_scan_port}_{int(time.time())}"
     call_safe_scan = {
         "url": aio_url,
         "json": {
+            "folder": folder,
             "cmd": cmd
         }
     }
@@ -123,9 +125,9 @@ def safe_scan():
     R.set("safe_scan_port", f"{int(safe_scan_port) + 1}")
 
     result = {
-        "safe_scan_proxies_url": f":{safe_scan_url}:{safe_scan_port}",  # 安全代理代理ip拼接端口
+        "safe_scan_proxies_url": f"{safe_scan_url}:{safe_scan_port}",  # 安全代理代理ip拼接端口
         "call_safe_scan_data": call_safe_scan,  # 调用Aio启动安全代理
-        "safe_scan_report_url": f"{safe_scan_report_path}/{safe_scan_report}",  # 安全报告地址
+        "safe_scan_report_url": f"{safe_scan_report_path}/{folder}/{safe_scan_report}"  # 安全报告地址
     }
 
     return result
