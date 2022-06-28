@@ -21,7 +21,15 @@
 
 ### 项目演示
 
-- 项目演示地址：http://120.24.214.173 或 http://test.metatuple.com
+- 项目演示地址(admin，123456)：
+  
+    推荐：http://106.75.174.40
+  
+    调试：http://120.24.214.173
+  
+    调试：http://test.metatuple.com
+
+  
 - 操作文档(Github)：https://github.com/yangyuexiong/ExileTestPlatformServer/blob/main/DOC.md
 - 操作文档(Gitee)：https://gitee.com/yangyuexiong/ExileTestPlatformServer/blob/main/DOC.md
 - 前端项目地址-GitHub：https://github.com/yangyuexiong/ExileTestPlatformWeb
