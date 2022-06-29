@@ -1011,7 +1011,7 @@ class MainTest:
         if self.is_send_mail:
             SendEmail(to_list=self.mail_list, ac_list=self.mail_list).send_attach(
                 report_title=self.execute_name,
-                html_file_path=self.path,
+                html_file_path=self.path + self.report_name,
                 mail_content="详情查看附件"
             )
 

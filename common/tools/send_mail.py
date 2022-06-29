@@ -11,6 +11,7 @@ from ast import literal_eval
 from email.header import Header
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
+from email.mime.application import MIMEApplication
 
 from common.libs.db import project_db
 
@@ -77,15 +78,11 @@ class SendEmail:
 
         if html_file_path:
             # 附件:HTML
-            att_html = MIMEText(open(html_file_path, 'rb').read(), 'base64', 'utf-8')
+            att_html = MIMEApplication(open(html_file_path, 'rb').read())
             att_html["Content-Type"] = 'application/octet-stream'
-            # att_html["Content-Disposition"] = 'attachment; filename=' + html_file_path.split(
-            #     'reports\\' if platform.system() == "Windows" else 'reports/')[1]
-
-            att_html["Content-Disposition"] = 'attachment; filename=' + html_file_path.split(
-                'report\\' if platform.system() == "Windows" else 'report/')[1]
-
+            att_html.add_header("Content-Disposition", "attachment", filename=('utf-8', '', html_file_path))
             message.attach(att_html)
+
         if xm_file_path:
             pass
             # TODO XMind上传
