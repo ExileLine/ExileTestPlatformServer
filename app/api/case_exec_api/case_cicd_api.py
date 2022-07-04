@@ -14,6 +14,30 @@ from .case_exec_api import QueryExecuteData
 from tasks.task03 import execute_main
 
 
+def call_ui_auto(scheduling_id):
+    """调用UI自动化"""
+
+    try:
+        RUN_HOST = current_app.config.get("RUN_HOST")
+        url = f"http://{RUN_HOST}:8000/api/v1/monitor/job/execution"
+        headers = {
+            "Content-Type": "application/json"
+        }
+        json_data = {
+            "schedulingId": scheduling_id,
+        }
+        send = {
+            "url": url,
+            "headers": headers,
+            "json": json_data
+        }
+        resp = requests.post(**send)
+        resp_json = resp.json()
+        return resp_json
+    except BaseException as e:
+        return {"ui auto error": str(e)}
+
+
 class CaseCICDMapApi(MethodView):
     """
     CICD映射Api
@@ -34,6 +58,7 @@ class CaseCICDMapApi(MethodView):
         url = data.get('url')
         is_set_url = data.get('is_set_url')
         is_active = data.get('is_active', 1)
+        scheduling_id = data.get('scheduling_id')
 
         query_cicd = TestCiCdMap.query.filter_by(app_name=app_name, branch_name=branch_name, is_deleted=0).first()
         if query_cicd:
@@ -54,6 +79,7 @@ class CaseCICDMapApi(MethodView):
             url=url,
             is_set_url=is_set_url,
             is_active=is_active,
+            scheduling_id=scheduling_id,
             obj_json=data,
             creator=g.app_user.username,
             creator_id=g.app_user.id
@@ -76,6 +102,7 @@ class CaseCICDMapApi(MethodView):
         url = data.get('url')
         is_set_url = data.get('is_set_url')
         is_active = data.get('is_active', 1)
+        scheduling_id = data.get('scheduling_id')
 
         query_cicd = TestCiCdMap.query.get(cicd_id)
         if not query_cicd:
@@ -98,6 +125,7 @@ class CaseCICDMapApi(MethodView):
         query_cicd.version_id = version_id
         query_cicd.task_id = task_id
         query_cicd.dd_push_id = dd_push_id
+        query_cicd.scheduling_id = scheduling_id
         query_cicd.obj_json = data
         query_cicd.modifier = g.app_user.username
         query_cicd.modifier_id = g.app_user.id
@@ -250,6 +278,16 @@ class CaseCICDApi(MethodView):
             "trigger_type": "CICD_execute",
             "request_timeout": 20
         }
-        results = execute_main.delay(test_obj)
-        print(results)
-        return api_result(code=200, message='操作成功', data=[str(results)])
+        api_auto_results = execute_main.delay(test_obj)
+        print(api_auto_results)
+
+        if not query_cicd_map.scheduling_id:
+            ui_auto_result = {"message": "scheduling_id 为空"}
+        else:
+            ui_auto_result = call_ui_auto(scheduling_id=query_cicd_map.scheduling_id)
+
+        d = {
+            "api_auto": {"celery_id": str(api_auto_results)},
+            "ui_auto": ui_auto_result,
+        }
+        return api_result(code=200, message='操作成功', data=d)
