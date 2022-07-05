@@ -62,6 +62,7 @@ class UserApi(MethodView):
 
     def get(self, user_id):
         """1"""
+
         return api_result(code=200, message="user api")
 
 
@@ -137,6 +138,41 @@ class UserProfileApi(MethodView):
         if not user:
             return api_result(code=400, message="用户:{} 不存在".format(user_id))
         return api_result(code=200, message="操作成功", data=user.to_json())
+
+    def post(self):
+        """创建用户"""
+
+        data = request.get_json()
+        username = data.get('username')
+        nickname = data.get('nickname')
+        mail = data.get('mail')
+        password = data.get('password', '123456')
+
+        if not username:
+            return api_result(code=400, message=f"用户名不能为空")
+
+        if not mail:
+            return api_result(code=400, message=f"邮箱不能为空")
+
+        query_admin = Admin.query.filter(or_(Admin.username == username, Admin.mail == mail)).first()
+        if query_admin:
+            if query_admin.username == username:
+                return api_result(code=400, message=f"用户名: {username} 已存在")
+            elif query_admin.mail == mail:
+                return api_result(code=400, message=f"邮箱: {mail} 已存在")
+            return api_result(code=400, message=f"用户名或邮箱已存在")
+
+        new_admin = Admin(
+            username=username,
+            nickname=nickname,
+            password=password,
+            mail=mail,
+            creator=g.app_user.username,
+            creator_id=g.app_user.id
+        )
+        new_admin.set_code()
+        new_admin.save()
+        return api_result(code=200, message='操作成功')
 
     def put(self):
         """编辑用户信息"""
