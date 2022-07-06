@@ -8,12 +8,14 @@
 
 import requests
 
-s = {'url': 'http://0.0.0.0:7272/api/login', 'headers': {}, 'json': {'password': '123456', 'username': 'yyx'}}
+s = {'url': 'http://106.75.174.40:5000/api/login', 'headers': {}, 'json': {'password': '123456', 'username': 'admin'}}
+
 proxies = {
-    'http': '192.168.9.103:7001',
-    'https': '192.168.9.103:7001',
+    'http': '192.168.9.103:7007',
+    'https': '192.168.9.103:7007',
 }
+
 if __name__ == '__main__':
     r = requests.post(**s, proxies=proxies)
     print(r)
-    # print(r.json())
+    print(r.json())
