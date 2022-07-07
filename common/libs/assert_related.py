@@ -245,14 +245,15 @@ class AssertFieldMain(AssertMain):
         self.db_connection = query_db.get('db_connection')
         return True
 
-    def ping_db_connection(self):
+    def ping_db_connection(self, from_data_ready=False):
         """检查db是否可以连接"""
 
         self.db_obj = self.db_dict.get(self.db_type.lower(), None)()
 
         if not self.db_obj:
             self.sio.log(f"=== 暂时不支持: {self.db_type} ===", status='error')
-            self.ass_field_fail.append('暂时不支持')
+            if not from_data_ready:
+                self.ass_field_fail.append('暂时不支持')
             return False
 
         self.sio.log(f"=== 测试需要连接的db配置: {self.db_connection} - {type(self.db_connection)} ===")
