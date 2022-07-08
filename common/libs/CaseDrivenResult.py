@@ -283,6 +283,130 @@ class MainTest:
         self.json_format(resp_headers, msg='=== response headers ===')
         self.json_format(resp_json, msg='=== response json ===')
 
+    def gen_case_data_ready(self, data_ready):
+        """
+        {
+            "db_id": 12,
+            "query_list": [
+                {
+                    "query": "select id, case_name FROM ExileTestPlatform.exile_test_case WHERE id=1 and case_name=\"${sql语句变量}\";",
+                    "field_list": [
+                        {
+                            "var_id": 3,
+                            "field_name": "id",
+                            "field_type": "1",
+                            "is_expression": 0,
+                            "python_val_exp": "obj.get(\"id\")"
+                        },
+                        {
+                            "var_id": 3,
+                            "field_name": "case_name",
+                            "field_type": "2",
+                            "is_expression": 0,
+                            "python_val_exp": "obj.get(\"case_name\")"
+                        }
+                    ]
+                }
+            ]
+        }
+        :param data_ready:
+        :return:
+        """
+        db_id = data_ready.get("db_id")
+        query_list = data_ready.get("query_list")
+        ass = AssertFieldMain(sio=self.sio, db_id=db_id)
+        ass.query_db_connection()
+        ass.ping_db_connection(from_data_ready=True)
+        db_obj = ass.db_obj.get('db')
+        print(db_obj)
+        for q in query_list:
+            print("=== q ===")
+            print(q)
+            sql = q.get('query')
+            print(sql)
+            field_list = q.get('field_list')
+            result = db_obj.select(sql=sql, only=True)
+            print(result)
+            if not result:
+                self.sio.log(f"=== 获取数据为空:{sql} ===", status="error")
+                continue
+            for field in field_list:
+                print("=== field ===")
+                print(field)
+                field_name = field.get('field_name')
+                print(field_name)
+                if field.get('field_type') in (1, '1'):  # TODO 因为从最开始定义的字典不一致,这里只能手动增加逻辑
+                    field_type = 2
+                elif field.get('field_type') in (2, '2'):
+                    field_type = 1
+                else:
+                    print("=== else ===")
+                    field_type = field.get('field_type')
+
+                print("=== field_type ===")
+                print(field_type)
+
+                is_expression = field.get('is_expression')
+                python_val_exp = field.get('python_val_exp')
+                if is_expression:
+                    result_json = execute_code(code=python_val_exp, data=result)
+                    field_value = result_json.get('result_data')
+                    self.sio.log(f"=== 公式取值结果: {field_value} ===")
+                else:
+                    field_value = result.get(field_name)
+
+                field_value = json.dumps(field_value, ensure_ascii=False)
+                var_id = field.get('var_id')
+
+                query_var = f"""SELECT * FROM `ExileTestPlatform`.`exile_test_variable` WHERE id={var_id};"""
+                print(query_var)
+                var_obj = project_db.select(sql=query_var, only=True)
+                print(var_obj)
+
+                if not var_obj:
+                    self.sio.log(f"=== 变量id: {var_id} 不存在 ===")
+                    continue
+
+                var_name = var_obj.get('var_name')
+                update_var = f"""UPDATE `ExileTestPlatform`.`exile_test_variable` SET var_value='{field_value}', var_type={field_type} WHERE id={var_id};"""
+                print(update_var)
+                project_db.update(sql=update_var)
+                self.sio.log(f"=== 更新变量: {var_name} 成功 ===")
+
+    def case_data_before(self, case_data_info):
+        """参数前置准备"""
+
+        print("=== 参数前置准备 ===")
+        print(case_data_info)
+        is_before = case_data_info.get('is_before')
+        data_before = case_data_info.get('data_before')
+
+        try:
+            if is_before:
+                data_before = self.var_conversion(data_before)
+                print('=== data_before ===')
+                print(data_before)
+                list(map(self.gen_case_data_ready, data_before))
+        except BaseException as e:
+            self.sio.log(f"=== 参数前置准备失败:{str(e)} ===", status="error")
+
+    def case_data_after(self, case_data_info):
+        """参数后置准备"""
+
+        print("=== 参数后置准备 ===")
+        print(case_data_info)
+        is_after = case_data_info.get('is_after')
+        data_after = case_data_info.get('data_after')
+
+        try:
+            if is_after:
+                data_after = self.var_conversion(data_after)
+                print('=== data_after ===')
+                print(data_after)
+                list(map(self.gen_case_data_ready, data_after))
+        except BaseException as e:
+            self.sio.log(f"=== 参数后置准备失败:{str(e)} ===", status="error")
+
     @staticmethod
     def update_case_total_execution(case_id_list, n=1):
         """更新用例执行数"""
@@ -766,6 +890,8 @@ class MainTest:
                 case_resp_ass_info = bind.get('case_resp_ass_info', [])
                 case_field_ass_info = bind.get('case_field_ass_info', [])
 
+                self.case_data_before(case_data_info)
+
                 try:
                     self.assemble_data_send(case_data_info=case_data_info)  # 转换变量并发起请求
                     self.test_result.req_success += 1
@@ -788,6 +914,8 @@ class MainTest:
                     time.sleep(abs(case_sleep))
                     self.sio.log(f"=== 用例 {self.case_name} 执行后等待: {case_sleep}s ===")
                     print('等待后:', time.time())
+
+                self.case_data_after(case_data_info)
 
                 if not self.data_driven:
                     self.sio.log("=== data_driven is false 只执行基础参数与断言 ===")
@@ -869,6 +997,8 @@ class MainTest:
                     case_resp_ass_info = bind.get('case_resp_ass_info', [])
                     case_field_ass_info = bind.get('case_field_ass_info', [])
 
+                    self.case_data_before(case_data_info)
+
                     try:
                         self.assemble_data_send(case_data_info=case_data_info)
                         self.test_result.req_success += 1
@@ -892,6 +1022,8 @@ class MainTest:
                         time.sleep(abs(case_sleep))
                         self.sio.log(f"=== 用例 {self.case_name} 执行后等待: {case_sleep}s ===")
                         print('等待后:', time.time())
+
+                    self.case_data_after(case_data_info)
 
                     if not self.data_driven:
                         self.sio.log("=== data_driven is false 只执行基础参数与断言 ===")

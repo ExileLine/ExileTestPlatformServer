@@ -5,7 +5,6 @@
 # @File    : case_data_api.py
 # @Software: PyCharm
 
-import sys
 
 from all_reference import *
 from app.models.test_case.models import TestCaseData

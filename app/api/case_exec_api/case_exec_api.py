@@ -196,7 +196,11 @@ class GenExecuteData:
             "modifier_id": "",
             "update_time": "",
             "update_timestamp": "",
-            "remark": ""
+            "remark": "",
+            "is_before": "",
+            "data_before": "",
+            "is_after": "",
+            "data_after": ""
         }
         case_resp_ass_info = GenExecuteData.gen_ass_resp_ass_info(before_dict.get('ass_resp_id_list', []))
         case_field_ass_info = GenExecuteData.gen_ass_field_ass_info(before_dict.get('ass_field_id_list', []))
@@ -381,6 +385,10 @@ class QueryExecuteData:
             C.update_time,
             C.update_timestamp,
             C.remark,
+            C.is_before,
+            C.data_before,
+            C.is_after,
+            C.data_after,
             B.ass_resp_id_list,
             B.ass_field_id_list
         FROM
@@ -396,7 +404,6 @@ class QueryExecuteData:
 	    """
         # print(sql)
         result = project_db.select(sql)
-
         return result
 
     @staticmethod
@@ -844,7 +851,7 @@ class CaseExecApi(MethodView):
         """
         results = execute_main.delay(test_obj)
         print(results)
-        # print(test_obj)
+        # print(json.dumps(test_obj, ensure_ascii=False))
         return api_result(code=200, message='操作成功,请前往日志查看执行结果', data=[str(results)])
 
 
@@ -866,11 +873,11 @@ if __name__ == '__main__':
         # )
         # print(v1)
 
-        t1 = QueryExecuteData.execute_all(
-            **{"execute_dict_key": "task", "query": {"task_id": "47"}, "model_id": 47}
-        )
-        # 调试生成数据: **{"execute_dict_key": "task", "query": {"task_id": "30"}, "model_id": 30}
-        print(t1)
+        # t1 = QueryExecuteData.execute_all(
+        #     **{"execute_dict_key": "task", "query": {"task_id": "47"}, "model_id": 47}
+        # )
+        # # 调试生成数据: **{"execute_dict_key": "task", "query": {"task_id": "30"}, "model_id": 30}
+        # print(t1)
 
         # m1 = QueryExecuteData.execute_all(
         #     **{"execute_dict_key": "module", "query": {"module_id": "14"}, "model_id": 14}
