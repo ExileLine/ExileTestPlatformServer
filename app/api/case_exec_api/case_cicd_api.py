@@ -79,7 +79,7 @@ class CaseCICDMapApi(MethodView):
             url=url,
             is_set_url=is_set_url,
             is_active=is_active,
-            scheduling_id=scheduling_id,
+            scheduling_id=scheduling_id if scheduling_id else None,
             obj_json=data,
             creator=g.app_user.username,
             creator_id=g.app_user.id
@@ -125,7 +125,7 @@ class CaseCICDMapApi(MethodView):
         query_cicd.version_id = version_id
         query_cicd.task_id = task_id
         query_cicd.dd_push_id = dd_push_id
-        query_cicd.scheduling_id = scheduling_id
+        query_cicd.scheduling_id = scheduling_id if scheduling_id else None
         query_cicd.obj_json = data
         query_cicd.modifier = g.app_user.username
         query_cicd.modifier_id = g.app_user.id
