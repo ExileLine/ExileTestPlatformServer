@@ -202,6 +202,7 @@ class MainTest:
         self.safe_scan_proxies_url = test_obj.get('safe_scan_proxies_url', False)
         self.call_safe_scan_data = test_obj.get('call_safe_scan_data')
         self.safe_scan_report_url = test_obj.get('safe_scan_report_url')
+        self.proxies = {}
 
         self.trigger_type = test_obj.get('trigger_type', 'user_execute')
 
@@ -248,6 +249,34 @@ class MainTest:
         self.report_name = ""
         self.path = f"{config_obj['new'].STATIC_FOLDER}/api/"
         self.report_url = ""
+
+    def safe_scan(self):
+        """
+        安全扫描
+        :return:
+        """
+
+        if self.is_safe_scan:
+            try:
+                print('=== 启动安全扫描 ===')
+                print(self.call_safe_scan_data)
+                resp = requests.post(**self.call_safe_scan_data, timeout=5)
+                print(resp.json())
+                code = resp.json().get("code")
+                if code == 200:
+                    time.sleep(5)
+                    self.proxies = {
+                        # 'http': '192.168.14.214:7777',
+                        # 'https': '192.168.14.214:7777',
+                        'http': self.safe_scan_proxies_url,
+                        'https': self.safe_scan_proxies_url
+                    }
+                    print("=== 设置安全扫码代理 ===")
+                    print(self.proxies)
+                else:
+                    self.sio.log(f'=== 启动安全扫描失败:{code} ===')
+            except BaseException as e:
+                self.sio.log(f'=== 启动安全扫描失败:{str(e)} ===')
 
     def reset_current_data(self):
         """重置"""
@@ -672,25 +701,7 @@ class MainTest:
         print(send)
 
         if self.is_safe_scan:
-            try:
-                print('=== 启动安全扫描 ===')
-                print(self.call_safe_scan_data)
-                resp = requests.post(**self.call_safe_scan_data, timeout=5)
-                print(resp.json())
-                code = resp.json().get("code")
-                if code == 200:
-                    time.sleep(5)
-                    proxies = {
-                        # 'http': '192.168.14.214:7777',
-                        # 'https': '192.168.14.214:7777',
-                        'http': self.safe_scan_proxies_url,
-                        'https': self.safe_scan_proxies_url
-                    }
-                    send['proxies'] = proxies
-                else:
-                    self.sio.log(f'=== 启动安全扫描失败:{code} ===')
-            except BaseException as e:
-                self.sio.log(f'=== 启动安全扫描失败:{str(e)} ===')
+            send['proxies'] = self.proxies
 
         self.sio.log('=== send ===')
         print(json.dumps(send, ensure_ascii=False))
@@ -1095,6 +1106,8 @@ class MainTest:
 
     def main(self):
         """main"""
+
+        self.safe_scan()
 
         getattr(self, self.func_name)()
 
