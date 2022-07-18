@@ -25,7 +25,7 @@ from config.config import config_obj
 STATIC_FOLDER = config_obj['new'].STATIC_FOLDER
 
 
-def create_app():
+def create_app(is_context=False):
     app = Flask(
         __name__,
         # template_folder=os.getcwd() + '/app/templates',
@@ -41,5 +41,6 @@ def create_app():
     register_bp(app)  # 蓝图注册
     register_db(app)  # db注册
     Migrate(app, db)  # ORM迁移
-    register_apscheduler(app)  # 定时任务
+    if not is_context:
+        register_apscheduler(app)  # 定时任务
     return app

@@ -9,6 +9,9 @@ import json
 import time
 import datetime
 import shortuuid
+import operator
+
+# print(operator.eq(1, 2))
 
 """断言相关"""
 # 返回值来源
