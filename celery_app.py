@@ -30,7 +30,7 @@ def create_celery(app):
     return my_celery
 
 
-app = create_app()
+app = create_app(is_context=True)
 cel = create_celery(app)
 
 """

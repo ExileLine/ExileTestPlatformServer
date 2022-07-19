@@ -4,14 +4,13 @@
 # @Email   : yang6333yyx@126.com
 # @File    : file_import_api.py
 # @Software: PyCharm
-import json
 
 from all_reference import *
 from app.models.test_case.models import TestCase, TestCaseData
 from app.models.test_case_assert.models import TestCaseDataAssBind
 from app.models.test_project.models import TestProject, MidProjectAndCase, TestProjectVersion, TestModuleApp, \
     MidVersionAndCase, MidModuleAndCase
-from app.models.file_import.models import FileImportHistory
+from tasks.postman_import import postman_import
 
 
 class PostManFileImport:
@@ -243,6 +242,7 @@ class InterfaceFileImportApi(MethodView):
             if len(query_module_list) != len(module_id_list):
                 return api_result(code=400, message='模块不存在')
 
+        """
         main = PostManFileImport()
         main.filter_case(item=file_content_json.get('item', []))
         main.gen_case(project_id=project_id, version_id_list=version_id_list, module_id_list=module_id_list)
@@ -256,7 +256,19 @@ class InterfaceFileImportApi(MethodView):
             remark=remark
         )
         fih.save()
+        """
 
+        postman_import.delay(
+            creator=g.app_user.username,
+            creator_id=g.app_user.id,
+            project_id=project_id,
+            version_id_list=version_id_list,
+            module_id_list=module_id_list,
+            file_name=file_name,
+            file_type=import_type,
+            file_main_content=file_content_json,
+            remark=remark
+        )
         return api_result(code=201, message='操作成功')
 
 
