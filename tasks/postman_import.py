@@ -16,12 +16,6 @@ from app.models.test_project.models import db, MidProjectAndCase, MidVersionAndC
 from app.models.file_import.models import FileImportHistory
 from common.libs.set_app_context import set_app_context
 
-"""
-暂时无法使用该异步任务
-
-
-"""
-
 
 class PostManFileImport:
     """导入postman接口文件"""

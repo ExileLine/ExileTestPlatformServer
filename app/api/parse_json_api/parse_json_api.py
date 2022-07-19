@@ -7,7 +7,7 @@
 
 
 from all_reference import *
-from tasks.task04 import execute_pjs_main
+from tasks.parse_json import execute_pjs_main
 
 
 class ParseJsonApi(MethodView):
