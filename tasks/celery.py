@@ -12,9 +12,10 @@ result_backend = 'redis://:123456@127.0.0.1:6379/3'
 include_list = [
     'tasks.task01',
     'tasks.task02',
-    'tasks.task03'
+    'tasks.task03',
+    'tasks.task04'
 ]
-cel = Celery('celery_demo', broker=broker_url, backend=result_backend, include=include_list)
+cel = Celery('celery_demo', broker=broker_url, backend=result_backend, include=include_list, set_as_current=False)
 
 # 时区
 cel.conf.timezone = 'Asia/Shanghai'
