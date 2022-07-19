@@ -29,10 +29,12 @@ def execute_pjs_main(**kwargs):
         for key, result in query_result.items():
             pjs = ParseJsonSchema(app_name=app_name, base_url=base_url, query=result, parse_way="redis")
             pjs.main()
+        pjs.gen_authorization()
     else:
         result = query_result.get(query_id)
         pjs = ParseJsonSchema(app_name=app_name, base_url=base_url, query=result, parse_way="redis")
         pjs.main()
+        pjs.gen_authorization()
 
     """sql模式"""
     # table_name = f"hy_{app_name}_busmodel_api_metadata"
@@ -42,10 +44,12 @@ def execute_pjs_main(**kwargs):
     #     for result in result_list:
     #         pjs = ParseJsonSchema(app_name=app_name, base_url=base_url, query=result, parse_way="sql")
     #         pjs.main()
+    #     pjs.gen_authorization()
     # else:
     #     sql = f"""SELECT * FROM `aaaaaaa`.`hy_entrance_busmodel_api_metadata` WHERE id='{query_id}';"""
     #     result = project_db.select(sql=sql, only=True)
     #     pjs = ParseJsonSchema(app_name=app_name, base_url=base_url, query=result, parse_way="sql")
     #     pjs.main()
+    #     pjs.gen_authorization()
 
     return f"应用:{app_name} 执行完成"

@@ -62,14 +62,17 @@ def gen_random_bool():
 type_dict = {
     "string": str,
     "integer": int,
+    "number": int,
     "object": dict,
     "array": list,
-    "boolean": bool
+    "boolean": bool,
+    "null": lambda x: None
 }
 
 type_func_dict = {
     "string": gen_random_str,
     "integer": gen_random_int,
+    "number": gen_random_int,
     "boolean": gen_random_bool
 }
 
@@ -139,7 +142,7 @@ def gen_table_to_hashmap(base_url, app_name):
 class ParseJsonSchema:
     """解析 json_schema"""
 
-    def __init__(self, app_name, base_url, query, parse_way=None):
+    def __init__(self, app_name, base_url, query, parse_way):
         """
 
         :param app_name: 应用名称
@@ -148,6 +151,9 @@ class ParseJsonSchema:
         :param parse_way: 解析方式
         """
 
+        self.parse_way = parse_way
+        if self.parse_way not in ('sql', 'redis'):
+            raise ValueError("parse_way 应该为 sql 或者 redis")
         self.app_name = app_name
         self.base_url = base_url
         if not self.app_name:
@@ -170,7 +176,11 @@ class ParseJsonSchema:
         self.resourceType = ''
 
         self.business_name = query.get('business_name')
+
         self.json_schema = query.get('json_schema')
+
+        if isinstance(self.json_schema, str):
+            self.json_schema = json.loads(query.get('json_schema'))
 
         self.project_id = None
         self.case_id = None
@@ -203,6 +213,58 @@ class ParseJsonSchema:
         self.ass_resp_success_id = None
         self.ass_resp_fail_id = None
 
+        self.query_table_url = f"{base_url}/hy/saas/hy/{app_name}/business/__system_upload__"
+        self.authorization = f"{self.app_name}_Authorization"
+
+        self.tb_dict = {
+            "sql": self.query_table,
+            "redis": self.req_table
+        }
+
+    def req_table(self, key=None, table=None, field=None):
+        """
+
+        :param key: 当前参数key
+        :param table: 表名称
+        :param field: 字段名称
+        :return:
+        """
+
+        if not table:
+            return f"参数{key}: table为空无法取值"
+        if not field:
+            return f"参数{key}: field为空无法取值"
+
+        print(f"=== key ===\n{key}")
+        print(f"=== table ===\n{table}")
+        print(f"=== field ===\n{field}")
+
+        url = self.query_table_url
+        json_data = {
+            "businesscode": "__system_upload__",
+            "steps": [
+                {
+                    "function": {
+                        "code": "TABLE_SELECT",
+                        "params": {
+                            "table": table,
+                            "condition": {}
+                        }
+                    }
+                }
+            ]
+        }
+        resp = requests.post(url=url, json=json_data, verify=False)
+        resp_json = resp.json()
+        resp_code = resp_json.get("code")
+        table_list = resp_json.get("result").get('data')
+        if table_list:
+            for table in table_list:
+                if table.get(field):
+                    return table.get(field)
+        else:
+            return f"未找到字典: {table} 无法取值"
+
     def query_table(self, key=None, table=None, field=None):
         """
 
@@ -213,9 +275,9 @@ class ParseJsonSchema:
         """
 
         if not table:
-            return f"表: {table} 不存在无法取值"
+            return f"参数{key}: table为空无法取值"
         if not field:
-            return f"字段: {field} 不存在无法取值"
+            return f"参数{key}: field为空无法取值"
 
         print(f"=== key ===\n{key}")
         print(f"=== table ===\n{table}")
@@ -307,15 +369,18 @@ class ParseJsonSchema:
     def __f1(self, _type, _fieldSize, reverse=False):
         """f1"""
 
-        func = type_func_dict.get(_type)
-        if reverse:
-            return func(_fieldSize - 3)
+        try:
+            func = type_func_dict.get(_type)
+            if reverse:
+                return func(_fieldSize - 3)
 
-        if _fieldSize < 4:
-            res = func(_fieldSize)[0:_fieldSize]
-        else:
-            res = func(_fieldSize - 4)
-        return res
+            if _fieldSize < 4:
+                res = func(_fieldSize)[0:_fieldSize]
+            else:
+                res = func(_fieldSize - 4)
+            return res
+        except BaseException as e:
+            return type_func_dict.get(_type)()
 
     def _gen_object_array(self):
         """1"""
@@ -354,7 +419,7 @@ class ParseJsonSchema:
         :return:
         """
 
-        if _type in ('object', 'array'):
+        if _type in ('object', 'array', 'null'):
             res = object_dict.get(key)
             if res:
                 return res
@@ -381,12 +446,14 @@ class ParseJsonSchema:
         elif _dateEngineFieldDataType == 'DICT':
             table = val.get('_associatedReference').get('refTableCode')
             field = val.get('_associatedReference').get('refFieldCode')
-            res = self.query_table(key=key, table=table, field=field)
+            # res = self.query_table(key=key, table=table, field=field)
+            res = self.tb_dict.get(self.parse_way)(key=key, table=table, field=field)
         elif _dateEngineFieldDataType == 'QUOTE':
             table = val.get('_associatedReference').get('tableCode')
             field = val.get('_associatedReference').get('fieldCode')
-            res = self.query_table(key=key, table=table, field=field)
-        elif _dateEngineFieldDataType in ('IMG', 'FK', 'FILE'):
+            # res = self.query_table(key=key, table=table, field=field)
+            res = self.tb_dict.get(self.parse_way)(key=key, table=table, field=field)
+        elif _dateEngineFieldDataType in ('IMG', 'FK', 'FILE', 'VIDEO', 'AUDIO'):
             return gen_random_str(32)
         else:
             raise TypeError(f"_dateEngineFieldDataType: {key} {val} {_type} {_fieldSize}")
@@ -407,6 +474,7 @@ class ParseJsonSchema:
         required = reqSchema.get('required', [])  # 必传key
         req_type = reqSchema.get('type')
         # print(json.dumps(reqSchema, ensure_ascii=False))
+        print(f"=== id ===\n{self.creator_id}")
         print(f"=== business_name ===\n{self.business_name}")
         print(f"=== req_type ===\n{req_type}")
         print(f"=== resourceType ===\n{self.resourceType}")
@@ -480,7 +548,7 @@ class ParseJsonSchema:
         """入库"""
 
         request_headers = {
-            "Authorization": "Bearer hy.entrance.4.f237e323-080a-46a5-9418-f523359d5a52",
+            "Authorization": "${%s}" % (self.authorization),
             "Content-Type": "application/json;charset=UTF-8"
         }
         for index, d in enumerate(self.data_list):
@@ -518,6 +586,46 @@ class ParseJsonSchema:
             db.session.add(case_bind)
         db.session.commit()
 
+    @set_app_context
+    def gen_authorization(self):
+        """生成authorization存入变量"""
+
+        url = f'{self.base_url[0:-5]}:6060/login'
+        data = {
+            "username": "admin",
+            "password": "n8+wekN7GQenwWyUBPVDnA==",
+            "pwd_encryption_type": "2",
+            "client_type": "4",
+            "lessee_code": "hy",
+            "app_code": f"{self.app_name}",
+            "client_id": "client_hy_web",
+            "client_secret": "hy123456"
+        }
+        print(url)
+        print(json.dumps(data, ensure_ascii=False))
+        resp = requests.post(url=url, data=data)
+        access_token = resp.json().get('access_token')
+        if access_token:
+            print(access_token)
+            query_var = TestVariable.query.filter_by(var_name=self.authorization).first()
+            if query_var:
+                query_var.var_value = access_token
+                db.session.commit()
+                print(f"更新:{self.authorization}")
+            else:
+                new_var = TestVariable(
+                    var_name=self.authorization,
+                    var_value=access_token,
+                    var_type=1,
+                    var_source="resp_data",
+                    var_get_key="access_token",
+                    expression="",
+                    is_public=1,
+                    creator="ParseJsonSchema"
+                )
+                new_var.save()
+                print(f"新增:{self.authorization}")
+
     def main(self):
         """main"""
 
@@ -532,6 +640,17 @@ class ParseJsonSchema:
         print(error_list)
         self.save_data()
         self.bind()
+        # self.gen_authorization()
+
+
+def test_gen_table_to_hashmap():
+    """1"""
+
+    gen_table_to_hashmap(
+        base_url="http://192.168.14.160:7090",
+        app_name="auto"
+    )
+    print(json.loads(R.get('auto')).get('1386513301277650943'))
 
 
 @set_app_context
@@ -549,7 +668,7 @@ def test_main(size=None):
     if size:
         sql = f"""SELECT * FROM `aaaaaaa`.`hy_entrance_busmodel_api_metadata` WHERE template_type='INSERT' ORDER BY id desc LIMIT {size};"""
     else:
-        sql = f"""SELECT * FROM `aaaaaaa`.`hy_entrance_busmodel_api_metadata`;"""
+        sql = f"""SELECT * FROM `aaaaaaa`.`hy_entrance_busmodel_api_metadata` LIMIT 200;"""
 
     result_list = project_db.select(sql=sql)
     for result in result_list:
@@ -564,21 +683,56 @@ def test_one():
     sql = """SELECT * FROM `aaaaaaa`.`hy_entrance_busmodel_api_metadata` WHERE business_name='新增[设备点位表]表信息';"""
     # sql = """SELECT * FROM `aaaaaaa`.`hy_entrance_busmodel_api_metadata` WHERE business_name='新增_用户操作日志表';"""
     result = project_db.select(sql=sql, only=True)
-    pjs = ParseJsonSchema(app_name='entrance', base_url='http://192.168.14.160:7090', query=result)
+    pjs = ParseJsonSchema(app_name='entrance', base_url='http://192.168.14.160:7090', query=result, parse_way="sql")
     pjs.main()
+
+
+def test_002():
+    """1"""
+
+    result = json.loads(R.get('auto')).get('1546763642459009024')
+    pjs = ParseJsonSchema(app_name='auto', base_url='http://192.168.14.160:7090', query=result, parse_way='redis')
+    pjs.main()
+    pjs.gen_authorization()
+
+
+def test_003():
+    """1"""
+
+    result_list = []
+    obj = json.loads(R.get('auto'))
+    for index, i in enumerate(obj.keys()):
+        if index <= 100:
+            result_list.append(obj.get(i))
+        else:
+            break
+    for result in result_list:
+        pjs = ParseJsonSchema(app_name='auto', base_url='http://192.168.14.160:7090', query=result, parse_way='redis')
+        pjs.main()
+    pjs.gen_authorization()
+
+
+def test_004():
+    """1"""
+
+    query_result = json.loads(R.get('auto'))
+    for key, result in query_result.items():
+        pjs = ParseJsonSchema(app_name='auto', base_url='http://192.168.14.160:7090', query=result, parse_way="redis")
+        pjs.main()
+    pjs.gen_authorization()
 
 
 if __name__ == '__main__':
     """main"""
+    """
+    auto测试id
+    1437630647572246528
+    """
+    test_reset()
 
-    # test_reset()
     # test_main()
     # test_one()
-    # print(json.dumps(error_list, ensure_ascii=False))
 
-    # gen_table_to_hashmap(
-    #     base_url="http://192.168.14.160:7090",
-    #     app_name="auto"
-    # )
-
-    print(json.loads(R.get('auto')).get('1386513301277650943'))
+    test_002()
+    # test_003()
+    # test_004()
