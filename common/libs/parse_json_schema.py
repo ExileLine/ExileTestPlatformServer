@@ -6,9 +6,12 @@
 # @Software: PyCharm
 
 import copy
+import datetime
 import json
 import random
 import string
+
+import requests
 
 from common.libs.db import project_db, R
 from common.libs.set_app_context import set_app_context
@@ -83,15 +86,66 @@ object_dict = {
 }
 
 
+def gen_table_to_hashmap(base_url, app_name):
+    """
+
+    :param base_url:
+    :param app_name:
+    :return:
+    """
+
+    url = f"{base_url}/hy/saas/hy/{app_name}/business/__system_upload__"
+    json_data = {
+        "businesscode": "__system_upload__",
+        "steps": [
+            {
+                "function": {
+                    "code": "TABLE_SELECT",
+                    "params": {
+                        "table": "busmodel_api_metadata",
+                        "condition": {}
+                    }
+                }
+            }
+        ]
+    }
+    try:
+        query_redis = R.get(app_name)
+        if query_redis:
+            # json_result = json.loads(query_redis)
+            print('query_redis is true')
+            return True
+
+        resp = requests.post(url=url, json=json_data, verify=False)
+        resp_json = resp.json()
+        resp_code = resp_json.get("code")
+        table_list = resp_json.get("result").get('data')
+        d = {}
+        if resp_code == "SA0000" and table_list:
+            print(datetime.datetime.now())
+            for table in table_list:
+                d[table.get("id")] = table
+            R.set(app_name, json.dumps(d, ensure_ascii=False))
+            print(datetime.datetime.now())
+            return True
+        else:
+            print(f"错误resp_code:{resp_code}")
+            return False
+    except BaseException as e:
+        print(f"异常:{str(e)}")
+        return False
+
+
 class ParseJsonSchema:
     """解析 json_schema"""
 
-    def __init__(self, app_name, base_url, query):
+    def __init__(self, app_name, base_url, query, parse_way=None):
         """
 
         :param app_name: 应用名称
         :param base_url: ip:port
         :param query:   json_schema数据源
+        :param parse_way: 解析方式
         """
 
         self.app_name = app_name
@@ -519,6 +573,12 @@ if __name__ == '__main__':
 
     # test_reset()
     # test_main()
-    test_one()
+    # test_one()
+    # print(json.dumps(error_list, ensure_ascii=False))
 
-    print(json.dumps(error_list, ensure_ascii=False))
+    # gen_table_to_hashmap(
+    #     base_url="http://192.168.14.160:7090",
+    #     app_name="auto"
+    # )
+
+    print(json.loads(R.get('auto')).get('1386513301277650943'))
