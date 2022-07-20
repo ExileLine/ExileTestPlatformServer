@@ -112,6 +112,11 @@ def gen_table_to_hashmap(base_url, app_name):
             }
         ]
     }
+
+    print('=== gen_table_to_hashmap ===')
+    print(url)
+    print(json_data)
+
     try:
         query_redis = R.get(app_name)
         if query_redis:
@@ -609,13 +614,13 @@ class ParseJsonSchema:
             print(access_token)
             query_var = TestVariable.query.filter_by(var_name=self.authorization).first()
             if query_var:
-                query_var.var_value = access_token
+                query_var.var_value = f"Bearer {access_token}"
                 db.session.commit()
                 print(f"更新:{self.authorization}")
             else:
                 new_var = TestVariable(
                     var_name=self.authorization,
-                    var_value=access_token,
+                    var_value=f"Bearer {access_token}",
                     var_type=1,
                     var_source="resp_data",
                     var_get_key="access_token",
@@ -651,6 +656,7 @@ def test_gen_table_to_hashmap():
         app_name="auto"
     )
     print(json.loads(R.get('auto')).get('1386513301277650943'))
+    # print(json.loads(R.get('entrance')))
 
 
 @set_app_context
@@ -727,12 +733,15 @@ if __name__ == '__main__':
     """
     auto测试id
     1437630647572246528
+    
+    门禁
+    1547415022785933300
     """
     test_reset()
 
     # test_main()
     # test_one()
 
-    test_002()
+    # test_002()
     # test_003()
     # test_004()
