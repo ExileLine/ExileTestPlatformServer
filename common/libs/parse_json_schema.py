@@ -263,6 +263,8 @@ class ParseJsonSchema:
         resp_json = resp.json()
         resp_code = resp_json.get("code")
         table_list = resp_json.get("result").get('data')
+        print('=== table_list ===')
+        print(table_list)
         if table_list:
             for table in table_list:
                 if table.get(field):
@@ -448,14 +450,9 @@ class ParseJsonSchema:
 
         if _dateEngineFieldDataType == 'NORMAL':
             res = self.__f1(_type, _fieldSize)
-        elif _dateEngineFieldDataType == 'DICT':
+        elif _dateEngineFieldDataType in ('DICT', 'QUOTE'):
             table = val.get('_associatedReference').get('refTableCode')
             field = val.get('_associatedReference').get('refFieldCode')
-            # res = self.query_table(key=key, table=table, field=field)
-            res = self.tb_dict.get(self.parse_way)(key=key, table=table, field=field)
-        elif _dateEngineFieldDataType == 'QUOTE':
-            table = val.get('_associatedReference').get('tableCode')
-            field = val.get('_associatedReference').get('fieldCode')
             # res = self.query_table(key=key, table=table, field=field)
             res = self.tb_dict.get(self.parse_way)(key=key, table=table, field=field)
         elif _dateEngineFieldDataType in ('IMG', 'FK', 'FILE', 'VIDEO', 'AUDIO'):
@@ -728,6 +725,11 @@ def test_004():
     pjs.gen_authorization()
 
 
+def a():
+    pjs = ParseJsonSchema(app_name='entrance', base_url='http://192.168.14.160:7090', query={}, parse_way="redis")
+    pjs.gen_authorization()
+
+
 if __name__ == '__main__':
     """main"""
     """
@@ -737,7 +739,9 @@ if __name__ == '__main__':
     门禁
     1547415022785933300
     """
-    test_reset()
+    a()
+
+    # test_reset()
 
     # test_main()
     # test_one()
