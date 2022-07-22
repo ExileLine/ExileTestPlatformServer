@@ -25,6 +25,7 @@ class TestCiCdMap(BaseModel):
     is_set_url = db.Column(BIGINT(20, unsigned=True), default=0, comment='是否使用cicd的url')
     is_active = db.Column(BIGINT(20, unsigned=True), default=1, comment='是否激活')
     scheduling_id = db.Column(BIGINT(20, unsigned=True), comment='ui auto scheduling_id')
+    is_safe_scan = db.Column(BIGINT(20, unsigned=True), default=1, comment='是否安全扫描')
     creator = db.Column(db.String(32), comment='创建人')
     creator_id = db.Column(BIGINT(20, unsigned=True), comment='创建人id')
     modifier = db.Column(db.String(32), comment='更新人')

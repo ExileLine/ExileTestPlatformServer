@@ -12,6 +12,7 @@ from app.models.test_cicd.models import TestCiCdMap
 from app.models.push_reminder.models import DingDingConfModel
 from .case_exec_api import QueryExecuteData
 from tasks.task03 import execute_main
+from app.api.case_exec_api.case_exec_api import safe_scan
 
 
 def call_ui_auto(scheduling_id):
@@ -58,6 +59,7 @@ class CaseCICDMapApi(MethodView):
         url = data.get('url')
         is_set_url = data.get('is_set_url')
         is_active = data.get('is_active', 1)
+        is_safe_scan = data.get('is_safe_scan', 0)
         scheduling_id = data.get('scheduling_id')
 
         query_cicd = TestCiCdMap.query.filter_by(app_name=app_name, branch_name=branch_name, is_deleted=0).first()
@@ -79,6 +81,7 @@ class CaseCICDMapApi(MethodView):
             url=url,
             is_set_url=is_set_url,
             is_active=is_active,
+            is_safe_scan=is_safe_scan,
             scheduling_id=scheduling_id if scheduling_id else None,
             obj_json=data,
             creator=g.app_user.username,
@@ -102,6 +105,7 @@ class CaseCICDMapApi(MethodView):
         url = data.get('url')
         is_set_url = data.get('is_set_url')
         is_active = data.get('is_active', 1)
+        is_safe_scan = data.get('is_safe_scan', 0)
         scheduling_id = data.get('scheduling_id')
 
         query_cicd = TestCiCdMap.query.get(cicd_id)
@@ -122,6 +126,7 @@ class CaseCICDMapApi(MethodView):
         query_cicd.url = url
         query_cicd.is_set_url = is_set_url
         query_cicd.is_active = is_active
+        query_cicd.is_safe_scan = is_safe_scan
         query_cicd.version_id = version_id
         query_cicd.task_id = task_id
         query_cicd.dd_push_id = dd_push_id
@@ -260,6 +265,12 @@ class CaseCICDApi(MethodView):
         # print(result_bool)
         # print(result_data)
 
+        safe_scan_obj = {}
+        is_safe_scan = query_cicd_map.is_safe_scan
+        if is_safe_scan:
+            safe_scan_obj = safe_scan()
+            print(safe_scan_obj)
+
         test_obj = {
             "execute_id": task_id,
             "execute_name": f'CICD-{result_data.get("execute_name")}',
@@ -276,8 +287,15 @@ class CaseCICDApi(MethodView):
             "dd_push_id": dd_push_id,
             "ding_talk_url": ding_talk_url,
             "trigger_type": "CICD_execute",
-            "request_timeout": 20
+            "request_timeout": 20,
+
+            "is_safe_scan": is_safe_scan,
+            "safe_scan_proxies_url": "",
+            "call_safe_scan_data": {},
+            "safe_scan_report_url": ""
         }
+
+        test_obj.update(safe_scan_obj)
         api_auto_results = execute_main.delay(test_obj)
         print(api_auto_results)
 
