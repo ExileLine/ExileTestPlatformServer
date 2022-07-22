@@ -337,46 +337,50 @@ class MySqlServer(BaseDatabase):
         return self.db_obj().cursor()
 
 
-project_db = MyPyMysql(**DB, debug=CONFIG_OBJ.DEBUG)  # MySql实例
-project_db_pool = MyPyMysql(pool=MYSQL_POOL, is_pool=True, debug=CONFIG_OBJ.DEBUG)  # MySql连接池实例
-
-
-def test_mysql():
-    """测试MySql"""
-    print('\n===test MySql===')
-    sql = "SELECT id, case_name FROM exile_test_case limit 0,6;"
-    print('ping:', project_db.db_obj().open)
-    result1 = project_db.select(sql, only=True)
-    result2 = project_db.select(sql, size=3)
-    result3 = project_db.select(sql)
-    print(result1, type(result1), len(result1))
-    print(result2, type(result2), len(result2))
-    print(result3, type(result3), len(result3))
-
-
-def test_mysql_pool():
-    """测试MySql连接池"""
-    print('\n===test MySql POOL===')
-    sql = "SELECT id, case_name FROM exile_test_case limit 0,6;"
-    result1 = project_db_pool.select(sql, only=True)
-    result2 = project_db_pool.select(sql, size=3)
-    result3 = project_db_pool.select(sql)
-    print(result1, type(result1), len(result1))
-    print(result2, type(result2), len(result2))
-    print(result3, type(result3), len(result3))
-
-
-def test_redis():
-    """测试Redis"""
-    print('\n===test Redis===')
-    print('ping:', R.ping())
-    print(R)
-    print(R.get('yangyuexiong'))
-    print(R.execute_command("get 127.0.0.1"))
-    print(type(R.execute_command("get 127.0.0.1")))
-
+# project_db = MyPyMysql(**DB, debug=CONFIG_OBJ.DEBUG)  # MySql实例
+project_db = MyPyMysql(pool=MYSQL_POOL, is_pool=True, debug=CONFIG_OBJ.DEBUG)  # MySql连接池实例
 
 if __name__ == '__main__':
+    """test"""
+    project_db = MyPyMysql(**DB, debug=CONFIG_OBJ.DEBUG)  # MySql实例
+    project_db_pool = MyPyMysql(pool=MYSQL_POOL, is_pool=True, debug=CONFIG_OBJ.DEBUG)  # MySql连接池实例
+
+
+    def test_mysql():
+        """测试MySql"""
+        print('\n===test MySql===')
+        sql = "SELECT id, case_name FROM exile_test_case limit 0,6;"
+        print('ping:', project_db.db_obj().open)
+        result1 = project_db.select(sql, only=True)
+        result2 = project_db.select(sql, size=3)
+        result3 = project_db.select(sql)
+        print(result1, type(result1), len(result1))
+        print(result2, type(result2), len(result2))
+        print(result3, type(result3), len(result3))
+
+
+    def test_mysql_pool():
+        """测试MySql连接池"""
+        print('\n===test MySql POOL===')
+        sql = "SELECT id, case_name FROM exile_test_case limit 0,6;"
+        result1 = project_db_pool.select(sql, only=True)
+        result2 = project_db_pool.select(sql, size=3)
+        result3 = project_db_pool.select(sql)
+        print(result1, type(result1), len(result1))
+        print(result2, type(result2), len(result2))
+        print(result3, type(result3), len(result3))
+
+
+    def test_redis():
+        """测试Redis"""
+        print('\n===test Redis===')
+        print('ping:', R.ping())
+        print(R)
+        print(R.get('yangyuexiong'))
+        print(R.execute_command("get 127.0.0.1"))
+        print(type(R.execute_command("get 127.0.0.1")))
+
+
     test_mysql()
     test_mysql_pool()
     test_redis()
