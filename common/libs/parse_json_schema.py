@@ -31,27 +31,33 @@ from app.models.test_variable.models import TestVariable
 error_list = []
 
 
-def gen_random_str(length=8):
+def gen_random_str(length=8, key=None):
     """
     生成随机字符串
     :param length:
+    :param key:
     :return: 随机字符串
     """
-    random_str = ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(length))
-    return f"随机生成{random_str}"
+    if key in ("id", "level", "pid", "fid"):
+        random_int_str = ''.join(random.choice(string.digits) for _ in range(length))
+        return random_int_str
+    else:
+        random_str = ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(length))
+        return f"随机生成{random_str}"
 
 
-def gen_random_int(length=8):
+def gen_random_int(length=8, key=None):
     """
     生成随机数字
     :param length:
+    :param key:
     :return: 随机数字
     """
     random_int = ''.join(random.choice(string.digits) for _ in range(length))
     return int(random_int)
 
 
-def gen_random_bool():
+def gen_random_bool(key=None):
     """
     生成随机布尔值
     :return:
@@ -373,11 +379,11 @@ class ParseJsonSchema:
             new_ass_resp_fail.save()
             self.ass_resp_fail_id = new_ass_resp_fail.id
 
-    def __f1(self, _type, _fieldSize, reverse=False):
+    def __f1(self, _type, _fieldSize, key, reverse=False):
         """f1"""
 
         try:
-            func = type_func_dict.get(_type)
+            func = type_func_dict.get(_type, key)
             if reverse:
                 return func(_fieldSize - 3)
 
@@ -387,12 +393,12 @@ class ParseJsonSchema:
                 res = func(_fieldSize - 4)
             return res
         except BaseException as e:
-            return type_func_dict.get(_type)()
+            return type_func_dict.get(_type, key)()
 
     def _gen_object_array(self):
         """1"""
 
-    def reverse_check(self, _dateEngineFieldDataType=None, _type=None, _fieldSize=None):
+    def reverse_check(self, _dateEngineFieldDataType=None, _type=None, key=None, _fieldSize=None):
         """
 
         :param _dateEngineFieldDataType:
@@ -405,7 +411,7 @@ class ParseJsonSchema:
             return ''
 
         if _dateEngineFieldDataType == 'NORMAL':
-            res = self.__f1(_type, _fieldSize, reverse=True)
+            res = self.__f1(_type, _fieldSize, key, reverse=True)
         elif _dateEngineFieldDataType in ('DICT', 'QUOTE', 'IMG', 'FK'):
             res = ""
         else:
@@ -441,15 +447,15 @@ class ParseJsonSchema:
                 elif obj.get('_customName'):
                     return obj.get('_customName')
                 else:
-                    res = type_func_dict.get(_type)
+                    res = type_func_dict.get(_type, key)
                     if not res:
                         error_list.append((key, obj))
                         return ''
                     return res()
-            return self.__f1(_type, _fieldSize)
+            return self.__f1(_type, _fieldSize, key)
 
         if _dateEngineFieldDataType == 'NORMAL':
-            res = self.__f1(_type, _fieldSize)
+            res = self.__f1(_type, _fieldSize, key)
         elif _dateEngineFieldDataType in ('DICT', 'QUOTE'):
             table = val.get('_associatedReference').get('refTableCode')
             field = val.get('_associatedReference').get('refFieldCode')
@@ -534,7 +540,8 @@ class ParseJsonSchema:
                 v = self.reverse_check(
                     _dateEngineFieldDataType=_dateEngineFieldDataType,
                     _type=_type,
-                    _fieldSize=_fieldSize
+                    _fieldSize=_fieldSize,
+                    key=key
                 )
 
                 d1[key] = v
@@ -741,6 +748,7 @@ if __name__ == '__main__':
     """
     a()
 
+    # print(len(r))
     # test_reset()
 
     # test_main()
@@ -749,3 +757,5 @@ if __name__ == '__main__':
     # test_002()
     # test_003()
     # test_004()
+
+
