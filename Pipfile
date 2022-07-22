@@ -20,6 +20,7 @@ psycopg2-binary = "*"
 celery = "*"
 psutil = "*"
 pymssql = "*"
+dbutils = "*"
 
 [dev-packages]
 
