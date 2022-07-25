@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # @Time    : 2019/4/19 12:00 PM
-# @Author  : ShaHeTop-Almighty-ares
+# @Author  : yangyuexiong
 # @Email   : yang6333yyx@126.com
 # @File    : api_result.py
 # @Software: PyCharm

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # @Time    : 2022/6/22 11:58
-# @Author  : ShaHeTop-Almighty-ares
+# @Author  : yangyuexiong
 # @Email   : yang6333yyx@126.com
 # @File    : clear_cache.py
 # @Software: PyCharm

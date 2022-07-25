@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # @Time    : 2022/1/14 10:51 下午
-# @Author  : ShaHeTop-Almighty-ares
+# @Author  : yangyuexiong
 # @Email   : yang6333yyx@126.com
 # @File    : platform_conf_api.py
 # @Software: PyCharm

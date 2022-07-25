@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # @Time    : 2021/9/20 10:26 下午
-# @Author  : ShaHeTop-Almighty-ares
+# @Author  : yangyuexiong
 # @Email   : yang6333yyx@126.com
 # @File    : test_stringIO.py
 # @Software: PyCharm

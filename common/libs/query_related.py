@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # @Time    : 2021/9/1 3:59 下午
-# @Author  : ShaHeTop-Almighty-ares
+# @Author  : yangyuexiong
 # @Email   : yang6333yyx@126.com
 # @File    : query_related.py
 # @Software: PyCharm
