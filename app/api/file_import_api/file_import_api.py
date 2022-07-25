@@ -9,7 +9,7 @@ from all_reference import *
 from app.models.test_case.models import TestCase, TestCaseData
 from app.models.test_case_assert.models import TestCaseDataAssBind
 from app.models.test_project.models import TestProject, MidProjectAndCase, TestProjectVersion, TestModuleApp, \
-    MidVersionAndCase, MidModuleAndCase
+    MidVersionCase, MidModuleCase
 from tasks.postman_import import postman_import
 
 
@@ -182,11 +182,11 @@ class PostManFileImport:
 
                     if version_id_list:
                         list(map(lambda version_id: db.session.add(
-                            MidVersionAndCase(version_id=version_id, case_id=case_id, creator=g.app_user.username,
+                            MidVersionCase(version_id=version_id, case_id=case_id, creator=g.app_user.username,
                                               creator_id=g.app_user.id, remark="导入生成")), version_id_list))
                     if module_id_list:
                         list(map(lambda module_id: db.session.add(
-                            MidModuleAndCase(module_id=module_id, case_id=case_id, creator=g.app_user.username,
+                            MidModuleCase(module_id=module_id, case_id=case_id, creator=g.app_user.username,
                                              creator_id=g.app_user.id, remark="导入生成")), module_id_list))
                     db.session.commit()
 

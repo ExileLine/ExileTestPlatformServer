@@ -12,7 +12,7 @@ from common.libs.db import project_db
 from common.libs.set_app_context import set_app_context
 from app.models.test_case.models import TestCase, TestCaseData
 from app.models.test_case_assert.models import TestCaseDataAssBind, TestCaseAssResponse, TestCaseAssField
-from app.models.test_project.models import TestProjectVersion, MidVersionAndCase, MidModuleAndCase, TestModuleApp
+from app.models.test_project.models import TestProjectVersion, MidVersionCase, MidModuleCase, TestModuleApp
 
 
 def page_size(page=None, size=None, **kwargs):
@@ -104,11 +104,11 @@ def query_case_assemble(case_id):
 
     case_info = query_case.to_json()
 
-    version_id_list = [m.version_id for m in MidVersionAndCase.query.filter_by(case_id=case_id).all()]
+    version_id_list = [m.version_id for m in MidVersionCase.query.filter_by(case_id=case_id).all()]
     version_list = [m.to_json() for m in
                     TestProjectVersion.query.filter(TestProjectVersion.id.in_(version_id_list)).all()]
 
-    module_id_list = [m.module_id for m in MidModuleAndCase.query.filter_by(case_id=case_id).all()]
+    module_id_list = [m.module_id for m in MidModuleCase.query.filter_by(case_id=case_id).all()]
     module_list = [m.to_json() for m in TestModuleApp.query.filter(TestModuleApp.id.in_(module_id_list)).all()]
 
     # 参数与响应断言、字段断言组装

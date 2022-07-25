@@ -11,7 +11,16 @@ import datetime
 import shortuuid
 import operator
 
-# print(operator.eq(1, 2))
+print(operator.eq(1, 2))
+
+"""请求方式"""
+method_dict = {
+    "GET": "",
+    "POST": "",
+    "PUT": "",
+    "DELETE": "",
+    "PATCH": ""
+}
 
 """断言相关"""
 # 返回值来源

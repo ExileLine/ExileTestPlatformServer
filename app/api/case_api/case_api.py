@@ -10,7 +10,7 @@ from functools import wraps
 from all_reference import *
 from app.models.test_case.models import TestCase
 from app.models.test_project.models import TestProject, TestProjectVersion, TestModuleApp, MidProjectAndCase, \
-    MidVersionAndCase, MidModuleAndCase, MidTaskAndCase
+    MidVersionCase, MidModuleCase, MidTaskCase
 
 from app.models.test_case_assert.models import TestCaseDataAssBind
 
@@ -179,11 +179,11 @@ class CaseApi(MethodView):
         )
         db.session.add(mid_pc)
         list(map(lambda version_id: db.session.add(
-            MidVersionAndCase(
+            MidVersionCase(
                 version_id=version_id, case_id=case_id, creator=g.app_user.username, creator_id=g.app_user.id)),
                  version_id_list))
         list(map(lambda module_id: db.session.add(
-            MidModuleAndCase(
+            MidModuleCase(
                 module_id=module_id, case_id=case_id, creator=g.app_user.username, creator_id=g.app_user.id)),
                  module_id_list))
         db.session.commit()
@@ -241,23 +241,23 @@ class CaseApi(MethodView):
         query_case.modifier = g.app_user.username
         query_case.modifier_id = g.app_user.id
 
-        db.session.query(MidVersionAndCase).filter(MidVersionAndCase.case_id == case_id).delete(
+        db.session.query(MidVersionCase).filter(MidVersionCase.case_id == case_id).delete(
             synchronize_session=False)
 
-        db.session.query(MidModuleAndCase).filter(MidModuleAndCase.case_id == case_id).delete(
+        db.session.query(MidModuleCase).filter(MidModuleCase.case_id == case_id).delete(
             synchronize_session=False)
 
         if version_list:
             version_id_list = [obj.get('id') for obj in version_list]
             list(map(lambda version_id: db.session.add(
-                MidVersionAndCase(
+                MidVersionCase(
                     version_id=version_id, case_id=case_id, modifier=g.app_user.username, modifier_id=g.app_user.id)),
                      version_id_list))
 
         if module_list:
             module_id_list = [obj.get('id') for obj in module_list]
             list(map(lambda module_id: db.session.add(
-                MidModuleAndCase(
+                MidModuleCase(
                     module_id=module_id, case_id=case_id, modifier=g.app_user.username, modifier_id=g.app_user.id)),
                      module_id_list))
 
@@ -279,9 +279,9 @@ class CaseApi(MethodView):
             return api_result(code=400, message='非管理员不能删除其他人的用例！')
 
         db.session.query(MidProjectAndCase).filter_by(case_id=case_id).delete(synchronize_session=False)
-        db.session.query(MidVersionAndCase).filter_by(case_id=case_id).delete(synchronize_session=False)
-        db.session.query(MidModuleAndCase).filter_by(case_id=case_id).delete(synchronize_session=False)
-        db.session.query(MidTaskAndCase).filter_by(case_id=case_id).delete(synchronize_session=False)
+        db.session.query(MidVersionCase).filter_by(case_id=case_id).delete(synchronize_session=False)
+        db.session.query(MidModuleCase).filter_by(case_id=case_id).delete(synchronize_session=False)
+        db.session.query(MidTaskCase).filter_by(case_id=case_id).delete(synchronize_session=False)
         query_case.modifier = g.app_user.username
         query_case.modifier_id = g.app_user.id
         query_case.delete()
@@ -319,7 +319,7 @@ class CasePageApi(MethodView):
             id in( SELECT DISTINCT
                     A.id FROM exile_test_case AS A
                     INNER JOIN exile_test_mid_project_case AS B ON A.id = B.case_id
-                    {'INNER JOIN exile_test_mid_version_iter_case AS C ON A.id = C.case_id' if version_id else ''}
+                    {'INNER JOIN exile_test_mid_version_case AS C ON A.id = C.case_id' if version_id else ''}
                     {'INNER JOIN exile_test_mid_module_case AS D ON A.id = D.case_id' if module_id else ''}
                 WHERE
                     A.is_deleted = 0
@@ -346,7 +346,7 @@ class CasePageApi(MethodView):
             id in( SELECT DISTINCT
                     A.id FROM exile_test_case AS A
                     INNER JOIN exile_test_mid_project_case AS B ON A.id = B.case_id
-                    {'INNER JOIN exile_test_mid_version_iter_case AS C ON A.id = C.case_id' if version_id else ''}
+                    {'INNER JOIN exile_test_mid_version_case AS C ON A.id = C.case_id' if version_id else ''}
                     {'INNER JOIN exile_test_mid_module_case AS D ON A.id = D.case_id' if module_id else ''}
                 WHERE
                     A.is_deleted = 0
@@ -424,8 +424,8 @@ class CaseCopyApi(MethodView):
         if not is_current:  # 当前项目-迭代
 
             query_pc = MidProjectAndCase.query.filter_by(case_id=case_id).all()
-            query_vc = MidVersionAndCase.query.filter_by(case_id=case_id).all()
-            query_mc = MidModuleAndCase.query.filter_by(case_id=case_id).all()
+            query_vc = MidVersionCase.query.filter_by(case_id=case_id).all()
+            query_mc = MidModuleCase.query.filter_by(case_id=case_id).all()
 
             if query_pc:
                 list(map(lambda mid_obj: db.session.add(
@@ -434,12 +434,12 @@ class CaseCopyApi(MethodView):
                                       creator_id=g.app_user.id, remark="复制生成")), query_pc))
             if query_vc:
                 list(map(lambda mid_obj: db.session.add(
-                    MidVersionAndCase(version_id=mid_obj.version_id, case_id=new_test_case_id,
+                    MidVersionCase(version_id=mid_obj.version_id, case_id=new_test_case_id,
                                       creator=g.app_user.username,
                                       creator_id=g.app_user.id, remark="复制生成")), query_vc))
             if query_mc:
                 list(map(lambda mid_obj: db.session.add(
-                    MidModuleAndCase(module_id=mid_obj.module_id, case_id=new_test_case_id, creator=g.app_user.username,
+                    MidModuleCase(module_id=mid_obj.module_id, case_id=new_test_case_id, creator=g.app_user.username,
                                      creator_id=g.app_user.id, remark="复制生成")), query_mc))
         else:
             if project_id:
@@ -463,7 +463,7 @@ class CaseCopyApi(MethodView):
                 )
             )
             db.session.add(
-                MidVersionAndCase(
+                MidVersionCase(
                     version_id=version_id,
                     case_id=new_test_case_id,
                     creator=g.app_user.username,
@@ -471,7 +471,7 @@ class CaseCopyApi(MethodView):
                 )
             )
             db.session.add(
-                MidModuleAndCase(
+                MidModuleCase(
                     module_id=module_id,
                     case_id=new_test_case_id,
                     creator=g.app_user.username,

@@ -51,7 +51,7 @@ def main():
 
 if __name__ == '__main__':
     """
-    # 设置环境
+    设置环境
     export FLASK_ENV='development'
     export FLASK_ENV='production'
     export FLASK_ENV='docker_production'

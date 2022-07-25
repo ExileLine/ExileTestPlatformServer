@@ -10,7 +10,7 @@ from all_reference import *
 from app.models.admin.models import Admin
 from app.models.test_case.models import TestCase
 from app.models.test_case_scenario.models import TestCaseScenario
-from app.models.test_project.models import TestProjectVersion, TestVersionTask, MidTaskAndCase, MidTaskAndScenario
+from app.models.test_project.models import TestProjectVersion, TestVersionTask, MidTaskCase, MidTaskScenario
 
 
 class VersionTaskApi(MethodView):
@@ -32,11 +32,11 @@ class VersionTaskApi(MethodView):
         query_user_list = Admin.query.filter(Admin.id.in_(query_task.user_list)).all()
         user_list = [user.to_json() for user in query_user_list]
 
-        case_id_list = [mid.case_id for mid in MidTaskAndCase.query.filter_by(task_id=task_id).all()]
+        case_id_list = [mid.case_id for mid in MidTaskCase.query.filter_by(task_id=task_id).all()]
         query_case = TestCase.query.filter(TestCase.id.in_(case_id_list)).all()
         case_list = [case.to_json() for case in query_case if query_case]
 
-        scenario_id_list = [mid.scenario_id for mid in MidTaskAndScenario.query.filter_by(task_id=task_id).all()]
+        scenario_id_list = [mid.scenario_id for mid in MidTaskScenario.query.filter_by(task_id=task_id).all()]
         query_scenario = TestCaseScenario.query.filter(TestCaseScenario.id.in_(scenario_id_list)).all()
         scenario_list = [scenario.to_json() for scenario in query_scenario if query_scenario]
 
@@ -84,13 +84,13 @@ class VersionTaskApi(MethodView):
 
         if case_list:
             list(map(lambda case_id: db.session.add(
-                MidTaskAndCase(
+                MidTaskCase(
                     task_id=task_id, case_id=case_id, creator=g.app_user.username, creator_id=g.app_user.id)),
                      case_list))
 
         if scenario_list:
             list(map(lambda scenario_id: db.session.add(
-                MidTaskAndScenario(
+                MidTaskScenario(
                     task_id=task_id, scenario_id=scenario_id, creator=g.app_user.username, creator_id=g.app_user.id)),
                      scenario_list))
 
@@ -132,21 +132,21 @@ class VersionTaskApi(MethodView):
         query_task.modifier = g.app_user.username,
         query_task.modifier_id = g.app_user.id
 
-        db.session.query(MidTaskAndCase).filter(MidTaskAndCase.task_id == task_id).delete(
+        db.session.query(MidTaskCase).filter(MidTaskCase.task_id == task_id).delete(
             synchronize_session=False)
 
-        db.session.query(MidTaskAndScenario).filter(MidTaskAndScenario.task_id == task_id).delete(
+        db.session.query(MidTaskScenario).filter(MidTaskScenario.task_id == task_id).delete(
             synchronize_session=False)
 
         if case_list:
             list(map(lambda case_id: db.session.add(
-                MidTaskAndCase(
+                MidTaskCase(
                     task_id=task_id, case_id=case_id, creator=g.app_user.username, creator_id=g.app_user.id)),
                      case_list))
 
         if scenario_list:
             list(map(lambda scenario_id: db.session.add(
-                MidTaskAndScenario(
+                MidTaskScenario(
                     task_id=task_id, scenario_id=scenario_id, creator=g.app_user.username, creator_id=g.app_user.id)),
                      scenario_list))
 
@@ -167,8 +167,8 @@ class VersionTaskApi(MethodView):
         query_task.modifier = g.app_user.username
         query_task.modifier_id = g.app_user.id
 
-        db.session.query(MidTaskAndCase).filter(MidTaskAndCase.task_id == task_id).delete(synchronize_session=False)
-        db.session.query(MidTaskAndScenario).filter(MidTaskAndScenario.task_id == task_id).delete(
+        db.session.query(MidTaskCase).filter(MidTaskCase.task_id == task_id).delete(synchronize_session=False)
+        db.session.query(MidTaskScenario).filter(MidTaskScenario.task_id == task_id).delete(
             synchronize_session=False)
         db.session.commit()
         return api_result(code=204, message="操作成功")

@@ -12,7 +12,7 @@ from app.models.test_project.models import TestProject, TestProjectVersion
 
 class ProjectApi(MethodView):
     """
-    project api
+    项目管理 api
     GET: 项目详情
     POST: 项目新增
     PUT: 项目编辑
@@ -25,7 +25,7 @@ class ProjectApi(MethodView):
         query_project = TestProject.query.get(project_id)
 
         if not project_id:
-            return api_result(code=400, message=f"项目id: {project_id} 不存在")
+            return api_result(code=NO_DATA, message=f"项目id: {project_id} 不存在")
 
         query_version_list = TestProjectVersion.query.filter_by(project_id=project_id).all()
         version_list = [version.to_json() for version in query_version_list]
@@ -35,7 +35,7 @@ class ProjectApi(MethodView):
             "version_list": version_list
         }
 
-        return api_result(code=200, message='操作成功', data=result)
+        return api_result(code=SUCCESS, message='操作成功', data=result)
 
     def post(self):
         """项目新增"""
@@ -45,12 +45,12 @@ class ProjectApi(MethodView):
         remark = data.get('remark')
 
         if not project_name:
-            return api_result(code=400, message="项目名称不能为空")
+            return api_result(code=REQUIRED, message="项目名称不能为空")
 
         query_project = TestProject.query.filter_by(project_name=project_name).first()
 
         if query_project:
-            return api_result(code=400, message=f"项目: {project_name} 已经存在")
+            return api_result(code=UNIQUE_ERROR, message=f"项目: {project_name} 已经存在")
 
         new_project = TestProject(
             project_name=project_name,
@@ -59,7 +59,7 @@ class ProjectApi(MethodView):
             creator_id=g.app_user.id
         )
         new_project.save()
-        return api_result(code=200, message="创建成功")
+        return api_result(code=POST_SUCCESS, message="创建成功")
 
     def put(self):
         """项目编辑"""
@@ -72,18 +72,18 @@ class ProjectApi(MethodView):
         query_project = TestProject.query.get(project_id)
 
         if not query_project:
-            return api_result(code=400, message=f"项目id: {project_id} 不存在")
+            return api_result(code=NO_DATA, message=f"项目id: {project_id} 不存在")
 
         if query_project.project_name != project_name:
             if TestProject.query.filter_by(project_name=project_name).all():
-                return api_result(code=400, message=f'项目名称: {project_name} 已经存在')
+                return api_result(code=UNIQUE_ERROR, message=f'项目名称: {project_name} 已经存在')
 
         query_project.project_name = project_name
         query_project.remark = remark
         query_project.modifier = g.app_user.username
         query_project.modifier_id = g.app_user.id
         db.session.commit()
-        return api_result(code=203, message='编辑成功')
+        return api_result(code=PUT_SUCCESS, message='编辑成功')
 
     def delete(self):
         """项目删除"""
@@ -93,17 +93,17 @@ class ProjectApi(MethodView):
         query_project = TestProject.query.get(project_id)
 
         if not query_project:
-            return api_result(code=400, message=f"项目id: {project_id} 不存在")
+            return api_result(code=NO_DATA, message=f"项目id: {project_id} 不存在")
 
         query_project.modifier = g.app_user.username
         query_project.modifier_id = g.app_user.id
         query_project.delete()
-        return api_result(code=204, message='删除成功')
+        return api_result(code=DEL_SUCCESS, message='删除成功')
 
 
 class ProjectPageApi(MethodView):
     """
-    project page api
+    项目分页模糊查询 api
     POST: 项目分页模糊查询
     """
 
@@ -140,4 +140,4 @@ class ProjectPageApi(MethodView):
             size=size
         )
 
-        return api_result(code=200, message='操作成功', data=result_data)
+        return api_result(code=SUCCESS, message='操作成功', data=result_data)

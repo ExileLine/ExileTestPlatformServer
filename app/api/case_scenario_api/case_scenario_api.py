@@ -9,8 +9,8 @@ from functools import wraps
 
 from all_reference import *
 from app.models.test_case_scenario.models import TestCaseScenario
-from app.models.test_project.models import TestProject, TestProjectVersion, TestModuleApp, MidProjectAndScenario, \
-    MidVersionAndScenario, MidTaskAndScenario, MidModuleAndScenario
+from app.models.test_project.models import TestProject, TestProjectVersion, TestModuleApp, MidProjectScenario, \
+    MidVersionScenario, MidTaskScenario, MidModuleScenario
 from app.api.case_api.case_api import new_check_version, new_check_module
 
 
@@ -160,11 +160,11 @@ class CaseScenarioApi(MethodView):
         else:
             return api_result(code=400, message='数据异常')
 
-        version_id_list = [m.version_id for m in MidVersionAndScenario.query.filter_by(scenario_id=scenario_id).all()]
+        version_id_list = [m.version_id for m in MidVersionScenario.query.filter_by(scenario_id=scenario_id).all()]
         version_list = [m.to_json() for m in
                         TestProjectVersion.query.filter(TestProjectVersion.id.in_(version_id_list)).all()]
 
-        module_id_list = [m.module_id for m in MidModuleAndScenario.query.filter_by(scenario_id=scenario_id).all()]
+        module_id_list = [m.module_id for m in MidModuleScenario.query.filter_by(scenario_id=scenario_id).all()]
         module_list = [m.to_json() for m in TestModuleApp.query.filter(TestModuleApp.id.in_(module_id_list)).all()]
 
         result['case_list'] = case_list
@@ -204,16 +204,16 @@ class CaseScenarioApi(MethodView):
         version_id_list = [obj.get('id') for obj in version_list]
         module_id_list = [obj.get('id') for obj in module_list]
 
-        mid_pc = MidProjectAndScenario(
+        mid_pc = MidProjectScenario(
             project_id=project_id, scenario_id=scenario_id, creator=g.app_user.username, creator_id=g.app_user.id
         )
         db.session.add(mid_pc)
         list(map(lambda version_id: db.session.add(
-            MidVersionAndScenario(
+            MidVersionScenario(
                 version_id=version_id, scenario_id=scenario_id, creator=g.app_user.username, creator_id=g.app_user.id)),
                  version_id_list))
         list(map(lambda module_id: db.session.add(
-            MidModuleAndScenario(
+            MidModuleScenario(
                 module_id=module_id, scenario_id=scenario_id, creator=g.app_user.username, creator_id=g.app_user.id)),
                  module_id_list))
         db.session.commit()
@@ -249,16 +249,16 @@ class CaseScenarioApi(MethodView):
         query_scenario.modifier = g.app_user.username
         query_scenario.modifier_id = g.app_user.id
 
-        db.session.query(MidVersionAndScenario).filter(MidVersionAndScenario.scenario_id == scenario_id).delete(
+        db.session.query(MidVersionScenario).filter(MidVersionScenario.scenario_id == scenario_id).delete(
             synchronize_session=False)
 
-        db.session.query(MidModuleAndScenario).filter(MidModuleAndScenario.scenario_id == scenario_id).delete(
+        db.session.query(MidModuleScenario).filter(MidModuleScenario.scenario_id == scenario_id).delete(
             synchronize_session=False)
 
         if version_list:
             version_id_list = [obj.get('id') for obj in version_list]
             list(map(lambda version_id: db.session.add(
-                MidVersionAndScenario(
+                MidVersionScenario(
                     version_id=version_id, scenario_id=scenario_id, modifier=g.app_user.username,
                     modifier_id=g.app_user.id)),
                      version_id_list))
@@ -266,7 +266,7 @@ class CaseScenarioApi(MethodView):
         if module_list:
             module_id_list = [obj.get('id') for obj in module_list]
             list(map(lambda module_id: db.session.add(
-                MidModuleAndScenario(
+                MidModuleScenario(
                     module_id=module_id, scenario_id=scenario_id, modifier=g.app_user.username,
                     modifier_id=g.app_user.id)),
                      module_id_list))
@@ -287,10 +287,10 @@ class CaseScenarioApi(MethodView):
         if query_scenario.creator_id != g.app_user.id:
             return api_result(code=400, message='非管理员不能删除其他人的用例场景！')
 
-        db.session.query(MidProjectAndScenario).filter_by(scenario_id=scenario_id).delete(synchronize_session=False)
-        db.session.query(MidVersionAndScenario).filter_by(scenario_id=scenario_id).delete(synchronize_session=False)
-        db.session.query(MidModuleAndScenario).filter_by(scenario_id=scenario_id).delete(synchronize_session=False)
-        db.session.query(MidTaskAndScenario).filter_by(scenario_id=scenario_id).delete(synchronize_session=False)
+        db.session.query(MidProjectScenario).filter_by(scenario_id=scenario_id).delete(synchronize_session=False)
+        db.session.query(MidVersionScenario).filter_by(scenario_id=scenario_id).delete(synchronize_session=False)
+        db.session.query(MidModuleScenario).filter_by(scenario_id=scenario_id).delete(synchronize_session=False)
+        db.session.query(MidTaskScenario).filter_by(scenario_id=scenario_id).delete(synchronize_session=False)
         query_scenario.modifier_id = g.app_user.id
         query_scenario.modifier = g.app_user.username
         query_scenario.delete()
@@ -328,7 +328,7 @@ class CaseScenarioPageApi(MethodView):
             id in( SELECT DISTINCT
                     A.id FROM exile_test_case_scenario AS A
                     INNER JOIN exile_test_mid_project_scenario AS B ON A.id = B.scenario_id
-                    {'INNER JOIN exile_test_mid_version_iter_scenario AS C ON A.id = C.scenario_id' if version_id else ''}
+                    {'INNER JOIN exile_test_mid_version_scenario AS C ON A.id = C.scenario_id' if version_id else ''}
                     {'INNER JOIN exile_test_mid_module_scenario AS D ON A.id = D.scenario_id' if module_id else ''}
                 WHERE
                     A.is_deleted = 0
@@ -353,7 +353,7 @@ class CaseScenarioPageApi(MethodView):
             id in( SELECT DISTINCT
                     A.id FROM exile_test_case_scenario AS A
                     INNER JOIN exile_test_mid_project_scenario AS B ON A.id = B.scenario_id
-                    {'INNER JOIN exile_test_mid_version_iter_scenario AS C ON A.id = C.scenario_id' if version_id else ''}
+                    {'INNER JOIN exile_test_mid_version_scenario AS C ON A.id = C.scenario_id' if version_id else ''}
                     {'INNER JOIN exile_test_mid_module_scenario AS D ON A.id = D.scenario_id' if module_id else ''}
                 WHERE
                     A.is_deleted = 0

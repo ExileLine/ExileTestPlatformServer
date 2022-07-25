@@ -633,7 +633,7 @@ CREATE TABLE `exile_test_mid_version_case` (
   KEY `idx_version_case` (`project_id`,`version_id`,`task_id`,`module_id`,`case_id`,`is_deleted`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1151 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin COMMENT='版本迭代用例中间表';
 
-CREATE TABLE `exile_test_mid_version_iter_case` (
+CREATE TABLE `exile_test_mid_version_case` (
   `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT COMMENT 'id',
   `create_time` datetime DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间(结构化时间)',
   `create_timestamp` bigint(20) unsigned DEFAULT NULL COMMENT '创建时间(时间戳)',
@@ -652,7 +652,7 @@ CREATE TABLE `exile_test_mid_version_iter_case` (
   KEY `idx_version_case` (`version_id`,`case_id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=205 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin COMMENT='版本迭代-用例中间表';
 
-CREATE TABLE `exile_test_mid_version_iter_scenario` (
+CREATE TABLE `exile_test_mid_version_scenario` (
   `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT COMMENT 'id',
   `create_time` datetime DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间(结构化时间)',
   `create_timestamp` bigint(20) unsigned DEFAULT NULL COMMENT '创建时间(时间戳)',

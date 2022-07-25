@@ -12,7 +12,7 @@ import shortuuid
 from tasks.celery import cel
 from app.models.test_case.models import TestCase, TestCaseData
 from app.models.test_case_assert.models import TestCaseDataAssBind
-from app.models.test_project.models import db, MidProjectAndCase, MidVersionAndCase, MidModuleAndCase
+from app.models.test_project.models import db, MidProjectAndCase, MidVersionCase, MidModuleCase
 from app.models.file_import.models import FileImportHistory
 from common.libs.set_app_context import set_app_context
 
@@ -189,11 +189,11 @@ class PostManFileImport:
 
                     if version_id_list:
                         list(map(lambda version_id: db.session.add(
-                            MidVersionAndCase(version_id=version_id, case_id=case_id, creator=self.creator,
+                            MidVersionCase(version_id=version_id, case_id=case_id, creator=self.creator,
                                               creator_id=self.creator_id, remark="导入生成")), version_id_list))
                     if module_id_list:
                         list(map(lambda module_id: db.session.add(
-                            MidModuleAndCase(module_id=module_id, case_id=case_id, creator=self.creator,
+                            MidModuleCase(module_id=module_id, case_id=case_id, creator=self.creator,
                                              creator_id=self.creator_id, remark="导入生成")), module_id_list))
                     db.session.commit()
 

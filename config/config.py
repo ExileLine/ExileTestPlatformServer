@@ -134,9 +134,6 @@ class NewConfig(BaseConfig):
     # 静态资源目录
     STATIC_FOLDER = conf.get('base', 'STATIC_FOLDER')
 
-    # 外部ui自动化脚本保存位置
-    UPLOAD_PATH = conf.get('base', 'UPLOAD_PATH')
-
     # aio中间件服务
     AIO_SERVER = conf.get('base', 'AIO_SERVER')
 

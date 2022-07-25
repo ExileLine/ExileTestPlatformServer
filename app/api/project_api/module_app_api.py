@@ -8,7 +8,7 @@
 from all_reference import *
 from app.models.test_case.models import TestCase
 from app.models.test_case_scenario.models import TestCaseScenario
-from app.models.test_project.models import TestModuleApp, TestProject, MidModuleAndCase, MidModuleAndScenario
+from app.models.test_project.models import TestModuleApp, TestProject, MidModuleCase, MidModuleScenario
 
 
 class ModuleAppApi(MethodView):
@@ -27,11 +27,11 @@ class ModuleAppApi(MethodView):
         if not query_module:
             return api_result(code=400, message=f'功能模块或应用不存在:{module_id}')
 
-        case_id_list = [mid.case_id for mid in MidModuleAndCase.query.filter_by(module_id=module_id).all()]
+        case_id_list = [mid.case_id for mid in MidModuleCase.query.filter_by(module_id=module_id).all()]
         query_case = TestCase.query.filter(TestCase.id.in_(case_id_list)).all()
         case_list = [case.to_json() for case in query_case if query_case]
 
-        scenario_id_list = [mid.scenario_id for mid in MidModuleAndScenario.query.filter_by(module_id=module_id).all()]
+        scenario_id_list = [mid.scenario_id for mid in MidModuleScenario.query.filter_by(module_id=module_id).all()]
         query_scenario = TestCaseScenario.query.filter(TestCaseScenario.id.in_(scenario_id_list)).all()
         scenario_list = [scenario.to_json() for scenario in query_scenario if query_scenario]
 
@@ -86,13 +86,13 @@ class ModuleAppApi(MethodView):
 
         if case_list:
             list(map(lambda case_id: db.session.add(
-                MidModuleAndCase(
+                MidModuleCase(
                     module_id=module_id, case_id=case_id, creator=g.app_user.username, creator_id=g.app_user.id)),
                      case_list))
 
         if scenario_list:
             list(map(lambda scenario_id: db.session.add(
-                MidModuleAndScenario(
+                MidModuleScenario(
                     module_id=module_id, scenario_id=scenario_id, creator=g.app_user.username,
                     creator_id=g.app_user.id)),
                      scenario_list))
@@ -144,21 +144,21 @@ class ModuleAppApi(MethodView):
         query_module.modifier = g.app_user.username,
         query_module.modifier_id = g.app_user.id
 
-        db.session.query(MidModuleAndCase).filter(MidModuleAndCase.module_id == module_id).delete(
+        db.session.query(MidModuleCase).filter(MidModuleCase.module_id == module_id).delete(
             synchronize_session=False)
 
-        db.session.query(MidModuleAndScenario).filter(MidModuleAndScenario.module_id == module_id).delete(
+        db.session.query(MidModuleScenario).filter(MidModuleScenario.module_id == module_id).delete(
             synchronize_session=False)
 
         if case_list:
             list(map(lambda case_id: db.session.add(
-                MidModuleAndCase(
+                MidModuleCase(
                     module_id=module_id, case_id=case_id, creator=g.app_user.username, creator_id=g.app_user.id)),
                      case_list))
 
         if scenario_list:
             list(map(lambda scenario_id: db.session.add(
-                MidModuleAndScenario(
+                MidModuleScenario(
                     module_id=module_id, scenario_id=scenario_id, creator=g.app_user.username,
                     creator_id=g.app_user.id)),
                      scenario_list))
@@ -179,9 +179,9 @@ class ModuleAppApi(MethodView):
         query_module.modifier = g.app_user.username,
         query_module.modifier_id = g.app_user.id
 
-        db.session.query(MidModuleAndCase).filter(MidModuleAndCase.module_id == module_id).delete(
+        db.session.query(MidModuleCase).filter(MidModuleCase.module_id == module_id).delete(
             synchronize_session=False)
-        db.session.query(MidModuleAndScenario).filter(MidModuleAndScenario.module_id == module_id).delete(
+        db.session.query(MidModuleScenario).filter(MidModuleScenario.module_id == module_id).delete(
             synchronize_session=False)
         query_module.commit()
         return api_result(code=204, message='操作成功')

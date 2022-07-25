@@ -15,8 +15,8 @@ from app.models.test_case_assert.models import TestCaseAssResponse, TestCaseAssF
 from app.models.test_case_scenario.models import TestCaseScenario
 from app.models.test_project.models import (
     TestProject, TestProjectVersion, TestVersionTask, TestModuleApp,
-    MidProjectAndCase, MidVersionAndCase, MidTaskAndCase, MidModuleAndCase,
-    MidProjectAndScenario, MidVersionAndScenario, MidTaskAndScenario, MidModuleAndScenario
+    MidProjectAndCase, MidVersionCase, MidTaskCase, MidModuleCase,
+    MidProjectScenario, MidVersionScenario, MidTaskScenario, MidModuleScenario
 )
 from app.models.test_env.models import TestEnv
 from app.models.test_logs.models import TestLogs
@@ -26,19 +26,19 @@ from tasks.task03 import execute_main
 model_dict = {
     "project": {
         "case": MidProjectAndCase,
-        "scenario": MidProjectAndScenario,
+        "scenario": MidProjectScenario,
     },
     "version": {
-        "case": MidVersionAndCase,
-        "scenario": MidVersionAndScenario,
+        "case": MidVersionCase,
+        "scenario": MidVersionScenario,
     },
     "task": {
-        "case": MidTaskAndCase,
-        "scenario": MidTaskAndScenario,
+        "case": MidTaskCase,
+        "scenario": MidTaskScenario,
     },
     "module": {
-        "case": MidModuleAndCase,
-        "scenario": MidModuleAndScenario,
+        "case": MidModuleCase,
+        "scenario": MidModuleScenario,
     }
 }
 key_dict = {

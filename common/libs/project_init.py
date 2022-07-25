@@ -13,7 +13,7 @@ from ExtendRegister.db_register import db
 from app.models.platform_conf.models import PlatformConfModel
 from app.models.admin.models import Admin
 from app.models.test_project.models import TestProject, TestProjectVersion, TestModuleApp, MidProjectAndCase, \
-    MidVersionAndCase, MidModuleAndCase
+    MidVersionCase, MidModuleCase
 from app.models.test_case.models import TestCase, TestCaseData
 from app.models.test_case_assert.models import TestCaseAssResponse, TestCaseAssField, TestCaseDataAssBind
 from app.models.test_variable.models import TestVariable
@@ -151,7 +151,7 @@ class ProjectDataInit:
 
             # 用例关联版本
             version_id = random.choice(version_list).id
-            vc = MidVersionAndCase(
+            vc = MidVersionCase(
                 version_id=version_id,
                 case_id=case_id,
                 remark=f"脚本生成:{version_id}-{case_id}",
@@ -162,7 +162,7 @@ class ProjectDataInit:
 
             # 用例关联模块
             module_id = random.choice(module_list).id
-            mc = MidModuleAndCase(
+            mc = MidModuleCase(
                 module_id=module_id,
                 case_id=case_id,
                 remark=f"脚本生成:{module_id}-{case_id}",

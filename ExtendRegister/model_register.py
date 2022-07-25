@@ -10,9 +10,8 @@ from app.models.admin.models import Admin
 from app.models.platform_conf.models import PlatformConfModel
 from app.models.test_project.models import (
     TestProject, TestProjectVersion, TestVersionTask, TestModuleApp,
-    MidProjectVersionAndCase, MidProjectVersionAndScenario,
-    MidProjectAndCase, MidVersionAndCase, MidTaskAndCase, MidModuleAndCase,
-    MidProjectAndScenario, MidVersionAndScenario, MidTaskAndScenario, MidModuleAndScenario
+    MidProjectAndCase, MidVersionCase, MidTaskCase, MidModuleCase,
+    MidProjectScenario, MidVersionScenario, MidTaskScenario, MidModuleScenario
 )
 from app.models.test_case.models import TestCase, TestCaseData
 from app.models.test_case_assert.models import TestCaseAssResponse, TestCaseAssField, TestCaseDataAssBind, \
