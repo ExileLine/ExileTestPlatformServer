@@ -19,6 +19,7 @@ from app.models.test_project.models import TestProject, MidProjectAndCase
 from app.models.test_case.models import db, TestCase, TestCaseData
 from app.models.test_case_assert.models import TestCaseAssResponse, TestCaseDataAssBind
 from app.models.test_variable.models import TestVariable
+from common.tools.encrypt.my_md5 import my_md5
 
 """
 1.创建项目
@@ -473,8 +474,15 @@ class ParseJsonSchema:
         """生成参数"""
 
         if not self.json_schema.get('reqSchema'):
-            print('reqSchema 为空')
+            print('=== reqSchema 为空 ===')
             return None
+
+        this_md5 = my_md5(data=json.dumps(self.json_schema, ensure_ascii=False))
+        query_data_md5 = TestCaseData.query.filter_by(md5=this_md5).first()
+        if query_data_md5:
+            print('=== md5 已存在，跳过参数生成 ===')
+            print(this_md5)
+            return True
 
         self.resourceType = self.json_schema.get('resourceType')
         reqSchema = self.json_schema.get('reqSchema')
@@ -521,7 +529,12 @@ class ParseJsonSchema:
                 d[key] = res
 
         print(json.dumps(d, ensure_ascii=False))
-        self.data_list.append(d)
+
+        dd = {
+            "md5": this_md5,
+            "data": d
+        }
+        self.data_list.append(dd)
 
         if required:
             print('=== current_required ===')
@@ -545,12 +558,21 @@ class ParseJsonSchema:
                 )
 
                 d1[key] = v
-                self.data_list.append(d1)
+                dd = {
+                    "md5": this_md5,
+                    "data": d1
+                }
+                self.data_list.append(dd)
 
                 if v:
                     d2 = copy.deepcopy(d)
                     d2[key] = ""
-                    self.data_list.append(d2)
+
+                    dd = {
+                        "md5": this_md5,
+                        "data": d2
+                    }
+                    self.data_list.append(dd)
 
     @set_app_context
     def save_data(self):
@@ -560,13 +582,16 @@ class ParseJsonSchema:
             "Authorization": "${%s}" % (self.authorization),
             "Content-Type": "application/json;charset=UTF-8"
         }
-        for index, d in enumerate(self.data_list):
+        for index, data in enumerate(self.data_list):
+            md5 = data.get('md5')
+            d = data.get('data')
             new_data = TestCaseData(
                 data_name=f"自生成:{self.business_name}_{index}",
                 request_params=d,
                 request_headers=request_headers,
                 request_body=d,
                 request_body_type=request_body_type.get(self.resourceType, 1),
+                md5=md5,
                 creator="ParseJsonSchema"
             )
             new_data.save()
@@ -757,5 +782,3 @@ if __name__ == '__main__':
     # test_002()
     # test_003()
     # test_004()
-
-

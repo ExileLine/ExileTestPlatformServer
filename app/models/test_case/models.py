@@ -53,6 +53,7 @@ class TestCaseData(BaseModel):
     data_before = db.Column(db.JSON, default=[], comment='前置条件')
     is_after = db.Column(db.JSON, default=0, comment='是否使用后置条件 0-否;1-是')
     data_after = db.Column(db.JSON, default=[], comment='后置条件')
+    md5 = db.Column(db.String(512), comment='md5')
     creator = db.Column(db.String(32), comment='创建人')
     creator_id = db.Column(BIGINT(20, unsigned=True), comment='创建人id')
     modifier = db.Column(db.String(32), comment='更新人')
