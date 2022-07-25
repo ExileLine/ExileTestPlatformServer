@@ -11,7 +11,7 @@ from app.models.test_project.models import TestProject, TestProjectVersion
 
 class ProjectVersionApi(MethodView):
     """
-    project version api
+    版本迭代 api
     GET: 版本迭代详情
     POST: 版本迭代新增
     PUT: 版本迭代编辑
@@ -24,9 +24,9 @@ class ProjectVersionApi(MethodView):
         query_version = TestProjectVersion.query.get(version_id)
 
         if not query_version:
-            return api_result(code=400, message=f"迭代id: {version_id} 不存在")
+            return api_result(code=NO_DATA, message=f"迭代id: {version_id} 不存在")
 
-        return api_result(code=200, message='操作成功', data=query_version.to_json())
+        return api_result(code=SUCCESS, message='操作成功', data=query_version.to_json())
 
     def post(self):
         """版本迭代新增"""
@@ -39,12 +39,12 @@ class ProjectVersionApi(MethodView):
 
         query_project = TestProject.query.get(project_id)
         if not query_project:
-            return api_result(code=400, message="项目不存在或已禁用")
+            return api_result(code=NO_DATA, message="项目不存在或已禁用")
 
         query_version = TestProjectVersion.query.filter_by(project_id=project_id, version_name=version_name).first()
 
         if query_version:
-            return api_result(code=400, message=f"项目: {query_project.project_name} 已经存在 迭代: {version_name}")
+            return api_result(code=UNIQUE_ERROR, message=f"项目: {query_project.project_name} 已经存在 迭代: {version_name}")
 
         new_version = TestProjectVersion(
             version_name=version_name,
@@ -55,7 +55,7 @@ class ProjectVersionApi(MethodView):
             creator_id=g.app_user.id
         )
         new_version.save()
-        return api_result(code=200, message="创建成功")
+        return api_result(code=POST_SUCCESS, message="创建成功")
 
     def put(self):
         """版本迭代编辑"""
@@ -70,17 +70,20 @@ class ProjectVersionApi(MethodView):
         query_project = TestProject.query.get(project_id)
 
         if not query_project:
-            return api_result(code=400, message="项目不存在或已禁用")
+            return api_result(code=NO_DATA, message="项目不存在或已禁用")
 
         query_version = TestProjectVersion.query.get(version_id)
 
         if not query_version:
-            return api_result(code=400, message="迭代不存在或已禁用")
+            return api_result(code=NO_DATA, message="迭代不存在或已禁用")
 
-        if query_version.project_id != project_id:  # 新的 project_id
+        if query_version.project_id != project_id:  # 入参 project_id
             query_version = TestProjectVersion.query.filter_by(project_id=project_id, version_name=version_name).first()
             if query_version.id != version_id:
-                return api_result(code=400, message=f"项目: {query_project.project_name} 已经存在 迭代: {version_name}")
+                return api_result(
+                    code=UNIQUE_ERROR,
+                    message=f"项目: {query_project.project_name} 中已经存在版本迭代名称: {version_name}"
+                )
 
         query_version.version_name = version_name
         query_version.version_number = version_number
@@ -89,7 +92,7 @@ class ProjectVersionApi(MethodView):
         query_version.modifier = g.app_user.username
         query_version.modifier_id = g.app_user.id
         db.session.commit()
-        return api_result(code=203, message='编辑成功')
+        return api_result(code=PUT_SUCCESS, message='编辑成功')
 
     def delete(self):
         """版本迭代删除"""
@@ -99,12 +102,12 @@ class ProjectVersionApi(MethodView):
         query_version = TestProjectVersion.query.get(version_id)
 
         if not query_version:
-            return api_result(code=400, message=f"版本迭代id: {version_id} 不存在")
+            return api_result(code=NO_DATA, message=f"版本迭代id: {version_id} 不存在")
 
         query_version.modifier = g.app_user.username
         query_version.modifier_id = g.app_user.id
         query_version.delete()
-        return api_result(code=204, message='删除成功')
+        return api_result(code=DEL_SUCCESS, message='删除成功')
 
 
 class ProjectVersionPageApi(MethodView):
@@ -153,21 +156,4 @@ class ProjectVersionPageApi(MethodView):
             size=size
         )
 
-        return api_result(code=200, message='操作成功', data=result_data)
-
-
-class VersionBindCaseApi(MethodView):
-    """
-    版本迭代关联用例 api
-    POST: 绑定
-    """
-
-    def post(self):
-        """绑定"""
-
-        data = request.get_json()
-        version_id = data.get('version_id')
-        case_id_list = data.get('case_id_list', [])
-
-        # TODO 暂时不需要这个接口
-        return api_result(code=203, message="操作成功")
+        return api_result(code=SUCCESS, message='操作成功', data=result_data)

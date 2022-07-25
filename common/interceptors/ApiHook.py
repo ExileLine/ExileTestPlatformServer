@@ -41,7 +41,10 @@ def api_before_request():
             print('=== open api ===')
             print(request.path)
             user = Admin.query.get(1)
-            g.app_user = user
+            if not user:
+                g.app_user = type('A', (object,), {"id": 1, "username": "admin"})
+            else:
+                g.app_user = user
             return
 
         if not is_token:
