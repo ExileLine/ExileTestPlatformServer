@@ -91,7 +91,7 @@ respect ! ! !
 |Flask-Migrate|Alembic处理Flask应用程序的SQLAlchemy数据库迁移|https://flask-migrate.readthedocs.io/en/latest|
 |Flask-CORS|用于处理跨源资源共享(CORS)的Flask扩展，使跨源AJAX|https://pypi.org/project/Flask-Cors|
 |PyMySQL|纯Python MySQL客户端库。PyMySQL的目标是成为MySQLdb的替代品，并在CPython、PyPy、IronPython和Jython上工作|https://pypi.org/project/PyMySQL/0.6.1|
-|DBUtils|数据库连接池|https://pypi.org/project/DBUtils|
+|DBUtils|DBUtils是一套工具，可提供与数据库的可靠、持久和池连接，可用于各种多线程环境|https://pypi.org/project/DBUtils|
 |Requests|Python HTTP库|https://docs.python-requests.org/en/latest/user/install|
 |loguru|美化Python日志记录|https://pypi.org/project/loguru|
 |Redis|缓存|https://redis.io|
