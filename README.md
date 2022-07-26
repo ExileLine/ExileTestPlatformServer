@@ -76,7 +76,7 @@ respect ! ! !
 
 |技术|说明|官网|
 |----------------------------------------|-------------------|---------------------------------------------- |
-|Flask2.0|BIO MVC框架(2.0.2版本加入async异步)|https://flask.palletsprojects.com|
+|Flask2.0|同步非阻塞MVC框架(2.0.2版本加入async异步)|https://flask.palletsprojects.com|
 |Flask-SQLAlchemy|ORM|http://www.pythondoc.com/flask-sqlalchemy/quickstart.html|
 |Flask-Migrate|Alembic处理Flask应用程序的SQLAlchemy数据库迁移|https://flask-migrate.readthedocs.io/en/latest|
 |Flask-CORS|用于处理跨源资源共享(CORS)的Flask扩展，使跨源AJAX|https://pypi.org/project/Flask-Cors|
