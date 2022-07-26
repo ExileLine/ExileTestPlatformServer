@@ -27,7 +27,7 @@ class VersionTaskApi(MethodView):
 
         query_task = TestVersionTask.query.get(task_id)
         if not query_task:
-            return api_result(code=400, message=f"任务: {task_id} 不存在")
+            return api_result(code=NO_DATA, message=f"任务: {task_id} 不存在")
 
         query_user_list = Admin.query.filter(Admin.id.in_(query_task.user_list)).all()
         user_list = [user.to_json() for user in query_user_list]
@@ -45,7 +45,7 @@ class VersionTaskApi(MethodView):
         result['case_list'] = case_list
         result['scenario_list'] = scenario_list
 
-        return api_result(code=200, message="操作成功", data=result)
+        return api_result(code=SUCCESS, message="操作成功", data=result)
 
     def post(self):
         """迭代任务新增"""
@@ -61,14 +61,15 @@ class VersionTaskApi(MethodView):
         remark = data.get('remark')
 
         if not TestProjectVersion.query.get(version_id):
-            return api_result(code=400, message=f"版本迭代: {version_id} 不存在")
+            return api_result(code=NO_DATA, message=f"版本迭代: {version_id} 不存在")
 
         for user_id in user_list:
-            if not Admin.query.get(user_id):
-                return api_result(code=400, message=f"用户: {user_id} 不存在")
+            query_user = Admin.query.get(user_id)
+            if not query_user:
+                return api_result(code=NO_DATA, message=f"用户: {user_id} 不存在")
 
         if not task_name:
-            return api_result(code=400, message="任务名称不能为空")
+            return api_result(code=REQUIRED, message="任务名称不能为空")
 
         new_version_task = TestVersionTask(
             version_id=version_id,
@@ -95,7 +96,7 @@ class VersionTaskApi(MethodView):
                      scenario_list))
 
         db.session.commit()
-        return api_result(code=201, message="操作成功")
+        return api_result(code=POST_SUCCESS, message="操作成功")
 
     def put(self):
         """迭代任务编辑"""
@@ -113,17 +114,19 @@ class VersionTaskApi(MethodView):
 
         query_task = TestVersionTask.query.get(task_id)
         if not query_task:
-            return api_result(code=400, message=f"任务: {task_id} 不存在")
+            return api_result(code=NO_DATA, message=f"任务: {task_id} 不存在")
 
-        if not TestProjectVersion.query.get(version_id):
-            return api_result(code=400, message=f"版本迭代: {version_id} 不存在")
+        query_version = TestProjectVersion.query.get(version_id)
+        if not query_version:
+            return api_result(code=NO_DATA, message=f"版本迭代: {version_id} 不存在")
 
         for user_id in user_list:
-            if not Admin.query.get(user_id):
-                return api_result(code=400, message=f"用户: {user_id} 不存在")
+            query_user = Admin.query.get(user_id)
+            if not query_user:
+                return api_result(code=NO_DATA, message=f"用户: {user_id} 不存在")
 
         if not task_name:
-            return api_result(code=400, message="任务名称不能为空")
+            return api_result(code=REQUIRED, message="任务名称不能为空")
 
         query_task.task_name = task_name
         query_task.task_type = task_type
@@ -151,7 +154,7 @@ class VersionTaskApi(MethodView):
                      scenario_list))
 
         db.session.commit()
-        return api_result(code=203, message="操作成功")
+        return api_result(code=PUT_SUCCESS, message="操作成功")
 
     def delete(self):
         """迭代任务删除"""
@@ -161,7 +164,7 @@ class VersionTaskApi(MethodView):
 
         query_task = TestVersionTask.query.get(task_id)
         if not query_task:
-            return api_result(code=400, message=f"任务: {task_id} 不存在")
+            return api_result(code=NO_DATA, message=f"任务: {task_id} 不存在")
 
         query_task.is_deleted = query_task.id
         query_task.modifier = g.app_user.username
@@ -171,7 +174,7 @@ class VersionTaskApi(MethodView):
         db.session.query(MidTaskScenario).filter(MidTaskScenario.task_id == task_id).delete(
             synchronize_session=False)
         db.session.commit()
-        return api_result(code=204, message="操作成功")
+        return api_result(code=DEL_SUCCESS, message="操作成功")
 
 
 class VersionTaskPageApi(MethodView):
@@ -195,7 +198,7 @@ class VersionTaskPageApi(MethodView):
         size = data.get('size')
 
         if not version_id:
-            return api_result(code=400, message=f"版本迭代id: {version_id} 不存在")
+            return api_result(code=NO_DATA, message=f"版本迭代id: {version_id} 不存在")
 
         where_dict = {
             "id": task_id,
@@ -214,4 +217,4 @@ class VersionTaskPageApi(MethodView):
             size=size
         )
 
-        return api_result(code=200, message="操作成功", data=result_data)
+        return api_result(code=SUCCESS, message="操作成功", data=result_data)

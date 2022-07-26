@@ -25,7 +25,7 @@ class ModuleAppApi(MethodView):
 
         query_module = TestModuleApp.query.get(module_id)
         if not query_module:
-            return api_result(code=400, message=f'功能模块或应用不存在:{module_id}')
+            return api_result(code=NO_DATA, message=f'功能模块或应用不存在:{module_id}')
 
         case_id_list = [mid.case_id for mid in MidModuleCase.query.filter_by(module_id=module_id).all()]
         query_case = TestCase.query.filter(TestCase.id.in_(case_id_list)).all()
@@ -39,7 +39,7 @@ class ModuleAppApi(MethodView):
         result['case_list'] = case_list
         result['scenario_list'] = scenario_list
 
-        return api_result(code=200, message='操作成功', data=result)
+        return api_result(code=SUCCESS, message='操作成功', data=result)
 
     def post(self):
         """模块应用新增"""
@@ -55,19 +55,18 @@ class ModuleAppApi(MethodView):
         remark = data.get('remark')
 
         query_project = TestProject.query.get(project_id)
-        if project_id and not query_project:
-            return api_result(code=400, message=f"项目: {project_id} 不存在")
+        if not query_project:
+            return api_result(code=NO_DATA, message=f"项目: {project_id} 不存在")
 
         query_module = TestModuleApp.query.filter_by(module_code=module_code).first()
-
         if query_module:
-            return api_result(code=400, message="应用编号已存在")
+            return api_result(code=UNIQUE_ERROR, message=f"应用编号:{module_code}已存在")
 
         if not isinstance(case_list, list):
-            return api_result(code=400, message=f'参数错误:{case_list}')
+            return api_result(code=TYPE_ERROR, message=f'参数错误:{case_list}')
 
         if not isinstance(scenario_list, list):
-            return api_result(code=400, message=f'参数错误:{scenario_list}')
+            return api_result(code=TYPE_ERROR, message=f'参数错误:{scenario_list}')
 
         new_module = TestModuleApp(
             project_id=project_id,
@@ -98,7 +97,7 @@ class ModuleAppApi(MethodView):
                      scenario_list))
 
         db.session.commit()
-        return api_result(code=201, message='操作成功')
+        return api_result(code=POST_SUCCESS, message='操作成功')
 
     def put(self):
         """模块应用编辑"""
@@ -115,23 +114,23 @@ class ModuleAppApi(MethodView):
         remark = data.get('remark')
 
         query_project = TestProject.query.get(project_id)
-        if project_id and not query_project:
-            return api_result(code=400, message=f"项目: {project_id} 不存在")
+        if not query_project:
+            return api_result(code=NO_DATA, message=f"项目: {project_id} 不存在")
 
         query_module = TestModuleApp.query.get(module_id)
         if not query_module:
-            return api_result(code=400, message=f'功能模块或应用不存在:{module_id}')
+            return api_result(code=NO_DATA, message=f'功能模块或应用不存在:{module_id}')
 
         if query_module.module_code != module_code:
             query_module_code = TestModuleApp.query.filter_by(module_code=module_code).all()
             if query_module_code:
-                return api_result(code=400, message="应用编号已存在")
+                return api_result(code=UNIQUE_ERROR, message="应用编号已存在")
 
         if not isinstance(case_list, list):
-            return api_result(code=400, message=f'参数错误:{case_list}')
+            return api_result(code=TYPE_ERROR, message=f'参数错误:{case_list}')
 
         if not isinstance(scenario_list, list):
-            return api_result(code=400, message=f'参数错误:{scenario_list}')
+            return api_result(code=TYPE_ERROR, message=f'参数错误:{scenario_list}')
 
         query_module.project_id = project_id
         query_module.module_name = module_name
@@ -164,7 +163,7 @@ class ModuleAppApi(MethodView):
                      scenario_list))
 
         db.session.commit()
-        return api_result(code=203, message='操作成功')
+        return api_result(code=PUT_SUCCESS, message='操作成功')
 
     def delete(self):
         """模块应用删除"""
@@ -173,7 +172,7 @@ class ModuleAppApi(MethodView):
         module_id = data.get('id')
         query_module = TestModuleApp.query.get(module_id)
         if not query_module:
-            return api_result(code=400, message=f'功能模块或应用不存在:{module_id}')
+            return api_result(code=NO_DATA, message=f'功能模块或应用不存在:{module_id}')
 
         query_module.is_deleted = query_module.id
         query_module.modifier = g.app_user.username,
@@ -183,8 +182,8 @@ class ModuleAppApi(MethodView):
             synchronize_session=False)
         db.session.query(MidModuleScenario).filter(MidModuleScenario.module_id == module_id).delete(
             synchronize_session=False)
-        query_module.commit()
-        return api_result(code=204, message='操作成功')
+        db.session.commit()
+        return api_result(code=DEL_SUCCESS, message='操作成功')
 
 
 class ModuleAppPageApi(MethodView):
@@ -231,4 +230,4 @@ class ModuleAppPageApi(MethodView):
             size=size
         )
 
-        return api_result(code=200, message="操作成功", data=result_data)
+        return api_result(code=SUCCESS, message="操作成功", data=result_data)

@@ -16,6 +16,7 @@ DEL_SUCCESS = 204
 REQUIRED = 10001  # 必传
 NO_DATA = 10002  # 未找到
 UNIQUE_ERROR = 10003  # 唯一的
+TYPE_ERROR = 10004  # 类型错误
 
 
 def api_result(code=None, message=None, data=None, details=None, status=None):

@@ -19,7 +19,7 @@ class ProjectApi(MethodView):
     DELETE: 项目删除
     """
 
-    async def get(self, project_id):
+    def get(self, project_id):
         """项目详情"""
 
         query_project = TestProject.query.get(project_id)
@@ -37,7 +37,7 @@ class ProjectApi(MethodView):
 
         return api_result(code=SUCCESS, message='操作成功', data=result)
 
-    async def post(self):
+    def post(self):
         """项目新增"""
 
         data = request.get_json()
@@ -61,7 +61,7 @@ class ProjectApi(MethodView):
         new_project.save()
         return api_result(code=POST_SUCCESS, message="创建成功")
 
-    async def put(self):
+    def put(self):
         """项目编辑"""
 
         data = request.get_json()
@@ -85,7 +85,7 @@ class ProjectApi(MethodView):
         db.session.commit()
         return api_result(code=PUT_SUCCESS, message='编辑成功')
 
-    async def delete(self):
+    def delete(self):
         """项目删除"""
 
         data = request.get_json()
@@ -107,7 +107,7 @@ class ProjectPageApi(MethodView):
     POST: 项目分页模糊查询
     """
 
-    async def post(self):
+    def post(self):
         """项目分页模糊查询"""
 
         data = request.get_json()
