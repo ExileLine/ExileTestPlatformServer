@@ -12,6 +12,15 @@
 
 respect ! ! !
 
+### 历程
+
+- 2020-7-18：豌豆测试平台V1.0（豌豆思维）
+- 2020-9-18：豌豆测试平台V2.0（豌豆思维，豌豆测试平台V1.0重构）
+- 2021-7-20：放逐测试平台V3.0（个人开源，因开发如下V4.0期间没有抽离代码，暂时关闭仓库，将在如下V5.0重新开启）
+- 2022-2-23：某某测试平台V4.0（某上市公司，基于上述的个人开源放逐测试平台V3.0扩展定制化开发）
+- 2022-9-10：放逐测试平台V5.0（个人开源，基于放逐测试平台V3.0重构）
+
+
 ### 项目文档
 
 - 文档地址-GitHub：https://github.com/yangyuexiong/ExileTestPlatformServer
@@ -77,10 +86,12 @@ respect ! ! !
 |技术|说明|官网|
 |----------------------------------------|-------------------|---------------------------------------------- |
 |Flask2.0|同步非阻塞MVC框架(2.0.2版本加入async异步)|https://flask.palletsprojects.com|
+|Flask_BestPractices|Flask最佳实践(该项目使用的项目结构)|https://github.com/yangyuexiong/Flask_BestPractices|
 |Flask-SQLAlchemy|ORM|http://www.pythondoc.com/flask-sqlalchemy/quickstart.html|
 |Flask-Migrate|Alembic处理Flask应用程序的SQLAlchemy数据库迁移|https://flask-migrate.readthedocs.io/en/latest|
 |Flask-CORS|用于处理跨源资源共享(CORS)的Flask扩展，使跨源AJAX|https://pypi.org/project/Flask-Cors|
 |PyMySQL|纯Python MySQL客户端库。PyMySQL的目标是成为MySQLdb的替代品，并在CPython、PyPy、IronPython和Jython上工作|https://pypi.org/project/PyMySQL/0.6.1|
+|DBUtils|数据库连接池|https://pypi.org/project/DBUtils|
 |Requests|Python HTTP库|https://docs.python-requests.org/en/latest/user/install|
 |loguru|美化Python日志记录|https://pypi.org/project/loguru|
 |Redis|缓存|https://redis.io|
