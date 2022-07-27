@@ -20,7 +20,6 @@ respect ! ! !
 - 2022-2-23：某某测试平台V4.0（某上市公司，基于上述的个人开源放逐测试平台V3.0扩展定制化开发）
 - 2022-9-10：放逐测试平台V5.0（个人开源，基于放逐测试平台V3.0重构）
 
-
 ### 项目文档
 
 - 文档地址-GitHub：https://github.com/yangyuexiong/ExileTestPlatformServer
@@ -33,14 +32,14 @@ respect ! ! !
 ### 项目演示
 
 - 项目演示地址(admin，123456)：
-  
-    推荐：http://106.75.174.40
-  
-    调试：http://120.24.214.173
-  
-    调试：http://test.metatuple.com
 
-  
+  推荐：http://106.75.174.40
+
+  调试：http://120.24.214.173
+
+  调试：http://test.metatuple.com
+
+
 - 操作文档(Github)：https://github.com/yangyuexiong/ExileTestPlatformServer/blob/main/DOC.md
 - 操作文档(Gitee)：https://gitee.com/yangyuexiong/ExileTestPlatformServer/blob/main/DOC.md
 - 前端项目地址-GitHub：https://github.com/yangyuexiong/ExileTestPlatformWeb
@@ -73,11 +72,6 @@ respect ! ! !
 - 核心业务数据库表设计
   ![数据库表设计总览1](docs/ER图/核心业务1.png)
   ![数据库表设计总览2](docs/ER图/核心业务2.png)
-
-### UML类图
-
-![UML类图1](docs/UML类图/UML类图1.png)
-![UML类图2](docs/UML类图/UML类图2.png)
 
 ### 后端技术
 
