@@ -78,7 +78,7 @@ respect ! ! !
 - 当前使用的是Python相关技术栈，后续新增golang，java等语言相关技术栈实现相同的功能，尽可以满足不同语言的开发人员进行二次开发
 
 |技术|说明|官网|
-|----------------------------------------|-------------------|---------------------------------------------- |
+|----------------------------------------|----------------------------------------|---------------------------------------------- |
 |Flask2.0|同步非阻塞MVC框架(2.0.2版本加入async异步)|https://flask.palletsprojects.com|
 |Flask_BestPractices|Flask最佳实践(该项目使用的项目结构)|https://github.com/yangyuexiong/Flask_BestPractices|
 |Flask-SQLAlchemy|ORM|http://www.pythondoc.com/flask-sqlalchemy/quickstart.html|
