@@ -50,17 +50,19 @@ respect ! ! !
 - 无法查看图片可以前往码云：https://gitee.com/yangyuexiong/ExileTestPlatformServer
 
 ![系统逻辑架构图](docs/架构图/ExileTestPlatform逻辑架构图.png)
-![业务处理模型](docs/架构图/ExileTestPlatform业务处理模型.png)
-![分层结构图](docs/架构图/分层结构图.png)
+
+[comment]: <> (![业务处理模型]&#40;docs/架构图/ExileTestPlatform业务处理模型.png&#41;)
+
+[comment]: <> (![分层结构图]&#40;docs/架构图/分层结构图.png&#41;)
 
 ### 业务流程图
 
 ![业务流程图](docs/领域模型/ExileTestPlatform业务流程.png)
 
-### 领域模型图
 
-![业务领域模型](docs/领域模型/业务领域模型.png)
-![系统领域模型](docs/领域模型/系统领域模型.png)
+[comment]: <> (![业务领域模型]&#40;docs/领域模型/业务领域模型.png&#41;)
+
+[comment]: <> (![系统领域模型]&#40;docs/领域模型/系统领域模型.png&#41;)
 
 ### 数据库表设计
 
