@@ -75,63 +75,8 @@ def save_test_logs(execute_type):
 
 
 def safe_scan():
-    """安全扫描"""
-    sql = """
-            SELECT
-                safe_scan_url
-            FROM
-                exile_safe_scan_conf
-            WHERE
-                weights = (
-                    SELECT
-                        MAX(weights)
-                    FROM
-                        exile_safe_scan_conf
-                    WHERE
-                        is_deleted = 0
-                        AND is_global_open = 1)
-                    AND is_deleted = 0
-                    AND is_global_open = 1;
-            """
-    query_safe_scan_conf = project_db.select(sql, only=True)
-    safe_scan_url = query_safe_scan_conf.get('safe_scan_url')
-    if not safe_scan_url:
-        return {}
-
-    safe_scan_port = R.get("safe_scan_port")
-    if not safe_scan_port or int(safe_scan_port) > 7999:
-        R.set("safe_scan_port", "7000")
-        safe_scan_port = "7000"
-        safe_scan_report = "safe_scan_port_7000.html"
-        cmd = f"sudo /home/iotmp/xray_linux_386 webscan --listen 0.0.0.0:7000 --html-output {safe_scan_report} &"
-    else:
-        safe_scan_report = f"safe_scan_port_{safe_scan_port}.html"
-        cmd = f"sudo /home/iotmp/xray_linux_386 webscan --listen 0.0.0.0:{safe_scan_port} --html-output {safe_scan_report} &"
-
-    sql2 = "SELECT safe_scan_url, safe_scan_report_path FROM exile_platform_conf WHERE weights = (SELECT max(weights) FROM exile_platform_conf);"
-    query_platform_conf = project_db.select(sql2, only=True)
-    aio_url = query_platform_conf.get('safe_scan_url')
-    safe_scan_report_path = query_platform_conf.get('safe_scan_report_path')
-
-    folder = f"t_{safe_scan_port}_{int(time.time())}"
-    call_safe_scan = {
-        "url": aio_url,
-        "json": {
-            "folder": folder,
-            "cmd": cmd
-        }
-    }
-
-    R.set("safe_scan_port", f"{int(safe_scan_port) + 1}")
-
-    result = {
-        "safe_scan_proxies_url": f"{safe_scan_url}:{safe_scan_port}",  # 安全代理代理ip拼接端口
-        "call_safe_scan_data": call_safe_scan,  # 调用Aio启动安全代理
-        # "safe_scan_report_url": f"{safe_scan_report_path}/{folder}/{safe_scan_report}"  # 安全报告地址
-        "safe_scan_report_url": f"{safe_scan_report_path}/{safe_scan_report}"  # 安全报告地址
-    }
-
-    return result
+    """1"""
+    return False
 
 
 class GenExecuteData:
