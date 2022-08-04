@@ -5,32 +5,305 @@
 # @File    : runner.py
 # @Software: PyCharm
 
-
+import re
+import json
 import time
 import aiohttp
 import asyncio
+import requests
+
+from common.libs.db import project_db
+from common.libs.data_dict import var_func_dict
+from common.libs.StringIOLog import StringIOLog
+from common.libs.async_case_runner.assertion import AsyncAssertionResponse, AsyncAssertionField
+from common.libs.async_case_runner.result import AsyncTestResult
+
+
+class AsyncDatabase:
+    """异步数据库连接"""
+
+
+class CaseRunner:
+    """同步用例执行"""
+
+    def __init__(self, test_obj=None):
+
+        self.test_obj = test_obj
+        self.sio = test_obj.get('sio', StringIOLog())
+        self.end_time = 0
+
+    def json_format(self, d, msg=None):
+        """
+        json格式打印
+        :param d:
+        :param msg:
+        :return:
+        """
+        try:
+            output = '{}\n'.format(msg) + json.dumps(
+                d, sort_keys=True, indent=4, separators=(', ', ': '), ensure_ascii=False
+            )
+            self.sio.log(output)
+        except BaseException as e:
+            self.sio.log('{}\n{}'.format(msg, d))
+
+    def send_logs(self, url, headers, req_json, http_code, resp_headers, resp_json):
+        """
+        测试用例日志打印
+        :param url:
+        :param headers:
+        :param req_json:
+        :param http_code:
+        :param resp_headers:
+        :param resp_json:
+        :return:
+        """
+        self.sio.log(f'=== url ===\n{url}')
+        self.json_format(headers, msg='=== headers ===')
+        self.json_format(req_json, msg='=== request json ===')
+        self.sio.log(f'=== http_code ===\n{http_code}')
+        self.json_format(resp_headers, msg='=== response headers ===')
+        self.json_format(resp_json, msg='=== response json ===')
+
+    def request_before(self, a):
+        """请求前置"""
+        print('request_before', a)
+
+    def request_after(self, a):
+        """请求后置"""
+        print('request_after', a)
+
+    @classmethod
+    def check_method(cls, session, method):
+        """检查请求方式"""
+
+        if not hasattr(session, method):
+            print(f'错误的请求方式:{method}')
+            return False
+        return True
+
+    @classmethod
+    def check_headers(cls, headers):
+        """检查headers"""
+
+        for k, v in headers.items():
+            if isinstance(v, (dict, list)):
+                headers[k] = json.dumps(v)
+        return headers
+
+    def current_request(self, method, **kwargs):
+        """同步请求"""
+
+        method = method.lower()
+        if not self.check_method:
+            response = {
+                "error": f"错误的请求方式:{method}"
+            }
+            return response
+        kwargs['headers'] = self.check_headers(kwargs.get('headers'))
+        response = getattr(requests, method)(**kwargs, verify=False)
+        http_code = response.status_code
+        try:
+            resp_headers = response.headers
+            resp_json = response.json()
+            result = {
+                "http_code": http_code,
+                "resp_json": resp_json,
+                "resp_headers": resp_headers
+            }
+            return result
+        except BaseException as e:
+            result = {
+                "http_code": http_code,
+                "resp_error": f"{e}"
+            }
+            return result
 
 
 class AsyncCaseRunner:
-    """异步用例执行"""
+    """
+    异步用例执行
 
-    def __init__(self):
 
-        self.ll = [
-            ['y1', 'y2', 'y3', 'y4', 'y5', 'y6'],
-            ['x1', 'x2', 'x3', 'x4', 'x5', 'x6'],
-            ['z1', 'z2', 'z3', 'z4', 'z5', 'z6']
-        ]
-        self.logs_hash_map = {}
-        self.test_list = []
+    """
 
-    async def request_before(self):
+    def __init__(self, test_obj=None):
+
+        self.base_url = test_obj.get('base_url')
+        self.use_base_url = test_obj.get('use_base_url')
+        self.data_driven = test_obj.get('data_driven')
+
+        self.case_list = test_obj.get('case_list')
+        self.sio = test_obj.get('sio', StringIOLog())
+
+        self.var_conversion_active_list = []
+        self.logs_hash_map = {
+
+        }
+
+        self.test_result = AsyncTestResult()  # 测试结果
+        self.case_result_list = []  # 测试结果日志集
+        self.case_result_dict = {}  # 用例-测试结果日志集字典
+        self.scenario_case_result_dict = {}
+        self.scenario_result_dict = {}  # 场景-测试结果日志集字典
+
+    async def json_format(self, d, msg=None):
+        """
+        json格式打印
+        :param d:
+        :param msg:
+        :return:
+        """
+        try:
+            output = '{}\n'.format(msg) + json.dumps(
+                d, sort_keys=True, indent=4, separators=(', ', ': '), ensure_ascii=False
+            )
+            self.sio.log(output)
+        except BaseException as e:
+            self.sio.log('{}\n{}'.format(msg, d))
+
+    async def send_logs(self, url, headers, req_json, http_code, resp_headers, resp_json):
+        """
+        测试用例日志打印
+        :param url:
+        :param headers:
+        :param req_json:
+        :param http_code:
+        :param resp_headers:
+        :param resp_json:
+        :return:
+        """
+        self.sio.log(f'=== url ===\n{url}')
+        await self.json_format(headers, msg='=== headers ===')
+        await self.json_format(req_json, msg='=== request json ===')
+        self.sio.log(f'=== http_code ===\n{http_code}')
+        await self.json_format(resp_headers, msg='=== response headers ===')
+        await self.json_format(resp_json, msg='=== response json ===')
+
+    async def var_conversion_main(self, json_str, d):
+        """
+        变量转换参数
+        :param json_str: json字符串
+        :param d: 数据字典
+        :return:
+        """
+        matchList = re.findall(r'("?\$\{.*?\}.*?")', json_str)
+        for match in matchList:
+            varList = re.findall(r'\$\{.*?\}', match)
+            if len(varList) > 1:
+                _match = match
+                for var in varList:
+                    key = var[2:-1]
+                    val = d.get(key)
+                    if val:
+                        if isinstance(val, int):
+                            _match = _match.replace('${' + key + '}', json.dumps(val, ensure_ascii=False))
+                        elif isinstance(val, str):
+                            _match = _match.replace('${' + key + '}', json.dumps(val, ensure_ascii=False)[1:-1])
+                        else:
+                            _match = _match.replace('${' + key + '}',
+                                                    re.sub(r'"', '\\"', json.dumps(val, ensure_ascii=False)))
+                json_str = json_str.replace(match, _match)
+            else:
+                _matchList = re.findall(r'\$\{(.*?)\}(.*?")', match)
+                key = _matchList[0][0]
+                val = d.get(key)
+                if val:
+                    if _matchList[0][1] == '"':
+                        if isinstance(val, str):
+                            json_str = json_str.replace(match, match.replace('${' + key + '}', val))
+                        else:
+                            json_str = json_str.replace(match, match.replace('${' + key + '}',
+                                                                             json.dumps(val, ensure_ascii=False))[1:-1])
+                    else:
+                        if isinstance(val, str):
+                            json_str = json_str.replace(match, match.replace('${' + key + '}', val))
+                        else:
+                            res = match.replace('${' + key + '}',
+                                                re.sub(r'"', '\\"', json.dumps(val, ensure_ascii=False)))
+                            json_str = json_str.replace(match, res)
+
+        result_data = json.loads(json_str)
+        print(">>>", json_str)
+        print(">>>", result_data)
+        return result_data
+
+    async def var_conversion(self, before_value):
+        """
+        变量转换参数
+        :param before_value:
+        :return:
+        """
+        if isinstance(before_value, int):
+            return before_value
+
+        json_str = json.dumps(before_value, ensure_ascii=False)
+        var_name_list = re.findall('\\$\\{([^}]*)', json_str)  # 找出参数中带 ${} 的字符串
+        print(var_name_list)
+
+        if not var_name_list:
+            return before_value
+
+        # TODO 改为 aiomysql
+        sql = f"""
+        select id, var_name, var_value, var_type, is_active 
+        from exile_test_variable 
+        where {f"var_name in {tuple(var_name_list)}" if len(var_name_list) > 1 else f"var_name='{var_name_list[-1]}'"} 
+        and is_deleted=0;
+        """
+        query_result = project_db.select(sql=sql)
+
+        d = {}
+        for obj in query_result:  # 生成: {"var_name":"var_value"}
+            var_id = obj.get('id')
+            var_name = obj.get('var_name')
+            var_value = obj.get('var_value')
+            var_type = obj.get('var_type')
+            is_active = obj.get('is_active')
+            print('===var_type===', var_type)
+            print('===var_name===', var_name)
+            if str(var_type) in var_func_dict.keys():  # 函数
+                if var_id not in self.var_conversion_active_list:
+                    new_val = var_func_dict.get(str(var_type))()  # 首次触函数
+                    d[var_name] = new_val
+                    self.current_var_value = new_val
+                    self.var_conversion_active_list.append(var_id)
+                else:
+                    if is_active == 1:
+                        new_val = var_func_dict.get(str(var_type))()
+                        d[var_name] = new_val
+                    else:
+                        d[var_name] = self.current_var_value
+            else:
+                if var_type in (1, 2):
+                    d[var_name] = json.loads(var_value)
+                else:
+                    d[var_name] = var_value
+        print(d)
+        # return json_str, d
+        result = await self.var_conversion_main(json_str=json_str, d=d)
+        return result
+
+    async def request_before(self, case_data_info):
         """请求前置"""
-        print('request_before')
 
-    async def request_after(self):
+        print("=== 参数前置准备 ===")
+        print(case_data_info)
+        is_before = case_data_info.get('is_before')
+        data_before = case_data_info.get('data_before')
+
+        try:
+            if is_before:
+                print('is_before')
+                # data_before = self.var_conversion(data_before)
+                print('=== data_before ===')
+                print(data_before)
+                # list(map(self.gen_case_data_ready, data_before))
+        except BaseException as e:
+            self.sio.log(f"=== 参数前置准备失败:{str(e)} ===", status="error")
+
+    async def request_after(self, case_data_info):
         """请求后置"""
-        print('request_after')
 
     @classmethod
     async def check_method(cls, session, method):
@@ -41,23 +314,250 @@ class AsyncCaseRunner:
             return False
         return True
 
-    async def current_request(self, method, url, headers=None):
+    @classmethod
+    async def check_headers(cls, headers):
+        """检查headers"""
+
+        for k, v in headers.items():
+            if isinstance(v, (dict, list)):
+                headers[k] = json.dumps(v)
+        return headers
+
+    async def gen_url(self, request_base_url, request_url):
+        """
+        生成url
+        :param request_base_url: 用例环境
+        :param request_url: 用例url
+        :return:
+        """
+
+        url = self.base_url + request_url if self.use_base_url else request_base_url + request_url
+        return url
+
+    async def current_request(self, method, url, headers=None, **kwargs):
         """异步请求"""
 
         sem = asyncio.Semaphore(100)  # 并发数量限制
         # timeout = aiohttp.ClientTimeout(total=3)  # 超时
         async with sem:
+            headers = await self.check_headers(headers)
             async with aiohttp.ClientSession(headers=headers, cookies='') as session:
                 method = method.lower()
                 result = await self.check_method(session, method)
                 if not result:
-                    return {
+                    resp = {
                         "error": f"错误的请求方式:{method}"
                     }
-                async with getattr(session, method)(url) as resp:
-                    if resp.status in [200, 201]:
-                        data = await resp.json()
-                        return data
+                    return resp
+                async with getattr(session, method)(url, **kwargs) as resp:
+                    http_code = resp.status
+                    try:
+                        json_resp = await resp.json()
+                        resp_headers = {k: v for k, v in resp.headers.items()}
+                        result = {
+                            "http_code": http_code,
+                            "resp_json": json_resp,
+                            "resp_headers": resp_headers
+                        }
+                        return result
+                    except BaseException as e:
+                        result = {
+                            "http_code": http_code,
+                            "resp_error": f"{e}"
+                        }
+                        return result
+
+    async def data_task(self, data_index=None, data=None, **kwargs):
+        """参数"""
+
+        self.sio.log(f"=== 数据驱动:{data_index} ===")
+
+        request_method = kwargs.get('request_method')
+        url = kwargs.get('url')
+        case_data_info = data.get('case_data_info', {})
+        case_resp_ass_info = data.get('case_resp_ass_info', [])
+        case_field_ass_info = data.get('case_field_ass_info', [])
+
+        await self.request_before(case_data_info)
+
+        headers = case_data_info.get('request_headers')
+        request_params = case_data_info.get('request_params')
+        request_body = case_data_info.get('request_body')
+        request_body_type = case_data_info.get('request_body_type')
+
+        req_type_dict = {
+            "1": {"data": request_body},
+            "2": {"json": request_body},
+            "3": {"data": request_body}
+        }
+        before_send = {
+            "url": url,
+            "headers": headers,
+            "payload": {},
+        }
+        req_json_data = req_type_dict.get(str(request_body_type))
+
+        if not req_json_data:
+            before_send['payload']['params'] = request_params
+        else:
+            before_send['payload'].update(req_json_data)
+
+        print('=== before_send ===')
+        print(before_send)
+
+        send = await self.var_conversion(before_send)
+        print("=== send ===")
+        print(send)
+
+        url = send.get('url')
+        headers = send.get('headers')
+        payload = send.get('payload')
+        result = await self.current_request(
+            method=request_method,
+            url=url,
+            headers=headers,
+            **payload
+        )
+        print('=== result ===')
+        print(result)
+
+        resp_headers = result.get("resp_headers")
+        http_code = result.get('http_code')
+        resp_json = result.get("resp_json")
+        await self.send_logs(
+            url=url,
+            headers=headers,
+            req_json=req_json_data,
+            http_code=http_code,
+            resp_headers=resp_headers,
+            resp_json=resp_json
+        )
+
+        await self.request_after(case_data_info)
+
+        # ass_resp = AsyncAssertionResponse(http_code, resp_headers, resp_json, self.sio, case_resp_ass_info)
+        # await ass_resp.main()
+        #
+        # ass_field = AsyncAssertionField(self.sio, case_field_ass_info)
+        # await ass_field.main()
+
+    async def case_task(self, case_index=None, case=None):
+        """用例"""
+
+        # for case_index, case in enumerate(self.case_list, 1):
+        self.sio.log(f'=== start case: {case_index} ===')
+        case_info = case.get('case_info', {})
+        bind_info = case.get('bind_info', [])
+        case_expand = case.get('case_expand', {})
+        case_sleep = case_expand.get('sleep')
+
+        case_id = case_info.get('id')
+        case_name = case_info.get('case_name')
+        creator = case_info.get('creator')
+        creator_id = case_info.get('creator_id')
+
+        self.sio.log(f'=== 用例ID: {case_id}  用例名称: {case_name}===')
+
+        request_base_url = case_info.get('request_base_url')
+        request_url = case_info.get('request_url')
+        request_method = case_info.get('request_method')
+        url = await self.gen_url(request_base_url=request_base_url, request_url=request_url)
+        update_var_list = []
+
+        if not bind_info:
+            self.sio.log('=== 未配置请求参数 ===')
+            return None
+
+        """
+        p = {
+            "request_method": request_method,
+            "url": url
+        }
+        
+        if not self.data_driven:
+            await self.data_task(data_index=1, data=bind_info[0], **p)
+            self.sio.log("=== data_driven is false 只执行基础参数与断言 ===")
+        else:
+            data_task = [
+                asyncio.create_task(self.data_task(data_index, data, **p)) for data_index, data in
+                enumerate(bind_info, 1)
+            ]
+            await asyncio.wait(data_task)
+        """
+
+        for data_index, bind in enumerate(bind_info, 1):
+            self.sio.log(f"=== 数据驱动:{data_index} ===")
+
+            case_data_info = bind.get('case_data_info', {})
+            case_resp_ass_info = bind.get('case_resp_ass_info', [])
+            case_field_ass_info = bind.get('case_field_ass_info', [])
+
+            await self.request_before(case_data_info)
+
+            headers = case_data_info.get('request_headers')
+            request_params = case_data_info.get('request_params')
+            request_body = case_data_info.get('request_body')
+            request_body_type = case_data_info.get('request_body_type')
+
+            req_type_dict = {
+                "1": {"data": request_body},
+                "2": {"json": request_body},
+                "3": {"data": request_body}
+            }
+            before_send = {
+                "url": url,
+                "headers": headers,
+                "payload": {},
+            }
+            req_json_data = req_type_dict.get(str(request_body_type))
+
+            if not req_json_data:
+                before_send['payload']['params'] = request_params
+            else:
+                before_send['payload'].update(req_json_data)
+
+            print('=== before_send ===')
+            print(before_send)
+
+            send = await self.var_conversion(before_send)
+            print("=== send ===")
+            print(send)
+
+            url = send.get('url')
+            headers = send.get('headers')
+            payload = send.get('payload')
+            result = await self.current_request(
+                method=request_method,
+                url=url,
+                headers=headers,
+                **payload
+            )
+            print('=== result ===')
+            print(result)
+
+            resp_headers = result.get("resp_headers")
+            http_code = result.get('http_code')
+            resp_json = result.get("resp_json")
+            await self.send_logs(
+                url=url,
+                headers=headers,
+                req_json=req_json_data,
+                http_code=http_code,
+                resp_headers=resp_headers,
+                resp_json=resp_json
+            )
+
+            await self.request_after(case_data_info)
+
+            ass_resp = AsyncAssertionResponse(http_code, resp_headers, resp_json, self.sio, case_resp_ass_info)
+            await ass_resp.main()
+
+            ass_field = AsyncAssertionField(self.sio, case_field_ass_info)
+            await ass_field.main()
+
+            if not self.data_driven:
+                self.sio.log("=== data_driven is false 只执行基础参数与断言 ===")
+                break
 
     async def scenario_task(self, scenario_list):
         """场景"""
@@ -66,39 +566,67 @@ class AsyncCaseRunner:
             headers = {
                 "token": f"{scenario}--d83cff2cYYxba11YYx11ecYYxb3c3YYxacde48001122"
             }
-            await self.request_before()
+            # await self.request_before()
             result = await self.current_request("get", url='http://0.0.0.0:7878/api/auth', headers=headers)
             print(result)
-            await self.request_after()
+            # await self.request_after()
             d = {
                 "n": scenario,
                 "t": time.time()
             }
-            self.test_list.append(d)
 
-    async def case_task(self, i):
-        """用例"""
-
-        print('hello:{}'.format(i))
-        # result = await asyncio.sleep(1)
-        headers = {
-            "token": f"{i}--d83cff2cYYxba11YYx11ecYYxb3c3YYxacde48001122"
-        }
-        await self.request_before()
-        result = await self.current_request("GET", url='http://0.0.0.0:7878/api/auth', headers=headers)
-        await self.request_after()
-        print('world:{}'.format(i))
-        print(result)
+    async def gen_logs(self):
+        """日志"""
 
     async def test_loader(self):
         """用例加载"""
 
-        case_task = [asyncio.create_task(self.case_task(i)) for i in range(10)]
-        scenario_task = [asyncio.create_task(self.scenario_task(i)) for i in self.ll]
+        start_time = time.time()
+        case_task = [asyncio.create_task(self.case_task(i)) for i in range(1)]
         await asyncio.wait(case_task)
-        await asyncio.wait(scenario_task)
+        self.end_time = f"{time.time() - start_time}s"
+
+        # scenario_task = [asyncio.create_task(self.scenario_task(i)) for i in self.ll]
+        # await asyncio.wait(scenario_task)
+
+    async def test_loader1(self):
+        """用例加载"""
+
+        start_time = time.time()
+        for i in range(1):
+            await self.case_task(i)
+        self.end_time1 = f"{time.time() - start_time}s"
+
+    async def test_loader_dev(self):
+        """用例加载"""
+
+        start_time = time.time()
+        case_task = [
+            asyncio.create_task(self.case_task(case_index, case)) for case_index, case in enumerate(self.case_list, 1)
+        ]
+        await asyncio.wait(case_task)
+        self.end_time = f"{time.time() - start_time}s"
 
     async def main(self):
         """main"""
 
-        await self.test_loader()
+        # await self.test_loader()
+        # await self.test_loader1()
+
+
+if __name__ == '__main__':
+    pass
+
+    t_n = 1
+
+    # cr = CaseRunner(test_num=t_n)
+    # cr.test_loader()
+
+    # acr = AsyncCaseRunner(test_num=t_n)
+    # asyncio.run(acr.test_loader())
+
+    # asyncio.run(acr.test_loader1())
+
+    # print(cr.end_time)
+    # print(acr.end_time)
+    # print(acr.end_time1)

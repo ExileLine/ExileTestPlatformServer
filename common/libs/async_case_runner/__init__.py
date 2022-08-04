@@ -5,4 +5,4 @@
 # @File    : __init__.py.py
 # @Software: PyCharm
 
-from .runner import AsyncCaseRunner
+from .runner import CaseRunner, AsyncCaseRunner
