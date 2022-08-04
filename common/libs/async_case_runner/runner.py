@@ -15,8 +15,9 @@ import requests
 from common.libs.db import project_db
 from common.libs.data_dict import var_func_dict
 from common.libs.StringIOLog import StringIOLog
-from common.libs.async_case_runner.assertion import AsyncAssertionResponse, AsyncAssertionField
-from common.libs.async_case_runner.result import AsyncTestResult
+from common.libs.async_case_runner.async_assertion import AsyncAssertionResponse, AsyncAssertionField
+from common.libs.async_case_runner.async_logs import AsyncRunnerLogs
+from common.libs.async_case_runner.async_result import AsyncTestResult
 
 
 class AsyncDatabase:
@@ -137,12 +138,12 @@ class AsyncCaseRunner:
         self.sio = test_obj.get('sio', StringIOLog())
 
         self.var_conversion_active_list = []
-        self.logs_hash_map = {
+        self.logs_hash_map = {}
 
-        }
+        self.arl = AsyncRunnerLogs()
+        self.case_logs_dict = {}
 
-        self.test_result = AsyncTestResult()  # 测试结果
-        self.case_result_list = []  # 测试结果日志集
+        self.test_result = AsyncTestResult()  # 测试结果实例
         self.case_result_dict = {}  # 用例-测试结果日志集字典
         self.scenario_case_result_dict = {}
         self.scenario_result_dict = {}  # 场景-测试结果日志集字典
@@ -179,6 +180,44 @@ class AsyncCaseRunner:
         self.sio.log(f'=== http_code ===\n{http_code}')
         await self.json_format(resp_headers, msg='=== response headers ===')
         await self.json_format(resp_json, msg='=== response json ===')
+
+    async def get_case_logs(self, case_id, case_name):
+        """
+
+        :param case_id:
+        :param case_name:
+        :return:
+        """
+
+        case_logs = self.case_logs_dict.get(case_id)
+        if case_logs:
+            return case_logs
+        else:
+            self.case_logs_dict[case_id] = await self.arl.gen_case_logs(case_id=case_id, case_name=case_name)
+            return self.case_logs_dict.get(case_id)
+
+    async def get_data_logs(self, case_id, data_id, data_name, obj_to_json=False):
+        """
+
+        :param case_id:
+        :param data_id:
+        :param data_name:
+        :param obj_to_json: 类转字典结束本次参数日志记录
+        :return:
+        """
+
+        data_logs = self.case_logs_dict.get(case_id).get('data_dict').get(data_id)
+        if obj_to_json:
+            self.case_logs_dict.get(case_id).get('data_dict')[data_id] = await data_logs.to_json()
+            return True
+
+        if data_logs:
+            return data_logs
+        else:
+            self.case_logs_dict.get(case_id).get('data_dict')[data_id] = await self.arl.gen_data_logs(
+                data_id=data_id,
+                data_name=data_name)
+            return self.case_logs_dict.get(case_id).get('data_dict').get(data_id)
 
     async def var_conversion_main(self, json_str, d):
         """
@@ -284,8 +323,10 @@ class AsyncCaseRunner:
         result = await self.var_conversion_main(json_str=json_str, d=d)
         return result
 
-    async def request_before(self, case_data_info):
+    async def request_before(self, data_id, data_name, case_data_info, data_logs):
         """请求前置"""
+
+        await data_logs.add_logs(key='request_before', val=f"=== 参数前置准备:{data_id}-{data_name} ===")
 
         print("=== 参数前置准备 ===")
         print(case_data_info)
@@ -301,9 +342,12 @@ class AsyncCaseRunner:
                 # list(map(self.gen_case_data_ready, data_before))
         except BaseException as e:
             self.sio.log(f"=== 参数前置准备失败:{str(e)} ===", status="error")
+            await data_logs.add_logs(key='request_after', val=f"=== 参数前置准备失败:{str(e)} ===")
 
-    async def request_after(self, case_data_info):
+    async def request_after(self, data_id, data_name, case_data_info, data_logs):
         """请求后置"""
+
+        await data_logs.add_logs(key='request_after', val=f"=== 参数后置准备:{data_id}-{data_name} ===")
 
     @classmethod
     async def check_method(cls, session, method):
@@ -370,15 +414,21 @@ class AsyncCaseRunner:
     async def data_task(self, data_index=None, data=None, **kwargs):
         """参数"""
 
-        self.sio.log(f"=== 数据驱动:{data_index} ===")
-
-        request_method = kwargs.get('request_method')
+        # for data_index, bind in enumerate(bind_info, 1):
+        case_id = kwargs.get('case_id')
         url = kwargs.get('url')
+        request_method = kwargs.get('request_method')
+
         case_data_info = data.get('case_data_info', {})
         case_resp_ass_info = data.get('case_resp_ass_info', [])
         case_field_ass_info = data.get('case_field_ass_info', [])
 
-        await self.request_before(case_data_info)
+        data_id = case_data_info.get('id')
+        data_name = case_data_info.get('data_name')
+
+        data_logs = await self.get_data_logs(case_id=case_id, data_id=data_id, data_name=data_name)
+
+        await self.request_before(data_id, data_name, case_data_info, data_logs)
 
         headers = case_data_info.get('request_headers')
         request_params = case_data_info.get('request_params')
@@ -412,6 +462,7 @@ class AsyncCaseRunner:
         url = send.get('url')
         headers = send.get('headers')
         payload = send.get('payload')
+
         result = await self.current_request(
             method=request_method,
             url=url,
@@ -424,28 +475,30 @@ class AsyncCaseRunner:
         resp_headers = result.get("resp_headers")
         http_code = result.get('http_code')
         resp_json = result.get("resp_json")
-        await self.send_logs(
-            url=url,
-            headers=headers,
-            req_json=req_json_data,
-            http_code=http_code,
-            resp_headers=resp_headers,
-            resp_json=resp_json
-        )
 
-        await self.request_after(case_data_info)
+        await data_logs.add_logs(key='url', val=f"=== 数据驱动:{data_index} ===")
+        await data_logs.add_logs(key='url', val=url)
+        await data_logs.add_logs(key='method', val=request_method)
+        await data_logs.add_logs(key='request_headers', val=headers)
+        await data_logs.add_logs(key='request_body', val=payload)
+        await data_logs.add_logs(key='http_code', val=http_code)
+        await data_logs.add_logs(key='response_headers', val=resp_headers)
+        await data_logs.add_logs(key='response_body', val=resp_json)
 
-        # ass_resp = AsyncAssertionResponse(http_code, resp_headers, resp_json, self.sio, case_resp_ass_info)
-        # await ass_resp.main()
-        #
-        # ass_field = AsyncAssertionField(self.sio, case_field_ass_info)
-        # await ass_field.main()
+        await self.request_after(data_id, data_name, case_data_info, data_logs)
+
+        ass_resp = AsyncAssertionResponse(http_code, resp_headers, resp_json, self.sio, case_resp_ass_info)
+        await ass_resp.main()
+
+        ass_field = AsyncAssertionField(self.sio, case_field_ass_info)
+        await ass_field.main()
+
+        await self.get_data_logs(case_id=case_id, data_id=data_id, data_name=data_name, obj_to_json=True)
 
     async def case_task(self, case_index=None, case=None):
         """用例"""
 
         # for case_index, case in enumerate(self.case_list, 1):
-        self.sio.log(f'=== start case: {case_index} ===')
         case_info = case.get('case_info', {})
         bind_info = case.get('bind_info', [])
         case_expand = case.get('case_expand', {})
@@ -456,7 +509,10 @@ class AsyncCaseRunner:
         creator = case_info.get('creator')
         creator_id = case_info.get('creator_id')
 
-        self.sio.log(f'=== 用例ID: {case_id}  用例名称: {case_name}===')
+        case_logs = await self.get_case_logs(case_id, case_name)
+        case_logs['logs'].append(f'=== start case: {case_index} ===')
+        case_logs['logs'].append(f'=== 用例ID: {case_id}  用例名称: {case_name}===')
+        self.case_logs_dict[case_id] = case_logs
 
         request_base_url = case_info.get('request_base_url')
         request_url = case_info.get('request_url')
@@ -465,26 +521,25 @@ class AsyncCaseRunner:
         update_var_list = []
 
         if not bind_info:
-            self.sio.log('=== 未配置请求参数 ===')
+            case_logs['logs'].append('=== 未配置请求参数 ===')
             return None
 
-        """
         p = {
+            "case_id": case_id,
             "request_method": request_method,
             "url": url
         }
-        
+
         if not self.data_driven:
             await self.data_task(data_index=1, data=bind_info[0], **p)
-            self.sio.log("=== data_driven is false 只执行基础参数与断言 ===")
         else:
             data_task = [
                 asyncio.create_task(self.data_task(data_index, data, **p)) for data_index, data in
                 enumerate(bind_info, 1)
             ]
             await asyncio.wait(data_task)
-        """
 
+        """
         for data_index, bind in enumerate(bind_info, 1):
             self.sio.log(f"=== 数据驱动:{data_index} ===")
 
@@ -555,9 +610,19 @@ class AsyncCaseRunner:
             ass_field = AsyncAssertionField(self.sio, case_field_ass_info)
             await ass_field.main()
 
+            data_info = {
+                "data_id": case_data_info.get('id'),
+                "data_name": case_data_info.get('data_name'),
+                "logs": self.sio.get_stringio().split('\n'),
+                # "error": self.logs_error_switch
+            }
+            self.case_result_dict.get(case_id)['data_list'].append(data_info)
+            self.case_result_dict.get(case_id)['error'] = True if True in error_list else False
+
             if not self.data_driven:
                 self.sio.log("=== data_driven is false 只执行基础参数与断言 ===")
                 break
+        """
 
     async def scenario_task(self, scenario_list):
         """场景"""
@@ -578,6 +643,8 @@ class AsyncCaseRunner:
     async def gen_logs(self):
         """日志"""
 
+        print(json.dumps(self.case_logs_dict, ensure_ascii=False))
+
     async def test_loader(self):
         """用例加载"""
 
@@ -589,14 +656,6 @@ class AsyncCaseRunner:
         # scenario_task = [asyncio.create_task(self.scenario_task(i)) for i in self.ll]
         # await asyncio.wait(scenario_task)
 
-    async def test_loader1(self):
-        """用例加载"""
-
-        start_time = time.time()
-        for i in range(1):
-            await self.case_task(i)
-        self.end_time1 = f"{time.time() - start_time}s"
-
     async def test_loader_dev(self):
         """用例加载"""
 
@@ -606,6 +665,8 @@ class AsyncCaseRunner:
         ]
         await asyncio.wait(case_task)
         self.end_time = f"{time.time() - start_time}s"
+
+        await self.gen_logs()
 
     async def main(self):
         """main"""

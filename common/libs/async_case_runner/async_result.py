@@ -2,7 +2,7 @@
 # @Time    : 2022/7/28 15:05
 # @Author  : yangyuexiong
 # @Email   : yang6333yyx@126.com
-# @File    : result.py
+# @File    : async_result.py
 # @Software: PyCharm
 
 from decimal import Decimal
