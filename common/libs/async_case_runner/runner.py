@@ -21,7 +21,9 @@ from common.libs.async_case_runner.async_result import AsyncTestResult
 
 
 class CaseRunner:
-    """同步用例执行"""
+    """
+    同步用例执行
+    """
 
     def __init__(self, test_obj=None):
 
