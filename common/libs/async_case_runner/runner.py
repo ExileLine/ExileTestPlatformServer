@@ -20,10 +20,6 @@ from common.libs.async_case_runner.async_logs import AsyncRunnerLogs
 from common.libs.async_case_runner.async_result import AsyncTestResult
 
 
-class AsyncDatabase:
-    """异步数据库连接"""
-
-
 class CaseRunner:
     """同步用例执行"""
 
@@ -124,8 +120,6 @@ class CaseRunner:
 class AsyncCaseRunner:
     """
     异步用例执行
-
-
     """
 
     def __init__(self, test_obj=None):
@@ -134,19 +128,17 @@ class AsyncCaseRunner:
         self.use_base_url = test_obj.get('use_base_url')
         self.data_driven = test_obj.get('data_driven')
 
-        self.case_list = test_obj.get('case_list')
-        self.sio = test_obj.get('sio', StringIOLog())
+        self.case_list = test_obj.get('case_list')  # 执行用例列表
+        self.scenario_list = test_obj.get('scenario_list')  # 执行场景列表
+        self.sio = test_obj.get('sio', StringIOLog())  # 控制台日志
 
         self.var_conversion_active_list = []
-        self.logs_hash_map = {}
 
-        self.arl = AsyncRunnerLogs()
-        self.case_logs_dict = {}
+        self.arl = AsyncRunnerLogs()  # 测试日志实例
+        self.case_logs_dict = {}  # 用例日志字典
+        self.scenario_logs_dict = {}  # 场景日志字典
 
         self.test_result = AsyncTestResult()  # 测试结果实例
-        self.case_result_dict = {}  # 用例-测试结果日志集字典
-        self.scenario_case_result_dict = {}
-        self.scenario_result_dict = {}  # 场景-测试结果日志集字典
 
     async def json_format(self, d, msg=None):
         """
@@ -480,17 +472,21 @@ class AsyncCaseRunner:
         await data_logs.add_logs(key='url', val=url)
         await data_logs.add_logs(key='method', val=request_method)
         await data_logs.add_logs(key='request_headers', val=headers)
-        await data_logs.add_logs(key='request_body', val=payload)
+        await data_logs.add_logs(key='request_body', val=payload.get(list(payload.keys())[0]))
         await data_logs.add_logs(key='http_code', val=http_code)
         await data_logs.add_logs(key='response_headers', val=resp_headers)
         await data_logs.add_logs(key='response_body', val=resp_json)
 
         await self.request_after(data_id, data_name, case_data_info, data_logs)
 
-        ass_resp = AsyncAssertionResponse(http_code, resp_headers, resp_json, self.sio, case_resp_ass_info)
+        ass_resp = AsyncAssertionResponse(
+            http_code, resp_headers, resp_json, self.sio, case_resp_ass_info, data_logs, f"{data_id}-{data_name}"
+        )
         await ass_resp.main()
 
-        ass_field = AsyncAssertionField(self.sio, case_field_ass_info)
+        ass_field = AsyncAssertionField(
+            self.sio, case_field_ass_info, data_logs, f"{data_id}-{data_name}"
+        )
         await ass_field.main()
 
         await self.get_data_logs(case_id=case_id, data_id=data_id, data_name=data_name, obj_to_json=True)
@@ -624,40 +620,20 @@ class AsyncCaseRunner:
                 break
         """
 
-    async def scenario_task(self, scenario_list):
+    async def scenario_task(self, scenario_index=None, scenario=None):
         """场景"""
-
-        for scenario in scenario_list:
-            headers = {
-                "token": f"{scenario}--d83cff2cYYxba11YYx11ecYYxb3c3YYxacde48001122"
-            }
-            # await self.request_before()
-            result = await self.current_request("get", url='http://0.0.0.0:7878/api/auth', headers=headers)
-            print(result)
-            # await self.request_after()
-            d = {
-                "n": scenario,
-                "t": time.time()
-            }
 
     async def gen_logs(self):
         """日志"""
 
+    async def debug_logs(self):
+        """调试日志"""
+
         print(json.dumps(self.case_logs_dict, ensure_ascii=False))
+        print(json.dumps(self.scenario_logs_dict, ensure_ascii=False))
 
-    async def test_loader(self):
-        """用例加载"""
-
-        start_time = time.time()
-        case_task = [asyncio.create_task(self.case_task(i)) for i in range(1)]
-        await asyncio.wait(case_task)
-        self.end_time = f"{time.time() - start_time}s"
-
-        # scenario_task = [asyncio.create_task(self.scenario_task(i)) for i in self.ll]
-        # await asyncio.wait(scenario_task)
-
-    async def test_loader_dev(self):
-        """用例加载"""
+    async def case_loader(self):
+        """用例加载执行"""
 
         start_time = time.time()
         case_task = [
@@ -666,28 +642,16 @@ class AsyncCaseRunner:
         await asyncio.wait(case_task)
         self.end_time = f"{time.time() - start_time}s"
 
-        await self.gen_logs()
+        await self.debug_logs()
+
+    async def scenario_loader(self):
+        """场景加载执行"""
 
     async def main(self):
         """main"""
 
-        # await self.test_loader()
-        # await self.test_loader1()
+        if self.case_list:
+            await self.case_loader()
 
-
-if __name__ == '__main__':
-    pass
-
-    t_n = 1
-
-    # cr = CaseRunner(test_num=t_n)
-    # cr.test_loader()
-
-    # acr = AsyncCaseRunner(test_num=t_n)
-    # asyncio.run(acr.test_loader())
-
-    # asyncio.run(acr.test_loader1())
-
-    # print(cr.end_time)
-    # print(acr.end_time)
-    # print(acr.end_time1)
+        if self.scenario_list:
+            await self.scenario_loader()

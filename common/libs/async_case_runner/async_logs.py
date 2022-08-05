@@ -101,6 +101,14 @@ class AsyncDataLogs:
             "request_after": {
                 "description": "参数后置准备",
                 "logs": []
+            },
+            "response_assert": {
+                "description": "响应断言",
+                "logs": []
+            },
+            "field_assert": {
+                "description": "字段断言",
+                "logs": []
             }
         }
 
