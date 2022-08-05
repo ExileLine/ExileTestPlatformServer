@@ -4,11 +4,11 @@
 
 ### 前言
 
-作者是前豌豆思维测试小弟，豌豆测试平台V1.0与V2.0的创造者，单人充当产品，设计，研发，测试，运维，内部运营推广等多个角色，旧测试平台就不在这里展示了。
+作者是前豌豆思维测试小弟，豌豆测试平台V1.0与V2.0的设计者，期间充当产品，设计，研发，测试，运维，内部运营推广等多个角色。
 
-因各种因素导致最后测试平台落地的结果并不理想，但在整个过程中受益匪浅并有所总结，而我还是想做出一个能让大部测试人员都认可并真正能降本增效的测试平台，从而有了这个放逐测试平台，既然不能于公司中很好的实践，那么就流放到整个测试社区，让更多的测试人员使用并提出建议使其更好的发挥实际作用，因此取名放逐。
+因各种因素导致最后测试平台落地的结果并不理想，但在整个过程中受益匪浅并有所总结，而作者还是想做出一个能让大部测试人员都认可并真正能降本增效的测试平台，从而有了这个放逐测试平台，既然不能于公司中很好的实践，那么就流放到整个测试社区，让更多的测试人员使用并提出建议使其更好的发挥实际作用，因此取名放逐。
 
-后续我会以组织的形式重构它，使它能够商业定制化，如果你感兴趣，(最下方)请联系我。
+后续将会以组织的形式重构它，使它能够商业定制化，如果你感兴趣，(最下方)请联系我。
 
 respect ! ! !
 
@@ -16,9 +16,9 @@ respect ! ! !
 
 - 2020-7-18：豌豆测试平台V1.0（豌豆思维）
 - 2020-9-18：豌豆测试平台V2.0（豌豆思维，豌豆测试平台V1.0重构）
-- 2021-7-20：放逐测试平台V3.0（个人开源，因开发如下V4.0没有抽离代码，暂关仓库，于如下V5.0重新开启）
+- 2021-7-20：放逐测试平台V3.0（个人开源，因开发如下V4.0，仓库关闭）
 - 2022-2-23：某某测试平台V4.0（某上市公司，基于上述的个人开源放逐测试平台V3.0扩展定制化开发）
-- 2022-9-10：放逐测试平台V5.0（个人开源，基于放逐测试平台V3.0重构）
+- 2022-9-10：放逐测试平台V5.0（组织开源）
 
 ### 项目文档
 
@@ -27,17 +27,13 @@ respect ! ! !
 
 ### 项目介绍
 
-`ExileTestPlatform`项目目前主要基于测试人员对测试用例配置环境，参数，变量，响应断言规则，数据库断言规则后，实施测试的接口测试平台(后续兼容UI测试)。
+`ExileTestPlatform`项目主要基于测试人员对测试用例配置环境，参数，变量，响应断言规则，数据库断言规则后，实施接口，UI测试的持续测试平台。
 
 ### 项目演示
 
-- 项目演示地址(admin，123456)：
+- 项目演示地址：
 
-  推荐：http://106.75.174.40
-
-  调试：http://120.24.214.173
-
-  调试：http://test.metatuple.com
+  http://106.75.174.40 (admin，123456)
 
 
 - 操作文档(Github)：https://github.com/yangyuexiong/ExileTestPlatformServer/blob/main/DOC.md
@@ -91,7 +87,7 @@ respect ! ! !
 |Requests|Python HTTP库|https://requests.readthedocs.io/en/latest|
 |Aiohttp|Python 异步HTTP客户端/服务器|https://docs.aiohttp.org|
 |loguru|美化Python日志记录|https://loguru.readthedocs.io/en/stable/index.html|
-|Celery5.2+|异步任务|https://docs.celeryq.dev/en/stable|
+|Celery5.2|异步任务|https://docs.celeryq.dev/en/stable|
 |Flask-APScheduler|定时任务|https://viniciuschiele.github.io/flask-apscheduler|
 |Redis|缓存|https://redis.io|
 |MySQl|关系型数据库|https://www.mysql.com|
@@ -103,8 +99,9 @@ respect ! ! !
 |Vue3|前端框架|https://vuejs.org|
 |Vue-router|路由框架|https://router.vuejs.org|
 |Vuex|全局状态管理框架|https://vuex.vuejs.org|
-|ElementPlus|前端UI框架|https://element.eleme.io|
 |Axios|前端HTTP框架|https://github.com/axios/axios|
+|TDesign|腾讯前端UI框架|https://tdesign.tencent.com|
+|Vite|构建工具|https://vitejs.cn|
 |v-charts|基于Echarts的图表框架|https://v-charts.js.org|
 |Js-cookie|cookie管理工具|https://github.com/js-cookie/js-cookie|
 |nprogress|进度条控件|https://github.com/rstacruz/nprogress|
