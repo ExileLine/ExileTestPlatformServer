@@ -6,9 +6,8 @@
 # @Software: PyCharm
 
 import asyncio
-import json
 
-from common.libs.async_case_runner import CaseRunner, AsyncCaseRunner
+from common.libs.async_test_runner import AsyncCaseRunner
 
 test_obj = {
     "execute_id": 8641,
@@ -550,27 +549,9 @@ test_obj = {
     "safe_scan_report_url": ""
 }
 
-
-def test_sync_request():
-    """1"""
-    d = {
-        'url': 'http://106.75.174.40:5000/api/login',
-        'headers': {
-            'token': '123',
-            'token123': json.dumps({"a": "123"})
-        },
-        'json': {'a': 1, 'b': '测试用例B1', 'password': '123456', 'username': 'admin'}
-    }
-    cr = CaseRunner({})
-    resp = cr.current_request('post', **d)
-    print(resp)
-
-
 if __name__ == '__main__':
     """1"""
 
     # test async request
     acr = AsyncCaseRunner(test_obj=test_obj)
     asyncio.run(acr.case_loader())
-
-    # test_sync_request()

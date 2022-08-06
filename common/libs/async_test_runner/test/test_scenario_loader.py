@@ -9,7 +9,7 @@
 import asyncio
 import json
 
-from common.libs.async_case_runner import AsyncCaseRunner
+from common.libs.async_test_runner import AsyncCaseRunner
 
 test_obj = {}
 
