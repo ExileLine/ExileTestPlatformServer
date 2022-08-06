@@ -31,11 +31,10 @@ respect ! ! !
 
 ### 项目演示
 
+![系统逻辑架构图](docs/展示图/exile_cover.png)
+
 - 项目演示地址：
-
   http://106.75.174.40 (admin，123456)
-
-
 - 操作文档(Github)：https://github.com/yangyuexiong/ExileTestPlatformServer/blob/main/DOC.md
 - 操作文档(Gitee)：https://gitee.com/yangyuexiong/ExileTestPlatformServer/blob/main/DOC.md
 - 前端项目地址-GitHub：https://github.com/yangyuexiong/ExileTestPlatformWeb
