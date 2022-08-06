@@ -9,13 +9,12 @@
 from all_reference import *
 from app.models.test_case.models import TestCaseData
 
-p = [
+params_key = [
     ("data_name", "数据名称"),
     ("request_headers", "headers"),
     ("request_params", "params"),
     ("request_body", "body"),
     ("request_body_type", "请求参数类型"),
-    # ("var_list", "变量"),
     ("update_var_list", "关系变量")
 ]
 
@@ -71,7 +70,8 @@ def check_update_var(update_var_list):
     ]
     """
     if update_var_list:
-        update_var_id_list = list(set(map(lambda x: x.get('id') if isinstance(x, dict) else None, update_var_list)))
+        update_var_id_list = list(set(map(lambda x: x.get('id') if isinstance(x, dict) else 0, update_var_list)))
+        update_var_id_list.remove(0)
 
         if len(update_var_list) == 1:
             sql = f"""SELECT id FROM exile_test_variable WHERE id = {update_var_list[-1].get('id')} and var_source is not null;"""
@@ -81,15 +81,14 @@ def check_update_var(update_var_list):
             logger.success(sql)
 
         query_result = project_db.select(sql)
-
         if not query_result:
             return False, '静态变量缺少来源,不能作为关系变量使用'
 
         query_result_id = list(map(lambda x: x.get('id'), query_result))
-        cj = list(set(update_var_id_list).difference(set(query_result_id)))
+        cj = ActionSet.gen_difference(update_var_id_list, query_result_id)
         if cj:
             logger.error("cj:{}".format(cj))
-            return False, '更新的变量不存在:{}'.format(cj)
+            return False, f'更新的变量不存在:{cj}'
     return True, 'pass'
 
 
@@ -108,9 +107,9 @@ class CaseReqDataApi(MethodView):
         query_req_case_data = TestCaseData.query.get(req_data_id)
 
         if not query_req_case_data:
-            return api_result(code=400, message='用例req_id:{}数据不存在'.format(req_data_id))
+            return api_result(code=NO_DATA, message=f'参数不存在:{req_data_id}')
 
-        return api_result(code=200, message='操作成功', data=query_req_case_data.to_json())
+        return api_result(code=SUCCESS, message='操作成功', data=query_req_case_data.to_json())
 
     def post(self):
         """用例req数据新增"""
@@ -120,36 +119,38 @@ class CaseReqDataApi(MethodView):
         new_data_list = []
 
         if not isinstance(data_list, list) or not data_list:
-            return ab_code(400)
+            return api_result(code=DATA_ERROR, message='请求参数错误')
 
         for index, d in enumerate(data_list):
             is_public = d.get('is_public', True)
-            is_public = bool(is_public) if isinstance(is_public, bool) or isinstance(is_public, int) else True
+
             # check_result = check_variable(d)
             # if not check_result.get('status'):
             #     return api_result(code=400, message="参数不存在:{}".format(check_result.get('query_none_list')))
 
-            check_bool, check_msg = RequestParamKeysCheck(d, p).ck()
+            check_bool, check_msg = RequestParamKeysCheck(d, params_key).result()
             if not check_bool:
-                return api_result(code=400, message=check_msg)
+                return api_result(code=NO_DATA, message=check_msg)
 
             update_var_list = d.get('update_var_list', [])
             _update_var_list_bool, _update_var_list_msg = check_update_var(update_var_list=update_var_list)
             if not _update_var_list_bool:
-                return api_result(code=400, message=_update_var_list_msg)
+                return api_result(code=NO_DATA, message=_update_var_list_msg)
 
+            data_name = d.get('data_name')
             request_params = d.get('request_params', {}) or {}
             request_headers = d.get('request_headers', {}) or {}
             request_body = d.get('request_body', {}) or {}
+            request_body_type = d.get('request_body_type')
             data_size = len(json.dumps(request_params)) + len(json.dumps(request_headers)) + len(
                 json.dumps(request_body))
 
             new_data = TestCaseData(
-                data_name=d.get('data_name'),
+                data_name=data_name,
                 request_params=request_params,
                 request_headers=request_headers,
                 request_body=request_body,
-                request_body_type=d.get('request_body_type'),
+                request_body_type=request_body_type,
                 update_var_list=update_var_list,
                 is_public=is_public,
                 data_size=data_size,
@@ -161,10 +162,10 @@ class CaseReqDataApi(MethodView):
         db.session.commit()
         # TODO 需要优化
         result = []
-        for n in new_data_list:
-            n.to_json()['id'] = n.id
-            result.append(n.to_json())
-        return api_result(code=201, message='创建成功', data=result)
+        for new_data in new_data_list:
+            new_data.to_json()['id'] = new_data.id
+            result.append(new_data.to_json())
+        return api_result(code=POST_SUCCESS, message='创建成功', data=result)
 
     def put(self):
         """用例req数据编辑"""
@@ -174,52 +175,50 @@ class CaseReqDataApi(MethodView):
         req_data_json = data.get('req_data_json', {})
 
         if not isinstance(req_data_json, dict):
-            return api_result(code=400, message="req_data_json 错误")
+            return api_result(code=TYPE_ERROR, message="参数类型错误")
 
-        check_bool, check_msg = RequestParamKeysCheck(req_data_json, p).ck()
+        check_bool, check_msg = RequestParamKeysCheck(req_data_json, params_key).result()
         if not check_bool:
-            return api_result(code=400, message=check_msg)
+            return api_result(code=NO_DATA, message=check_msg)
 
         query_test_case_data = TestCaseData.query.get(req_data_id)
-
         if not query_test_case_data:
-            return api_result(code=400, message='用例req数据id:{}数据不存在'.format(req_data_id))
+            return api_result(code=NO_DATA, message=f'参数不存在:{req_data_id}')
 
-        is_public = req_data_json.get('is_public')
-        is_public = bool(is_public) if isinstance(is_public, bool) or isinstance(is_public, int) else True
+        is_public = req_data_json.get('is_public', True)
 
         if not bool(is_public) and query_test_case_data.creator_id != g.app_user.id:
-            return api_result(code=400, message='非创建人，无法修改使用状态')
+            return api_result(code=BUSINESS_ERROR, message='非创建人，无法修改使用状态')
 
         if not bool(query_test_case_data.is_public):
             if query_test_case_data.creator_id != g.app_user.id:
-                return api_result(code=400, message='该参数未开放,只能被创建人修改!')
+                return api_result(code=BUSINESS_ERROR, message='该参数未开放,只能被创建人修改!')
 
         # check_result = check_variable(data)
         # if not check_result.get('status'):
         #     return api_result(code=400, message="参数不存在:{}".format(check_result.get('query_none_list')))
 
-        update_var_list = req_data_json.get('update_var_list')
+        update_var_list = req_data_json.get('update_var_list', [])
         _update_var_list_bool, _update_var_list_msg = check_update_var(update_var_list=update_var_list)
         if not _update_var_list_bool:
-            return api_result(code=400, message=_update_var_list_msg)
+            return api_result(code=NO_DATA, message=_update_var_list_msg)
 
         data_name = req_data_json.get('data_name')
-
         if query_test_case_data.data_name != data_name:
             if TestCaseData.query.filter_by(data_name=data_name).all():
-                return api_result(code=400, message='测试数据名称:{} 已经存在'.format(data_name))
+                return api_result(code=UNIQUE_ERROR, message=f'参数名称: {data_name} 已经存在')
 
         request_headers = req_data_json.get('request_headers', {})
         request_params = req_data_json.get('request_params', {})
         request_body = req_data_json.get('request_body', {})
+        request_body_type = req_data_json.get('request_body_type')
         data_size = len(json.dumps(request_params)) + len(json.dumps(request_headers)) + len(json.dumps(request_body))
 
         query_test_case_data.data_name = data_name
         query_test_case_data.request_headers = request_headers
         query_test_case_data.request_params = request_params
         query_test_case_data.request_body = request_body
-        query_test_case_data.request_body_type = req_data_json.get('request_body_type')
+        query_test_case_data.request_body_type = request_body_type
         query_test_case_data.update_var_list = update_var_list
         query_test_case_data.is_public = is_public
         query_test_case_data.data_size = data_size
@@ -227,7 +226,7 @@ class CaseReqDataApi(MethodView):
         query_test_case_data.modifier_id = g.app_user.id
         db.session.commit()
 
-        return api_result(code=203, message='编辑成功')
+        return api_result(code=PUT_SUCCESS, message='编辑成功')
 
     def delete(self):
         """用例req数据删除"""
@@ -236,17 +235,16 @@ class CaseReqDataApi(MethodView):
         req_data_id = data.get('id')
 
         query_req_case_data = TestCaseData.query.get(req_data_id)
-
         if not query_req_case_data:
-            return api_result(code=400, message='用例req数据id:{}数据不存在'.format(req_data_id))
+            return api_result(code=NO_DATA, message=f'req参数不存在:{req_data_id}')
 
         if query_req_case_data.creator_id != g.app_user.id:
-            return api_result(code=400, message='非管理员不能删除其他人的参数！')
+            return api_result(code=BUSINESS_ERROR, message='非管理员不能删除其他人的参数！')
 
         query_req_case_data.modifier_id = g.app_user.id
         query_req_case_data.modifier = g.app_user.username
         query_req_case_data.delete()
-        return api_result(code=204, message='删除成功')
+        return api_result(code=DEL_SUCCESS, message='删除成功')
 
 
 class CaseReqDataPageApi(MethodView):
@@ -301,4 +299,4 @@ class CaseReqDataPageApi(MethodView):
             'total': result_count[0].get('COUNT(*)')
         }
 
-        return api_result(code=200, message='操作成功', data=result_data)
+        return api_result(code=SUCCESS, message='操作成功', data=result_data)

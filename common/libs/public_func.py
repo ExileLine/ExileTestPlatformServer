@@ -116,16 +116,6 @@ class RequestParamKeysCheck:
         self.req_json = req_json
         self.key_list = key_list
 
-    def ck(self):
-        """ck"""
-        if self.req_json and self.key_list:
-            for k in self.key_list:
-                if not isinstance(k, tuple):
-                    k = (k, k)
-                if k[0] not in self.req_json.keys():
-                    return False, "缺少参数:{}".format(k[1])
-            return True, "pass"
-
     def result(self):
         """结果"""
 

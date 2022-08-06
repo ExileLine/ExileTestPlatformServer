@@ -18,6 +18,7 @@ NO_DATA = 10002  # 未找到
 UNIQUE_ERROR = 10003  # 唯一校验
 TYPE_ERROR = 10004  # 类型错误
 BUSINESS_ERROR = 10005  # 业务校验错误
+DATA_ERROR = 10006  # 请求参数错误
 
 
 def api_result(code=None, message=None, data=None, details=None, status=None):
