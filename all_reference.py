@@ -25,6 +25,7 @@ from common.libs.data_dict import rule_save_dict, expect_val_type_dict, type_con
     var_source_tuple, var_func_dict, execute_type_tuple, gen_redis_first_logs
 from common.libs.db import project_db, R
 from common.libs.api_result import *
+from common.libs.set_app_context import set_app_context
 from common.libs.customException import method_view_ab_code as ab_code
 from common.libs.customException import flask_restful_ab_code as ab_code_2
 from common.libs.public_func import check_keys, json_format, timer, RequestParamKeysCheck, ActionSet

@@ -14,7 +14,7 @@ from app.models.test_project.models import TestProject, TestProjectVersion, Test
 
 from app.models.test_case_assert.models import TestCaseDataAssBind
 
-p = [
+params_key = [
     ("case_name", "用例名称"),
     ("request_method", "请求方式"),
     ("request_base_url", "base url"),
@@ -23,8 +23,12 @@ p = [
 
 
 def check_method(current_method):
-    """检查method"""
-    if current_method.upper() in ['GET', 'POST', 'PUT', 'DELETE', 'PATCH']:
+    """
+    检查method
+    :param current_method:
+    :return:
+    """
+    if current_method.upper() in method_dict:
         return current_method.upper()
     else:
         return False
@@ -37,11 +41,17 @@ def new_check_version(project_id, version_id_list):
     :param version_id_list: 版本id列表
     :return:
     """
+
     version_id_list = [obj.get('id') for obj in version_id_list]
-    for version_id in version_id_list:
-        query_version = TestProjectVersion.query.filter_by(id=version_id, project_id=project_id).first()
-        if not query_version:
-            return False, version_id
+    query_version = TestProjectVersion.query.filter(
+        TestProjectVersion.id.in_(version_id_list),
+        TestProjectVersion.project_id == project_id,
+        TestProjectVersion.is_deleted == 0
+    ).all()
+    query_version_id_list = [version.id for version in query_version]
+    check_diff = ActionSet.gen_difference(version_id_list, query_version_id_list)
+    if check_diff:
+        return False, check_diff
     return True, None
 
 
@@ -52,17 +62,24 @@ def new_check_module(project_id, module_id_list):
     :param module_id_list: 模块id列表
     :return:
     """
+
     module_id_list = [obj.get('id') for obj in module_id_list]
-    for module_id in module_id_list:
-        query_module = TestModuleApp.query.filter_by(id=module_id, project_id=project_id).first()
-        if not query_module:
-            return False, module_id
+    query_module = TestModuleApp.query.filter(
+        TestModuleApp.id.in_(module_id_list),
+        TestModuleApp.project_id == project_id,
+        TestModuleApp.is_deleted == 0
+    ).all()
+    query_module_id_list = [module.id for module in query_module]
+    check_diff = ActionSet.gen_difference(module_id_list, query_module_id_list)
+    if check_diff:
+        return False, check_diff
     return True, None
 
 
 def case_decorator(func):
     @wraps(func)
     def wrapper(*args, **kwargs):
+
         data = request.get_json()
         project_id = data.get('project_id', 0)
         version_list = data.get('version_list', [])
@@ -75,35 +92,34 @@ def case_decorator(func):
         is_public = data.get('is_public', True)
         remark = data.get('remark')
 
-        check_bool, check_msg = RequestParamKeysCheck(data, p).ck()
+        check_bool, check_msg = RequestParamKeysCheck(data, params_key).result()
         if not check_bool:
-            return api_result(code=400, message=check_msg)
+            return api_result(code=NO_DATA, message=check_msg)
 
         query_project = TestProject.query.get(project_id)
         if not query_project:
-            return api_result(code=400, message=f'项目: {project_id} 不存在')
+            return api_result(code=NO_DATA, message=f'项目: {project_id} 不存在')
 
         if version_list:
             _bool, _msg = new_check_version(project_id, version_list)
             if not _bool:
-                return api_result(code=400, message=f'版本迭代:{_msg}不存在或不在项目:{project_id}下关联')
+                return api_result(code=NO_DATA, message=f'项目:{query_project.project_name}下不存在->版本迭代id:{_msg}')
 
         if module_list:
             _bool, _msg = new_check_module(project_id, module_list)
             if not _bool:
-                return api_result(code=400, message=f'模块:{_msg}不存在或不在项目:{project_id}下关联')
+                return api_result(code=NO_DATA, message=f'项目:{query_project.project_name}下不存在->模块id:{_msg}')
 
         request_base_url = request_base_url.replace(" ", "")
         if not request_base_url:
-            return api_result(code=400, message='环境不能为空')
+            return api_result(code=NO_DATA, message='环境不能为空')
 
         request_method_result = check_method(current_method=request_method)
-
         if not request_method_result:
-            return api_result(code=400, message=f'请求方式: {request_method} 不存在')
+            return api_result(code=NO_DATA, message=f'请求方式: {request_method} 不存在')
 
         if not case_name:
-            return api_result(code=400, message='用例名称不能为空')
+            return api_result(code=NO_DATA, message='用例名称不能为空')
 
         return func(*args, **kwargs)
 
@@ -127,9 +143,9 @@ class CaseApi(MethodView):
         result = query_case_assemble(case_id=case_id)
 
         if not result:
-            return api_result(code=400, message=f'用例id:{case_id}不存在')
+            return api_result(code=NO_DATA, message=f'用例id:{case_id}不存在')
 
-        return api_result(code=200, message='操作成功', data=result)
+        return api_result(code=SUCCESS, message='操作成功', data=result)
 
     @case_decorator
     def post(self):
@@ -147,15 +163,14 @@ class CaseApi(MethodView):
         is_public = data.get('is_public', True)
         remark = data.get('remark')
 
-        # query_case = TestCase.query.filter_by(case_name=case_name, is_deleted=0).first()
         query_case = TestCase.query.join(MidProjectAndCase, TestCase.id == MidProjectAndCase.case_id).filter(
-            TestCase.case_name == case_name,
             TestCase.is_deleted == 0,
+            TestCase.case_name == case_name,
             MidProjectAndCase.project_id == project_id
         ).first()
 
         if query_case:
-            return api_result(code=400, message=f'用例名称: {case_name} 已经存在')
+            return api_result(code=UNIQUE_ERROR, message=f'用例名称: {case_name} 已经存在')
 
         new_test_case = TestCase(
             case_name=case_name,
@@ -163,10 +178,10 @@ class CaseApi(MethodView):
             request_base_url=request_base_url,
             request_url=request_url,
             is_shared=is_shared,
-            is_public=is_public if isinstance(is_public, bool) else True,
-            remark=remark,
+            is_public=is_public,
             creator=g.app_user.username,
             creator_id=g.app_user.id,
+            remark=remark
         )
         new_test_case.save()
         case_id = new_test_case.id
@@ -188,7 +203,7 @@ class CaseApi(MethodView):
                  module_id_list))
         db.session.commit()
         data['id'] = case_id
-        return api_result(code=201, message='创建成功', data=data)
+        return api_result(code=POST_SUCCESS, message='创建成功', data=data)
 
     @case_decorator
     def put(self):
@@ -210,36 +225,35 @@ class CaseApi(MethodView):
         query_case = TestCase.query.get(case_id)
 
         if not query_case:
-            return api_result(code=400, message=f'用例id: {case_id} 数据不存在')
+            return api_result(code=NO_DATA, message=f'用例不存在:{case_id}')
 
         if not bool(is_public) and query_case.creator_id != g.app_user.id:
-            return api_result(code=400, message='非创建人，无法修改使用状态')
+            return api_result(code=BUSINESS_ERROR, message='非创建人，无法修改使用状态')
 
         if not bool(is_shared) and query_case.creator_id != g.app_user.id:
-            return api_result(code=400, message='非创建人，无法修改执行状态')
+            return api_result(code=BUSINESS_ERROR, message='非创建人，无法修改执行状态')
 
         if not bool(query_case.is_public):
             if query_case.creator_id != g.app_user.id:
-                return api_result(code=400, message='该用例未开放,只能被创建人修改!')
+                return api_result(code=BUSINESS_ERROR, message='该用例未开放,只能被创建人修改!')
 
         if query_case.case_name != case_name:
             if TestCase.query.join(MidProjectAndCase, TestCase.id == MidProjectAndCase.case_id).filter(
-                    TestCase.case_name == case_name,
                     TestCase.is_deleted == 0,
+                    TestCase.case_name == case_name,
                     MidProjectAndCase.project_id == project_id
             ).all():
-                # if TestCase.query.filter_by(case_name=case_name, is_deleted=0).all():
-                return api_result(code=400, message=f'用例名称:{case_name} 已经存在')
+                return api_result(code=UNIQUE_ERROR, message=f'用例名称:{case_name} 已经存在')
 
         query_case.case_name = case_name
         query_case.request_method = request_method
         query_case.request_base_url = request_base_url
         query_case.request_url = request_url
         query_case.is_shared = is_shared
-        query_case.is_public = is_public if isinstance(is_public, bool) else True
-        query_case.remark = remark
+        query_case.is_public = is_public
         query_case.modifier = g.app_user.username
         query_case.modifier_id = g.app_user.id
+        query_case.remark = remark
 
         db.session.query(MidVersionCase).filter(MidVersionCase.case_id == case_id).delete(
             synchronize_session=False)
@@ -262,7 +276,7 @@ class CaseApi(MethodView):
                      module_id_list))
 
         db.session.commit()
-        return api_result(code=203, message='编辑成功')
+        return api_result(code=PUT_SUCCESS, message='编辑成功')
 
     def delete(self):
         """用例删除"""
@@ -271,12 +285,11 @@ class CaseApi(MethodView):
         case_id = data.get('id')
 
         query_case = TestCase.query.get(case_id)
-
         if not query_case:
-            return api_result(code=400, message=f'用例id:{case_id}数据不存在')
+            return api_result(code=NO_DATA, message=f'用例不存在:{case_id}')
 
         if query_case.creator_id != g.app_user.id:
-            return api_result(code=400, message='非管理员不能删除其他人的用例！')
+            return api_result(code=BUSINESS_ERROR, message='非管理员不能删除其他人的用例！')
 
         db.session.query(MidProjectAndCase).filter_by(case_id=case_id).delete(synchronize_session=False)
         db.session.query(MidVersionCase).filter_by(case_id=case_id).delete(synchronize_session=False)
@@ -285,7 +298,7 @@ class CaseApi(MethodView):
         query_case.modifier = g.app_user.username
         query_case.modifier_id = g.app_user.id
         query_case.delete()
-        return api_result(code=204, message='删除成功')
+        return api_result(code=DEL_SUCCESS, message='删除成功')
 
 
 class CasePageApi(MethodView):
@@ -435,20 +448,20 @@ class CaseCopyApi(MethodView):
             if query_vc:
                 list(map(lambda mid_obj: db.session.add(
                     MidVersionCase(version_id=mid_obj.version_id, case_id=new_test_case_id,
-                                      creator=g.app_user.username,
-                                      creator_id=g.app_user.id, remark="复制生成")), query_vc))
+                                   creator=g.app_user.username,
+                                   creator_id=g.app_user.id, remark="复制生成")), query_vc))
             if query_mc:
                 list(map(lambda mid_obj: db.session.add(
                     MidModuleCase(module_id=mid_obj.module_id, case_id=new_test_case_id, creator=g.app_user.username,
-                                     creator_id=g.app_user.id, remark="复制生成")), query_mc))
+                                  creator_id=g.app_user.id, remark="复制生成")), query_mc))
         else:
             if project_id:
                 if not TestProject.query.get(project_id):
-                    return api_result(code=400, message=f'项目 id:{project_id} 不存在')
+                    return api_result(code=NO_DATA, message=f'项目 id:{project_id} 不存在')
 
                 if version_id:
                     if not TestProjectVersion.query.filter_by(id=version_id, project_id=project_id).first():
-                        return api_result(code=400, message=f'版本 id:{version_id} 不存在')
+                        return api_result(code=NO_DATA, message=f'版本 id:{version_id} 不存在')
 
                 if module_id:
                     if not TestModuleApp.query.filter_by(id=module_id, project_id=project_id).first():
@@ -481,4 +494,4 @@ class CaseCopyApi(MethodView):
             )
 
         db.session.commit()
-        return api_result(code=200, message='操作成功')
+        return api_result(code=SUCCESS, message='操作成功')
