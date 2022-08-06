@@ -18,35 +18,35 @@ class LoginApi(MethodView):
     """
 
     def post(self):
+        """登录"""
+
         data = request.get_json()
-        if check_keys(data, 'username', 'password'):
-            username = data.get('username', '')
-            password = data.get('password', '')
+        username = data.get('username')
+        password = data.get('password')
 
-            if not username or not password:
-                return api_result(code=400, message='用户名、密码不能为空')
+        if not username or not password:
+            return api_result(code=REQUIRED, message='用户名、密码不能为空')
 
-            admin = Admin.query.filter_by(username=username, is_deleted=0).first()
+        admin = Admin.query.filter_by(username=username, is_deleted=0).first()
 
-            if not admin:
-                return api_result(code=400, message='用户不存在或被禁用')
+        if not admin:
+            return api_result(code=NO_DATA, message='用户不存在或被禁用')
 
-            if not admin.check_password(password):
-                return api_result(code=400, message='账号或密码错误')
+        if not admin.check_password(password):
+            return api_result(code=BUSINESS_ERROR, message='密码错误')
 
-            """
-            检查是否存在旧token并且生成新token覆盖旧token,或创建一个新的token。然后添加至返回值。
-            """
-            admin_obj = admin.to_json()
-            t = Token()
-            t.check_token(user=admin.username, user_id=admin.id)
-            admin_obj['token'] = t.token
-            return api_result(code=200, message='登录成功', data=admin_obj)
-
-        else:
-            ab_code(1000001)
+        """
+        检查是否存在旧token并且生成新token覆盖旧token,或创建一个新的token。然后添加至返回值。
+        """
+        admin_obj = admin.to_json()
+        t = Token()
+        t.check_token(user=admin.username, user_id=admin.id)
+        admin_obj['token'] = t.token
+        return api_result(code=200, message='登录成功', data=admin_obj)
 
     def delete(self):
+        """退出"""
+
         # print(request.headers.get('Token'))
         Token.del_token(request.headers.get('Token'))
-        return api_result(code=204, message='退出成功')
+        return api_result(code=DEL_SUCCESS, message='退出成功')

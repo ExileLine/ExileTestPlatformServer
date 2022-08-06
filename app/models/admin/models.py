@@ -21,6 +21,7 @@ class Admin(BaseModel):
     phone = db.Column(db.String(64), unique=True, comment='手机号')
     mail = db.Column(db.String(128), unique=True, comment='邮箱')
     code = db.Column(db.String(64), unique=True, comment='用户编号')
+    login_type = db.Column(db.String(32), unique=True, default='single', comment='登录类型:single;many')
     creator = db.Column(db.String(32), comment='创建人')
     creator_id = db.Column(BIGINT(20, unsigned=True), comment='创建人id')
     modifier = db.Column(db.String(32), comment='更新人')
