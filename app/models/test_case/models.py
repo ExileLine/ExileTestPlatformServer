@@ -42,10 +42,13 @@ class TestCaseData(BaseModel):
 
     data_name = db.Column(db.String(255), nullable=False, comment='数据名称')
     request_params = db.Column(db.JSON, comment='请求参数')
+    request_params_pending = db.Column(db.JSON, comment='没有勾选的请求参数')
     request_headers = db.Column(db.JSON, comment='headers')
+    request_headers_pending = db.Column(db.JSON, comment='没有勾选的headers')
     request_body = db.Column(db.JSON, comment='body')
-    request_body_type = db.Column(TINYINT(1, unsigned=True), comment='body请求参数类型:1-FormData;2-JsonData;3-X-FormData')
-    var_list = db.Column(db.JSON, comment='引用变量列表')
+    request_body_type = db.Column(TINYINT(1, unsigned=True),
+                                  comment='body请求参数类型:FormData;X-FormData;JsonData;Text;HTML;XML')
+    use_var_list = db.Column(db.JSON, comment='引用变量列表')
     update_var_list = db.Column(db.JSON, comment='更新变量列表')
     is_public = db.Column(TINYINT(1, unsigned=True), default=1, comment='是否公共使用:0-否;1-是')
     is_before = db.Column(db.JSON, default=0, comment='是否使用前置条件 0-否;1-是')
