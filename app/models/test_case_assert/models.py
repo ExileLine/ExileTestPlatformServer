@@ -8,6 +8,7 @@
 from common.libs.BaseModel import *
 
 
+# 合并TestCaseAssertion
 class TestCaseAssResponse(BaseModel):
     __tablename__ = 'exile_ass_response'
     __table_args__ = {'comment': '断言返回值规则'}
@@ -27,6 +28,7 @@ class TestCaseAssResponse(BaseModel):
         )
 
 
+# 合并为TestCaseAssertion
 class TestCaseAssField(BaseModel):
     __tablename__ = 'exile_ass_field'
     __table_args__ = {'comment': '断言字段规则'}
@@ -43,6 +45,26 @@ class TestCaseAssField(BaseModel):
     def __repr__(self):
         return 'TestCaseAssField 模型对象-> id:{} 断言描述:{} 断言规则:{}'.format(
             self.id, self.assert_description, self.ass_json
+        )
+
+
+class TestCaseAssertion(BaseModel):
+    __tablename__ = 'exile5_case_assertion'
+    __table_args__ = {'comment': '断言规则'}
+
+    assert_description = db.Column(db.String(255), nullable=False, comment='断言描述')
+    ass_json = db.Column(db.JSON, comment='断言')
+    is_public = db.Column(TINYINT(1, unsigned=True), default=1, comment='是否公共使用:0-否;1-是')
+    assertion_type = db.Column(db.String(64), comment='断言类型:response;field')
+    creator = db.Column(db.String(32), comment='创建人')
+    creator_id = db.Column(BIGINT(20, unsigned=True), comment='创建人id')
+    modifier = db.Column(db.String(32), comment='更新人')
+    modifier_id = db.Column(BIGINT(20, unsigned=True), comment='更新人id')
+    remark = db.Column(db.String(255), comment='备注')
+
+    def __repr__(self):
+        return 'TestCaseAssertion 模型对象-> ID:{} 断言描述:{} 断言类型:{}'.format(
+            self.id, self.assert_description, self.assertion_type
         )
 
 
@@ -68,17 +90,3 @@ class TestCaseDataAssBind(BaseModel):
         return 'TestCaseDataAssBind 模型对象-> ID:{} 数据id:{} resp断言规则list:{} field断言规则list:{}'.format(
             self.id, self.data_id, self.ass_resp_id_list, self.ass_field_id_list
         )
-
-
-class TestCaseBefore(BaseModel):
-    __tablename__ = 'exile_test_case_before'
-    __table_args__ = {'comment': '用例前置'}
-
-    before_sql = db.Column(db.String(1024), comment='sql')
-
-
-class TestCaseAfter(BaseModel):
-    __tablename__ = 'exile_test_case_after'
-    __table_args__ = {'comment': '用例后置'}
-
-    after_sql = db.Column(db.String(1024), comment='sql')

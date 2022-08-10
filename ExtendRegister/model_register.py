@@ -14,8 +14,8 @@ from app.models.test_project.models import (
     MidProjectScenario, MidVersionScenario, MidTaskScenario, MidModuleScenario
 )
 from app.models.test_case.models import TestCase, TestCaseData
-from app.models.test_case_assert.models import TestCaseAssResponse, TestCaseAssField, TestCaseDataAssBind, \
-    TestCaseBefore, TestCaseAfter
+from app.models.test_case_assert.models import TestCaseAssertion, TestCaseAssResponse, TestCaseAssField, \
+    TestCaseDataAssBind
 from app.models.test_case_scenario.models import TestCaseScenario
 from app.models.test_variable.models import TestVariable
 from app.models.test_logs.models import TestLogs, TestExecuteLogs
