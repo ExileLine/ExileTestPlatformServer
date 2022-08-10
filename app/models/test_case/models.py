@@ -17,6 +17,7 @@ class TestCase(BaseModel):
     request_method = db.Column(db.String(255), nullable=False, comment='请求方式:GET;POST;PUT;DELETE...')
     request_base_url = db.Column(db.String(255), nullable=False, comment='请求BaseUrl')
     request_url = db.Column(db.String(2048), nullable=False, comment='请求URL')
+    case_status = db.Column(db.String(255), comment='用例周期状态:active;dev;debug;over')
     is_pass = db.Column(TINYINT(1, unsigned=True), default=0, comment='0-不跳过;1-跳过')
     is_shared = db.Column(TINYINT(1, unsigned=True), default=1, comment='0-仅创建者执行;1-共享执行')
     is_public = db.Column(TINYINT(1, unsigned=True), default=1, comment='是否公共使用:0-否;1-是')
@@ -41,13 +42,13 @@ class TestCaseData(BaseModel):
     __table_args__ = {'comment': '测试用例参数'}
 
     data_name = db.Column(db.String(255), nullable=False, comment='数据名称')
-    request_params = db.Column(db.JSON, comment='请求参数')
-    request_params_pending = db.Column(db.JSON, comment='没有勾选的请求参数')
+    request_params = db.Column(db.JSON, comment='params')
+    request_params_hash = db.Column(db.JSON, comment='params hash')
     request_headers = db.Column(db.JSON, comment='headers')
-    request_headers_pending = db.Column(db.JSON, comment='没有勾选的headers')
+    request_headers_hash = db.Column(db.JSON, comment='headers hash')
     request_body = db.Column(db.JSON, comment='body')
-    request_body_type = db.Column(TINYINT(1, unsigned=True),
-                                  comment='body请求参数类型:FormData;X-FormData;JsonData;Text;HTML;XML')
+    request_body_hash = db.Column(db.JSON, comment='body hash')
+    request_body_type = db.Column(TINYINT(1, unsigned=True), comment='FormData;X-FormData;JsonData;Text;HTML;XML')
     use_var_list = db.Column(db.JSON, comment='引用变量列表')
     update_var_list = db.Column(db.JSON, comment='更新变量列表')
     is_public = db.Column(TINYINT(1, unsigned=True), default=1, comment='是否公共使用:0-否;1-是')
