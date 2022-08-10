@@ -11,9 +11,9 @@ from app.models.test_case.models import TestCaseData
 
 params_key = [
     ("data_name", "数据名称"),
-    ("request_headers", "headers"),
-    ("request_params", "params"),
-    ("request_body", "body"),
+    # ("request_headers", "headers"),
+    # ("request_params", "params"),
+    # ("request_body", "body"),
     ("request_body_type", "请求参数类型"),
     ("update_var_list", "关系变量")
 ]
@@ -138,9 +138,12 @@ class CaseReqDataApi(MethodView):
                 return api_result(code=NO_DATA, message=_update_var_list_msg)
 
             data_name = d.get('data_name')
-            request_params = d.get('request_params', {}) or {}
-            request_headers = d.get('request_headers', {}) or {}
-            request_body = d.get('request_body', {}) or {}
+            request_params_hash = d.get('request_params_hash', {}) or {}
+            request_headers_hash = d.get('request_headers_hash', {}) or {}
+            request_body_hash = d.get('request_body_hash', {}) or {}
+            request_params = gen_request_dict(request_params_hash)
+            request_headers = gen_request_dict(request_headers_hash)
+            request_body = gen_request_dict(request_body_hash)
             request_body_type = d.get('request_body_type')
             data_size = len(json.dumps(request_params)) + len(json.dumps(request_headers)) + len(
                 json.dumps(request_body))
@@ -148,8 +151,11 @@ class CaseReqDataApi(MethodView):
             new_data = TestCaseData(
                 data_name=data_name,
                 request_params=request_params,
+                request_params_hash=request_params_hash,
                 request_headers=request_headers,
+                request_headers_hash=request_headers_hash,
                 request_body=request_body,
+                request_body_hash=request_body_hash,
                 request_body_type=request_body_type,
                 update_var_list=update_var_list,
                 is_public=is_public,
@@ -160,7 +166,7 @@ class CaseReqDataApi(MethodView):
             db.session.add(new_data)
             new_data_list.append(new_data)
         db.session.commit()
-        # TODO 需要优化
+        # TODO 后面将入参的list改为dict
         result = []
         for new_data in new_data_list:
             new_data.to_json()['id'] = new_data.id
@@ -208,16 +214,22 @@ class CaseReqDataApi(MethodView):
             if TestCaseData.query.filter_by(data_name=data_name).all():
                 return api_result(code=UNIQUE_ERROR, message=f'参数名称: {data_name} 已经存在')
 
-        request_headers = req_data_json.get('request_headers', {})
-        request_params = req_data_json.get('request_params', {})
-        request_body = req_data_json.get('request_body', {})
+        request_params_hash = d.get('request_params_hash', {}) or {}
+        request_headers_hash = d.get('request_headers_hash', {}) or {}
+        request_body_hash = d.get('request_body_hash', {}) or {}
+        request_params = gen_request_dict(request_params_hash)
+        request_headers = gen_request_dict(request_headers_hash)
+        request_body = gen_request_dict(request_body_hash)
         request_body_type = req_data_json.get('request_body_type')
         data_size = len(json.dumps(request_params)) + len(json.dumps(request_headers)) + len(json.dumps(request_body))
 
         query_test_case_data.data_name = data_name
-        query_test_case_data.request_headers = request_headers
         query_test_case_data.request_params = request_params
+        query_test_case_data.request_params_hash = request_params_hash
+        query_test_case_data.request_headers = request_headers
+        query_test_case_data.request_headers_hash = request_headers_hash
         query_test_case_data.request_body = request_body
+        query_test_case_data.request_body_hash = request_body_hash
         query_test_case_data.request_body_type = request_body_type
         query_test_case_data.update_var_list = update_var_list
         query_test_case_data.is_public = is_public
@@ -259,7 +271,6 @@ class CaseReqDataPageApi(MethodView):
         data = request.get_json()
         data_id = data.get('data_id')
         data_name = data.get('data_name')
-        is_deleted = data.get('is_deleted', 0)
         creator_id = data.get('creator_id')
         page = data.get('page')
         size = data.get('size')

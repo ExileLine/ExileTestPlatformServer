@@ -74,6 +74,33 @@ def timer(func):
     return wrapper
 
 
+def gen_request_dict(hash_dict):
+    """
+    将dict数据类型转为dict请求参数
+    headers = {
+        "token": {
+            "active": True,
+            "value": "token...",
+            "desc": "鉴权"
+        },
+        "xxx": {
+            "active": False,
+            "value": "yyy",
+            "desc": "..."
+        }
+    }
+    :param hash_dict:
+    :return:
+    """
+    if not isinstance(hash_dict, dict) and hash_dict:
+        return hash_dict
+    try:
+        result = {k: hash_dict[k].get('value') for k, v in hash_dict.items() if hash_dict[k].get('active')}
+        return result
+    except BaseException as e:
+        return hash_dict
+
+
 class RequestParamKeysCheck:
     """
     入参检验必须要传递的kay
