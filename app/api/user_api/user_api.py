@@ -216,6 +216,7 @@ class UserPageApi(MethodView):
         data = request.get_json()
         user_id = data.get('user_id')
         code = data.get('code')
+        phone = data.get('phone')
         username = data.get('username')
         page = data.get('page')
         size = data.get('size')
@@ -225,7 +226,7 @@ class UserPageApi(MethodView):
         FROM exile_auth_admin  
         WHERE 
         id = "id" 
-        and username LIKE"%B1%" 
+        or username LIKE"%admin%" 
         ORDER BY create_timestamp LIMIT 0,20;
         """
 
@@ -235,18 +236,14 @@ class UserPageApi(MethodView):
 
         result_data = general_query(
             model=Admin,
-            field_list=['username', 'code'],
-            query_list=[username, code],
+            field_list=['username', 'code', 'phone'],
+            query_list=[username, code, phone],
             where_dict=where_dict,
             page=page,
             size=size
         )
-        records = result_data.get('records')
-        for index, user in enumerate(records):
-            current_user_id = user.get('id')
-            if current_user_id == g.app_user.id:
-                records.pop(index)
-                records.insert(0, user)
-                break
-
-        return api_result(code=200, message='操作成功', data=result_data)
+        # records = result_data.get('records')
+        # current_user = g.app_user.to_json()
+        # records.pop(size - 1)
+        # records.insert(0, current_user)
+        return api_result(code=SUCCESS, message='操作成功', data=result_data)
