@@ -6,7 +6,7 @@
 # @Software: PyCharm
 
 from all_reference import *
-from app.models.test_case_assert.models import TestCaseAssResponse, TestCaseAssField
+from app.models.test_case_assert.models import TestCaseAssertion
 from app.models.test_case_db.models import TestDatabases
 
 
@@ -67,6 +67,28 @@ def check_query(db_type, query):
         return False
 
 
+def assertion_decorator(func):
+    @wraps(func)
+    def wrapper(*args, **kwargs):
+        data = request.get_json()
+        assert_description = data.get('assert_description')
+        ass_json = data.get('ass_json', [])
+        is_public = data.get('is_public')
+
+        if not assert_description or assert_description == '':
+            return api_result(code=REQUIRED, message='断言描述不能为空')
+
+        if not isinstance(ass_json, list) or not ass_json:
+            return api_result(code=TYPE_ERROR, message='参数错误')
+
+        if is_public and not isinstance(is_public, bool):
+            return api_result(code=TYPE_ERROR, message=f'标识错误: {is_public}')
+
+        return func(*args, **kwargs)
+
+    return wrapper
+
+
 class RespAssertionRuleApi(MethodView):
     """
     返回值断言规则Api
@@ -124,27 +146,22 @@ class RespAssertionRuleApi(MethodView):
     def get(self, ass_resp_id):
         """返回值断言明细"""
 
-        query_ass_resp = TestCaseAssResponse.query.get(ass_resp_id)
+        query_ass_resp = TestCaseAssertion.query.get(ass_resp_id)
 
         if not query_ass_resp:
-            return api_result(code=400, message='返回值断言id:{}数据不存在'.format(ass_resp_id))
+            return api_result(code=NO_DATA, message='断言规则不存在')
 
-        return api_result(code=200, message='操作成功', data=query_ass_resp.to_json())
+        return api_result(code=SUCCESS, message='操作成功', data=query_ass_resp.to_json())
 
+    @assertion_decorator
     def post(self):
         """返回值断言新增"""
 
         data = request.get_json()
         assert_description = data.get('assert_description')
         ass_json = data.get('ass_json', [])
-        is_public = data.get('is_public', 1)
+        is_public = data.get('is_public')
         remark = data.get('remark')
-
-        if not assert_description or assert_description == '':
-            return api_result(code=400, message='断言描述不能为空')
-
-        if not isinstance(ass_json, list) or not ass_json:
-            return ab_code(400)
 
         new_ass_json = []
 
@@ -154,23 +171,23 @@ class RespAssertionRuleApi(MethodView):
                 'response_source'
             )
             if not check_bool:
-                return api_result(code=400, message='检验对象错误', data=a)
+                return api_result(code=BUSINESS_ERROR, message='检验对象错误', data=a)
 
             rule = rule_dict.get(a.get('rule'))
 
             resp_source = a.get('response_source')
 
             if resp_source not in resp_source_tuple:
-                return api_result(code=400, message='来源参数错误:{}'.format(resp_source))
+                return api_result(code=BUSINESS_ERROR, message=f'来源参数错误:{resp_source}')
 
             if not rule:
-                return api_result(code=400, message='规则参数错误:{}'.format(a.get('rule')))
+                return api_result(code=BUSINESS_ERROR, message=f"规则参数错误:{a.get('rule')}")
 
             is_expression = a.get('is_expression')
             is_rule_source_bool = bool(str(is_expression) in ['0', '1'])
 
             if not is_rule_source_bool:
-                return api_result(code=400, message='规则参数错误:{}'.format(is_expression))
+                return api_result(code=BUSINESS_ERROR, message=f'规则参数错误:{is_expression}')
 
             expect_val = a.get('expect_val')
             expect_val_type = expect_val_type_dict.get(str(a.get('expect_val_type')))
@@ -184,19 +201,22 @@ class RespAssertionRuleApi(MethodView):
                     a['expect_val'] = expect_val_type(expect_val)  # 类型转换
                     new_ass_json.append(a)
             except BaseException as e:
-                return api_result(code=400, message='参数:{} 无法转换至 类型:{}'.format(expect_val, type(expect_val_type())))
+                return api_result(code=BUSINESS_ERROR,
+                                  message='参数:{} 无法转换至 类型:{}'.format(expect_val, type(expect_val_type())))
 
-        new_ass_resp = TestCaseAssResponse(
+        new_ass_resp = TestCaseAssertion(
             assert_description=assert_description,
             ass_json=new_ass_json,
             is_public=is_public,
+            assertion_type="response",
             creator=g.app_user.username,
             creator_id=g.app_user.id,
             remark=remark
         )
         new_ass_resp.save()
-        return api_result(code=201, message='创建成功', data=data)
+        return api_result(code=POST_SUCCESS, message='创建成功', data=new_ass_resp.to_json())
 
+    @assertion_decorator
     def put(self):
         """返回值断言编辑"""
 
@@ -204,26 +224,20 @@ class RespAssertionRuleApi(MethodView):
         ass_resp_id = data.get('id')
         assert_description = data.get('assert_description')
         ass_json = data.get('ass_json', [])
-        is_public = data.get('is_public', 1)
+        is_public = data.get('is_public')
         remark = data.get('remark')
 
-        query_ass_resp = TestCaseAssResponse.query.get(ass_resp_id)
+        query_ass_resp = TestCaseAssertion.query.get(ass_resp_id)
 
         if not query_ass_resp:
-            return api_result(code=400, message='返回值断言id:{}数据不存在'.format(ass_resp_id))
-
-        if not assert_description or assert_description == '':
-            return api_result(code=400, message='断言描述不能为空')
+            return api_result(code=NO_DATA, message='断言规则不存在')
 
         if not bool(is_public) and query_ass_resp.creator_id != g.app_user.id:
-            return api_result(code=400, message='非创建人，无法修改使用状态')
+            return api_result(code=BUSINESS_ERROR, message='非创建人，无法修改使用状态')
 
         if not bool(query_ass_resp.is_public):
             if query_ass_resp.creator_id != g.app_user.id:
-                return api_result(code=400, message='该Resp断言规则未开放,只能被创建人修改!')
-
-        if not isinstance(ass_json, list) or not ass_json:
-            return ab_code(400)
+                return api_result(code=BUSINESS_ERROR, message='该断言规则未开放,只能被创建人修改!')
 
         new_ass_json = []
 
@@ -232,24 +246,25 @@ class RespAssertionRuleApi(MethodView):
                 a, 'assert_key', 'expect_val_type', 'expect_val', 'rule', 'is_expression', 'python_val_exp',
                 'response_source'
             )
+
             if not check_bool:
-                return api_result(code=400, message='请求参数错误')
+                return api_result(code=BUSINESS_ERROR, message='请求参数错误')
 
             rule = rule_dict.get(a.get('rule'))
 
             resp_source = a.get('response_source')
 
             if resp_source not in resp_source_tuple:
-                return api_result(code=400, message='来源参数错误:{}'.format(resp_source))
+                return api_result(code=BUSINESS_ERROR, message=f'来源参数错误:{resp_source}')
 
             if not rule:
-                return api_result(code=400, message='规则参数错误:{}'.format(a.get('rule')))
+                return api_result(code=BUSINESS_ERROR, message=f"规则参数错误:{a.get('rule')}")
 
             is_expression = a.get('is_expression')
             is_rule_source_bool = bool(str(is_expression) in ['0', '1'])
 
             if not is_rule_source_bool:
-                return api_result(code=400, message='规则参数错误:{}'.format(is_expression))
+                return api_result(code=BUSINESS_ERROR, message=f'规则参数错误:{is_expression}')
 
             expect_val = a.get('expect_val')
             expect_val_type = a.get('expect_val_type')
@@ -264,7 +279,7 @@ class RespAssertionRuleApi(MethodView):
                     a['expect_val'] = expect_val_type_func(expect_val)
                     new_ass_json.append(a)
             except BaseException as e:
-                return api_result(code=400,
+                return api_result(code=BUSINESS_ERROR,
                                   message='参数:{} 无法转换至 类型:{}'.format(expect_val, type(expect_val_type_func())))
 
         query_ass_resp.assert_description = assert_description
@@ -275,25 +290,25 @@ class RespAssertionRuleApi(MethodView):
         query_ass_resp.modifier_id = g.app_user.id
         db.session.commit()
 
-        return api_result(code=203, message='编辑成功')
+        return api_result(code=PUT_SUCCESS, message='编辑成功')
 
     def delete(self):
         """返回值断言删除"""
 
         data = request.get_json()
         ass_resp_id = data.get('id')
-        query_ass_resp = TestCaseAssResponse.query.get(ass_resp_id)
+        query_ass_resp = TestCaseAssertion.query.get(ass_resp_id)
 
         if not query_ass_resp:
-            return api_result(code=400, message='返回值断言id:{}数据不存在'.format(ass_resp_id))
+            return api_result(code=NO_DATA, message='断言规则不存在')
 
         if query_ass_resp.creator_id != g.app_user.id:
-            return api_result(code=400, message='非管理员不能删除其他人的断言！')
+            return api_result(code=BUSINESS_ERROR, message='非管理员不能删除其他人的断言！')
 
         query_ass_resp.modifier_id = g.app_user.id
         query_ass_resp.modifier = g.app_user.username
         query_ass_resp.delete()
-        return api_result(code=204, message='删除成功')
+        return api_result(code=DEL_SUCCESS, message='删除成功')
 
 
 class FieldAssertionRuleApi(MethodView):
@@ -340,13 +355,14 @@ class FieldAssertionRuleApi(MethodView):
     def get(self, ass_field_id):
         """字段断言明细"""
 
-        query_ass_field = TestCaseAssField.query.get(ass_field_id)
+        query_ass_field = TestCaseAssertion.query.get(ass_field_id)
 
         if not query_ass_field:
-            return api_result(code=400, message='字段断言id:{}数据不存在'.format(ass_field_id))
+            return api_result(code=NO_DATA, message='断言规则不存在')
 
-        return api_result(code=200, message='操作成功', data=query_ass_field.to_json())
+        return api_result(code=SUCCESS, message='操作成功', data=query_ass_field.to_json())
 
+    @assertion_decorator
     def post(self):
         """字段断言新增"""
 
@@ -354,7 +370,7 @@ class FieldAssertionRuleApi(MethodView):
         version_id_list = data.get('version_id_list')
         assert_description = data.get('assert_description')
         ass_json = data.get('ass_json', [])
-        is_public = data.get('is_public', 1)
+        is_public = data.get('is_public')
         remark = data.get('remark')
 
         for ass_obj in ass_json:
@@ -362,8 +378,11 @@ class FieldAssertionRuleApi(MethodView):
             assert_list = ass_obj.get('assert_list')
 
             query_db = TestDatabases.query.get(db_id)
-            if not query_db or query_db.is_deleted:
-                return api_result(code=400, message=f'数据库不存在或被禁用: {db_id}')
+            if not query_db:
+                return api_result(code=NO_DATA, message='数据库不存在')
+
+            if query_db.is_deleted:
+                return api_result(code=BUSINESS_ERROR, message=f'数据库: {query_db.name} 被禁用')
 
             for ass in assert_list:
                 query = ass.get('query')
@@ -372,24 +391,26 @@ class FieldAssertionRuleApi(MethodView):
                 db_type = query_db.db_type
                 check_query_result = check_query(db_type=db_type, query=query)
                 if check_query_result:
-                    return api_result(code=400, message='只能使用查询相关的语句或命令')
+                    return api_result(code=BUSINESS_ERROR, message='只能使用查询相关的语句或命令')
 
                 new_assert_field_list = list(map(gen_new_ass, assert_field_list))
                 if False in new_assert_field_list:
-                    return api_result(code=400, message="期望值无法转换至类型，请检查")
+                    return api_result(code=BUSINESS_ERROR, message="期望值无法转换至类型，请检查")
                 ass['assert_field_list'] = new_assert_field_list
 
-        new_ass_field = TestCaseAssField(
+        new_ass_field = TestCaseAssertion(
             assert_description=assert_description,
             ass_json=ass_json,
             is_public=is_public,
+            assertion_type="field",
             creator=g.app_user.username,
             creator_id=g.app_user.id,
             remark=remark
         )
         new_ass_field.save()
-        return api_result(code=201, message='创建成功', data=ass_json)
+        return api_result(code=POST_SUCCESS, message='创建成功', data=new_ass_field.to_json())
 
+    @assertion_decorator
     def put(self):
         """字段断言编辑"""
 
@@ -398,31 +419,34 @@ class FieldAssertionRuleApi(MethodView):
         version_id_list = data.get('version_id_list')
         assert_description = data.get('assert_description')
         ass_json = data.get('ass_json', [])
-        is_public = data.get('is_public', 1)
+        is_public = data.get('is_public')
         remark = data.get('remark')
 
-        query_ass_field = TestCaseAssField.query.get(ass_field_id)
+        query_ass_field = TestCaseAssertion.query.get(ass_field_id)
 
         if not query_ass_field:
-            return api_result(code=400, message='字段断言id:{}数据不存在'.format(ass_field_id))
+            return api_result(code=NO_DATA, message='断言规则不存在')
 
         if not bool(is_public) and query_ass_field.creator_id != g.app_user.id:
-            return api_result(code=400, message='非创建人，无法修改使用状态')
+            return api_result(code=BUSINESS_ERROR, message='非创建人，无法修改使用状态')
 
         if not bool(query_ass_field.is_public):
             if query_ass_field.creator_id != g.app_user.id:
-                return api_result(code=400, message='该字段断言规则未开放,只能被创建人修改!')
+                return api_result(code=BUSINESS_ERROR, message='该字段断言规则未开放,只能被创建人修改!')
 
         if not isinstance(ass_json, list) or not ass_json:
-            return ab_code(400)
+            return api_result(code=TYPE_ERROR, message='参数错误')
 
         for ass_obj in ass_json:
             db_id = ass_obj.get('db_id')
             assert_list = ass_obj.get('assert_list')
 
             query_db = TestDatabases.query.get(db_id)
-            if not query_db or query_db.is_deleted:
-                return api_result(code=400, message=f'数据库不存在或被禁用: {db_id}')
+            if not query_db:
+                return api_result(code=NO_DATA, message='数据库不存在')
+
+            if query_db.is_deleted:
+                return api_result(code=BUSINESS_ERROR, message=f'数据库: {query_db.name} 被禁用')
 
             for ass in assert_list:
                 query = ass.get('query')
@@ -431,11 +455,11 @@ class FieldAssertionRuleApi(MethodView):
                 db_type = query_db.db_type
                 check_query_result = check_query(db_type=db_type, query=query)
                 if check_query_result:
-                    return api_result(code=400, message='只能使用查询相关的语句或命令')
+                    return api_result(code=BUSINESS_ERROR, message='只能使用查询相关的语句或命令')
 
                 new_assert_field_list = list(map(gen_new_ass, assert_field_list))
                 if False in new_assert_field_list:
-                    return api_result(code=400, message="期望值无法转换至类型，请检查")
+                    return api_result(code=BUSINESS_ERROR, message="期望值无法转换至类型，请检查")
                 ass['assert_field_list'] = new_assert_field_list
 
         query_ass_field.assert_description = assert_description
@@ -445,112 +469,61 @@ class FieldAssertionRuleApi(MethodView):
         query_ass_field.modifier = g.app_user.username
         query_ass_field.modifier_id = g.app_user.id
         db.session.commit()
-        return api_result(code=203, message='编辑成功')
+        return api_result(code=PUT_SUCCESS, message='编辑成功')
 
     def delete(self):
         """字段断言规则删除"""
 
         data = request.get_json()
         ass_field_id = data.get('id')
-        query_ass_field = TestCaseAssField.query.get(ass_field_id)
+        query_ass_field = TestCaseAssertion.query.get(ass_field_id)
 
         if not query_ass_field:
-            return api_result(code=400, message='字段断言id:{}数据不存在'.format(ass_field_id))
+            return api_result(code=NO_DATA, message='断言规则不存在')
 
         if query_ass_field.creator_id != g.app_user.id:
-            return api_result(code=400, message='非管理员不能删除其他人的断言！')
+            return api_result(code=BUSINESS_ERROR, message='非管理员不能删除其他人的断言！')
 
         query_ass_field.modifier_id = g.app_user.id
         query_ass_field.modifier = g.app_user.username
         query_ass_field.delete()
-        return api_result(code=204, message='删除成功')
+        return api_result(code=DEL_SUCCESS, message='删除成功')
 
 
-class RespAssertionRulePageApi(MethodView):
+class AssertionRulePageApi(MethodView):
     """
-    resp assertion rule page api
-    POST: 返回值断言规则分页模糊查询
+    assertion rule page api
+    POST: 断言规则分页模糊查询
     """
 
     def post(self):
-        """用例变量分页模糊查询"""
+        """断言规则分页模糊查询"""
 
         data = request.get_json()
-        resp_ass_id = data.get('resp_ass_id')
+        assertion_id = data.get('id')
         assert_description = data.get('assert_description')
+        assertion_type = data.get('assertion_type')
         is_deleted = data.get('is_deleted', 0)
         creator_id = data.get('creator_id')
         page = data.get('page')
         size = data.get('size')
 
-        sql = """
-        SELECT * 
-        FROM exile_ass_response  
-        WHERE 
-        id = "id" 
-        and assert_description LIKE"%B1%" 
-        and is_deleted = 0
-        and creator_id = 1
-        ORDER BY create_timestamp LIMIT 0,20;
-        """
+        if assertion_type not in ("response", "field"):
+            return api_result(code=BUSINESS_ERROR, message=f'断言类型不存在:{assertion_type}')
 
         where_dict = {
-            "id": resp_ass_id,
+            "id": assertion_id,
             "is_deleted": is_deleted,
+            "assertion_type": assertion_type,
             "creator_id": creator_id
         }
 
         result_data = general_query(
-            model=TestCaseAssResponse,
+            model=TestCaseAssertion,
             field_list=['assert_description'],
             query_list=[assert_description],
             where_dict=where_dict,
             page=page,
             size=size
         )
-        return api_result(code=200, message='操作成功', data=result_data)
-
-
-class FieldAssertionRulePageApi(MethodView):
-    """
-    field assertion rule page api
-    POST: 字段断言规则分页模糊查询
-    """
-
-    def post(self):
-        """字段断言分页模糊查询"""
-
-        data = request.get_json()
-        field_ass_id = data.get('field_ass_id')
-        assert_description = data.get('assert_description')
-        is_deleted = data.get('is_deleted', 0)
-        creator_id = data.get('creator_id')
-        page = data.get('page')
-        size = data.get('size')
-
-        sql = """
-        SELECT * 
-        FROM exile_ass_field  
-        WHERE 
-        id = "id" 
-        and assert_description LIKE"%B1%" 
-        and is_deleted = 0
-        and creator_id = 1
-        ORDER BY create_timestamp LIMIT 0,20;
-        """
-
-        where_dict = {
-            "id": field_ass_id,
-            "is_deleted": is_deleted,
-            "creator_id": creator_id
-        }
-
-        result_data = general_query(
-            model=TestCaseAssField,
-            field_list=['assert_description'],
-            query_list=[assert_description],
-            where_dict=where_dict,
-            page=page,
-            size=size
-        )
-        return api_result(code=200, message='操作成功', data=result_data)
+        return api_result(code=SUCCESS, message='操作成功', data=result_data)
