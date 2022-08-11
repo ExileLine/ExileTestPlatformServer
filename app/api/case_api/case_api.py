@@ -90,7 +90,7 @@ def case_decorator(func):
         request_url = data.get('request_url', '').strip()
         is_shared = data.get('is_shared', True)
         is_public = data.get('is_public', True)
-        remark = data.get('remark')
+        case_status = data.get('case_status')
 
         check_bool, check_msg = RequestParamKeysCheck(data, params_key).result()
         if not check_bool:
@@ -120,6 +120,12 @@ def case_decorator(func):
 
         if not case_name:
             return api_result(code=NO_DATA, message='用例名称不能为空')
+
+        if is_public and not isinstance(is_public, bool):
+            return api_result(code=TYPE_ERROR, message=f'用例标识错误: {is_public}')
+
+        if case_status not in ('active', 'dev', 'debug', 'over'):
+            return api_result(code=NO_DATA, message=f'用例状态不存在: {case_status}')
 
         return func(*args, **kwargs)
 
@@ -161,6 +167,7 @@ class CaseApi(MethodView):
         request_url = data.get('request_url', '').strip()
         is_shared = data.get('is_shared', True)
         is_public = data.get('is_public', True)
+        case_status = data.get('case_status', 'debug')
         remark = data.get('remark')
 
         query_case = TestCase.query.join(MidProjectAndCase, TestCase.id == MidProjectAndCase.case_id).filter(
@@ -181,7 +188,8 @@ class CaseApi(MethodView):
             is_public=is_public,
             creator=g.app_user.username,
             creator_id=g.app_user.id,
-            remark=remark
+            case_status=case_status,
+            remark=remark,
         )
         new_test_case.save()
         case_id = new_test_case.id
@@ -220,6 +228,7 @@ class CaseApi(MethodView):
         request_url = data.get('request_url', '').strip()
         is_shared = data.get('is_shared', True)
         is_public = data.get('is_public', True)
+        case_status = data.get('case_status')
         remark = data.get('remark')
 
         query_case = TestCase.query.get(case_id)
@@ -253,6 +262,7 @@ class CaseApi(MethodView):
         query_case.is_public = is_public
         query_case.modifier = g.app_user.username
         query_case.modifier_id = g.app_user.id
+        query_case.case_status = case_status
         query_case.remark = remark
 
         db.session.query(MidVersionCase).filter(MidVersionCase.case_id == case_id).delete(
@@ -317,11 +327,15 @@ class CasePageApi(MethodView):
         case_name = data.get('case_name', '')
         creator_id = data.get('creator_id')
         is_deleted = data.get('is_deleted', False)
+        case_status = data.get('case_status')
         field_order_by = data.get('field_order_by', 'update_time')
         is_desc = data.get('is_desc', True)
         page = data.get('page')
         size = data.get('size')
         limit = page_size(page=page, size=size)
+
+        if not project_id:
+            return api_result(code=NO_DATA, message='项目不存在')
 
         sql = f"""
         SELECT
@@ -342,13 +356,12 @@ class CasePageApi(MethodView):
                 )
             AND is_deleted = 0
             AND case_name LIKE "%{case_name}%"
+            {f"AND case_status='{case_status}'" if case_status else ''}
             {f'AND creator_id={creator_id}' if creator_id else ''}
         ORDER BY
             {f'{f"{field_order_by} DESC" if is_desc else field_order_by}' if field_order_by else 'update_time DESC'}
         LIMIT {limit[0]},{limit[1]};
         """
-
-        # print(sql)
 
         sql_count = f"""
         SELECT
@@ -369,8 +382,12 @@ class CasePageApi(MethodView):
                 )
             AND is_deleted = 0
             AND case_name LIKE "%{case_name}%"
+            {f"AND case_status='{case_status}'" if case_status else ''}
             {f'AND creator_id={creator_id}' if creator_id else ''}
         """
+
+        # print(sql)
+        # print(sql_count)
 
         result_list = project_db.select(sql)
         result_count = project_db.select(sql_count)
@@ -381,7 +398,7 @@ class CasePageApi(MethodView):
             'total': result_count[0].get('COUNT(*)')
         }
 
-        return api_result(code=200, message='操作成功', data=result_data)
+        return api_result(code=SUCCESS, message='操作成功', data=result_data)
 
 
 class CaseCopyApi(MethodView):
