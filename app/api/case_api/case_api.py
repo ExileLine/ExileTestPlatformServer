@@ -5,8 +5,6 @@
 # @File    : case_api.py
 # @Software: PyCharm
 
-from functools import wraps
-
 from all_reference import *
 from app.models.test_case.models import TestCase
 from app.models.test_project.models import TestProject, TestProjectVersion, TestModuleApp, MidProjectAndCase, \
