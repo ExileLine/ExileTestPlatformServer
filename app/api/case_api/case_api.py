@@ -326,9 +326,10 @@ class CasePageApi(MethodView):
         case_id = data.get('case_id')
         case_name = data.get('case_name', '')
         request_url = data.get('request_url', '')
+        request_method = data.get('request_method')
+        case_status = data.get('case_status')
         creator_id = data.get('creator_id')
         is_deleted = data.get('is_deleted', False)
-        case_status = data.get('case_status')
         field_order_by = data.get('field_order_by', 'update_time')
         is_desc = data.get('is_desc', True)
         page = data.get('page')
@@ -358,6 +359,7 @@ class CasePageApi(MethodView):
             AND is_deleted = 0
             AND case_name LIKE "%{case_name}%"
             AND request_url LIKE "%{request_url}%"
+            {f"AND request_method='{request_method}'" if request_method else ''}
             {f"AND case_status='{case_status}'" if case_status else ''}
             {f'AND creator_id={creator_id}' if creator_id else ''}
         ORDER BY
@@ -385,6 +387,7 @@ class CasePageApi(MethodView):
             AND is_deleted = 0
             AND case_name LIKE "%{case_name}%"
             AND request_url LIKE "%{request_url}%"
+            {f"AND request_method='{request_method}'" if request_method else ''}
             {f"AND case_status='{case_status}'" if case_status else ''}
             {f'AND creator_id={creator_id}' if creator_id else ''}
         """
