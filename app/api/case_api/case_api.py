@@ -48,9 +48,7 @@ def new_check_version(project_id, version_id_list):
     ).all()
     query_version_id_list = [version.id for version in query_version]
     check_diff = ActionSet.gen_difference(version_id_list, query_version_id_list)
-    if check_diff:
-        return False, check_diff
-    return True, None
+    return check_diff
 
 
 def new_check_module(project_id, module_id_list):
@@ -69,9 +67,7 @@ def new_check_module(project_id, module_id_list):
     ).all()
     query_module_id_list = [module.id for module in query_module]
     check_diff = ActionSet.gen_difference(module_id_list, query_module_id_list)
-    if check_diff:
-        return False, check_diff
-    return True, None
+    return check_diff
 
 
 def case_decorator(func):
@@ -99,14 +95,15 @@ def case_decorator(func):
             return api_result(code=NO_DATA, message=f'项目: {project_id} 不存在')
 
         if version_list:
-            _bool, _msg = new_check_version(project_id, version_list)
-            if not _bool:
-                return api_result(code=NO_DATA, message=f'项目:{query_project.project_name}下不存在->版本迭代id:{_msg}')
+            result = new_check_version(project_id, version_list)
+            if result:
+                return api_result(code=NO_DATA, message=f'项目:{query_project.project_name}下不存在->版本迭代id:{result}')
 
         if module_list:
-            _bool, _msg = new_check_module(project_id, module_list)
-            if not _bool:
-                return api_result(code=NO_DATA, message=f'项目:{query_project.project_name}下不存在->模块id:{_msg}')
+            result = new_check_module(project_id, module_list)
+            if result:
+                return api_result(code=NO_DATA, message=f'项目:{query_project.project_name}下不存在->模块id:{result}')
+
 
         request_base_url = request_base_url.replace(" ", "")
         if not request_base_url:
