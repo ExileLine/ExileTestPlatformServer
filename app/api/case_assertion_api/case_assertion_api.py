@@ -2,7 +2,7 @@
 # @Time    : 2021/7/24 1:15 下午
 # @Author  : yangyuexiong
 # @Email   : yang6333yyx@126.com
-# @File    : case_ass_rule_api.py
+# @File    : case_assertion_api.py
 # @Software: PyCharm
 
 from all_reference import *

@@ -137,7 +137,7 @@ class AssertResponseMain(AssertMain):
         except BaseException as e:
             self.sio.log(f'数据异常:{str(e)}', status='error')
             self.sio.log(
-                '这种情况一般会因为以下两种原因导致:\n1.查看数据库确认该数据是否有被手动修改过\n2.查看: case_ass_rule_api.py 中的 RespAssertionRuleApi 中的逻辑是否被修改',
+                '这种情况一般会因为以下两种原因导致:\n1.查看数据库确认该数据是否有被手动修改过\n2.查看: case_assertion_api.py 中的 RespAssertionRuleApi 中的逻辑是否被修改',
                 status='error')
             self.sio.log('=== 断言异常 ===', status="error")
             return False
@@ -284,7 +284,7 @@ class AssertFieldMain(AssertMain):
             self.sio.log('这种情况一般会因为以下两种原因导致:', status='error')
             self.sio.log('1.查看数据库确认该数据是否有被手动修改过.', status='error')
             self.sio.log(
-                '2.查看: case_ass_rule_api.py 中的 FieldAssertionRuleApi 中的逻辑是否被修改.',
+                '2.查看: case_assertion_api.py 中的 FieldAssertionRuleApi 中的逻辑是否被修改.',
                 status='error')
             self.sio.log('=== 断言异常 ===', status="error")
             self.ass_field_fail.append(False)
@@ -319,7 +319,7 @@ class AssertFieldMain(AssertMain):
             self.sio.log('这种情况一般会因为以下两种原因导致:', status='error')
             self.sio.log('1.查看数据库确认该数据是否有被手动修改过.', status='error')
             self.sio.log(
-                '2.查看: case_ass_rule_api.py 中的 FieldAssertionRuleApi 中的逻辑是否被修改.',
+                '2.查看: case_assertion_api.py 中的 FieldAssertionRuleApi 中的逻辑是否被修改.',
                 status='error')
             self.sio.log('=== 断言异常 ===', status="error")
             self.ass_field_fail.append(False)
