@@ -48,7 +48,7 @@ class TestCaseData(BaseModel):
     request_headers_hash = db.Column(db.JSON, comment='headers hash')
     request_body = db.Column(db.JSON, comment='body')
     request_body_hash = db.Column(db.JSON, comment='body hash')
-    request_body_type = db.Column(TINYINT(1, unsigned=True), comment='None;FormData;X-FormData;JsonData;Text;HTML;XML')
+    request_body_type = db.Column(TINYINT(1, unsigned=True), comment='none;form-data;x-form-data;json;text;html;xml')
     use_var_list = db.Column(db.JSON, comment='引用变量列表')
     update_var_list = db.Column(db.JSON, comment='更新变量列表')
     is_public = db.Column(TINYINT(1, unsigned=True), default=1, comment='是否公共使用:0-否;1-是')
