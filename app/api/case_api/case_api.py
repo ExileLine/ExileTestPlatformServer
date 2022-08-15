@@ -104,7 +104,6 @@ def case_decorator(func):
             if result:
                 return api_result(code=NO_DATA, message=f'项目:{query_project.project_name}下不存在->模块id:{result}')
 
-
         request_base_url = request_base_url.replace(" ", "")
         if not request_base_url:
             return api_result(code=NO_DATA, message='环境不能为空')
