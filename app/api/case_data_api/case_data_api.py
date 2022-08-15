@@ -153,9 +153,9 @@ class CaseReqDataApi(MethodView):
         data = request.get_json()
         request_data = data.get('request_data', {})
         data_name = request_data.get('data_name')
-        request_params_hash = request_data.get('request_params_hash', {}) or {}
-        request_headers_hash = request_data.get('request_headers_hash', {}) or {}
-        request_body_hash = request_data.get('request_body_hash', {}) or {}
+        request_params_hash = request_data.get('request_params_hash', []) or []
+        request_headers_hash = request_data.get('request_headers_hash', []) or []
+        request_body_hash = request_data.get('request_body_hash', []) or []
         request_params = gen_request_dict(request_params_hash)
         request_headers = gen_request_dict(request_headers_hash)
         request_body = gen_request_dict(request_body_hash)

@@ -74,31 +74,31 @@ def timer(func):
     return wrapper
 
 
-def gen_request_dict(hash_dict):
+def gen_request_dict(request_list):
     """
-    将dict数据类型转为dict请求参数
-    headers = {
-        "token": {
+    将headers,params,form-data等数据类型转为dict请求参数
+    headers = [
+        {
             "active": True,
-            "value": "token...",
+            "key": "token",
+            "value": "token123456789",
             "desc": "鉴权"
         },
-        "xxx": {
+        {
             "active": False,
-            "value": "yyy",
+            "key": "xxx",
+            "value": "xxx123456789",
             "desc": "..."
         }
-    }
-    :param hash_dict:
+    ]
+    :param request_list:
     :return:
     """
-    if not isinstance(hash_dict, dict) and hash_dict:
-        return hash_dict
-    try:
-        result = {k: hash_dict[k].get('value') for k, v in hash_dict.items() if hash_dict[k].get('active')}
-        return result
-    except BaseException as e:
-        return hash_dict
+    if not isinstance(request_list, list) and request_list:
+        return request_list
+
+    result = {d.get('key'): d.get('value') for d in request_list if d.get('active')}
+    return result
 
 
 class RequestParamKeysCheck:
@@ -205,3 +205,19 @@ if __name__ == '__main__':
     print("并集:", ActionSet.gen_union(l2, l1))
 
     print(ActionSet.check_difference(l1, l2))
+
+    headers = [
+        {
+            "active": True,
+            "key": "token",
+            "value": "token123456789",
+            "desc": "鉴权"
+        },
+        {
+            "active": True,
+            "key": "xxx",
+            "value": "xxx123456789",
+            "desc": "..."
+        }
+    ]
+    print(gen_request_dict(headers))
