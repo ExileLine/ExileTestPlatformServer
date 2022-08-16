@@ -13,6 +13,7 @@ import operator
 
 # print(operator.eq(1, 2))
 
+
 """请求方式"""
 method_dict = {
     "GET": "",
@@ -20,6 +21,27 @@ method_dict = {
     "PUT": "",
     "DELETE": "",
     "PATCH": ""
+}
+
+"""请求参数类型"""
+
+
+def json_func(x):
+    try:
+        return json.loads(x)
+    except BaseException as e:
+        return {}
+
+
+def_func = lambda x="": x
+request_body_type_func = {
+    "none": lambda x=None: '',
+    "form-data": json_func,
+    "x-form-data": json_func,
+    "json": json_func,
+    "text": def_func,
+    "html": def_func,
+    "xml": def_func
 }
 
 """断言相关"""

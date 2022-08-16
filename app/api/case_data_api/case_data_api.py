@@ -153,13 +153,14 @@ class CaseReqDataApi(MethodView):
         data = request.get_json()
         request_data = data.get('request_data', {})
         data_name = request_data.get('data_name')
-        request_params_hash = request_data.get('request_params_hash', []) or []
-        request_headers_hash = request_data.get('request_headers_hash', []) or []
-        request_body_hash = request_data.get('request_body_hash', []) or []
+        request_params_hash = request_data.get('request_params_hash', [])
         request_params = gen_request_dict(request_params_hash)
+        request_headers_hash = request_data.get('request_headers_hash', [])
         request_headers = gen_request_dict(request_headers_hash)
-        request_body = gen_request_dict(request_body_hash)
         request_body_type = request_data.get('request_body_type')
+        _func = request_body_type_func.get(request_body_type)
+        request_body_hash = request_data.get('request_body_hash')
+        request_body = _func(request_body_hash)
         is_public = request_data.get('is_public', True)
         update_var_list = request_data.get('update_var_list', [])
         data_size = len(json.dumps(request_params)) + len(json.dumps(request_headers)) + len(
@@ -167,12 +168,12 @@ class CaseReqDataApi(MethodView):
 
         new_data = TestCaseData(
             data_name=data_name,
-            request_params=request_params,
             request_params_hash=request_params_hash,
-            request_headers=request_headers,
+            request_params=request_params,
             request_headers_hash=request_headers_hash,
-            request_body=request_body,
+            request_headers=request_headers,
             request_body_hash=request_body_hash,
+            request_body=request_body,
             request_body_type=request_body_type,
             update_var_list=update_var_list,
             is_public=is_public,
@@ -182,66 +183,6 @@ class CaseReqDataApi(MethodView):
         )
         new_data.save()
         return api_result(code=POST_SUCCESS, message='创建成功', data=new_data.to_json())
-
-        """
-        data_list = data.get('data_list', [])
-        new_data_list = []
-
-        if not isinstance(data_list, list) or not data_list:
-            return api_result(code=DATA_ERROR, message='请求参数错误')
-
-        for index, d in enumerate(data_list):
-            is_public = d.get('is_public', True)
-
-            # check_result = check_variable(d)
-            # if not check_result.get('status'):
-            #     return api_result(code=400, message="参数不存在:{}".format(check_result.get('query_none_list')))
-
-            check_bool, check_msg = RequestParamKeysCheck(d, params_key).result()
-            if not check_bool:
-                return api_result(code=NO_DATA, message=check_msg)
-
-            update_var_list = d.get('update_var_list', [])
-            _update_var_list_bool, _update_var_list_msg = check_update_var(update_var_list=update_var_list)
-            if not _update_var_list_bool:
-                return api_result(code=NO_DATA, message=_update_var_list_msg)
-
-            data_name = d.get('data_name')
-            request_params_hash = d.get('request_params_hash', {}) or {}
-            request_headers_hash = d.get('request_headers_hash', {}) or {}
-            request_body_hash = d.get('request_body_hash', {}) or {}
-            request_params = gen_request_dict(request_params_hash)
-            request_headers = gen_request_dict(request_headers_hash)
-            request_body = gen_request_dict(request_body_hash)
-            request_body_type = d.get('request_body_type')
-            data_size = len(json.dumps(request_params)) + len(json.dumps(request_headers)) + len(
-                json.dumps(request_body))
-
-            new_data = TestCaseData(
-                data_name=data_name,
-                request_params=request_params,
-                request_params_hash=request_params_hash,
-                request_headers=request_headers,
-                request_headers_hash=request_headers_hash,
-                request_body=request_body,
-                request_body_hash=request_body_hash,
-                request_body_type=request_body_type,
-                update_var_list=update_var_list,
-                is_public=is_public,
-                data_size=data_size,
-                creator=g.app_user.username,
-                creator_id=g.app_user.id
-            )
-            db.session.add(new_data)
-            new_data_list.append(new_data)
-        db.session.commit()
-        # TODO 后面将入参的list改为dict
-        result = []
-        for new_data in new_data_list:
-            new_data.to_json()['id'] = new_data.id
-            result.append(new_data.to_json())
-        return api_result(code=POST_SUCCESS, message='创建成功', data=result)
-        """
 
     @data_decorator("put")
     def put(self):
@@ -269,22 +210,23 @@ class CaseReqDataApi(MethodView):
             if TestCaseData.query.filter_by(data_name=data_name).all():
                 return api_result(code=UNIQUE_ERROR, message=f'参数名称: {data_name} 已经存在')
 
-        request_params_hash = request_data.get('request_params_hash', {}) or {}
-        request_headers_hash = request_data.get('request_headers_hash', {}) or {}
-        request_body_hash = request_data.get('request_body_hash', {}) or {}
+        request_params_hash = request_data.get('request_params_hash', [])
         request_params = gen_request_dict(request_params_hash)
+        request_headers_hash = request_data.get('request_headers_hash', [])
         request_headers = gen_request_dict(request_headers_hash)
-        request_body = gen_request_dict(request_body_hash)
         request_body_type = request_data.get('request_body_type')
+        _func = request_body_type_func.get(request_body_type)
+        request_body_hash = request_data.get('request_body_hash')
+        request_body = _func(request_body_hash)
         data_size = len(json.dumps(request_params)) + len(json.dumps(request_headers)) + len(json.dumps(request_body))
 
         query_test_case_data.data_name = data_name
-        query_test_case_data.request_params = request_params
         query_test_case_data.request_params_hash = request_params_hash
-        query_test_case_data.request_headers = request_headers
+        query_test_case_data.request_params = request_params
         query_test_case_data.request_headers_hash = request_headers_hash
-        query_test_case_data.request_body = request_body
+        query_test_case_data.request_headers = request_headers
         query_test_case_data.request_body_hash = request_body_hash
+        query_test_case_data.request_body = request_body
         query_test_case_data.request_body_type = request_body_type
         query_test_case_data.update_var_list = update_var_list
         query_test_case_data.is_public = is_public

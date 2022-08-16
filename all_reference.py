@@ -22,9 +22,9 @@ from flask.views import MethodView
 from flask import abort, render_template, request, g
 
 from ExtendRegister.db_register import db
-from common.libs.data_dict import rule_save_dict, expect_val_type_dict, type_conversion, method_dict, rule_dict, \
-    resp_source_tuple, \
-    var_source_tuple, var_func_dict, execute_type_tuple, gen_redis_first_logs
+from common.libs.data_dict import rule_save_dict, expect_val_type_dict, type_conversion, method_dict, \
+    request_body_type_func, rule_dict, resp_source_tuple, var_source_tuple, var_func_dict, execute_type_tuple, \
+    gen_redis_first_logs
 from common.libs.db import project_db, R
 from common.libs.api_result import *
 from common.libs.set_app_context import set_app_context
