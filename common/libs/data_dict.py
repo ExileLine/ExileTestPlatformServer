@@ -11,38 +11,48 @@ import datetime
 import shortuuid
 import operator
 
+
 # print(operator.eq(1, 2))
 
+class GlobalsDict:
+    """全局字典"""
 
-"""请求方式"""
-method_dict = {
-    "GET": "",
-    "POST": "",
-    "PUT": "",
-    "DELETE": "",
-    "PATCH": ""
-}
+    @classmethod
+    def method_dict(cls):
+        """请求方式"""
 
-"""请求参数类型"""
+        d = {
+            "GET": "",
+            "POST": "",
+            "PUT": "",
+            "DELETE": "",
+            "PATCH": ""
+        }
+        return d
 
+    @classmethod
+    def json_func(cls, x):
+        try:
+            return json.loads(x)
+        except BaseException as e:
+            return {}
 
-def json_func(x):
-    try:
-        return json.loads(x)
-    except BaseException as e:
-        return {}
+    @classmethod
+    def request_body_type_func(cls):
+        """请求参数类型"""
 
+        def_func = lambda x="": x
+        d = {
+            "none": lambda x=None: '',
+            "form-data": cls.json_func,
+            "x-form-data": cls.json_func,
+            "json": cls.json_func,
+            "text": def_func,
+            "html": def_func,
+            "xml": def_func
+        }
+        return d
 
-def_func = lambda x="": x
-request_body_type_func = {
-    "none": lambda x=None: '',
-    "form-data": json_func,
-    "x-form-data": json_func,
-    "json": json_func,
-    "text": def_func,
-    "html": def_func,
-    "xml": def_func
-}
 
 """断言相关"""
 # 返回值来源
@@ -52,7 +62,7 @@ var_source_tuple = ('resp_data', 'resp_headers')
 
 # RespAssertionRuleApi, FieldAssertionRuleApi 新增,编辑时候使用
 rule_save_dict = {
-    "=": 1,
+    "==": 1,
     "<": 2,
     ">": 3,
     "<=": 4,

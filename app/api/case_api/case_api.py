@@ -26,7 +26,7 @@ def check_method(current_method):
     :param current_method:
     :return:
     """
-    if current_method.upper() in method_dict:
+    if current_method.upper() in GlobalsDict.method_dict():
         return current_method.upper()
     else:
         return False

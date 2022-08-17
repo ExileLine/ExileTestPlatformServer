@@ -34,7 +34,7 @@ class CaseRequestSendApi(MethodView):
         request_headers_hash = data.get('request_headers_hash', [])
         request_headers = gen_request_dict(request_headers_hash)
         request_body_type = data.get('request_body_type')
-        _func = request_body_type_func.get(request_body_type)
+        _func = GlobalsDict.request_body_type_func().get(request_body_type)
         request_body_hash = data.get('request_body_hash')
         request_body = _func(request_body_hash)
 
