@@ -95,7 +95,7 @@ def gen_request_dict(request_list):
     :return:
     """
     if not isinstance(request_list, list) or not request_list:
-        return request_list
+        return {}
 
     result = {d.get('key'): d.get('value') for d in request_list if d.get('active')}
     return result

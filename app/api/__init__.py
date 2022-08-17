@@ -24,7 +24,7 @@ from .case_bind_api.case_bind_api import CaseBindApi
 from .case_assertion_api.case_assertion_api import RespAssertionRuleApi, FieldAssertionRuleApi, AssertionRulePageApi
 from .rule_test_api.rule_test_api import RuleTestApi
 from .case_exec_api.case_exec_api import CaseExecApi
-from .case_exec_api.case_send_api import CaseReqTestApi
+from .case_exec_api.case_send_api import CaseRequestSendApi
 from .case_exec_api.case_cicd_api import CaseCICDApi, CaseCICDMapApi, CaseCICDMapPageApi
 from .case_scenario_api.case_scenario_api import CaseScenarioApi, CaseScenarioPageApi
 from .case_set_api.case_set_api import CaseSetApi
@@ -100,7 +100,7 @@ api.add_url_rule('/case_scenario/<scenario_id>', view_func=CaseScenarioApi.as_vi
 api.add_url_rule('/case_scenario_page', view_func=CaseScenarioPageApi.as_view('case_scenario_page'))
 
 api.add_url_rule('/rule_test', view_func=RuleTestApi.as_view('rule_test'))
-api.add_url_rule('/case_send', view_func=CaseReqTestApi.as_view('case_send'))
+api.add_url_rule('/case_send', view_func=CaseRequestSendApi.as_view('case_send'))
 api.add_url_rule('/case_exec', view_func=CaseExecApi.as_view('case_exec'))
 api.add_url_rule('/open_exec', view_func=CaseExecApi.as_view('open_exec'))
 api.add_url_rule('/case_set', view_func=CaseSetApi.as_view('case_set'))

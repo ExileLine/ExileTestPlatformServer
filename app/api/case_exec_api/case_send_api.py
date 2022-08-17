@@ -8,81 +8,75 @@
 from decimal import Decimal
 
 from all_reference import *
-from common.libs.CaseDrivenResult import MainTest
+from common.libs.async_test_runner.async_runner import AsyncCaseRunner
 
 
-class CaseReqTestApi(MethodView):
+class CaseRequestSendApi(MethodView):
     """
-    test send
+    Send用例调试与Postman相似
     """
 
-    def post(self):
+    async def post(self):
+        """用例调试"""
+
         data = request.get_json()
+        request_base_url = data.get('request_base_url')
+        request_url = data.get('request_url')
         request_method = data.get('request_method')
-        base_url = data.get('request_base_url')
-        url = data.get('request_url')
-        request_headers = data.get('request_headers', {})
-        request_params = data.get('request_params', {})
-        request_body = data.get('request_body', {})
+        request_params_hash = data.get('request_params_hash', [])
+        request_params = gen_request_dict(request_params_hash)
+        request_headers_hash = data.get('request_headers_hash', [])
+        request_headers = gen_request_dict(request_headers_hash)
         request_body_type = data.get('request_body_type')
+        _func = request_body_type_func.get(request_body_type)
+        request_body_hash = data.get('request_body_hash')
+        request_body = _func(request_body_hash)
 
+        url = request_base_url + request_url
         req_type_dict = {
-            "1": {"data": request_body},
-            "2": {"json": request_body},
-            "3": {"data": request_body}
+            "none": "",
+            "text": {"text": request_body},
+            "html": {"text": request_body},
+            "xml": {"text": request_body},
+            "form-data": {"data": request_body},
+            "x-form-data": {"data": request_body},
+            "json": {"json": request_body}
         }
-
-        method = request_method.lower()
-        if method == 'get':
-            if "?" in url:
-                url = url.split("?")[0]
-
-        send = {
-            "url": base_url + url if base_url else url,
+        before_send = {
+            "url": url,
             "headers": request_headers,
+            "payload": {},
         }
+        req_json_data = req_type_dict.get(request_body_type)
 
-        req_json_data = req_type_dict.get(str(request_body_type))
-
-        if method == 'get':
-            send['params'] = request_params
-            __key = "params"
+        if not req_json_data:
+            before_send['payload']['params'] = request_params
         else:
-            send.update(req_json_data)
-            __key = "json" if "json" in send else "data"
-            if "json" in send:
-                __key = "json"
-            else:
-                __key = "data"
-                for k, v in send.get(__key).items():
-                    if not isinstance(v, str):
-                        send.get(__key)[k] = str(v)
+            before_send['payload'].update(req_json_data)
 
-        send = MainTest().var_conversion(send)
-        print(send)
-        if not hasattr(requests, method):
-            return api_result(code=400, message=f'请求方式:{method}不存在')
+        acr = AsyncCaseRunner({})
+        send = await acr.var_conversion(before_send)
+        url = send.get('url')
+        headers = send.get('headers')
+        payload = send.get('payload')
 
         start_time = time.time()
-        response = getattr(requests, method)(**send, verify=False)
+        response = await acr.current_request(method=request_method, url=url, headers=headers, **payload)
         end_time = time.time()
 
-        try:
-            response_content = response.json()
-        except BaseException as e:
-            response_content = {
-                "code": 500,
-                "message": response.text
-            }
-        data = {
-            "request_url": send.get('url'),
+        response_headers = response.get("resp_headers")
+        response_body = response.get("resp_json")
+        http_code = response.get('http_code')
+
+        result = {
+            "url": url,
             "request_method": request_method,
-            "request_body_type": __key,
-            "request_headers": dict(send.get('headers', {})),
-            "request_content": send.get(__key),
-            "response_headers": dict(response.headers),
-            "response_content": response_content,
-            "http_code": response.status_code,
+            "request_body_type": request_body_type,
+            "request_headers": request_headers,
+            "request_body": request_body,
+            "response_headers": response_headers,
+            "response_body": response_body,
+            "http_code": http_code,
             "time": f"{Decimal((end_time - start_time) * 1000).quantize(Decimal('1'))}ms"
         }
-        return api_result(code=200, message='操作成功', data=data)
+        return api_result(code=SUCCESS, message='操作成功', data=result)
