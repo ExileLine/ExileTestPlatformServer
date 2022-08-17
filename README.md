@@ -20,11 +20,6 @@ respect ! ! !
 - 2022-2-23：某某测试平台V4.0（某上市公司，基于上述的个人开源放逐测试平台V3.0扩展定制化开发）
 - 2022-9-10：放逐测试平台V5.0（组织开源）
 
-### 项目文档
-
-- 文档地址-GitHub：https://github.com/yangyuexiong/ExileTestPlatformServer
-- 文档地址-码云：https://gitee.com/yangyuexiong/ExileTestPlatformServer
-
 ### 项目介绍
 
 `ExileTestPlatform`项目主要基于测试人员对测试用例配置环境，参数，变量，响应断言规则，数据库断言规则后，实施接口，UI测试的持续测试平台。
@@ -35,14 +30,19 @@ respect ! ! !
 
 - 项目演示地址：
   http://106.75.174.40 (admin，123456)
-- 操作文档(Github)：https://github.com/yangyuexiong/ExileTestPlatformServer/blob/main/DOC.md
-- 操作文档(Gitee)：https://gitee.com/yangyuexiong/ExileTestPlatformServer/blob/main/DOC.md
-- 前端项目地址-GitHub：https://github.com/yangyuexiong/ExileTestPlatformWeb
-- 前端项目地址-码云：https://gitee.com/yangyuexiong/ExileTestPlatformWeb
+- 后端项目地址(Github)：https://github.com/ExileLine/ExileTestPlatformServer
+- 后端项目地址(码云)：待补充
+- 前端项目地址(GitHub)：https://github.com/ExileLine/ExileTestPlatformWeb
+- 前端项目地址(码云)：待补充
+
+### 操作手册
+
+- 操作手册(GitHub)：https://github.com/ExileLine/ExileTestPlatformDoc
+- 文档地址(码云)：待补充
 
 ### 系统架构图
 
-- 无法查看图片可以前往码云：https://gitee.com/yangyuexiong/ExileTestPlatformServer
+- 无法查看图片可以前往码云：待补充
 
 ![系统逻辑架构图](docs/架构图/ExileTestPlatform逻辑架构图.png)
 
@@ -117,9 +117,12 @@ respect ! ! !
     - 方法2：Docker部署：https://juejin.cn/post/7054460759526342687
     - 方法3：执行该项目下的 `server_start.sh` (推荐)
 
-### 备注
+### 联系我们
 
-- 文档可能存在不清晰的地方，有问题可以添加 `QQ or Wechat：417993207`
+- 文档可能存在不清晰的地方，若有疑问可通过`issues`或以下方式联系我们。
+    - 邮箱：`yang6333yyx@126.com`
+    - Wechat：`YYx_33`
+    - QQ：`417993207`
 
 ### 致谢
 
