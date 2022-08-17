@@ -10,6 +10,12 @@ from decimal import Decimal
 from all_reference import *
 from common.libs.async_test_runner.async_runner import AsyncCaseRunner
 
+params_key = [
+    ("request_base_url", "请求地址"),
+    ("request_url", "接口"),
+    ("request_method", "请求方式")
+]
+
 
 class CaseRequestSendApi(MethodView):
     """
@@ -32,51 +38,58 @@ class CaseRequestSendApi(MethodView):
         request_body_hash = data.get('request_body_hash')
         request_body = _func(request_body_hash)
 
-        url = request_base_url + request_url
-        req_type_dict = {
-            "none": "",
-            "text": {"text": request_body},
-            "html": {"text": request_body},
-            "xml": {"text": request_body},
-            "form-data": {"data": request_body},
-            "x-form-data": {"data": request_body},
-            "json": {"json": request_body}
-        }
-        before_send = {
-            "url": url,
-            "headers": request_headers,
-            "payload": {},
-        }
-        req_json_data = req_type_dict.get(request_body_type)
+        check_bool, check_msg = RequestParamKeysCheck(data, params_key).result()
+        if not check_bool:
+            return api_result(code=NO_DATA, message=check_msg)
 
-        if not req_json_data:
-            before_send['payload']['params'] = request_params
-        else:
-            before_send['payload'].update(req_json_data)
+        try:
+            url = request_base_url + request_url
+            req_type_dict = {
+                "none": "",
+                "text": {"text": request_body},
+                "html": {"text": request_body},
+                "xml": {"text": request_body},
+                "form-data": {"data": request_body},
+                "x-form-data": {"data": request_body},
+                "json": {"json": request_body}
+            }
+            before_send = {
+                "url": url,
+                "headers": request_headers,
+                "payload": {},
+            }
+            req_json_data = req_type_dict.get(request_body_type)
 
-        acr = AsyncCaseRunner({})
-        send = await acr.var_conversion(before_send)
-        url = send.get('url')
-        headers = send.get('headers')
-        payload = send.get('payload')
+            if not req_json_data:
+                before_send['payload']['params'] = request_params
+            else:
+                before_send['payload'].update(req_json_data)
 
-        start_time = time.time()
-        response = await acr.current_request(method=request_method, url=url, headers=headers, **payload)
-        end_time = time.time()
+            acr = AsyncCaseRunner({})
+            send = await acr.var_conversion(before_send)
+            url = send.get('url')
+            headers = send.get('headers')
+            payload = send.get('payload')
 
-        response_headers = response.get("resp_headers")
-        response_body = response.get("resp_json")
-        http_code = response.get('http_code')
+            start_time = time.time()
+            response = await acr.current_request(method=request_method, url=url, headers=headers, **payload)
+            end_time = time.time()
 
-        result = {
-            "url": url,
-            "request_method": request_method,
-            "request_body_type": request_body_type,
-            "request_headers": request_headers,
-            "request_body": request_body,
-            "response_headers": response_headers,
-            "response_body": response_body,
-            "http_code": http_code,
-            "time": f"{Decimal((end_time - start_time) * 1000).quantize(Decimal('1'))}ms"
-        }
-        return api_result(code=SUCCESS, message='操作成功', data=result)
+            response_headers = response.get("resp_headers")
+            response_body = response.get("resp_json")
+            http_code = response.get('http_code')
+
+            result = {
+                "url": url,
+                "request_method": request_method,
+                "request_body_type": request_body_type,
+                "request_headers": request_headers,
+                "request_body": request_body,
+                "response_headers": response_headers,
+                "response_body": response_body,
+                "http_code": http_code,
+                "time": f"{Decimal((end_time - start_time) * 1000).quantize(Decimal('1'))}ms"
+            }
+            return api_result(code=SUCCESS, message='操作成功', data=result)
+        except BaseException as e:
+            return api_result(code=BUSINESS_ERROR, message='参数异常', data=[str(e)])
