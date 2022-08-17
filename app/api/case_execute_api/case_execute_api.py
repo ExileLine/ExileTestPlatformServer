@@ -341,6 +341,10 @@ class CaseExecuteApi(MethodView):
         """
 
         data = request.get_json()
+
+        execute_id = data.get('execute_id')
+        execute_type = data.get('execute_type')
+        execute_label = data.get('execute_label')
         is_env_cover = data.get('is_env_cover')
         env_url_id = data.get('env_url_id')
         data_driven = data.get('data_driven', False)
@@ -349,10 +353,6 @@ class CaseExecuteApi(MethodView):
         use_mail = data.get('use_mail', False)
         mail_send_all = data.get('mail_send_all', False)
         mail_list = data.get('mail_list', [])
-
-        execute_id = data.get('execute_id')
-        execute_type = data.get('execute_type')
-        execute_label = data.get('execute_label')
 
         if is_env_cover:
             query_base_url = TestEnv.query.get(env_url_id)
@@ -391,7 +391,6 @@ class CaseExecuteApi(MethodView):
         if execute_type not in execute_type_tuple:
             return api_result(code=TYPE_ERROR, message='请先选择用例场景')
 
-
         # test_obj = {
         #     "execute_id": execute_id,
         #     "execute_name": execute_name,
@@ -413,3 +412,4 @@ class CaseExecuteApi(MethodView):
         #     "trigger_type": trigger_type,
         #     "request_timeout": request_timeout,
         # }
+        return api_result(code=SUCCESS, message='操作成功,请前往日志查看执行结果', data=[])
