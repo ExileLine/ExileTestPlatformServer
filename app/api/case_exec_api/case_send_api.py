@@ -84,6 +84,7 @@ class CaseRequestSendApi(MethodView):
                 "request_method": request_method,
                 "request_body_type": request_body_type,
                 "request_headers": request_headers,
+                "request_params": request_params,
                 "request_body": request_body,
                 "response_headers": response_headers,
                 "response_body": response_body,
