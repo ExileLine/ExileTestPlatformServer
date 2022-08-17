@@ -26,8 +26,10 @@ respect ! ! !
 
 ### 项目演示
 
-![exile_cover](docs/展示图/exile_cover.png)
-![exile_home](docs/展示图/exile_home.png)
+- 登录页面
+  ![exile_cover](docs/展示图/exile_cover.png)
+- 首页  
+  ![exile_home](docs/展示图/exile_home.png)
 
 - 项目演示地址：
   http://106.75.174.40 (admin，123456)
