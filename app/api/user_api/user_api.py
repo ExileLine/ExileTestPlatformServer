@@ -10,6 +10,31 @@ from all_reference import *
 from app.models.admin.models import Admin
 
 
+def check_user_profile(user_id, mail, phone):
+    """
+    检验唯一值
+    :param user_id:
+    :param mail:
+    :param phone:
+    :return:
+    """
+
+    __query_admin = Admin.query.filter(
+        Admin.id != user_id,
+        or_(
+            Admin.mail == mail,
+            Admin.phone == phone
+        )
+    ).all()
+    if __query_admin:
+        for admin in __query_admin:
+            if admin.mail == mail:
+                return f"邮箱: {mail} 已存在"
+            elif admin.phone == str(phone):
+                return f"手机号: {phone} 已存在"
+    return None
+
+
 class TouristApi(MethodView):
     """
     游客api
@@ -148,19 +173,9 @@ class UserApi(MethodView):
         if not nickname:
             return api_result(code=BUSINESS_ERROR, message="昵称不能为空")
 
-        __query_admin = Admin.query.filter(
-            Admin.id != user_id,
-            or_(
-                Admin.mail == mail,
-                Admin.phone == phone
-            )
-        ).all()
-        if __query_admin:
-            for admin in __query_admin:
-                if admin.mail == mail:
-                    return api_result(code=UNIQUE_ERROR, message=f"邮箱: {mail} 已存在")
-                elif admin.phone == str(phone):
-                    return api_result(code=UNIQUE_ERROR, message=f"手机号: {phone} 已存在")
+        cup = check_user_profile(user_id, mail, phone)
+        if cup:
+            return api_result(code=UNIQUE_ERROR, message=cup)
 
         query_admin.nickname = nickname
         query_admin.phone = phone
@@ -269,12 +284,15 @@ class UserProfileApi(MethodView):
         mail = data.get('mail')
 
         user = Admin.query.get(user_id)
-
         if not user or user.id != g.app_user.id:
             return api_result(code=NO_DATA, message="个人信息不存在")
 
         if not nickname:
             return api_result(code=REQUIRED, message="昵称不能为空")
+
+        cup = check_user_profile(user_id, mail, phone)
+        if cup:
+            return api_result(code=UNIQUE_ERROR, message=cup)
 
         user.nickname = nickname
         user.phone = phone
@@ -282,7 +300,6 @@ class UserProfileApi(MethodView):
         user.modifier = g.app_user.username
         user.modifier_id = g.app_user.id
         db.session.commit()
-
         return api_result(code=PUT_SUCCESS, message='操作成功')
 
 
