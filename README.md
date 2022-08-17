@@ -26,7 +26,8 @@ respect ! ! !
 
 ### 项目演示
 
-![系统逻辑架构图](docs/展示图/exile_cover.png)
+![exile_cover](docs/展示图/exile_cover.png)
+![exile_home](docs/展示图/exile_home.png)
 
 - 项目演示地址：
   http://106.75.174.40 (admin，123456)
