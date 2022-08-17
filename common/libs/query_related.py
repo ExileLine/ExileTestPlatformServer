@@ -85,7 +85,7 @@ class MapToJsonObj:
                 case_field_ass_info = MapToJsonObj.gen_field_ass_list(ass_field_id_list)
 
                 bind_info = {
-                    "case_data_info": case_data_info,
+                    "data_info": case_data_info,
                     "case_resp_ass_info": case_resp_ass_info,
                     "case_field_ass_info": case_field_ass_info,
                 }
