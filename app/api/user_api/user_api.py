@@ -20,7 +20,7 @@ class TouristApi(MethodView):
         """获取游客账号密码"""
 
         # user_ip = request.remote_addr
-        user_ip = request.headers.get('X-Forwarded-For')
+        user_ip = request.headers.get('X-Forwarded-For', '0.0.0.0')
         print('===user_ip===', user_ip)
         query_tourist = R.get(user_ip)
         print('===query_tourist===', query_tourist)
@@ -61,9 +61,86 @@ class UserApi(MethodView):
     """
 
     def get(self, user_id):
-        """1"""
+        """用户详情"""
 
-        return api_result(code=200, message="user api")
+        return api_result(code=SUCCESS, message="操作成功")
+
+    def post(self):
+        """创建用户"""
+
+        data = request.get_json()
+        username = data.get('username')
+        nickname = data.get('nickname')
+        mail = data.get('mail')
+        phone = data.get('phone')
+        password = data.get('password', '123456')
+
+        if not username:
+            return api_result(code=NO_DATA, message=f"用户名不能为空")
+
+        if not mail:
+            return api_result(code=NO_DATA, message=f"邮箱不能为空")
+
+        query_admin = Admin.query.filter(or_(Admin.username == username, Admin.mail == mail)).first()
+        if query_admin:
+            if query_admin.username == username:
+                return api_result(code=UNIQUE_ERROR, message=f"用户名: {username} 已存在")
+            elif query_admin.mail == mail:
+                return api_result(code=UNIQUE_ERROR, message=f"邮箱: {mail} 已存在")
+            return api_result(code=UNIQUE_ERROR, message=f"用户名或邮箱已存在")
+
+        new_admin = Admin(
+            username=username,
+            nickname=nickname,
+            password=password,
+            mail=mail,
+            phone=phone,
+            creator=g.app_user.username,
+            creator_id=g.app_user.id
+        )
+        new_admin.set_code()
+        new_admin.save()
+        return api_result(code=POST_SUCCESS, message='操作成功')
+
+    def put(self):
+        """编辑用户信息"""
+
+        data = request.get_json()
+        user_id = data.get('id')
+        nickname = data.get('nickname')
+        phone = data.get('phone')
+        mail = data.get('mail')
+
+        user = Admin.query.get(user_id)
+
+        if not user:
+            return api_result(code=NO_DATA, message="用户不存在")
+
+        if user.id != g.app_user.id:
+            return api_result(code=BUSINESS_ERROR, message="只能修改自己的用户信息")
+
+        if not nickname:
+            return api_result(code=BUSINESS_ERROR, message="昵称不能为空")
+
+        user.nickname = nickname
+        user.phone = phone
+        user.mail = mail
+        user.modifier = g.app_user.username
+        user.modifier_id = g.app_user.id
+        db.session.commit()
+
+        return api_result(code=PUT_SUCCESS, message='操作成功')
+
+    def delete(self):
+        """禁用用户信息"""
+
+        data = request.get_json()
+        user_id = data.get('id')
+        status = data.get('status')
+        query_admin = Admin.query.get(user_id)
+        query_admin.status = status
+        db.session.commit()
+        return api_result(code=DEL_SUCCESS, message='操作成功')
 
 
 class UserPasswordApi(MethodView):
@@ -216,7 +293,7 @@ class UserPageApi(MethodView):
         data = request.get_json()
         user_id = data.get('user_id')
         code = data.get('code')
-        phone = data.get('phone')
+        # phone = data.get('phone')
         username = data.get('username')
         page = data.get('page')
         size = data.get('size')
@@ -231,13 +308,13 @@ class UserPageApi(MethodView):
         """
 
         where_dict = {
-            "id": user_id
+            "id": user_id,
         }
 
         result_data = general_query(
             model=Admin,
-            field_list=['username', 'code', 'phone'],
-            query_list=[username, code, phone],
+            field_list=['username', 'code'],
+            query_list=[username, code],
             where_dict=where_dict,
             page=page,
             size=size
