@@ -58,6 +58,10 @@ class TouristApi(MethodView):
 class UserApi(MethodView):
     """
     用户信息 Api
+    GET: 用户详情
+    POST: 创建用户
+    PUT: 编辑用户
+    DELETE: 禁用用户
     """
 
     def get(self, user_id):
@@ -132,7 +136,7 @@ class UserApi(MethodView):
         return api_result(code=PUT_SUCCESS, message='操作成功')
 
     def delete(self):
-        """禁用用户信息"""
+        """禁用用户"""
 
         data = request.get_json()
         user_id = data.get('id')
@@ -202,57 +206,21 @@ class UserPasswordApi(MethodView):
 
 class UserProfileApi(MethodView):
     """
-    用户信息 Api
-    GET: 获取用户信息
-    PUT: 编辑用户信息
+    个人信息 Api
+    GET: 获取个人信息
+    PUT: 编辑个人信息
     """
 
     def get(self, user_id):
-        """获取用户信息"""
+        """获取个人信息"""
 
         user = Admin.query.get(user_id)
-
-        if not user:
-            return api_result(code=400, message="用户:{} 不存在".format(user_id))
-        return api_result(code=200, message="操作成功", data=user.to_json())
-
-    def post(self):
-        """创建用户"""
-
-        data = request.get_json()
-        username = data.get('username')
-        nickname = data.get('nickname')
-        mail = data.get('mail')
-        password = data.get('password', '123456')
-
-        if not username:
-            return api_result(code=400, message=f"用户名不能为空")
-
-        if not mail:
-            return api_result(code=400, message=f"邮箱不能为空")
-
-        query_admin = Admin.query.filter(or_(Admin.username == username, Admin.mail == mail)).first()
-        if query_admin:
-            if query_admin.username == username:
-                return api_result(code=400, message=f"用户名: {username} 已存在")
-            elif query_admin.mail == mail:
-                return api_result(code=400, message=f"邮箱: {mail} 已存在")
-            return api_result(code=400, message=f"用户名或邮箱已存在")
-
-        new_admin = Admin(
-            username=username,
-            nickname=nickname,
-            password=password,
-            mail=mail,
-            creator=g.app_user.username,
-            creator_id=g.app_user.id
-        )
-        new_admin.set_code()
-        new_admin.save()
-        return api_result(code=200, message='操作成功')
+        if not user or user.id != g.app_user.id:
+            return api_result(code=NO_DATA, message="个人信息不存在")
+        return api_result(code=SUCCESS, message="操作成功", data=user.to_json())
 
     def put(self):
-        """编辑用户信息"""
+        """编辑个人信息"""
 
         data = request.get_json()
         user_id = data.get('id')
@@ -262,14 +230,11 @@ class UserProfileApi(MethodView):
 
         user = Admin.query.get(user_id)
 
-        if not user:
-            return api_result(code=400, message="用户:{} 不存在".format(user_id))
-
-        if user.id != g.app_user.id:
-            return api_result(code=400, message="只能修改自己的用户信息")
+        if not user or user.id != g.app_user.id:
+            return api_result(code=NO_DATA, message="个人信息不存在")
 
         if not nickname:
-            return api_result(code=400, message="昵称不能为空")
+            return api_result(code=REQUIRED, message="昵称不能为空")
 
         user.nickname = nickname
         user.phone = phone
@@ -278,7 +243,7 @@ class UserProfileApi(MethodView):
         user.modifier_id = g.app_user.id
         db.session.commit()
 
-        return api_result(code=203, message='操作成功')
+        return api_result(code=PUT_SUCCESS, message='操作成功')
 
 
 class UserPageApi(MethodView):
