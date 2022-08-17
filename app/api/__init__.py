@@ -53,9 +53,10 @@ api.add_url_rule('/login', view_func=LoginApi.as_view('login_api'))
 
 api.add_url_rule('/tourist', view_func=TouristApi.as_view('tourist_api'))
 api.add_url_rule('/user', view_func=UserApi.as_view('user_api'))
+api.add_url_rule('/user/<user_id>', view_func=UserApi.as_view('user_detail'))
 api.add_url_rule('/user_pwd', view_func=UserPasswordApi.as_view('user_pwd'))
 api.add_url_rule('/user_profile', view_func=UserProfileApi.as_view('user_profile'))
-api.add_url_rule('/user_profile/<user_id>', view_func=UserProfileApi.as_view('user_detail'))
+api.add_url_rule('/user_profile/<user_id>', view_func=UserProfileApi.as_view('user_profile_detail'))
 api.add_url_rule('/user_page', view_func=UserPageApi.as_view('user_page'))
 
 api.add_url_rule('/auth', view_func=AuthApi.as_view('auth_api'))

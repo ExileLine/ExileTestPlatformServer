@@ -67,31 +67,48 @@ class UserApi(MethodView):
     def get(self, user_id):
         """用户详情"""
 
-        return api_result(code=SUCCESS, message="操作成功")
+        query_admin = Admin.query.get(user_id)
+        if not query_admin:
+            return api_result(code=NO_DATA, message="用户不存在")
+
+        return api_result(code=SUCCESS, message="操作成功", data=query_admin.to_json())
 
     def post(self):
         """创建用户"""
 
         data = request.get_json()
+        code = data.get('code')
         username = data.get('username')
         nickname = data.get('nickname')
         mail = data.get('mail')
         phone = data.get('phone')
         password = data.get('password', '123456')
+        remark = data.get('remark')
 
         if not username:
-            return api_result(code=NO_DATA, message=f"用户名不能为空")
+            return api_result(code=NO_DATA, message="用户名不能为空")
 
         if not mail:
-            return api_result(code=NO_DATA, message=f"邮箱不能为空")
+            return api_result(code=NO_DATA, message="邮箱不能为空")
 
-        query_admin = Admin.query.filter(or_(Admin.username == username, Admin.mail == mail)).first()
+        query_admin = Admin.query.filter(
+            or_(
+                Admin.code == code,
+                Admin.username == username,
+                Admin.mail == mail,
+                Admin.phone == phone
+            )
+        ).all()
         if query_admin:
-            if query_admin.username == username:
-                return api_result(code=UNIQUE_ERROR, message=f"用户名: {username} 已存在")
-            elif query_admin.mail == mail:
-                return api_result(code=UNIQUE_ERROR, message=f"邮箱: {mail} 已存在")
-            return api_result(code=UNIQUE_ERROR, message=f"用户名或邮箱已存在")
+            for admin in query_admin:
+                if admin.username == username:
+                    return api_result(code=UNIQUE_ERROR, message=f"用户名: {username} 已存在")
+                elif admin.mail == mail:
+                    return api_result(code=UNIQUE_ERROR, message=f"邮箱: {mail} 已存在")
+                elif admin.code == code:
+                    return api_result(code=UNIQUE_ERROR, message=f"工号: {code} 已存在")
+                elif admin.phone == str(phone):
+                    return api_result(code=UNIQUE_ERROR, message=f"手机号: {phone} 已存在")
 
         new_admin = Admin(
             username=username,
@@ -99,10 +116,14 @@ class UserApi(MethodView):
             password=password,
             mail=mail,
             phone=phone,
+            remark=remark,
             creator=g.app_user.username,
             creator_id=g.app_user.id
         )
-        new_admin.set_code()
+        if code:
+            new_admin.code = code
+        else:
+            new_admin.set_code()
         new_admin.save()
         return api_result(code=POST_SUCCESS, message='操作成功')
 
@@ -114,25 +135,40 @@ class UserApi(MethodView):
         nickname = data.get('nickname')
         phone = data.get('phone')
         mail = data.get('mail')
+        remark = data.get('remark')
 
-        user = Admin.query.get(user_id)
+        query_admin = Admin.query.get(user_id)
 
-        if not user:
+        if g.app_user.id != 1 and query_admin.id != g.app_user.id:
+            return api_result(code=BUSINESS_ERROR, message="非管理员只能修改自己的用户信息")
+
+        if not query_admin:
             return api_result(code=NO_DATA, message="用户不存在")
-
-        if user.id != g.app_user.id:
-            return api_result(code=BUSINESS_ERROR, message="只能修改自己的用户信息")
 
         if not nickname:
             return api_result(code=BUSINESS_ERROR, message="昵称不能为空")
 
-        user.nickname = nickname
-        user.phone = phone
-        user.mail = mail
-        user.modifier = g.app_user.username
-        user.modifier_id = g.app_user.id
-        db.session.commit()
+        __query_admin = Admin.query.filter(
+            Admin.id != user_id,
+            or_(
+                Admin.mail == mail,
+                Admin.phone == phone
+            )
+        ).all()
+        if __query_admin:
+            for admin in __query_admin:
+                if admin.mail == mail:
+                    return api_result(code=UNIQUE_ERROR, message=f"邮箱: {mail} 已存在")
+                elif admin.phone == str(phone):
+                    return api_result(code=UNIQUE_ERROR, message=f"手机号: {phone} 已存在")
 
+        query_admin.nickname = nickname
+        query_admin.phone = phone
+        query_admin.mail = mail
+        query_admin.remark = remark
+        query_admin.modifier = g.app_user.username
+        query_admin.modifier_id = g.app_user.id
+        db.session.commit()
         return api_result(code=PUT_SUCCESS, message='操作成功')
 
     def delete(self):
@@ -141,7 +177,11 @@ class UserApi(MethodView):
         data = request.get_json()
         user_id = data.get('id')
         status = data.get('status')
+
         query_admin = Admin.query.get(user_id)
+        if g.app_user.id != 1 and query_admin.id != g.app_user.id:
+            return api_result(code=BUSINESS_ERROR, message="非管理员无法操作禁用")
+
         query_admin.status = status
         db.session.commit()
         return api_result(code=DEL_SUCCESS, message='操作成功')
