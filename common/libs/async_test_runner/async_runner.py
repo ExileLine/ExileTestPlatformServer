@@ -26,6 +26,7 @@ class AsyncCaseRunner:
 
     def __init__(self, test_obj=None):
 
+        self.test_obj = test_obj if test_obj else {}
         self.base_url = test_obj.get('base_url')
         self.use_base_url = test_obj.get('use_base_url')
         self.data_driven = test_obj.get('data_driven')
@@ -330,16 +331,20 @@ class AsyncCaseRunner:
         request_body_type = case_data_info.get('request_body_type')
 
         req_type_dict = {
-            "1": {"data": request_body},
-            "2": {"json": request_body},
-            "3": {"data": request_body}
+            "none": "",
+            "text": {"text": request_body},
+            "html": {"text": request_body},
+            "xml": {"text": request_body},
+            "form-data": {"data": request_body},
+            "x-form-data": {"data": request_body},
+            "json": {"json": request_body}
         }
         before_send = {
             "url": url,
             "headers": headers,
             "payload": {},
         }
-        req_json_data = req_type_dict.get(str(request_body_type))
+        req_json_data = req_type_dict.get(request_body_type)
 
         if not req_json_data:
             before_send['payload']['params'] = request_params
@@ -531,8 +536,10 @@ class AsyncCaseRunner:
     async def debug_logs(self):
         """调试日志"""
 
-        print(json.dumps(self.case_logs_dict, ensure_ascii=False))
-        print(json.dumps(self.scenario_logs_dict, ensure_ascii=False))
+        self.sio.log("=== 用例日志 ===")
+        self.sio.log(f"\n{json.dumps(self.case_logs_dict, ensure_ascii=False)}")
+        self.sio.log("=== 场景日志 ===")
+        self.sio.log(f"\n{json.dumps(self.scenario_logs_dict, ensure_ascii=False)}")
 
     async def case_loader(self):
         """用例加载执行"""

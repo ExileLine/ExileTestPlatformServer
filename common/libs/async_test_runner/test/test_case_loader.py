@@ -122,7 +122,7 @@ test_obj = {
                             "username": "admin"
                         },
                         "is_after": 0,
-                        "request_body_type": 2,
+                        "request_body_type": "json",
                         "data_after": [
                             {
                                 "db_id": 12,
@@ -217,7 +217,7 @@ test_obj = {
                             "username": "admin"
                         },
                         "is_after": 0,
-                        "request_body_type": 2,
+                        "request_body_type": "json",
                         "data_after": [],
                         "remark": None,
                         "is_deleted": 0,
@@ -260,7 +260,7 @@ test_obj = {
                             "username": "admin"
                         },
                         "is_after": 0,
-                        "request_body_type": 2,
+                        "request_body_type": "json",
                         "data_after": [],
                         "remark": None,
                         "is_deleted": 0,
@@ -378,7 +378,7 @@ test_obj = {
                             "username": "admin"
                         },
                         "is_after": 0,
-                        "request_body_type": 2,
+                        "request_body_type": "json",
                         "data_after": [
                             {
                                 "db_id": 12,
@@ -473,7 +473,7 @@ test_obj = {
                             "username": "admin"
                         },
                         "is_after": 0,
-                        "request_body_type": 2,
+                        "request_body_type": "json",
                         "data_after": [],
                         "remark": None,
                         "is_deleted": 0,
@@ -516,7 +516,7 @@ test_obj = {
                             "username": "admin"
                         },
                         "is_after": 0,
-                        "request_body_type": 2,
+                        "request_body_type": "json",
                         "data_after": [],
                         "remark": None,
                         "is_deleted": 0,
