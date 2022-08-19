@@ -10,6 +10,73 @@ from app.models.test_case_assert.models import TestCaseAssertion
 from app.models.test_case_db.models import TestDatabases
 
 
+class CheckAssertion:
+    """检验断言规则"""
+
+    @classmethod
+    def ref_variable(cls, var):
+        """
+        判断是否引用变量(${xxx})
+        :param var:
+        :return:
+        """
+
+        if not isinstance(var, str):
+            return False
+
+        if var[0:2] == "${" and var[-1] == "}":
+            return True
+        return False
+
+    @classmethod
+    def convert_variable(cls, val, val_type, func):
+        """
+        校验参数是否能被转换
+        :param var:
+        :param val_type:
+        :param func:
+        :return:
+        """
+        try:
+            print(val, val_type, func)
+            print(func(val))
+            return True
+        except BaseException as e:
+            return False
+
+    @classmethod
+    def check_resp_ass_json(cls, ass):
+        """
+        校验响应断言规则参数格式
+        :param ass:
+        :return:
+        """
+
+        resp_source = ass.get('response_source')
+        if resp_source not in GlobalsDict.resp_source_tuple():
+            return False, f'来源参数错误:{resp_source}'
+
+        rule = ass.get('rule')  # ==,>,< ...
+        if not GlobalsDict.rule_dict_op().get(rule):
+            return False, f"规则: {current_rule} 不存在"
+
+        is_expression = ass.get('is_expression')  # True,False
+        if not isinstance(is_expression, bool):
+            return False, f'表达式标识错误:{is_expression}'
+
+        expect_val = ass.get('expect_val')
+        expect_val_type = ass.get('expect_val_type')  # int,str,bool ...
+        expect_val_type_func = GlobalsDict.value_type_dict().get(expect_val_type)
+        if not expect_val_type_func:
+            return False, f'类型: {expect_val_type} 错误'
+        else:
+            expect_val = str(expect_val).strip()
+            if not cls.ref_variable(expect_val):
+                if not cls.convert_variable(val=expect_val, val_type=expect_val_type, func=expect_val_type_func):
+                    return False, f'参数: {expect_val} 无法转换至类型: {expect_val_type}'
+            return True, ass
+
+
 def gen_new_ass(ass_obj):
     """
     {
@@ -163,50 +230,21 @@ class RespAssertionRuleApi(MethodView):
         is_public = data.get('is_public')
         remark = data.get('remark')
 
-        new_ass_json = []
-
-        for a in ass_json:
+        for ass in ass_json:
             check_bool = check_keys(
-                a, 'assert_key', 'expect_val_type', 'expect_val', 'rule', 'is_expression', 'python_val_exp',
+                ass, 'assert_key', 'expect_val_type', 'expect_val', 'rule', 'is_expression', 'python_val_exp',
                 'response_source'
             )
             if not check_bool:
                 return api_result(code=BUSINESS_ERROR, message='检验对象错误', data=a)
 
-            rule = rule_dict.get(a.get('rule'))
-
-            resp_source = a.get('response_source')
-
-            if resp_source not in GlobalsDict.resp_source_tuple():
-                return api_result(code=BUSINESS_ERROR, message=f'来源参数错误:{resp_source}')
-
-            if not rule:
-                return api_result(code=BUSINESS_ERROR, message=f"规则参数错误:{a.get('rule')}")
-
-            is_expression = a.get('is_expression')
-            is_rule_source_bool = bool(str(is_expression) in ['0', '1'])
-
-            if not is_rule_source_bool:
-                return api_result(code=BUSINESS_ERROR, message=f'规则参数错误:{is_expression}')
-
-            expect_val = a.get('expect_val')
-            expect_val_type = expect_val_type_dict.get(str(a.get('expect_val_type')))
-
-            try:
-                check_expect_val = str(expect_val).strip()
-                if check_expect_val[0:2] == "${" and check_expect_val[-1] == "}":
-                    new_ass_json.append(a)
-                else:
-                    # a['rule'] = rule
-                    a['expect_val'] = expect_val_type(expect_val)  # 类型转换
-                    new_ass_json.append(a)
-            except BaseException as e:
-                return api_result(code=BUSINESS_ERROR,
-                                  message='参数:{} 无法转换至 类型:{}'.format(expect_val, type(expect_val_type())))
+            result_bool, result = CheckAssertion.check_resp_ass_json(ass)
+            if not result_bool:
+                return api_result(code=BUSINESS_ERROR, message=result)
 
         new_ass_resp = TestCaseAssertion(
             assert_description=assert_description,
-            ass_json=new_ass_json,
+            ass_json=ass_json,
             is_public=is_public,
             assertion_type="response",
             creator=g.app_user.username,
@@ -239,51 +277,21 @@ class RespAssertionRuleApi(MethodView):
             if query_ass_resp.creator_id != g.app_user.id:
                 return api_result(code=BUSINESS_ERROR, message='该断言规则未开放,只能被创建人修改!')
 
-        new_ass_json = []
-
-        for a in ass_json:
+        for ass in ass_json:
             check_bool = check_keys(
-                a, 'assert_key', 'expect_val_type', 'expect_val', 'rule', 'is_expression', 'python_val_exp',
+                ass, 'assert_key', 'expect_val_type', 'expect_val', 'rule', 'is_expression', 'python_val_exp',
                 'response_source'
             )
 
             if not check_bool:
                 return api_result(code=BUSINESS_ERROR, message='请求参数错误')
 
-            rule = rule_dict.get(a.get('rule'))
-
-            resp_source = a.get('response_source')
-
-            if resp_source not in GlobalsDict.resp_source_tuple():
-                return api_result(code=BUSINESS_ERROR, message=f'来源参数错误:{resp_source}')
-
-            if not rule:
-                return api_result(code=BUSINESS_ERROR, message=f"规则参数错误:{a.get('rule')}")
-
-            is_expression = a.get('is_expression')
-            is_rule_source_bool = bool(str(is_expression) in ['0', '1'])
-
-            if not is_rule_source_bool:
-                return api_result(code=BUSINESS_ERROR, message=f'规则参数错误:{is_expression}')
-
-            expect_val = a.get('expect_val')
-            expect_val_type = a.get('expect_val_type')
-            expect_val_type_func = expect_val_type_dict.get(str(expect_val_type))
-
-            try:
-                check_expect_val = str(expect_val).strip()
-                if check_expect_val[0:2] == "${" and check_expect_val[-1] == "}":
-                    new_ass_json.append(a)
-                else:
-                    # a['rule'] = rule
-                    a['expect_val'] = expect_val_type_func(expect_val)
-                    new_ass_json.append(a)
-            except BaseException as e:
-                return api_result(code=BUSINESS_ERROR,
-                                  message='参数:{} 无法转换至 类型:{}'.format(expect_val, type(expect_val_type_func())))
+            result_bool, result = CheckAssertion.check_resp_ass_json(ass)
+            if not result_bool:
+                return api_result(code=BUSINESS_ERROR, message=result)
 
         query_ass_resp.assert_description = assert_description
-        query_ass_resp.ass_json = new_ass_json
+        query_ass_resp.ass_json = ass_json
         query_ass_resp.is_public = is_public
         query_ass_resp.remark = remark
         query_ass_resp.modifier = g.app_user.username

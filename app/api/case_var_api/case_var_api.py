@@ -18,7 +18,7 @@ def check_req_var(data):
 
     if var_type not in var_type_list:
         return False
-    if var_source and var_source not in var_source_tuple:
+    if var_source and var_source not in GlobalsDict.var_source_tuple():
         return False
     return True
 

@@ -66,23 +66,49 @@ class GlobalsDict:
         return t
 
     @classmethod
-    def rule_dict(cls):
-        """规则字典"""
+    def rule_dict_py(cls):
+        """
+        规则字典(Python内置双下划线方法)
+        eq      : equal（等于）
+        gt      : greater than（大于）
+        ge      : greater and equal（大于等于）
+        lt      : less than（小于）
+        le      : less and equal（小于等于）
+        ne      : not equal (不等于)
+        contains: in
+        """
 
         d = {
-            '==': '__eq__',
-            '>': '__gt__',
-            '>=': '__ge__',
-            '<': '__lt__',
-            '<=': '__le__',
-            '!=': '__ne__',
-            'in': '__contains__'
+            "==": "__eq__",
+            ">": "__gt__",
+            ">=": "__ge__",
+            "<": "__lt__",
+            "<=": "__le__",
+            "!=": "__ne__",
+            "in": "__contains__",
+            "not_in": ""
+        }
+        return d
+
+    @classmethod
+    def rule_dict_op(cls):
+        """规则字典(Python内置函数operator封装后的方法)"""
+
+        d = {
+            "==": "eq",
+            ">": "gt",
+            ">=": "ge",
+            "<": "lt",
+            "<=": "le",
+            "!=": "ne",
+            "in": "contains",
+            "not_in": ""
         }
         return d
 
     @classmethod
     def test_rule_dict(cls, l, r):
-        """1"""
+        """测试"""
 
         print(f'{l} == {r}', operator.eq(l, r))
         print(f'{l} > {r}', operator.gt(l, r))
@@ -90,24 +116,25 @@ class GlobalsDict:
         print(f'{l} < {r}', operator.lt(l, r))
         print(f'{l} <= {r}', operator.le(l, r))
         print(f'{l} != {r}', operator.ne(l, r))
-        print(f'{l} != {r}', operator.ne(l, r))
         print(f'{l} in {r}', operator.contains(str(l), str(r)))
+
+    @classmethod
+    def value_type_dict(cls):
+        """数据类型"""
+
+        d = {
+            "int": int,
+            "str": str,
+            "list": list,
+            "dict": dict,
+            "bool": bool,
+            "json": json.loads,
+            "json_str": json.dumps,
+        }
+        return d
 
 
 """断言相关"""
-var_source_tuple = ('resp_data', 'resp_headers')
-
-# RespAssertionRuleApi, FieldAssertionRuleApi 新增,编辑时候使用
-rule_save_dict = {
-    "==": 1,
-    "<": 2,
-    ">": 3,
-    "<=": 4,
-    ">=": 5,
-    "!=": 6,
-    "in": 7,
-    "not in": 8
-}
 
 # RespAssertionRuleApi, FieldAssertionRuleApi 新增,编辑时候使用
 expect_val_type_dict = {
@@ -119,16 +146,6 @@ expect_val_type_dict = {
     '5': json.dumps,
     '6': bool
 }
-
-"""
-eq     :equal（等于）
-gt     :greater than（大于）
-ge     :greater and equal（大于等于）
-lt     :less than（小于）
-le     :less and equal（小于等于）
-ne     :not equal (不等于)
-contains: in
-"""
 
 rule_dict = {
     '==': '__eq__',
