@@ -158,49 +158,42 @@ def assertion_decorator(func):
 
 class RespAssertionRuleApi(MethodView):
     """
-    返回值断言规则Api
-    GET: 断言规则详情
-    POST: 断言规则新增
-    PUT: 断言规则编辑
-    DELETE: 断言规则删除
+    响应断言规则Api
+    GET: 响应断言规则明细
+    POST: 响应断言规则新增
+    PUT: 响应断言规则编辑
+    DELETE: 响应断言规则删除
 
-    req_demo = {
-        "assert_description": "Resp通用断言123",
+    请求例子
+    {
+        "assert_description": "Resp通用断言",
         "remark": "remark",
         "ass_json": [
             {
 
-                "resp_source":"body",
+                "response_source":"body",
                 "assert_key": "code",
                 "expect_val": "200",
-                "expect_val_type": "1",
+                "expect_val_type": "int",
                 "rule": "==",
                 "is_expression": 0,
                 "python_val_exp": "okc.get('a').get('b').get('c')[0]"
             },
             {
-                "resp_source":"headers",
+                "response_source":"headers",
                 "assert_key": "code",
                 "expect_val": "200",
-                "expect_val_type": "1",
+                "expect_val_type": "str",
                 "rule": ">=",
                 "is_expression": 0,
                 "python_val_exp": "okc.get('a').get('b').get('c')[0]"
-            },
-            {
-                "resp_source":"headers",
-                "assert_key": "message",
-                "expect_val": "index",
-                "expect_val_type": "2",
-                "rule": "==",
-                "is_expression": 0,
-                "python_val_exp": "okc.get('a').get('b').get('c')[0]"
             }
+            ...
         ]
     }
 
     ass_json:
-        :resp_source: 返回值来源(body or headers)
+        :response_source: 返回值来源(body or headers)
         :assert_key: 返回值的键(用于简单取值)
         :expect_val: 期望值
         :expect_val_type: 期望值类型
@@ -211,7 +204,7 @@ class RespAssertionRuleApi(MethodView):
     """
 
     def get(self, ass_resp_id):
-        """返回值断言明细"""
+        """响应断言规则明细"""
 
         query_ass_resp = TestCaseAssertion.query.get(ass_resp_id)
 
@@ -222,7 +215,7 @@ class RespAssertionRuleApi(MethodView):
 
     @assertion_decorator
     def post(self):
-        """返回值断言新增"""
+        """响应断言规则新增"""
 
         data = request.get_json()
         assert_description = data.get('assert_description')
@@ -256,7 +249,7 @@ class RespAssertionRuleApi(MethodView):
 
     @assertion_decorator
     def put(self):
-        """返回值断言编辑"""
+        """响应断言规则编辑"""
 
         data = request.get_json()
         ass_resp_id = data.get('id')
@@ -301,7 +294,7 @@ class RespAssertionRuleApi(MethodView):
         return api_result(code=PUT_SUCCESS, message='编辑成功')
 
     def delete(self):
-        """返回值断言删除"""
+        """响应断言规则删除"""
 
         data = request.get_json()
         ass_resp_id = data.get('id')
@@ -322,12 +315,13 @@ class RespAssertionRuleApi(MethodView):
 class FieldAssertionRuleApi(MethodView):
     """
     字段断言规则Api
-    GET: 断言规则详情
-    POST: 断言规则新增
-    PUT: 断言规则编辑
-    DELETE: 断言规则删除
+    GET: 字段断言规则明细
+    POST: 字段断言规则新增
+    PUT: 字段断言规则编辑
+    DELETE: 字段断言规则删除
 
-    req_demo = {
+    请求例子
+    {
         "assert_description": "A通用字段校验",
         "remark": "remark",
         "ass_json": [
@@ -361,7 +355,7 @@ class FieldAssertionRuleApi(MethodView):
     """
 
     def get(self, ass_field_id):
-        """字段断言明细"""
+        """字段断言规则明细"""
 
         query_ass_field = TestCaseAssertion.query.get(ass_field_id)
 
@@ -372,7 +366,7 @@ class FieldAssertionRuleApi(MethodView):
 
     @assertion_decorator
     def post(self):
-        """字段断言新增"""
+        """字段断言规则新增"""
 
         data = request.get_json()
         version_id_list = data.get('version_id_list')
@@ -420,7 +414,7 @@ class FieldAssertionRuleApi(MethodView):
 
     @assertion_decorator
     def put(self):
-        """字段断言编辑"""
+        """字段断言规则编辑"""
 
         data = request.get_json()
         ass_field_id = data.get('id')
