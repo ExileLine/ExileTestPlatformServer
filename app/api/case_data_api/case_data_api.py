@@ -8,6 +8,7 @@
 
 from all_reference import *
 from app.models.test_case.models import TestCaseData
+from app.models.test_variable.models import TestVariable
 
 params_key = [
     ("data_name", "数据名称"),
@@ -60,36 +61,36 @@ def check_update_var(update_var_list):
     检查需要更新的变量是否存在
     [
         {
-            "id": 3,
-            "var_source": "resp_data",
+            "id": 1,
+            "var_source": "response_body",
             "expression": "obj.get('code')",
             "is_expression":0,
             "var_get_key": "code"
         },
+        {
+            "id": 2,
+            "var_source": "response_headers",
+            "expression": "obj.get('token')",
+            "is_expression":0,
+            "var_get_key": "token"
+        }
         ...
     ]
     """
     if update_var_list:
         update_var_id_list = list(set(map(lambda x: x.get('id') if isinstance(x, dict) else 0, update_var_list)))
-        if 0 in update_var_id_list:
-            update_var_id_list.remove(0)
+        query_variable = TestVariable.query.filter(
+            TestVariable.is_deleted == 0,
+            TestVariable.var_source.in_(GlobalsDict.resp_source_tuple()),
+            TestVariable.id.in_(update_var_id_list)
+        ).all()
+        if not query_variable:
+            return False, '变量均不存在'
 
-        if len(update_var_list) == 1:
-            sql = f"""SELECT id FROM exile_test_variable WHERE id = {update_var_list[-1].get('id')} and var_source is not null;"""
-            logger.success(sql)
-        else:
-            sql = f"""SELECT id FROM exile_test_variable WHERE id in {tuple(update_var_id_list)} and var_source is not null;"""
-            logger.success(sql)
-
-        query_result = project_db.select(sql)
-        if not query_result:
-            return False, '静态变量缺少来源,不能作为关系变量使用'
-
-        query_result_id = list(map(lambda x: x.get('id'), query_result))
-        cj = ActionSet.gen_difference(update_var_id_list, query_result_id)
-        if cj:
-            logger.error("cj:{}".format(cj))
-            return False, f'更新的变量不存在:{cj}'
+        query_variable_id_list = [variable.id for variable in query_variable]
+        variable_diff = ActionSet.gen_difference(update_var_id_list, query_variable_id_list)
+        if variable_diff:
+            return False, f'变量: {variable_diff} 不存在'
     return True, 'pass'
 
 
