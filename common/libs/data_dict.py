@@ -12,8 +12,6 @@ import shortuuid
 import operator
 
 
-# print(operator.eq(1, 2))
-
 class GlobalsDict:
     """全局字典"""
 
@@ -53,11 +51,50 @@ class GlobalsDict:
         }
         return d
 
+    @classmethod
+    def resp_source_tuple(cls):
+        """返回值来源"""
+
+        t = ("response_body", "response_headers")
+        return t
+
+    @classmethod
+    def var_source_tuple(cls):
+        """变量来源"""
+
+        t = ("response_body", "response_headers")
+        return t
+
+    @classmethod
+    def rule_dict(cls):
+        """规则字典"""
+
+        d = {
+            '==': '__eq__',
+            '>': '__gt__',
+            '>=': '__ge__',
+            '<': '__lt__',
+            '<=': '__le__',
+            '!=': '__ne__',
+            'in': '__contains__'
+        }
+        return d
+
+    @classmethod
+    def test_rule_dict(cls, l, r):
+        """1"""
+
+        print(f'{l} == {r}', operator.eq(l, r))
+        print(f'{l} > {r}', operator.gt(l, r))
+        print(f'{l} >= {r}', operator.ge(l, r))
+        print(f'{l} < {r}', operator.lt(l, r))
+        print(f'{l} <= {r}', operator.le(l, r))
+        print(f'{l} != {r}', operator.ne(l, r))
+        print(f'{l} != {r}', operator.ne(l, r))
+        print(f'{l} in {r}', operator.contains(str(l), str(r)))
+
 
 """断言相关"""
-# 返回值来源
-resp_source_tuple = ("response_body", "response_headers")
-
 var_source_tuple = ('resp_data', 'resp_headers')
 
 # RespAssertionRuleApi, FieldAssertionRuleApi 新增,编辑时候使用
@@ -211,19 +248,14 @@ def gen_redis_first_logs(execute_id):
     return d
 
 
-case_type_dict = {
-    "1": "api自动化测试",
-    "2": "ui自动化测试",
-    "3": "性能测试",
-    "4": "安全测试"
-}
-
 if __name__ == '__main__':
+    pass
     a = "123a"
     # a = 123
-    type_conversion(1, a)
-    type_conversion(2, a)
-    type_conversion(3, a)
-    type_conversion(4, a)
-    type_conversion(5, a)
-    type_conversion(6, a)
+    # type_conversion(1, a)
+    # type_conversion(2, a)
+    # type_conversion(3, a)
+    # type_conversion(4, a)
+    # type_conversion(5, a)
+    # type_conversion(6, a)
+    GlobalsDict.test_rule_dict(1, 2)

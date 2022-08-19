@@ -177,7 +177,7 @@ class RespAssertionRuleApi(MethodView):
 
             resp_source = a.get('response_source')
 
-            if resp_source not in resp_source_tuple:
+            if resp_source not in GlobalsDict.resp_source_tuple():
                 return api_result(code=BUSINESS_ERROR, message=f'来源参数错误:{resp_source}')
 
             if not rule:
@@ -254,7 +254,7 @@ class RespAssertionRuleApi(MethodView):
 
             resp_source = a.get('response_source')
 
-            if resp_source not in resp_source_tuple:
+            if resp_source not in GlobalsDict.resp_source_tuple():
                 return api_result(code=BUSINESS_ERROR, message=f'来源参数错误:{resp_source}')
 
             if not rule:

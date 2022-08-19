@@ -11,7 +11,7 @@ import redis
 from common.libs.db import MyPyMysql, MyPostgreSql, MySqlServer
 from common.libs.execute_code import execute_code
 from common.libs.StringIOLog import StringIOLog
-from common.libs.data_dict import rule_dict, resp_source_tuple, expect_val_type_dict
+from common.libs.data_dict import GlobalsDict, rule_dict, expect_val_type_dict
 from common.libs.db import project_db
 
 
@@ -83,11 +83,11 @@ class AssertResponseMain(AssertMain):
         :return:
         """
 
-        if self.response_source not in resp_source_tuple:
+        if self.response_source not in GlobalsDict.resp_source_tuple():
             self.sio.log(f"response 来源错误: {self.response_source}", status="error")
             return False
 
-        if self.response_source == resp_source_tuple[0]:  # response_body
+        if self.response_source == GlobalsDict.resp_source_tuple()[0]:  # response_body
             if self.is_expression:
                 result_json = execute_code(code=self.python_val_exp, data=self.resp_json)
                 result = result_json.get('result_data')
@@ -96,7 +96,7 @@ class AssertResponseMain(AssertMain):
             else:
                 self.this_val = self.resp_json.get(self.assert_key)  # 直接常规取值:紧限于返回值的第一层键值对如:{"code":200,"message":"ok"}
 
-        if self.response_source == resp_source_tuple[1]:  # response_headers
+        if self.response_source == GlobalsDict.resp_source_tuple()[1]:  # response_headers
             if self.is_expression:
                 result_json = execute_code(code=self.python_val_exp, data=self.resp_headers)
                 result = result_json.get('result_data')
