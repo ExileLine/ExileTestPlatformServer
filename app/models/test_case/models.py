@@ -46,8 +46,8 @@ class TestCase(BaseModel):
     def is_shared(self):
         return bool(self._is_shared)
 
-    @is_public.setter
-    def is_public(self, value):
+    @is_shared.setter
+    def is_shared(self, value):
         if not isinstance(value, bool):
             self._is_shared = False
         else:
