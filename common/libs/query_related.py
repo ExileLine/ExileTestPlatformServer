@@ -116,7 +116,6 @@ def query_case_assemble(case_id):
 
     case_info["version_list"] = version_list
     case_info["module_list"] = module_list
-    case_info['is_shared'] = bool(case_info.get('is_shared'))
     result = {
         "case_info": case_info,
         "bind_info": bind_info

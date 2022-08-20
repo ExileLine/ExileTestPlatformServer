@@ -13,7 +13,7 @@ class TestCase(BaseModel):
     __tablename__ = 'exile_test_case'
     __table_args__ = {'comment': '测试用例'}
 
-    hidden_fields = ["_is_public"]
+    hidden_fields = ["_is_public", "_is_shared"]
     handle_property = True
 
     case_name = db.Column(db.String(255), nullable=False, comment='用户名称')
@@ -22,8 +22,8 @@ class TestCase(BaseModel):
     request_url = db.Column(db.String(2048), nullable=False, comment='请求URL')
     case_status = db.Column(db.String(255), comment='用例周期状态:active;dev;debug;over')
     is_pass = db.Column(TINYINT(1, unsigned=True), default=0, comment='0-不跳过;1-跳过')
-    is_shared = db.Column(TINYINT(1, unsigned=True), default=1, comment='0-仅创建者执行;1-共享执行')
-    _is_public = db.Column("is_public", TINYINT(1, unsigned=True), default=1, comment='是否公共使用:0-否;1-是')
+    _is_shared = db.Column('is_shared', TINYINT(1, unsigned=True), default=1, comment='0-仅创建者执行;1-共享执行')
+    _is_public = db.Column('is_public', TINYINT(1, unsigned=True), default=1, comment='是否公共使用:0-否;1-是')
     total_execution = db.Column(BIGINT(20, unsigned=True), default=0, comment='执行次数总计')
     creator = db.Column(db.String(32), comment='创建人')
     creator_id = db.Column(BIGINT(20, unsigned=True), comment='创建人id')
@@ -41,6 +41,17 @@ class TestCase(BaseModel):
             self._is_public = False
         else:
             self._is_public = value
+
+    @property
+    def is_shared(self):
+        return bool(self._is_shared)
+
+    @is_public.setter
+    def is_public(self, value):
+        if not isinstance(value, bool):
+            self._is_shared = False
+        else:
+            self._is_shared = value
 
     def add_total_execution(self):
         """执行次数增加"""
