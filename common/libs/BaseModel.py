@@ -57,6 +57,16 @@ class BaseModel(db.Model):
         """
         return self.__dict__
 
+    def get_class_property(self):
+        """
+        获取被 @property 修饰的值
+        :return:
+        """
+        property_dict = {
+            name: self.__getattribute__(name) for name, obj in vars(self.__class__).items() if isinstance(obj, property)
+        }
+        return property_dict
+
     def to_json(self, hidden_fields=None):
         """
         Json序列化
@@ -66,8 +76,9 @@ class BaseModel(db.Model):
 
         hf = hidden_fields if hidden_fields and isinstance(hidden_fields, list) else self.hidden_fields
 
-        model_json = {}
-
+        model_json = {
+            "id": getattr(self, "id")
+        }
         for column in self.get_fields():
             if column not in hf:  # 不需要返回的字段与值
                 if hasattr(self, column):
