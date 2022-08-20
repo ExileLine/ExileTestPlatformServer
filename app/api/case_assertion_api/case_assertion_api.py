@@ -52,6 +52,8 @@ class CheckAssertion:
         :return:
         """
 
+        ass['uuid'] = f"{shortuuid.uuid()}-{int(time.time())}"
+
         resp_source = ass.get('response_source')
         if resp_source not in GlobalsDict.resp_source_tuple():
             return False, f'来源参数错误:{resp_source}'
@@ -146,7 +148,7 @@ def assertion_decorator(func):
             return api_result(code=REQUIRED, message='断言描述不能为空')
 
         if not isinstance(ass_json, list) or not ass_json:
-            return api_result(code=TYPE_ERROR, message='参数错误')
+            return api_result(code=TYPE_ERROR, message='断言规则不能为空')
 
         if is_public and not isinstance(is_public, bool):
             return api_result(code=TYPE_ERROR, message=f'标识错误: {is_public}')
@@ -210,8 +212,9 @@ class RespAssertionRuleApi(MethodView):
 
         if not query_ass_resp:
             return api_result(code=NO_DATA, message='断言规则不存在')
-
-        return api_result(code=SUCCESS, message='操作成功', data=query_ass_resp.to_json())
+        result = query_ass_resp.to_json()
+        result['is_public'] = bool(result.get('is_public'))
+        return api_result(code=SUCCESS, message='操作成功', data=result)
 
     @assertion_decorator
     def post(self):
@@ -291,7 +294,7 @@ class RespAssertionRuleApi(MethodView):
         query_ass_resp.modifier_id = g.app_user.id
         db.session.commit()
 
-        return api_result(code=PUT_SUCCESS, message='编辑成功')
+        return api_result(code=PUT_SUCCESS, message='编辑成功', data=query_ass_resp.to_json())
 
     def delete(self):
         """响应断言规则删除"""
