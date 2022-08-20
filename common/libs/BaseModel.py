@@ -29,6 +29,7 @@ class BaseModel(db.Model):
     """
 
     hidden_fields = []  # 不需要返回的字段与值
+    handle_property = False  # 是否调用 gen_property_fields()
 
     __abstract__ = True
 
@@ -57,7 +58,7 @@ class BaseModel(db.Model):
         """
         return self.__dict__
 
-    def get_class_property(self):
+    def gen_property_fields(self):
         """
         获取被 @property 修饰的值
         :return:
@@ -66,6 +67,20 @@ class BaseModel(db.Model):
             name: self.__getattribute__(name) for name, obj in vars(self.__class__).items() if isinstance(obj, property)
         }
         return property_dict
+
+    @staticmethod
+    def var_format(field):
+        """字段值类型格式化,防止json格式化错误"""
+
+        if not field:
+            return field
+        elif isinstance(field, decimal.Decimal):  # Decimal -> float
+            field = round(float(field), 2)
+        elif isinstance(field, datetime):  # datetime -> str
+            field = str(field)
+        else:
+            pass  # 其他后续补充
+        return field
 
     def to_json(self, hidden_fields=None):
         """
@@ -79,18 +94,21 @@ class BaseModel(db.Model):
         model_json = {
             "id": getattr(self, "id")
         }
+
         for column in self.get_fields():
             if column not in hf:  # 不需要返回的字段与值
                 if hasattr(self, column):
                     field = getattr(self, column)
-                    if isinstance(field, decimal.Decimal):  # Decimal -> float
-                        field = round(float(field), 2)
-                    elif isinstance(field, datetime):  # datetime -> str
-                        field = str(field)
-                    model_json[column] = field
+                    model_json[column] = self.var_format(field=field)
 
         del model_json['_sa_instance_state']
 
+        if self.handle_property:
+            property_dict = self.gen_property_fields()
+            if property_dict:
+                for key, var in property_dict.items():
+                    property_dict[key] = self.var_format(field=var)
+            model_json.update(property_dict)
         return model_json
 
     def save(self):
