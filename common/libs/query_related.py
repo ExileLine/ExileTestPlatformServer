@@ -11,7 +11,7 @@ from flask_sqlalchemy.model import DefaultMeta
 from common.libs.db import project_db
 from common.libs.set_app_context import set_app_context
 from app.models.test_case.models import TestCase, TestCaseData
-from app.models.test_case_assert.models import TestCaseDataAssBind, TestCaseAssResponse, TestCaseAssField
+from app.models.test_case_assert.models import TestCaseDataAssBind, TestCaseAssertion
 from app.models.test_project.models import TestProjectVersion, MidVersionCase, MidModuleCase, TestModuleApp
 
 
@@ -41,7 +41,7 @@ class MapToJsonObj:
         """
 
         if ass_resp_id_list:
-            query_ass_resp = TestCaseAssResponse.query.filter(TestCaseAssResponse.id.in_(ass_resp_id_list)).all()
+            query_ass_resp = TestCaseAssertion.query.filter(TestCaseAssertion.id.in_(ass_resp_id_list)).all()
             ass_resp_obj_list = [ass.to_json() for ass in query_ass_resp]
             return ass_resp_obj_list
         else:
@@ -56,7 +56,7 @@ class MapToJsonObj:
         """
 
         if ass_field_id_list:
-            query_ass_field = TestCaseAssField.query.filter(TestCaseAssField.id.in_(ass_field_id_list)).all()
+            query_ass_field = TestCaseAssertion.query.filter(TestCaseAssertion.id.in_(ass_field_id_list)).all()
             ass_field_obj_list = [ass.to_json() for ass in query_ass_field]
             return ass_field_obj_list
         else:
