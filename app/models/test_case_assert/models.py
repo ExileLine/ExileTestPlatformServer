@@ -52,15 +52,29 @@ class TestCaseAssertion(BaseModel):
     __tablename__ = 'exile5_case_assertion'
     __table_args__ = {'comment': '断言规则'}
 
+    hidden_fields = ["_is_public"]
+    handle_property = True
+
     assert_description = db.Column(db.String(255), nullable=False, comment='断言描述')
     ass_json = db.Column(db.JSON, comment='断言')
-    is_public = db.Column(TINYINT(1, unsigned=True), default=1, comment='是否公共使用:0-否;1-是')
+    _is_public = db.Column('is_public', TINYINT(1, unsigned=True), default=1, comment='是否公共使用:0-否;1-是')
     assertion_type = db.Column(db.String(64), comment='断言类型:response;field')
     creator = db.Column(db.String(32), comment='创建人')
     creator_id = db.Column(BIGINT(20, unsigned=True), comment='创建人id')
     modifier = db.Column(db.String(32), comment='更新人')
     modifier_id = db.Column(BIGINT(20, unsigned=True), comment='更新人id')
     remark = db.Column(db.String(255), comment='备注')
+
+    @property
+    def is_public(self):
+        return bool(self._is_public)
+
+    @is_public.setter
+    def is_public(self, value):
+        if not isinstance(value, bool):
+            self._is_public = False
+        else:
+            self._is_public = value
 
     def __repr__(self):
         return 'TestCaseAssertion 模型对象-> ID:{} 断言描述:{} 断言类型:{}'.format(

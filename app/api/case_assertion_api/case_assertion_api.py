@@ -211,9 +211,8 @@ class RespAssertionRuleApi(MethodView):
         query_ass_resp = TestCaseAssertion.query.get(ass_resp_id)
 
         if not query_ass_resp:
-            return api_result(code=NO_DATA, message='断言规则不存在')
+            return api_result(code=NO_DATA, message='响应断言规则不存在')
         result = query_ass_resp.to_json()
-        result['is_public'] = bool(result.get('is_public'))
         return api_result(code=SUCCESS, message='操作成功', data=result)
 
     @assertion_decorator
@@ -241,12 +240,12 @@ class RespAssertionRuleApi(MethodView):
         new_ass_resp = TestCaseAssertion(
             assert_description=assert_description,
             ass_json=ass_json,
-            is_public=is_public,
             assertion_type="response",
             creator=g.app_user.username,
             creator_id=g.app_user.id,
             remark=remark
         )
+        new_ass_resp.is_public = is_public
         new_ass_resp.save()
         return api_result(code=POST_SUCCESS, message='创建成功', data=new_ass_resp.to_json())
 
@@ -363,9 +362,9 @@ class FieldAssertionRuleApi(MethodView):
         query_ass_field = TestCaseAssertion.query.get(ass_field_id)
 
         if not query_ass_field:
-            return api_result(code=NO_DATA, message='断言规则不存在')
-
-        return api_result(code=SUCCESS, message='操作成功', data=query_ass_field.to_json())
+            return api_result(code=NO_DATA, message='字段断言规则不存在')
+        result = query_ass_field.to_json()
+        return api_result(code=SUCCESS, message='操作成功', data=result)
 
     @assertion_decorator
     def post(self):
