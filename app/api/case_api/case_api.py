@@ -81,9 +81,6 @@ def case_decorator(func):
         case_name = data.get('case_name', '').strip()
         request_method = data.get('request_method').upper()
         request_base_url = data.get('request_base_url', '').strip()
-        request_url = data.get('request_url', '').strip()
-        is_shared = data.get('is_shared', True)
-        is_public = data.get('is_public', True)
         case_status = data.get('case_status')
 
         check_bool, check_msg = RequestParamKeysCheck(data, params_key).result()
@@ -114,9 +111,6 @@ def case_decorator(func):
 
         if not case_name:
             return api_result(code=NO_DATA, message='用例名称不能为空')
-
-        if is_public and not isinstance(is_public, bool):
-            return api_result(code=TYPE_ERROR, message=f'用例标识错误: {is_public}')
 
         if case_status not in ('active', 'dev', 'debug', 'over'):
             return api_result(code=NO_DATA, message=f'用例状态不存在: {case_status}')
@@ -159,8 +153,8 @@ class CaseApi(MethodView):
         request_method = data.get('request_method').upper()
         request_base_url = data.get('request_base_url', '').strip()
         request_url = data.get('request_url', '').strip()
-        is_shared = data.get('is_shared', True)
-        is_public = data.get('is_public', True)
+        is_shared = data.get('is_shared')
+        is_public = data.get('is_public')
         case_status = data.get('case_status', 'debug')
         remark = data.get('remark')
 
@@ -204,8 +198,7 @@ class CaseApi(MethodView):
                 module_id=module_id, case_id=case_id, creator=g.app_user.username, creator_id=g.app_user.id)),
                  module_id_list))
         db.session.commit()
-        data['id'] = case_id
-        return api_result(code=POST_SUCCESS, message='创建成功', data=data)
+        return api_result(code=POST_SUCCESS, message='创建成功', data=new_test_case.to_json())
 
     @case_decorator
     def put(self):
@@ -220,8 +213,8 @@ class CaseApi(MethodView):
         request_method = data.get('request_method').upper()
         request_base_url = data.get('request_base_url', '').strip()
         request_url = data.get('request_url', '').strip()
-        is_shared = data.get('is_shared', True)
-        is_public = data.get('is_public', True)
+        is_shared = data.get('is_shared')
+        is_public = data.get('is_public')
         case_status = data.get('case_status')
         remark = data.get('remark')
 
@@ -280,7 +273,7 @@ class CaseApi(MethodView):
                      module_id_list))
 
         db.session.commit()
-        return api_result(code=PUT_SUCCESS, message='编辑成功')
+        return api_result(code=PUT_SUCCESS, message='编辑成功', data=query_case.to_json())
 
     def delete(self):
         """用例删除"""

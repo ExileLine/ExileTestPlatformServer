@@ -108,10 +108,6 @@ def data_decorator(deco_param):
             if not check_bool:
                 return api_result(code=NO_DATA, message=check_msg)
 
-            is_public = request_data.get('is_public')
-            if is_public and not isinstance(is_public, bool):
-                return api_result(code=TYPE_ERROR, message=f'标识错误: {is_public}')
-
             update_var_list = request_data.get('update_var_list', [])
             _update_var_list_bool, _update_var_list_msg = check_update_var(update_var_list=update_var_list)
             if not _update_var_list_bool:
@@ -236,7 +232,7 @@ class CaseReqDataApi(MethodView):
         query_test_case_data.modifier_id = g.app_user.id
         db.session.commit()
 
-        return api_result(code=PUT_SUCCESS, message='编辑成功')
+        return api_result(code=PUT_SUCCESS, message='编辑成功', data=query_test_case_data.to_json())
 
     def delete(self):
         """用例req数据删除"""
