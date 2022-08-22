@@ -233,16 +233,18 @@ class CaseVarHistoryApi(MethodView):
 
 class CaseVarPageApi(MethodView):
     """
-    case var page api
-    POST: 用例变量分页模糊查询
+    case variable page api
+    POST: 变量分页模糊查询
     """
 
     def post(self):
-        """用例变量分页模糊查询"""
+        """变量分页模糊查询"""
 
         data = request.get_json()
         var_id = data.get('var_id')
         var_name = data.get('var_name')
+        var_type = data.get('var_type')
+        var_source = data.get('var_source')
         is_deleted = data.get('is_deleted', 0)
         creator_id = data.get('creator_id')
         page = data.get('page')
@@ -261,6 +263,8 @@ class CaseVarPageApi(MethodView):
 
         where_dict = {
             "id": var_id,
+            "var_type": var_type,
+            "var_source": var_source,
             "is_deleted": is_deleted,
             "creator_id": creator_id
         }
