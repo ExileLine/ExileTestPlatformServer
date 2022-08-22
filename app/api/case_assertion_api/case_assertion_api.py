@@ -119,9 +119,6 @@ def assertion_decorator(func):
         if not isinstance(ass_json, list) or not ass_json:
             return api_result(code=TYPE_ERROR, message='断言规则不能为空')
 
-        if is_public and not isinstance(is_public, bool):
-            return api_result(code=TYPE_ERROR, message=f'标识错误: {is_public}')
-
         return func(*args, **kwargs)
 
     return wrapper
