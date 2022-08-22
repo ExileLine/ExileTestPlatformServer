@@ -274,17 +274,6 @@ rule_dict = {
 
 """变量相关"""
 
-# 变量原生函数字典
-var_native_func_dict = {
-    "1": str,
-    "2": int,
-    "3": json.loads,
-    "4": json.dumps,
-    "5": json.loads,
-    "6": json.dumps,
-
-}
-
 # 变量转换函数字典
 var_func_dict = {
     "7": "",  # uuid
@@ -294,29 +283,6 @@ var_func_dict = {
     "11": "",  # datetime(年月日时分秒-2022-01-01 09:30:00.123456)
     "12": ""  # timestamp(时间戳)
 }
-
-
-def type_conversion(type_key, val, type_dict=None):
-    """
-    类型转换
-    :param type_key: 类型字典key
-    :param val: 需要转换的值
-    :param type_dict: 使用那个字典
-    :return:
-    """
-    if type_dict == 'ass':
-        bf = expect_val_type_dict.get(str(type_key))
-    else:
-        bf = var_native_func_dict.get(str(type_key))
-    print(bf)
-    try:
-        new_val = bf(val)
-        print(f"值:{val}-{type(val)} 【func-{bf}】 {new_val}-{type(new_val)}")
-        return True, new_val
-    except BaseException as e:
-        print(f'参数:{val} 无法转换至 类型:{bf} ERROR:{e}')
-        return False, f'参数:{val} 无法转换至 类型:{bf}'
-
 
 """执行相关"""
 # 执行类型
@@ -365,4 +331,18 @@ if __name__ == '__main__':
     # type_conversion(4, a)
     # type_conversion(5, a)
     # type_conversion(6, a)
+
     # GlobalsDict.test_rule_dict(1, 2)
+
+    from types import MethodType, FunctionType
+
+    for k, v in GlobalsDict.variable_type_dict().items():
+        # if isinstance(v, MethodType):
+        #     print("MethodType", k)
+
+        # if isinstance(v, FunctionType):
+        #     print("FunctionType", k)
+
+        # if isinstance(v, type):
+        #     print("type", k)
+        print(k, v.__class__)

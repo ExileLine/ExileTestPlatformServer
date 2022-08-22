@@ -16,7 +16,7 @@ from .auth_api.auth_api import AuthApi
 from .case_env_api.case_env_api import CaseEnvApi, CaseEnvPageApi
 from .case_api.case_api import CaseApi, CasePageApi, CaseCopyApi
 from .case_data_api.case_data_api import CaseReqDataApi, CaseReqDataPageApi
-from .case_var_api.case_var_api import CaseVarApi, CaseVarPageApi, CaseVarHistoryApi
+from .case_variable_api.case_variable_api import CaseVarApi, CaseVarPageApi, CaseVarHistoryApi
 from .case_db_api.case_db_api import CaseDBApi, CaseDBPageApi, CaseDBPingApi
 from .case_logs_api.case_logs_api import CaseLogsPageApi
 from .case_execute_logs_api.case_execute_logs_api import CaseExecuteLogsApi, CaseExecuteLogsPageApi
@@ -74,8 +74,8 @@ api.add_url_rule('/case_req_data', view_func=CaseReqDataApi.as_view('case_req_da
 api.add_url_rule('/case_req_data/<req_data_id>', view_func=CaseReqDataApi.as_view('case_req_data_detail'))
 api.add_url_rule('/case_req_data_page', view_func=CaseReqDataPageApi.as_view('case_req_data_page'))
 
-api.add_url_rule('/case_var', view_func=CaseVarApi.as_view('case_var'))
-api.add_url_rule('/case_var/<var_id>', view_func=CaseVarApi.as_view('case_var_detail'))
+api.add_url_rule('/case_variable', view_func=CaseVarApi.as_view('case_variable'))
+api.add_url_rule('/case_variable/<var_id>', view_func=CaseVarApi.as_view('case_variable_detail'))
 api.add_url_rule('/case_var_history', view_func=CaseVarHistoryApi.as_view('case_var_history'))
 api.add_url_rule('/case_var_page', view_func=CaseVarPageApi.as_view('case_var_page'))
 
