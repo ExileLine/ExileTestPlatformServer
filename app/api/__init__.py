@@ -77,7 +77,7 @@ api.add_url_rule('/case_req_data_page', view_func=CaseReqDataPageApi.as_view('ca
 api.add_url_rule('/case_variable', view_func=CaseVarApi.as_view('case_variable'))
 api.add_url_rule('/case_variable/<var_id>', view_func=CaseVarApi.as_view('case_variable_detail'))
 api.add_url_rule('/case_var_history', view_func=CaseVarHistoryApi.as_view('case_var_history'))
-api.add_url_rule('/case_var_page', view_func=CaseVarPageApi.as_view('case_var_page'))
+api.add_url_rule('/case_variable_page', view_func=CaseVarPageApi.as_view('case_variable_page'))
 
 api.add_url_rule('/case_db', view_func=CaseDBApi.as_view('case_db'))
 api.add_url_rule('/case_db/<db_id>', view_func=CaseDBApi.as_view('case_db_detail'))
