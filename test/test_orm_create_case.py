@@ -31,7 +31,7 @@ api_list = [
     '/api/case_send',
     '/api/case_exec',
     '/api/case_env',
-    '/api/case_var',
+    '/api/case_variable',
     '/api/case_set',
     '/api/tourist',
     '/api/case_db',
@@ -43,7 +43,7 @@ api_list = [
     '/api/resp_ass_rule/<ass_resp_id>',
     '/api/case_scenario/<scenario_id>',
     '/api/case_env/<env_id>',
-    '/api/case_var/<var_id>',
+    '/api/case_variable/<var_id>',
     '/api/case_db/<db_id>',
     '/api/case/<case_id>',
     '/static/<filename>'

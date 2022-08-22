@@ -839,13 +839,13 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "{{base_url}}/api/case_var/3",
+							"raw": "{{base_url}}/api/case_variable/3",
 							"host": [
 								"{{base_url}}"
 							],
 							"path": [
 								"api",
-								"case_var",
+								"case_variable",
 								"3"
 							]
 						}
@@ -867,13 +867,13 @@
 							}
 						},
 						"url": {
-							"raw": "{{base_url}}/api/case_var",
+							"raw": "{{base_url}}/api/case_variable",
 							"host": [
 								"{{base_url}}"
 							],
 							"path": [
 								"api",
-								"case_var"
+								"case_variable"
 							]
 						}
 					},
@@ -894,13 +894,13 @@
 							}
 						},
 						"url": {
-							"raw": "{{base_url}}/api/case_var",
+							"raw": "{{base_url}}/api/case_variable",
 							"host": [
 								"{{base_url}}"
 							],
 							"path": [
 								"api",
-								"case_var"
+								"case_variable"
 							]
 						}
 					},
@@ -921,13 +921,13 @@
 							}
 						},
 						"url": {
-							"raw": "{{base_url}}/api/case_var",
+							"raw": "{{base_url}}/api/case_variable",
 							"host": [
 								"{{base_url}}"
 							],
 							"path": [
 								"api",
-								"case_var"
+								"case_variable"
 							]
 						}
 					},
