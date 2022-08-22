@@ -7,12 +7,108 @@
 
 import json
 import time
-import datetime
-import shortuuid
+import random
+import string
 import operator
 
+import shortuuid
 
-class GlobalsDict:
+
+class F:
+
+    @classmethod
+    def gen_uuid_long(cls, *args, **kwargs):
+        return shortuuid.uuid()[0:10] + str(int(time.time())) + shortuuid.uuid()[0:10]
+
+    @classmethod
+    def gen_uuid_short(cls, *args, **kwargs):
+        return shortuuid.uuid()
+
+    @classmethod
+    def gen_date(cls, *args, **kwargs):
+        """
+        日期:年月日 -> 2020-01-17
+        time.strftime("%Y-%m-%d")
+        str(datetime.datetime.now().date())
+        :return:
+        """
+        return time.strftime("%Y-%m-%d")
+
+    @classmethod
+    def gen_time(cls, *args, **kwargs):
+        """
+        时间:时分秒 -> 18:30:33
+        str(datetime.datetime.now().time()).split('.')[0]
+        time.strftime("%H:%M:%S")
+        :return:
+        """
+        return time.strftime("%H:%M:%S")
+
+    @classmethod
+    def gen_datetime(cls, *args, **kwargs):
+        """
+        日期:年月日时分秒 -> 2020-01-17 18:30:33
+        time.strftime("%Y-%m-%d %H:%M:%S")
+        str(datetime.datetime.now()).split('.')[0]
+        :return:
+        """
+        return time.strftime("%Y-%m-%d %H:%M:%S")
+
+    @classmethod
+    def gen_timestamp(cls, key=None, *args, **kwargs):
+        """
+        时间戳
+        10位: str(int(time.time()))
+        13位: str(int(time.time() * 1000))
+        :return:
+        """
+        if key:
+            return str(int(time.time() * 1000))
+        else:
+            return str(int(time.time()))
+
+    @classmethod
+    def gen_random_int(cls, length=6, *args, **kwargs):
+        """
+        生成随机数字
+        :param length:
+        :return: 随机数字
+        """
+        random_int = ''.join(random.choice(string.digits) for _ in range(length))
+        return int(random_int)
+
+    @classmethod
+    def gen_random_str(cls, length=6, *args, **kwargs):
+        """
+        生成随机字符串
+        :param length:
+        :param key:
+        :return: 随机字符串
+        """
+        random_str = ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(length))
+        return random_str
+
+    @classmethod
+    def gen_random_str_number(cls, length=6, *args, **kwargs):
+        """
+        生成随机字符串数字
+        :param length:
+        :return: 随机字符串
+        """
+
+        random_str_number = ''.join(random.choice(string.digits) for _ in range(length))
+        return random_str_number
+
+    @classmethod
+    def gen_random_bool(cls, *args, **kwargs):
+        """
+        生成随机布尔值
+        :return:
+        """
+        return random.choice([True, False])
+
+
+class GlobalsDict(F):
     """全局字典"""
 
     @classmethod
@@ -133,6 +229,25 @@ class GlobalsDict:
         }
         return d
 
+    @classmethod
+    def variable_type_dict(cls):
+        """变量类型字典"""
+
+        d = {
+            "random_int": cls.gen_random_int,
+            "random_str": cls.gen_random_str,
+            "random_str_number": cls.gen_random_str_number,
+            "random_bool": cls.gen_random_bool,
+            "date": cls.gen_date,
+            "time": cls.gen_time,
+            "datetime": cls.gen_datetime,
+            "timestamp": cls.gen_timestamp,
+            "uuid_short": cls.gen_uuid_short,
+            "uuid_long": cls.gen_uuid_long
+        }
+        d.update(cls.value_type_dict())
+        return d
+
 
 """断言相关"""
 
@@ -159,31 +274,6 @@ rule_dict = {
 
 """变量相关"""
 
-
-def gen_shortuuid_1():
-    return shortuuid.uuid()[0:10] + str(int(time.time())) + shortuuid.uuid()[0:10]
-
-
-def gen_shortuuid_2():
-    return shortuuid.uuid()
-
-
-def gen_date():
-    return str(datetime.datetime.now().date())
-
-
-def gen_time():
-    return str(datetime.datetime.now().time())
-
-
-def gen_datetime():
-    return str(datetime.datetime.now())
-
-
-def gen_timestamp():
-    return str(int(time.time()))
-
-
 # 变量原生函数字典
 var_native_func_dict = {
     "1": str,
@@ -197,12 +287,12 @@ var_native_func_dict = {
 
 # 变量转换函数字典
 var_func_dict = {
-    "7": gen_shortuuid_1,  # uuid
-    "8": gen_shortuuid_2,  # short_uuid
-    "9": gen_date,  # date(年月日-2022-01-01)
-    "10": gen_time,  # time(时分秒-09:30:00.123456)
-    "11": gen_datetime,  # datetime(年月日时分秒-2022-01-01 09:30:00.123456)
-    "12": gen_timestamp  # timestamp(时间戳)
+    "7": "",  # uuid
+    "8": "",  # short_uuid
+    "9": "",  # date(年月日-2022-01-01)
+    "10": "",  # time(时分秒-09:30:00.123456)
+    "11": "",  # datetime(年月日时分秒-2022-01-01 09:30:00.123456)
+    "12": ""  # timestamp(时间戳)
 }
 
 
@@ -275,4 +365,4 @@ if __name__ == '__main__':
     # type_conversion(4, a)
     # type_conversion(5, a)
     # type_conversion(6, a)
-    GlobalsDict.test_rule_dict(1, 2)
+    # GlobalsDict.test_rule_dict(1, 2)
