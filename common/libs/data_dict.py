@@ -203,18 +203,6 @@ class GlobalsDict(F):
         return d
 
     @classmethod
-    def test_rule_dict(cls, l, r):
-        """测试"""
-
-        print(f'{l} == {r}', operator.eq(l, r))
-        print(f'{l} > {r}', operator.gt(l, r))
-        print(f'{l} >= {r}', operator.ge(l, r))
-        print(f'{l} < {r}', operator.lt(l, r))
-        print(f'{l} <= {r}', operator.le(l, r))
-        print(f'{l} != {r}', operator.ne(l, r))
-        print(f'{l} in {r}', operator.contains(str(l), str(r)))
-
-    @classmethod
     def value_type_dict(cls):
         """数据类型"""
 
@@ -247,6 +235,30 @@ class GlobalsDict(F):
         }
         d.update(cls.value_type_dict())
         return d
+
+    @classmethod
+    def test_dict(cls, l, r):
+        """测试"""
+
+        print(f'{l} == {r}', operator.eq(l, r))
+        print(f'{l} > {r}', operator.gt(l, r))
+        print(f'{l} >= {r}', operator.ge(l, r))
+        print(f'{l} < {r}', operator.lt(l, r))
+        print(f'{l} <= {r}', operator.le(l, r))
+        print(f'{l} != {r}', operator.ne(l, r))
+        print(f'{l} in {r}', operator.contains(str(l), str(r)))
+
+        from types import MethodType, FunctionType
+        for k, v in cls.variable_type_dict().items():
+            # if isinstance(v, MethodType):
+            #     print("MethodType", k)
+
+            # if isinstance(v, FunctionType):
+            #     print("FunctionType", k)
+
+            # if isinstance(v, type):
+            #     print("type", k)
+            print(k, v.__class__)
 
 
 """断言相关"""
@@ -332,17 +344,4 @@ if __name__ == '__main__':
     # type_conversion(5, a)
     # type_conversion(6, a)
 
-    # GlobalsDict.test_rule_dict(1, 2)
-
-    from types import MethodType, FunctionType
-
-    for k, v in GlobalsDict.variable_type_dict().items():
-        # if isinstance(v, MethodType):
-        #     print("MethodType", k)
-
-        # if isinstance(v, FunctionType):
-        #     print("FunctionType", k)
-
-        # if isinstance(v, type):
-        #     print("type", k)
-        print(k, v.__class__)
+    GlobalsDict.test_dict(1, 2)
