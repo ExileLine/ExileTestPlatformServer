@@ -32,7 +32,7 @@ class CheckAssertion:
     def convert_variable(cls, val, val_type, func):
         """
         校验参数是否能被转换
-        :param var:
+        :param val:
         :param val_type:
         :param func:
         :return:
@@ -45,18 +45,20 @@ class CheckAssertion:
             return False
 
     @classmethod
-    def check_resp_ass_json(cls, ass):
+    def check_ass_json(cls, ass, assertion_type=None):
         """
         校验响应断言规则参数格式
         :param ass:
+        :param assertion_type:
         :return:
         """
 
         ass['uuid'] = f"{shortuuid.uuid()}-{int(time.time())}"
 
-        resp_source = ass.get('response_source')
-        if resp_source not in GlobalsDict.resp_source_tuple():
-            return False, f'来源参数错误:{resp_source}'
+        if assertion_type == "response":
+            resp_source = ass.get('response_source')
+            if resp_source not in GlobalsDict.resp_source_tuple():
+                return False, f'参数来源错误:{resp_source}'
 
         rule = ass.get('rule')  # ==,>,< ...
         if not GlobalsDict.rule_dict_op().get(rule):
@@ -78,62 +80,29 @@ class CheckAssertion:
                     return False, f'参数: {expect_val} 无法转换至类型: {expect_val_type}'
             return True, ass
 
+    @classmethod
+    def check_query(cls, db_type, query):
+        """
+        检验语句防止删除语句
+        :param db_type:
+        :param query:
+        :return:
+        """
+        if db_type.lower() == 'mysql':
+            pattern = r"\b(exec|insert|drop|grant|alter|delete|update|count|chr|mid|master|truncate|char|delclare)\b|(\*)"
+            result = re.search(pattern, query.lower())
+            if result:
+                print(result.group())
+                return True
 
-def gen_new_ass(ass_obj):
-    """
-    {
-        "assert_key": "id",
-        "expect_val": "1",
-        "expect_val_type": "1",
-        "is_expression": 1,
-        "python_val_exp": "obj.get('id')",
-        "rule": "=="
-    }
-    :param ass_obj:
-    :return:
-    """
-
-    expect_val = ass_obj.get('expect_val')
-    check_expect_val = str(expect_val).strip()
-    if check_expect_val[0:2] == "${" and check_expect_val[-1] == "}":
-        return ass_obj
-
-    con_bool, new_expect_val = type_conversion(
-        type_key=ass_obj.get('expect_val_type'),
-        val=ass_obj.get('expect_val'),
-        type_dict='ass'
-    )
-
-    if not con_bool:
-        return False
-
-    ass_obj['expect_val'] = new_expect_val
-
-    return ass_obj
-
-
-def check_query(db_type, query):
-    """
-    检验语句防止删除语句
-    :param db_type:
-    :param query:
-    :return:
-    """
-    if db_type.lower() == 'mysql':
-        pattern = r"\b(exec|insert|drop|grant|alter|delete|update|count|chr|mid|master|truncate|char|delclare)\b|(\*)"
-        result = re.search(pattern, query.lower())
-        if result:
-            print(result.group())
-            return True
-
-    elif db_type.lower() == 'redis':
-        pattern = r"\b(del|delete|unlink|flushdb|flushall)\b|(\*)"
-        result = re.search(pattern, query.lower())
-        if result:
-            print(result.group())
-            return True
-    else:
-        return False
+        elif db_type.lower() == 'redis':
+            pattern = r"\b(del|delete|unlink|flushdb|flushall)\b|(\*)"
+            result = re.search(pattern, query.lower())
+            if result:
+                print(result.group())
+                return True
+        else:
+            return False
 
 
 def assertion_decorator(func):
@@ -233,7 +202,7 @@ class RespAssertionRuleApi(MethodView):
             if not check_bool:
                 return api_result(code=BUSINESS_ERROR, message='检验对象错误', data=a)
 
-            result_bool, result = CheckAssertion.check_resp_ass_json(ass)
+            result_bool, result = CheckAssertion.check_ass_json(ass=ass, assertion_type='response')
             if not result_bool:
                 return api_result(code=BUSINESS_ERROR, message=result)
 
@@ -281,7 +250,7 @@ class RespAssertionRuleApi(MethodView):
             if not check_bool:
                 return api_result(code=BUSINESS_ERROR, message='请求参数错误')
 
-            result_bool, result = CheckAssertion.check_resp_ass_json(ass)
+            result_bool, result = CheckAssertion.check_ass_json(ass=ass, assertion_type='response')
             if not result_bool:
                 return api_result(code=BUSINESS_ERROR, message=result)
 
@@ -303,7 +272,7 @@ class RespAssertionRuleApi(MethodView):
         query_ass_resp = TestCaseAssertion.query.get(ass_resp_id)
 
         if not query_ass_resp:
-            return api_result(code=NO_DATA, message='断言规则不存在')
+            return api_result(code=NO_DATA, message='响应断言规则不存在')
 
         if query_ass_resp.creator_id != g.app_user.id:
             return api_result(code=BUSINESS_ERROR, message='非管理员不能删除其他人的断言！')
@@ -378,29 +347,29 @@ class FieldAssertionRuleApi(MethodView):
         remark = data.get('remark')
 
         for ass_obj in ass_json:
-            db_id = ass_obj.get('db_id')
-            assert_list = ass_obj.get('assert_list')
 
+            db_id = ass_obj.get('db_id')
             query_db = TestDatabases.query.get(db_id)
             if not query_db:
-                return api_result(code=NO_DATA, message='数据库不存在')
+                return api_result(code=NO_DATA, message=f'数据库: {db_id} 不存在')
 
             if query_db.is_deleted:
                 return api_result(code=BUSINESS_ERROR, message=f'数据库: {query_db.name} 被禁用')
 
+            assert_list = ass_obj.get('assert_list')
             for ass in assert_list:
                 query = ass.get('query')
                 assert_field_list = ass.get('assert_field_list')
 
                 db_type = query_db.db_type
-                check_query_result = check_query(db_type=db_type, query=query)
+                check_query_result = CheckAssertion.check_query(db_type=db_type, query=query)
                 if check_query_result:
                     return api_result(code=BUSINESS_ERROR, message='只能使用查询相关的语句或命令')
 
-                new_assert_field_list = list(map(gen_new_ass, assert_field_list))
-                if False in new_assert_field_list:
-                    return api_result(code=BUSINESS_ERROR, message="期望值无法转换至类型，请检查")
-                ass['assert_field_list'] = new_assert_field_list
+                for a in assert_field_list:
+                    result_bool, result = CheckAssertion.check_ass_json(ass=a)
+                    if not result_bool:
+                        return api_result(code=BUSINESS_ERROR, message=result)
 
         new_ass_field = TestCaseAssertion(
             assert_description=assert_description,
@@ -429,42 +398,39 @@ class FieldAssertionRuleApi(MethodView):
         query_ass_field = TestCaseAssertion.query.get(ass_field_id)
 
         if not query_ass_field:
-            return api_result(code=NO_DATA, message='断言规则不存在')
+            return api_result(code=NO_DATA, message='字段断言规则不存在')
 
         if not bool(is_public) and query_ass_field.creator_id != g.app_user.id:
             return api_result(code=BUSINESS_ERROR, message='非创建人，无法修改使用状态')
 
-        if not bool(query_ass_field.is_public):
+        if not query_ass_field.is_public:
             if query_ass_field.creator_id != g.app_user.id:
                 return api_result(code=BUSINESS_ERROR, message='该字段断言规则未开放,只能被创建人修改!')
 
-        if not isinstance(ass_json, list) or not ass_json:
-            return api_result(code=TYPE_ERROR, message='参数错误')
-
         for ass_obj in ass_json:
-            db_id = ass_obj.get('db_id')
-            assert_list = ass_obj.get('assert_list')
 
+            db_id = ass_obj.get('db_id')
             query_db = TestDatabases.query.get(db_id)
             if not query_db:
-                return api_result(code=NO_DATA, message='数据库不存在')
+                return api_result(code=NO_DATA, message=f'数据库: {db_id} 不存在')
 
             if query_db.is_deleted:
                 return api_result(code=BUSINESS_ERROR, message=f'数据库: {query_db.name} 被禁用')
 
+            assert_list = ass_obj.get('assert_list')
             for ass in assert_list:
                 query = ass.get('query')
                 assert_field_list = ass.get('assert_field_list')
 
                 db_type = query_db.db_type
-                check_query_result = check_query(db_type=db_type, query=query)
+                check_query_result = CheckAssertion.check_query(db_type=db_type, query=query)
                 if check_query_result:
                     return api_result(code=BUSINESS_ERROR, message='只能使用查询相关的语句或命令')
 
-                new_assert_field_list = list(map(gen_new_ass, assert_field_list))
-                if False in new_assert_field_list:
-                    return api_result(code=BUSINESS_ERROR, message="期望值无法转换至类型，请检查")
-                ass['assert_field_list'] = new_assert_field_list
+                for a in assert_field_list:
+                    result_bool, result = CheckAssertion.check_ass_json(ass=a)
+                    if not result_bool:
+                        return api_result(code=BUSINESS_ERROR, message=result)
 
         query_ass_field.assert_description = assert_description
         query_ass_field.ass_json = ass_json
@@ -473,7 +439,7 @@ class FieldAssertionRuleApi(MethodView):
         query_ass_field.modifier = g.app_user.username
         query_ass_field.modifier_id = g.app_user.id
         db.session.commit()
-        return api_result(code=PUT_SUCCESS, message='编辑成功')
+        return api_result(code=PUT_SUCCESS, message='编辑成功', data=query_ass_field.to_json())
 
     def delete(self):
         """字段断言规则删除"""
@@ -483,7 +449,7 @@ class FieldAssertionRuleApi(MethodView):
         query_ass_field = TestCaseAssertion.query.get(ass_field_id)
 
         if not query_ass_field:
-            return api_result(code=NO_DATA, message='断言规则不存在')
+            return api_result(code=NO_DATA, message='字段断言规则不存在')
 
         if query_ass_field.creator_id != g.app_user.id:
             return api_result(code=BUSINESS_ERROR, message='非管理员不能删除其他人的断言！')
