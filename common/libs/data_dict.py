@@ -75,6 +75,8 @@ class F:
         :return: 随机数字
         """
         random_int = ''.join(random.choice(string.digits) for _ in range(length))
+        if random_int[0] == '0':
+            random_int += random.choice(string.digits)
         return int(random_int)
 
     @classmethod
@@ -344,4 +346,14 @@ if __name__ == '__main__':
     # type_conversion(5, a)
     # type_conversion(6, a)
 
-    GlobalsDict.test_dict(1, 2)
+    # GlobalsDict.test_dict(1, 2)
+    print(GlobalsDict.gen_uuid_long(), len(GlobalsDict.gen_uuid_long()))
+    print(GlobalsDict.gen_uuid_short(), len(GlobalsDict.gen_uuid_short()))
+    print(GlobalsDict.gen_date())
+    print(GlobalsDict.gen_time())
+    print(GlobalsDict.gen_datetime())
+    print(GlobalsDict.gen_timestamp())
+    print(GlobalsDict.gen_random_int())
+    print(GlobalsDict.gen_random_str())
+    print(GlobalsDict.gen_random_str_number())
+    print(GlobalsDict.gen_random_bool())
