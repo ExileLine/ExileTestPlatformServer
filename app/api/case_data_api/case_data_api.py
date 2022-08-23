@@ -255,12 +255,12 @@ class CaseReqDataApi(MethodView):
 
 class CaseReqDataPageApi(MethodView):
     """
-    case req data page api
-    POST: 用例req数据分页模糊查询
+    用例请求参数分页模糊查询 Api
+    POST: 用例请求参数分页模糊查询
     """
 
     def post(self):
-        """用例req数据分页模糊查询"""
+        """用例请求参数分页模糊查询"""
 
         data = request.get_json()
         data_id = data.get('data_id')
@@ -282,7 +282,7 @@ class CaseReqDataPageApi(MethodView):
             {f'AND data_name LIKE "%{data_name}%"' if data_name else ''}
             {f'AND creator_id={creator_id}' if creator_id else ''}
         ORDER BY
-            data_size 
+            update_timestamp desc 
         LIMIT {limit[0]},{limit[1]};
         """
 
