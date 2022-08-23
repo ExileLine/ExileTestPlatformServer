@@ -13,26 +13,38 @@ class TestVariable(BaseModel):
     __tablename__ = 'exile_test_variable'
     __table_args__ = {'comment': '测试用例变量'}
 
-    hidden_fields = ["_is_public", "_is_active"]
+    hidden_fields = ["_is_expression", "_is_public", "_is_active"]
     handle_property = True
 
     var_name = db.Column(db.String(255), nullable=False, comment='变量名称')
     var_init_value = db.Column(db.JSON, nullable=False, comment='初始变量值')
     var_value = db.Column(db.JSON, nullable=False, comment='当前变量值')
     var_type = db.Column(db.String(255), comment='变量值的类型:Str;Int;Json;JsonStr;List;ListStr')
+    var_args = db.Column(db.JSON, default={}, comment='函数变量扩展参数')
     var_source = db.Column(db.String(32), comment='值来源:resp_data;resp_header')
     var_get_key = db.Column(db.String(255), comment='值对应的key(用于关系变量获取)')
     expression = db.Column(db.String(255), comment='取值表达式')
-    is_expression = db.Column(TINYINT(1, unsigned=True), default=0, comment='是否使用取值表达式:0-否;1-是')
+    _is_expression = db.Column('is_expression', TINYINT(1, unsigned=True), default=0, comment='是否使用取值表达式:0-否;1-是')
     _is_active = db.Column('is_active', TINYINT(1, unsigned=True), default=0, comment='是否每次更新(针对函数变量,在用例场景中):0-否;1-是')
+    _is_public = db.Column('is_public', TINYINT(1, unsigned=True), default=0, comment='是否公共使用:0-否;1-是')
     last_func = db.Column(db.String(255), comment='上次最后使用的函数')
     last_func_var = db.Column(db.String(255), comment='上次最后函数使用的值')
-    _is_public = db.Column('is_public', TINYINT(1, unsigned=True), default=1, comment='是否公共使用:0-否;1-是')
     creator = db.Column(db.String(32), comment='创建人')
     creator_id = db.Column(BIGINT(20, unsigned=True), comment='创建人id')
     modifier = db.Column(db.String(32), comment='更新人')
     modifier_id = db.Column(BIGINT(20, unsigned=True), comment='更新人id')
     remark = db.Column(db.String(255), comment='备注')
+
+    @property
+    def is_expression(self):
+        return bool(self._is_expression)
+
+    @is_expression.setter
+    def is_expression(self, value):
+        if not isinstance(value, bool):
+            self._is_expression = False
+        else:
+            self._is_expression = value
 
     @property
     def is_public(self):
