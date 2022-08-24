@@ -23,10 +23,26 @@ from common.libs.assert_related import AssertResponseMain, AssertFieldMain
 from common.libs.StringIOLog import StringIOLog
 from common.libs.report_template import RepostTemplate
 from common.libs.execute_code import execute_code
-from common.libs.data_dict import var_func_dict, execute_label_tuple, gen_redis_first_logs
+from common.libs.data_dict import F, execute_label_tuple, gen_redis_first_logs
 from common.tools.send_mail import SendEmail
 from common.tools.message_push import MessagePush
 from config.config import config_obj
+
+
+"""
+该函数已经无法在新的数据结构中使用,保留仅用于重构过程中作为参考!
+该函数已经无法在新的数据结构中使用,保留仅用于重构过程中作为参考!
+该函数已经无法在新的数据结构中使用,保留仅用于重构过程中作为参考!
+"""
+# 变量转换函数字典
+var_func_dict = {
+    "7": F.gen_uuid_long,  # uuid
+    "8": F.gen_uuid_short,  # short_uuid
+    "9": F.gen_date,  # date(年月日-2022-01-01)
+    "10": F.gen_time,  # time(时分秒-09:30:00.123456)
+    "11": F.gen_datetime,  # datetime(年月日时分秒-2022-01-01 09:30:00.123456)
+    "12": F.gen_timestamp  # timestamp(时间戳)
+}
 
 
 class TestResult:
