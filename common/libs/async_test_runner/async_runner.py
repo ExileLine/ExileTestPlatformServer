@@ -12,11 +12,14 @@ import aiohttp
 import asyncio
 
 from common.libs.db import project_db
-from common.libs.data_dict import var_func_dict
+from common.libs.data_dict import GlobalsDict
 from common.libs.StringIOLog import StringIOLog
 from common.libs.async_test_runner.async_assertion import AsyncAssertionResponse, AsyncAssertionField
 from common.libs.async_test_runner.async_logs import AsyncRunnerLogs
 from common.libs.async_test_runner.async_result import AsyncTestResult
+
+value_type_dict = GlobalsDict.value_type_dict()
+variable_type_dict = GlobalsDict.variable_type_dict(merge=False)
 
 
 class AsyncCaseRunner:
@@ -173,6 +176,7 @@ class AsyncCaseRunner:
 
         json_str = json.dumps(before_value, ensure_ascii=False)
         var_name_list = re.findall('\\$\\{([^}]*)', json_str)  # 找出参数中带 ${} 的字符串
+        print('=== var_name_list ===')
         print(var_name_list)
 
         if not var_name_list:
@@ -185,7 +189,15 @@ class AsyncCaseRunner:
         where {f"var_name in {tuple(var_name_list)}" if len(var_name_list) > 1 else f"var_name='{var_name_list[-1]}'"} 
         and is_deleted=0;
         """
+        print('=== sql ===')
+        print(sql)
         query_result = project_db.select(sql=sql)
+
+        print('=== value_type_dict ===')
+        print(value_type_dict)
+
+        print('=== variable_type_dict ===')
+        print(variable_type_dict)
 
         d = {}
         for obj in query_result:  # 生成: {"var_name":"var_value"}
@@ -196,20 +208,20 @@ class AsyncCaseRunner:
             is_active = obj.get('is_active')
             print('===var_type===', var_type)
             print('===var_name===', var_name)
-            if str(var_type) in var_func_dict.keys():  # 函数
+            if var_type in variable_type_dict.keys():  # 函数
                 if var_id not in self.var_conversion_active_list:
-                    new_val = var_func_dict.get(str(var_type))()  # 首次触函数
+                    new_val = variable_type_dict.get(var_type)()  # 首次触函数
                     d[var_name] = new_val
                     self.current_var_value = new_val
                     self.var_conversion_active_list.append(var_id)
                 else:
                     if is_active == 1:
-                        new_val = var_func_dict.get(str(var_type))()
+                        new_val = variable_type_dict.get(var_type)()
                         d[var_name] = new_val
                     else:
                         d[var_name] = self.current_var_value
             else:
-                if var_type in (1, 2):
+                if var_type in value_type_dict:
                     d[var_name] = json.loads(var_value)
                 else:
                     d[var_name] = var_value
