@@ -25,5 +25,6 @@ imports = (
     'tasks.task01',
     'tasks.task02',
     'tasks.task03',
-    'tasks.postman_import'
+    'tasks.postman_import',
+    'tasks.execute_case'
 )
