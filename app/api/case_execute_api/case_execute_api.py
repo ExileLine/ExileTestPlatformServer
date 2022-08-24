@@ -19,6 +19,8 @@ from app.models.test_project.models import (
 )
 from app.models.test_env.models import TestEnv
 from app.models.push_reminder.models import DingDingConfModel, MailConfModel
+from common.libs.async_test_runner.test.test_case_loader import test_obj
+from tasks.execute_case import execute_case
 
 
 class GenExecuteData:
@@ -333,6 +335,13 @@ class CaseExecuteApi(MethodView):
     执行用例 Api
     POST: 执行用例
     """
+
+    def get(self):
+        """调试"""
+
+        results = execute_case.delay(test_obj)
+        print(results)
+        return api_result(code=SUCCESS, message='GET:操作成功,请前往日志查看执行结果', data=[str(results)])
 
     def post(self):
         """
