@@ -220,8 +220,12 @@ class GlobalsDict(F):
         return d
 
     @classmethod
-    def variable_type_dict(cls):
-        """变量类型字典"""
+    def variable_type_dict(cls, merge=True):
+        """
+        变量类型字典
+        :param merge: 默认合并数据类型字典
+        :return:
+        """
 
         d = {
             "random_int": cls.gen_random_int,
@@ -235,7 +239,8 @@ class GlobalsDict(F):
             "uuid_short": cls.gen_uuid_short,
             "uuid_long": cls.gen_uuid_long
         }
-        d.update(cls.value_type_dict())
+        if merge:
+            d.update(cls.value_type_dict())
         return d
 
     @classmethod
