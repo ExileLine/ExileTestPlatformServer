@@ -36,7 +36,8 @@ class AsyncCaseRunner:
 
         self.case_list = test_obj.get('case_list')  # 执行用例列表
         self.scenario_list = test_obj.get('scenario_list')  # 执行场景列表
-        self.sio = test_obj.get('sio', StringIOLog())  # 控制台日志
+        self.sio = StringIOLog()  # 控制台日志
+        # self.sio = test_obj.get('sio', StringIOLog())  # 控制台日志
 
         self.var_conversion_active_list = []
 
@@ -387,6 +388,15 @@ class AsyncCaseRunner:
         http_code = result.get('http_code')
         resp_json = result.get("resp_json")
 
+        await self.send_logs(
+            url=url,
+            headers=headers,
+            req_json=payload,
+            http_code=http_code,
+            resp_headers=resp_headers,
+            resp_json=resp_json
+        )
+
         await data_logs.add_logs(key='url', val=f"=== 数据驱动:{data_index} ===")
         await data_logs.add_logs(key='url', val=url)
         await data_logs.add_logs(key='method', val=request_method)
@@ -399,12 +409,21 @@ class AsyncCaseRunner:
         await self.request_after(data_id, data_name, case_data_info, data_logs)
 
         ass_resp = AsyncAssertionResponse(
-            http_code, resp_headers, resp_json, self.sio, case_resp_ass_info, data_logs, f"{data_id}-{data_name}"
+            http_code=http_code,
+            resp_headers=resp_headers,
+            resp_json=resp_json,
+            case_resp_ass_info=case_resp_ass_info,
+            data_logs=data_logs,
+            desc=f"{data_id}-{data_name}",
+            sio=self.sio
         )
         await ass_resp.main()
 
         ass_field = AsyncAssertionField(
-            self.sio, case_field_ass_info, data_logs, f"{data_id}-{data_name}"
+            case_field_ass_info=case_field_ass_info,
+            data_logs=data_logs,
+            desc=f"{data_id}-{data_name}",
+            sio=self.sio
         )
         await ass_field.main()
 

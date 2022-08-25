@@ -18,7 +18,7 @@ test_obj = {
     "execute_username": "admin",
     "base_url": "",
     "use_base_url": False,
-    "data_driven": True,
+    "data_driven": False,
     "is_execute_all": False,
     "case_list": [
         {
@@ -184,7 +184,24 @@ test_obj = {
                         ]
                     },
                     "case_resp_ass_info": [
-                        {"resp_ass": "1"}
+                        {"rule": "==", "uuid": "Xz4RF45iCgDHCkTiGYS2fT-1661339358", "assert_key": "code",
+                         "expect_val": "200", "is_expression": True, "python_val_exp": "obj.get(\"code\")",
+                         "expect_val_type": "int", "response_source": "response_body"},
+                        {"rule": "==", "uuid": "hxYzEfCNoSQzkdMXQHELa3-1661339358", "assert_key": "code",
+                         "expect_val": "200", "is_expression": False, "python_val_exp": "", "expect_val_type": "int",
+                         "response_source": "response_body"},
+                        {"rule": ">", "uuid": "bxCDs7PfdsPUdJzua3x3UD-1661339358", "assert_key": "code",
+                         "expect_val": "100", "is_expression": False, "python_val_exp": "", "expect_val_type": "int",
+                         "response_source": "response_body"},
+                        {"rule": "<", "uuid": "LLoZqmYtWjGY3uMrBTAS9i-1661339358", "assert_key": "code",
+                         "expect_val": "300", "is_expression": False, "python_val_exp": "", "expect_val_type": "int",
+                         "response_source": "response_body"},
+                        {"rule": "==", "uuid": "htsX2dSHnn8A2V6vNqoSmA-1661339358", "assert_key": "message",
+                         "expect_val": "登录成功", "is_expression": False, "python_val_exp": "", "expect_val_type": "str",
+                         "response_source": "response_body"},
+                        {"rule": "==", "uuid": "RKwtqExkiSPtvCL2KaBQGR-1661339358", "assert_key": "log_uuid",
+                         "expect_val": "1661338972_HZwpNW7x6jCRfhfwqmmyPh", "is_expression": False,
+                         "python_val_exp": "", "expect_val_type": "str", "response_source": "response_headers"}
                     ],
                     "case_field_ass_info": [
                         {"field_ass": "1"}
