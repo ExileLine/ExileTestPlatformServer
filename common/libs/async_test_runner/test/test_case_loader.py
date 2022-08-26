@@ -25,7 +25,7 @@ test_obj = {
             "case_info": {
                 "status": 1,
                 "total_execution": 10,
-                "case_name": "登录成功okc2",
+                "case_name": "登录成功123",
                 "is_public": True,
                 "create_time": "2022-08-01 11:43:36",
                 "request_method": "POST",
@@ -299,7 +299,7 @@ test_obj = {
             "case_info": {
                 "status": 1,
                 "total_execution": 10,
-                "case_name": "登录成功okc2",
+                "case_name": "登录成功456",
                 "is_public": True,
                 "create_time": "2022-08-01 11:43:36",
                 "request_method": "POST",
@@ -456,9 +456,7 @@ test_obj = {
                             }
                         ]
                     },
-                    "case_resp_ass_info": [
-                        {"resp_ass": "1"}
-                    ],
+                    "case_resp_ass_info": [],
                     "case_field_ass_info": [
                         {"field_ass": "1"}
                     ]
