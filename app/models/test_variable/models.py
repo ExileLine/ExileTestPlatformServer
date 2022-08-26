@@ -13,7 +13,7 @@ class TestVariable(BaseModel):
     __tablename__ = 'exile_test_variable'
     __table_args__ = {'comment': '测试用例变量'}
 
-    hidden_fields = ["_is_expression", "_is_public", "_is_active"]
+    hidden_fields = ["_is_source", "_is_expression", "_is_public", "_is_active"]
     handle_property = True
 
     var_name = db.Column(db.String(255), nullable=False, comment='变量名称')
@@ -24,6 +24,7 @@ class TestVariable(BaseModel):
     var_source = db.Column(db.String(32), comment='值来源:resp_data;resp_header')
     var_get_key = db.Column(db.String(255), comment='值对应的key(用于关系变量获取)')
     expression = db.Column(db.String(255), comment='取值表达式')
+    _is_source = db.Column('is_source', TINYINT(1, unsigned=True), default=0, comment='是否关系变量(主要用于前端标识):0-否;1-是')
     _is_expression = db.Column('is_expression', TINYINT(1, unsigned=True), default=0, comment='是否使用取值表达式:0-否;1-是')
     _is_active = db.Column('is_active', TINYINT(1, unsigned=True), default=0, comment='是否每次更新(针对函数变量,在用例场景中):0-否;1-是')
     _is_public = db.Column('is_public', TINYINT(1, unsigned=True), default=0, comment='是否公共使用:0-否;1-是')
@@ -34,6 +35,17 @@ class TestVariable(BaseModel):
     modifier = db.Column(db.String(32), comment='更新人')
     modifier_id = db.Column(BIGINT(20, unsigned=True), comment='更新人id')
     remark = db.Column(db.String(255), comment='备注')
+
+    @property
+    def is_source(self):
+        return bool(self._is_source)
+
+    @is_source.setter
+    def is_source(self, value):
+        if not isinstance(value, bool):
+            self._is_source = False
+        else:
+            self._is_source = value
 
     @property
     def is_expression(self):

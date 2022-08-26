@@ -93,6 +93,7 @@ class CaseVarApi(MethodView):
         var_source = data.get('var_source')
         var_get_key = data.get('var_get_key')
         expression = data.get('expression')
+        is_source = data.get('is_source')
         is_expression = data.get('is_expression')
         is_active = data.get('is_active')
         is_public = data.get('is_public')
@@ -110,6 +111,7 @@ class CaseVarApi(MethodView):
             var_source=var_source,
             var_get_key=var_get_key,
             expression=expression,
+            is_source=is_source,
             is_expression=is_expression,
             is_active=is_active,
             is_public=is_public,
@@ -132,6 +134,7 @@ class CaseVarApi(MethodView):
         var_source = data.get('var_source')
         var_get_key = data.get('var_get_key')
         expression = data.get('expression')
+        is_source = data.get('is_source')
         is_expression = data.get('is_expression')
         is_active = data.get('is_active')
         is_public = data.get('is_public')
@@ -160,6 +163,7 @@ class CaseVarApi(MethodView):
         query_variable.var_source = var_source
         query_variable.var_get_key = var_get_key
         query_variable.expression = expression
+        query_variable.is_source = is_source
         query_variable.is_expression = is_expression
         query_variable.is_active = is_active
         query_variable.is_public = is_public
