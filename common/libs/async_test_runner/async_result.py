@@ -41,6 +41,18 @@ class AsyncTestResult:
         self.all_test_count = 0
         self.all_test_rate = 0
 
+    async def add_resp_ass(self, d: dict):
+        """响应断言计数"""
+
+        self.resp_ass_success += d.get('success')
+        self.resp_ass_fail += d.get('fail')
+
+    async def add_field_ass(self, d: dict):
+        """字段断言计数"""
+
+        self.field_ass_success += d.get('success')
+        self.field_ass_fail += d.get('fail')
+
     @classmethod
     async def gen_rate(cls, first, last):
         """生成%,保留两位"""

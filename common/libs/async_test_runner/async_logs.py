@@ -56,6 +56,20 @@ case_logs_demo = [
     }
 ]
 
+log_desc_dict = {
+    "request_before": "=== 前置准备 ===",
+    "url": "=== 请求地址接口 ===",
+    "method": "=== 请求方式 ===",
+    "request_headers": "=== 请求头 ===",
+    "request_body": "=== 请求体 ===",
+    "http_code": "=== HTTP响应码 ===",
+    "response_headers": "=== 响应头 ===",
+    "response_body": "=== 响应体 ===",
+    "request_after": "=== 后置准备 ===",
+    "response_assert": "=== 响应断言汇总 ===",
+    "field_assert": "=== 字段断言汇总 ==="
+}
+
 
 class AsyncDataLogs:
     """异步日志记录(执行参数)"""
@@ -111,14 +125,22 @@ class AsyncDataLogs:
                 "logs": []
             }
         }
+        self.logs_summary = []
 
     async def add_logs(self, key, val):
-        """添加日志"""
+        """
+        添加日志
+        :param key: 日志分类标识
+        :param val: 日志内容
+        :return:
+        """
 
         if not self.logs.get(key):
             raise KeyError(f"日志分类错误:{key}")
 
         self.logs[key]['logs'].append(val)
+        self.logs_summary.append(log_desc_dict.get(key))
+        self.logs_summary.append(val)
 
     async def to_json(self):
         """1"""
@@ -126,7 +148,8 @@ class AsyncDataLogs:
         result = {
             "data_id": self.data_id,
             "data_name": self.data_name,
-            "logs": self.logs
+            "logs": self.logs,
+            "logs_summary": self.logs_summary
         }
         return result
 

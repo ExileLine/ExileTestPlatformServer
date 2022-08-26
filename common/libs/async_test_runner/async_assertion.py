@@ -42,10 +42,10 @@ class AsyncAssertionResponse:
         }
         self.count = {
             "success": 0,
-            "fail": 0
+            "fail": 0,
         }
 
-    def result(self, rule, response_source, assert_key, expect_val, expect_val_type, is_expression, python_val_exp,
+    async def result(self, rule, response_source, assert_key, expect_val, expect_val_type, is_expression, python_val_exp,
                **kwargs):
         """
 
@@ -61,12 +61,24 @@ class AsyncAssertionResponse:
 
         if response_source not in resp_source_tuple:
             self.sio.log(f"响应来源:{response_source}不存在，无法断言", status="error")
+            await self.data_logs.add_logs(
+                key="response_assert",
+                val=f"响应来源:{response_source}不存在，无法断言"
+            )
             return False
         if rule not in rule_dict_op:
             self.sio.log(f"规则:{rule}不存在，无法断言", status="error")
+            await self.data_logs.add_logs(
+                key="response_assert",
+                val=f"规则:{rule}不存在，无法断言"
+            )
             return False
         if expect_val_type not in value_type_dict:
             self.sio.log(f"期望值类型:{expect_val_type}不存在，无法断言", status="error")
+            await self.data_logs.add_logs(
+                key="response_assert",
+                val=f"期望值类型:{expect_val_type}不存在，无法断言"
+            )
             return False
 
         # 取值
@@ -76,12 +88,24 @@ class AsyncAssertionResponse:
                 expression_result = execute_code(code=python_val_exp, data=source_data)
                 assert_val = expression_result.get('result_data')
                 self.sio.log(f"=== 公式取值结果: {assert_val} ===")
+                await self.data_logs.add_logs(
+                    key="response_assert",
+                    val=f"=== 公式取值结果: {assert_val} ==="
+                )
             else:
                 assert_val = source_data.get(assert_key)
                 self.sio.log(f"=== 取值结果: {assert_val} ===")
+                await self.data_logs.add_logs(
+                    key="response_assert",
+                    val=f"=== 取值结果: {assert_val} ==="
+                )
         except BaseException as e:
             self.sio.log(f"数据异常->取值失败:{source_data},键:{assert_key},表达式:{python_val_exp}", status="error")
             self.sio.log(f"异常描述->{e}", status="error")
+            await self.data_logs.add_logs(
+                key="response_assert",
+                val=f"数据异常->取值失败:{source_data},键:{assert_key},表达式:{python_val_exp}\n异常描述->{e}"
+            )
             return False
 
         # 获取内置函数如:int,str...
@@ -94,14 +118,35 @@ class AsyncAssertionResponse:
         except BaseException as e:
             self.sio.log(f"数据异常->内置函数:{native_function}转换值:{assert_val} 时失败", status="error")
             self.sio.log(f"异常描述->{e}", status="error")
+            await self.data_logs.add_logs(
+                key="response_assert",
+                val=f"数据异常->内置函数:{native_function}转换值:{assert_val} 时失败\n异常描述->{e}"
+            )
             return False
 
         # 日志
         self.sio.log(f'=== 断言:{self.desc} ===')
-        self.sio.log('=== 键值:{} ==='.format({assert_key: assert_val}))
+        kv = '=== 键值:{} ==='.format({assert_key: assert_val})
+        self.sio.log(kv)
         message = f'{assert_val}:{type(assert_val)} [{rule}] {expect_val}:{expect_val_type}'
         self.sio.log(f'function: {native_function}')
         self.sio.log(message)
+        await self.data_logs.add_logs(
+            key="response_assert",
+            val=f"=== 断言:{self.desc} ==="
+        )
+        await self.data_logs.add_logs(
+            key="response_assert",
+            val=f"{kv}"
+        )
+        await self.data_logs.add_logs(
+            key="response_assert",
+            val=f"function: {native_function}"
+        )
+        await self.data_logs.add_logs(
+            key="response_assert",
+            val=f"{message}"
+        )
 
         op_function = rule_dict_op.get(rule)
         try:
@@ -113,6 +158,10 @@ class AsyncAssertionResponse:
         except BaseException as e:
             self.sio.log(f"数据异常->规则:{op_function}错误", status="error")
             self.sio.log(f"异常描述->{e}", status="error")
+            await self.data_logs.add_logs(
+                key="response_assert",
+                val=f"数据异常->规则:{op_function}错误\n异常描述->{e}"
+            )
             return False
 
     async def main(self):
@@ -121,19 +170,22 @@ class AsyncAssertionResponse:
         print('=== AsyncAssertionResponse ===')
         print(self.case_resp_ass_info)
         for index, ass in enumerate(self.case_resp_ass_info, 1):
-            print(ass)
-            ass_result = self.result(**ass)
+            ass_result = await self.result(**ass)
             if ass_result:
                 self.sio.log('=== Response 断言通过 ===', status='success')
                 self.count['success'] += 1
+                await self.data_logs.add_logs(
+                    key="response_assert",
+                    val="=== Response 断言通过 ==="
+                )
             else:
                 self.sio.log('=== Response 断言失败 ===', status="error")
                 self.count['fail'] += 1
-
-        await self.data_logs.add_logs(
-            key="response_assert",
-            val=f'=== case_resp_ass_info ===\n{self.case_resp_ass_info}\n{self.desc}'
-        )
+                await self.data_logs.add_logs(
+                    key="response_assert",
+                    val="=== Response 断言失败 ==="
+                )
+        return self.count
 
 
 class AsyncAssertionField:
@@ -151,6 +203,10 @@ class AsyncAssertionField:
         self.data_logs = data_logs
         self.desc = desc
         self.sio = sio
+        self.count = {
+            "success": 0,
+            "fail": 0,
+        }
 
     async def main(self):
         """main"""
@@ -162,3 +218,4 @@ class AsyncAssertionField:
             key="field_assert",
             val=f'=== case_resp_ass_info ===\n{self.case_field_ass_info}\n{self.desc}'
         )
+        return self.count

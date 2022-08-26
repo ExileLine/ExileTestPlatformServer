@@ -417,7 +417,8 @@ class AsyncCaseRunner:
             desc=f"{data_id}-{data_name}",
             sio=self.sio
         )
-        await ass_resp.main()
+        ass_resp_result = await ass_resp.main()
+        await self.test_result.add_resp_ass(ass_resp_result)
 
         ass_field = AsyncAssertionField(
             case_field_ass_info=case_field_ass_info,
@@ -425,7 +426,8 @@ class AsyncCaseRunner:
             desc=f"{data_id}-{data_name}",
             sio=self.sio
         )
-        await ass_field.main()
+        ass_field_result = await ass_field.main()
+        await self.test_result.add_field_ass(ass_field_result)
 
         await self.get_data_logs(case_id=case_id, data_id=data_id, data_name=data_name, obj_to_json=True)
 
@@ -465,8 +467,10 @@ class AsyncCaseRunner:
         }
 
         if not self.data_driven:
+            print('=== 数据驱动 === False')
             await self.data_task(data_index=1, data=bind_info[0], **p)
         else:
+            print('=== 数据驱动 === True')
             data_task = [
                 asyncio.create_task(self.data_task(data_index, data, **p)) for data_index, data in
                 enumerate(bind_info, 1)
