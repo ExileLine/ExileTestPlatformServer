@@ -64,40 +64,47 @@ def scenario_decorator(func):
     @wraps(func)
     def wrapper(*args, **kwargs):
         data = request.get_json()
-        project_id = data.get('project_id', 0)
+        project_id = data.get('project_id')
         version_list = data.get('version_list', [])
         module_list = data.get('module_list', [])
         scenario_title = data.get('scenario_title', '').strip()
         case_list = data.get('case_list', [])
-        is_shared = data.get('is_shared', 0)
-        is_public = data.get('is_public', True)
 
         query_project = TestProject.query.get(project_id)
-
         if not query_project:
-            return api_result(code=400, message=f'项目: {project_id} 不存在')
+            return api_result(code=NO_DATA, message=f'项目: {project_id} 不存在')
 
         if version_list:
-            _bool, _msg = new_check_version(project_id, version_list)
-            if not _bool:
-                return api_result(code=400, message=f'版本迭代:{_msg}不存在或不在项目:{project_id}下关联')
+            result = new_check_version(project_id, version_list)
+            if result:
+                return api_result(code=NO_DATA, message=f'项目:{query_project.project_name}下不存在->版本迭代id:{result}')
 
         if module_list:
-            _bool, _msg = new_check_module(project_id, module_list)
-            if not _bool:
-                return api_result(code=400, message=f'模块:{_msg}不存在或不在项目:{project_id}下关联')
+            result = new_check_module(project_id, module_list)
+            if result:
+                return api_result(code=NO_DATA, message=f'项目:{query_project.project_name}下不存在->模块id:{result}')
 
         if not scenario_title:
-            return api_result(code=400, message='场景名称不能为空')
+            return api_result(code=REQUIRED, message='场景名称不能为空')
 
-        if not case_list or len(case_list) <= 1:
-            return api_result(code=400, message='用例列表不能为空,或需要一条以上的用例组成')
+        if not isinstance(case_list, list) or not case_list or len(case_list) <= 1:
+            return api_result(code=BUSINESS_ERROR, message='用例列表不能为空或需要一条以上的用例组成')
 
-        if len(set(map(lambda obj: obj.get('index'), case_list))) != len(case_list):
-            return api_result(code=400, message='用例排序不能为空或重复')
+        case_index_list = []
+        case_sleep_list = []
+        for case in case_list:
+            case_index = case.get('index', 0)
+            case_index_list.append(case_index)
 
-        if False in list(map(lambda obj: obj.get('sleep') if obj.get('sleep', 0) <= 30 else False, case_list)):
-            return api_result(code=400, message='执行后等待时间不能大于30秒')
+            case_sleep = case.get('sleep', 0)
+            if case_sleep >= 30:
+                case_sleep_list.append(True)
+
+        if len(set(case_index_list)) != len(case_list):
+            return api_result(code=BUSINESS_ERROR, message='用例排序不能重复或为空')
+
+        if case_sleep_list:
+            return api_result(code=BUSINESS_ERROR, message='执行后等待时间不能大于30秒')
 
         return func(*args, **kwargs)
 
@@ -117,15 +124,13 @@ class CaseScenarioApi(MethodView):
         """用例场景详情"""
 
         query_scenario = TestCaseScenario.query.get(scenario_id)
-
         if not query_scenario:
-            return api_result(code=400, message='场景id:{}数据不存在'.format(scenario_id))
+            return api_result(code=NO_DATA, message=f'场景不存在:{scenario_id}')
 
         result = query_scenario.to_json()
         case_id_list = result.get('case_list')
-
         if not case_id_list:
-            return api_result(code=400, message='异常的数据')
+            return api_result(code=DATA_ERROR, message='异常的数据')
 
         # TODO 后面新增中间表后修改这个逻辑
         sorted_case_id_list = sorted(case_id_list, key=lambda x: x.get("index", x.get('case_id')), reverse=True)
@@ -158,7 +163,7 @@ class CaseScenarioApi(MethodView):
                     d[case_id] = ''
                 case_list.append(case)
         else:
-            return api_result(code=400, message='数据异常')
+            return api_result(code=DATA_ERROR, message='数据异常')
 
         version_id_list = [m.version_id for m in MidVersionScenario.query.filter_by(scenario_id=scenario_id).all()]
         version_list = [m.to_json() for m in
@@ -170,25 +175,24 @@ class CaseScenarioApi(MethodView):
         result['case_list'] = case_list
         result["version_list"] = version_list
         result["module_list"] = module_list
-        return api_result(code=200, message='操作成功', data=result)
+        return api_result(code=SUCCESS, message='操作成功', data=result)
 
     @scenario_decorator
     def post(self):
         """用例场景新增"""
 
         data = request.get_json()
-        project_id = data.get('project_id', 0)
+        project_id = data.get('project_id')
         version_list = data.get('version_list', [])
         module_list = data.get('module_list', [])
         scenario_title = data.get('scenario_title', '').strip()
         case_list = data.get('case_list', [])
-        is_shared = data.get('is_shared', 0)
-        is_public = data.get('is_public', True)
+        is_shared = data.get('is_shared')
+        is_public = data.get('is_public')
 
-        query_scenario = TestCaseScenario.query.filter_by(scenario_title=scenario_title).first()
-
+        query_scenario = TestCaseScenario.query.filter_by(scenario_title=scenario_title, is_deleted=0).first()
         if query_scenario:
-            return api_result(code=400, message=f'用例场景标题: {scenario_title} 已经存在')
+            return api_result(code=UNIQUE_ERROR, message=f'用例场景标题: {scenario_title} 已经存在')
 
         new_scenario = TestCaseScenario(
             scenario_title=scenario_title,
@@ -217,30 +221,46 @@ class CaseScenarioApi(MethodView):
                 module_id=module_id, scenario_id=scenario_id, creator=g.app_user.username, creator_id=g.app_user.id)),
                  module_id_list))
         db.session.commit()
-        return api_result(code=201, message='创建成功')
+        return api_result(code=POST_SUCCESS, message='创建成功')
 
     @scenario_decorator
     def put(self):
         """用例场景编辑"""
 
         data = request.get_json()
-        project_id = data.get('project_id', 0)
+        project_id = data.get('project_id')
         version_list = data.get('version_list', [])
         module_list = data.get('module_list', [])
         scenario_id = data.get('id')
         scenario_title = data.get('scenario_title', '').strip()
         case_list = data.get('case_list', [])
-        is_shared = data.get('is_shared', 0)
-        is_public = data.get('is_public', True)
+        is_shared = data.get('is_shared')
+        is_public = data.get('is_public')
 
         query_scenario = TestCaseScenario.query.get(scenario_id)
 
         if not query_scenario:
-            return api_result(code=400, message=f'场景id:{scenario_id}数据不存在')
+            return api_result(code=NO_DATA, message=f'场景不存在: {scenario_id}')
+
+        if not bool(is_public) and query_scenario.creator_id != g.app_user.id:
+            return api_result(code=BUSINESS_ERROR, message='非创建人，无法修改使用状态')
+
+        if not bool(is_shared) and query_scenario.creator_id != g.app_user.id:
+            return api_result(code=BUSINESS_ERROR, message='非创建人，无法修改执行状态')
+
+        if not bool(query_scenario.is_public):
+            if query_scenario.creator_id != g.app_user.id:
+                return api_result(code=BUSINESS_ERROR, message='该用例未场景开放,只能被创建人修改!')
 
         if query_scenario.scenario_title != scenario_title:
-            if TestCaseScenario.query.filter_by(scenario_title=scenario_title).all():
-                return api_result(code=400, message=f'用例场景:{scenario_title} 已经存在')
+            if TestCaseScenario.query.join(
+                    MidProjectScenario, TestCaseScenario.id == MidProjectScenario.scenario_id
+            ).filter(
+                TestCaseScenario.is_deleted == 0,
+                TestCaseScenario.scenario_title == scenario_title,
+                MidProjectScenario.project_id == project_id
+            ).all():
+                return api_result(code=UNIQUE_ERROR, message=f'用例场景标题: {scenario_title} 已经存在')
 
         query_scenario.scenario_title = scenario_title
         query_scenario.case_list = case_list
@@ -272,20 +292,20 @@ class CaseScenarioApi(MethodView):
                      module_id_list))
 
         db.session.commit()
-        return api_result(code=203, message='编辑成功')
+        return api_result(code=PUT_SUCCESS, message='编辑成功')
 
     def delete(self):
         """用例场景删除"""
 
         data = request.get_json()
         scenario_id = data.get('id')
-        query_scenario = TestCaseScenario.query.get(scenario_id)
 
+        query_scenario = TestCaseScenario.query.get(scenario_id)
         if not query_scenario:
-            return api_result(code=400, message=f'场景id:{scenario_id}数据不存在')
+            return api_result(code=NO_DATA, message=f'场景不存在:{scenario_id}')
 
         if query_scenario.creator_id != g.app_user.id:
-            return api_result(code=400, message='非管理员不能删除其他人的用例场景！')
+            return api_result(code=BUSINESS_ERROR, message='非管理员不能删除其他人的用例场景！')
 
         db.session.query(MidProjectScenario).filter_by(scenario_id=scenario_id).delete(synchronize_session=False)
         db.session.query(MidVersionScenario).filter_by(scenario_id=scenario_id).delete(synchronize_session=False)
@@ -294,8 +314,7 @@ class CaseScenarioApi(MethodView):
         query_scenario.modifier_id = g.app_user.id
         query_scenario.modifier = g.app_user.username
         query_scenario.delete()
-
-        return api_result(code=204, message='删除成功')
+        return api_result(code=DEL_SUCCESS, message='删除成功')
 
 
 class CaseScenarioPageApi(MethodView):
