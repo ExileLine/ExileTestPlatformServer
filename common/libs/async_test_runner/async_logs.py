@@ -176,7 +176,10 @@ class AsyncDataLogs:
 
         self.logs[key]['logs'].append(val)
         self.logs[key]['flag'] = flag
-        self.logs_summary.append(log_desc_dict.get(key))
+
+        log_desc = log_desc_dict.get(key)
+        if log_desc not in self.logs_summary:
+            self.logs_summary.append(log_desc)
         self.logs_summary.append(val)
 
     async def to_json(self):
