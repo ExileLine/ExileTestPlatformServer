@@ -200,7 +200,7 @@ test_obj = {
                          "expect_val": "登录成功", "is_expression": False, "python_val_exp": "", "expect_val_type": "str",
                          "response_source": "response_body"},
                         {"rule": "==", "uuid": "RKwtqExkiSPtvCL2KaBQGR-1661339358", "assert_key": "log_uuid",
-                         "expect_val": "1661338972_HZwpNW7x6jCRfhfwqmmyPh", "is_expression": False,
+                         "expect_val": "${重构url}", "is_expression": False,
                          "python_val_exp": "", "expect_val_type": "str", "response_source": "response_headers"}
                     ],
                     "case_field_ass_info": [

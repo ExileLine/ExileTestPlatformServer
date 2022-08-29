@@ -454,6 +454,7 @@ class AsyncCaseRunner:
 
         await self.request_after(data_id, data_name, case_data_info, data_logs)
 
+        case_resp_ass_info = await self.var_conversion(case_resp_ass_info)
         ass_resp = AsyncAssertionResponse(
             http_code=http_code,
             resp_headers=resp_headers,
