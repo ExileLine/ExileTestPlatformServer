@@ -10,11 +10,13 @@ case_logs_demo = [
     {
         "case_id": 1,
         "case_name": "yy",
-        "logs": {},
+        "logs": [],
+        "fail": True,  # bool
         "data_dict": {
             "9": {
                 "data_id": 9,
                 "data_name": "xx",
+                "fail": True,  # bool
                 "logs": {
                     "request_before": {
                         "description": "参数前置准备",
@@ -49,8 +51,32 @@ case_logs_demo = [
                     "request_after": {
                         "description": "参数后置准备",
                         "logs": []
-                    }
-                }
+                    },
+                    "response_assert": {
+                        "description": '响应断言',
+                        "fail": True,  # bool
+                        "logs": [
+                            '=== 公式取值结果: 200 ===',
+                            '=== 断言:1-123-第一个 ===',
+                            "=== 键值:{'code': 200} ===",
+                            "function: <class 'int'>",
+                            "200:<class 'int'> [==] 200:int",
+                            '=== Response 断言通过 ===',
+                            '=== 取值结果: 200 ===',
+                            '=== 断言:1-123-第一个 ===',
+                            "=== 键值:{'code': 200} ===",
+                            "function: <class 'int'>",
+                            "200:<class 'int'> [==] 200:int",
+                            '=== Response 断言通过 ===',
+                        ],
+                    },
+                    "field_assert": {
+                        "description": '字段断言',
+                        "fail": True,  # bool
+                        "logs": ["=== case_resp_ass_info ===\n[{'field_ass': '1'}]\n1-123-第一个"],
+                    },
+                },
+                "logs_summary": ['=== 日志1 ===', '=== 日志2 ===', '=== ... ==='],
             }
         }
     }
@@ -125,13 +151,23 @@ class AsyncDataLogs:
                 "logs": []
             }
         }
+        self.flag = None
         self.logs_summary = []
 
-    async def add_logs(self, key, val):
+    async def set_flag(self, flag: bool):
+        """
+        设置参数标识(通过/失败)
+        :param flag:
+        :return:
+        """
+        self.flag = flag
+
+    async def add_logs(self, key, val, flag=None):
         """
         添加日志
         :param key: 日志分类标识
         :param val: 日志内容
+        :param flag: 断言标识,存在失败则为False否则为True
         :return:
         """
 
@@ -139,16 +175,18 @@ class AsyncDataLogs:
             raise KeyError(f"日志分类错误:{key}")
 
         self.logs[key]['logs'].append(val)
+        self.logs[key]['flag'] = flag
         self.logs_summary.append(log_desc_dict.get(key))
         self.logs_summary.append(val)
 
     async def to_json(self):
-        """1"""
+        """输入日志"""
 
         result = {
             "data_id": self.data_id,
             "data_name": self.data_name,
             "logs": self.logs,
+            "flag": self.flag,
             "logs_summary": self.logs_summary
         }
         return result
@@ -170,6 +208,7 @@ class AsyncRunnerLogs:
             "case_id": case_id,
             "case_name": case_name,
             "logs": [],
+            "flag": None,
             "data_dict": {}
         }
         return result

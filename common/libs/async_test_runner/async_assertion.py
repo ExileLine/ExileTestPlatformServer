@@ -43,10 +43,11 @@ class AsyncAssertionResponse:
         self.count = {
             "success": 0,
             "fail": 0,
+            "flag": None
         }
 
-    async def result(self, rule, response_source, assert_key, expect_val, expect_val_type, is_expression, python_val_exp,
-               **kwargs):
+    async def result(self, rule, response_source, assert_key, expect_val, expect_val_type, is_expression,
+                     python_val_exp, **kwargs):
         """
 
         :param rule: 规则
@@ -176,15 +177,18 @@ class AsyncAssertionResponse:
                 self.count['success'] += 1
                 await self.data_logs.add_logs(
                     key="response_assert",
-                    val="=== Response 断言通过 ==="
+                    val="=== Response 断言通过 ===",
+                    flag=True
                 )
             else:
                 self.sio.log('=== Response 断言失败 ===', status="error")
                 self.count['fail'] += 1
                 await self.data_logs.add_logs(
                     key="response_assert",
-                    val="=== Response 断言失败 ==="
+                    val="=== Response 断言失败 ===",
+                    flag=False
                 )
+        self.count['flag'] = False if self.count.get('fail') > 0 else True
         return self.count
 
 

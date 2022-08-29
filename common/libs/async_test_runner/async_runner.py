@@ -118,6 +118,40 @@ class AsyncCaseRunner:
                 data_name=data_name)
             return self.case_logs_dict.get(case_id).get('data_dict').get(data_id)
 
+    async def set_case_flag(self, case_id, flag: bool):
+        """
+        设置用例标识(通过/失败)
+        :param case_id: 用例id
+        :param flag: True/False
+        :return:
+        """
+
+        case_log = self.case_logs_dict.get(case_id)
+        if not case_log:
+            self.sio.log('=== 设置用例标识:失败 ===')
+            return False
+
+        case_log['flag'] = flag
+        self.sio.log('=== 设置用例标识:成功 ===')
+        return True
+
+    async def set_scenario_flag(self, scenario_id, flag: bool):
+        """
+        设置场景标识(通过/失败)
+        :param scenario_id: 场景id
+        :param flag: True/False
+        :return:
+        """
+
+        scenario_log = self.scenario_logs_dict.get(scenario_id)
+        if not scenario_log:
+            self.sio.log('=== 设置场景标识:失败 ===')
+            return False
+
+        scenario_log['flag'] = flag
+        self.sio.log('=== 设置场景标识:成功 ===')
+        return True
+
     async def var_conversion_main(self, json_str, d):
         """
         变量转换参数
@@ -375,36 +409,48 @@ class AsyncCaseRunner:
         headers = send.get('headers')
         payload = send.get('payload')
 
-        result = await self.current_request(
-            method=request_method,
-            url=url,
-            headers=headers,
-            **payload
-        )
-        print('=== result ===')
-        print(result)
+        try:
+            result = await self.current_request(
+                method=request_method,
+                url=url,
+                headers=headers,
+                **payload
+            )
+            print('=== result ===')
+            print(result)
 
-        resp_headers = result.get("resp_headers")
-        http_code = result.get('http_code')
-        resp_json = result.get("resp_json")
+            resp_headers = result.get("resp_headers")
+            http_code = result.get('http_code')
+            resp_json = result.get("resp_json")
 
-        await self.send_logs(
-            url=url,
-            headers=headers,
-            req_json=payload,
-            http_code=http_code,
-            resp_headers=resp_headers,
-            resp_json=resp_json
-        )
+            await self.send_logs(
+                url=url,
+                headers=headers,
+                req_json=payload,
+                http_code=http_code,
+                resp_headers=resp_headers,
+                resp_json=resp_json
+            )
 
-        await data_logs.add_logs(key='url', val=f"=== 数据驱动:{data_index} ===")
-        await data_logs.add_logs(key='url', val=url)
-        await data_logs.add_logs(key='method', val=request_method)
-        await data_logs.add_logs(key='request_headers', val=headers)
-        await data_logs.add_logs(key='request_body', val=payload.get(list(payload.keys())[0]))
-        await data_logs.add_logs(key='http_code', val=http_code)
-        await data_logs.add_logs(key='response_headers', val=resp_headers)
-        await data_logs.add_logs(key='response_body', val=resp_json)
+            await data_logs.add_logs(key='url', val=f"=== 数据驱动:{data_index} ===")
+            await data_logs.add_logs(key='url', val=url)
+            await data_logs.add_logs(key='method', val=request_method)
+            await data_logs.add_logs(key='request_headers', val=headers)
+            await data_logs.add_logs(key='request_body', val=payload.get(list(payload.keys())[0]))
+            await data_logs.add_logs(key='http_code', val=http_code)
+            await data_logs.add_logs(key='response_headers', val=resp_headers)
+            await data_logs.add_logs(key='response_body', val=resp_json)
+            await self.set_case_flag(case_id=case_id, flag=True)
+
+        except BaseException as e:
+            await data_logs.add_logs(key='url', val=f"=== 数据驱动:{data_index} ===")
+            await data_logs.add_logs(key='url', val=url)
+            await data_logs.add_logs(key='method', val=request_method)
+            await data_logs.add_logs(key='request_headers', val=headers)
+            await data_logs.add_logs(key='request_body', val=payload.get(list(payload.keys())[0]))
+            await data_logs.add_logs(key='http_code', val=f"请求失败:{e}")
+            await self.set_case_flag(case_id=case_id, flag=False)
+            return False
 
         await self.request_after(data_id, data_name, case_data_info, data_logs)
 
@@ -419,6 +465,10 @@ class AsyncCaseRunner:
         )
         ass_resp_result = await ass_resp.main()
         await self.test_result.add_resp_ass(ass_resp_result)
+        # 从下至上设置flag以最下为基准
+        current_flag = ass_resp_result.get('flag', 'flag异常')
+        await self.set_case_flag(case_id=case_id, flag=current_flag)
+        await data_logs.set_flag(flag=current_flag)
 
         ass_field = AsyncAssertionField(
             case_field_ass_info=case_field_ass_info,
@@ -428,7 +478,13 @@ class AsyncCaseRunner:
         )
         ass_field_result = await ass_field.main()
         await self.test_result.add_field_ass(ass_field_result)
+        """
+        current_flag = ass_field_result.get('flag', 'flag异常')
+        await self.set_case_flag(case_id=case_id, flag=current_flag)
+        await data_logs.set_flag(flag=current_flag)
+        """
 
+        # 结束日志,用例执行的参数格式化后加入到用例日志字典中
         await self.get_data_logs(case_id=case_id, data_id=data_id, data_name=data_name, obj_to_json=True)
 
     async def case_task(self, case_index=None, case=None):
@@ -572,9 +628,12 @@ class AsyncCaseRunner:
         """调试日志"""
 
         self.sio.log("=== 用例日志 ===")
-        self.sio.log(f"\n{json.dumps(self.case_logs_dict, ensure_ascii=False)}")
-        self.sio.log("=== 场景日志 ===")
-        self.sio.log(f"\n{json.dumps(self.scenario_logs_dict, ensure_ascii=False)}")
+        case_logs = [v for k, v in self.case_logs_dict.items()]
+        case_logs_json = json.dumps(case_logs, ensure_ascii=False)
+        self.sio.log(case_logs_json)
+
+        # self.sio.log("=== 场景日志 ===")
+        # self.sio.log(f"\n{json.dumps(self.scenario_logs_dict, ensure_ascii=False)}")
 
     async def case_loader(self):
         """用例加载执行"""
