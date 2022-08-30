@@ -5,8 +5,6 @@
 # @File    : case_scenario_api.py
 # @Software: PyCharm
 
-from functools import wraps
-
 from all_reference import *
 from app.models.test_case_scenario.models import TestCaseScenario
 from app.models.test_project.models import TestProject, TestProjectVersion, TestModuleApp, MidProjectScenario, \
@@ -327,7 +325,7 @@ class CaseScenarioPageApi(MethodView):
         """用例场景分页模糊查询"""
 
         data = request.get_json()
-        project_id = data.get('project_id')
+        project_id = data.get('project_id', 0)
         version_id = data.get('version_id')
         module_id = data.get('module_id')
         scenario_id = data.get('scenario_id')
@@ -394,4 +392,4 @@ class CaseScenarioPageApi(MethodView):
             'total': result_count[0].get('COUNT(*)')
         }
 
-        return api_result(code=200, message='操作成功', data=result_data)
+        return api_result(code=SUCCESS, message='操作成功', data=result_data)
