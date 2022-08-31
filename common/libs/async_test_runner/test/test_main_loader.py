@@ -1,20 +1,18 @@
 # -*- coding: utf-8 -*-
-# @Time    : 2022/8/5 11:58
+# @Time    : 2022/7/28 14:40
 # @Author  : yangyuexiong
 # @Email   : yang6333yyx@126.com
-# @File    : test_scenario_loader.py
+# @File    : test_case_loader.py
 # @Software: PyCharm
 
-
 import asyncio
-import json
 
-from common.libs.async_test_runner import AsyncCaseRunner, AsyncLogs
+from common.libs.async_test_runner import AsyncCaseRunner
 
 test_obj = {
-    "execute_id": 63,
-    "execute_name": "执行场景:[测试编辑场景]",
-    "execute_type": "scenario",
+    "execute_id": 8641,
+    "execute_name": "执行用例:[登录成功okc2]",
+    "execute_type": "case",
     "execute_label": "only",
     "execute_user_id": 1,
     "execute_username": "admin",
@@ -25,14 +23,14 @@ test_obj = {
     "case_list": [
         {
             "case_info": {
-                "id": 123,
-                "case_name": "登录成功123",
                 "status": 1,
                 "total_execution": 10,
+                "case_name": "登录成功123",
                 "is_public": True,
                 "create_time": "2022-08-01 11:43:36",
                 "request_method": "POST",
                 "creator": "admin",
+                "id": 123,
                 "request_base_url": "http://106.75.174.40:5000",
                 "creator_id": 1,
                 "create_timestamp": 1659325393,
@@ -557,14 +555,14 @@ test_obj = {
             "case_list": [
                 {
                     "case_info": {
-                        "id": 123,
-                        "case_name": "登录成功123",
                         "status": 1,
                         "total_execution": 10,
+                        "case_name": "登录成功123",
                         "is_public": True,
                         "create_time": "2022-08-01 11:43:36",
                         "request_method": "POST",
                         "creator": "admin",
+                        "id": 123,
                         "request_base_url": "http://106.75.174.40:5000",
                         "creator_id": 1,
                         "create_timestamp": 1659325393,
@@ -687,7 +685,7 @@ test_obj = {
                                 "is_deleted": 0,
                                 "var_list": None,
                                 "md5": None,
-                                "id": 1,
+                                "id": 199,
                                 "update_var_list": [
                                     {
                                         "id": 2,
@@ -838,14 +836,14 @@ test_obj = {
                 },
                 {
                     "case_info": {
-                        "id": 124,
-                        "case_name": "登录成功456",
                         "status": 1,
                         "total_execution": 10,
+                        "case_name": "登录成功456",
                         "is_public": True,
                         "create_time": "2022-08-01 11:43:36",
                         "request_method": "POST",
                         "creator": "admin",
+                        "id": 124,
                         "request_base_url": "http://106.75.174.40:5000",
                         "creator_id": 1,
                         "create_timestamp": 1659325393,
@@ -967,7 +965,7 @@ test_obj = {
                                 "is_deleted": 0,
                                 "var_list": None,
                                 "md5": None,
-                                "id": 4,
+                                "id": 256,
                                 "update_var_list": [
                                     {
                                         "id": 2,
@@ -1130,4 +1128,5 @@ if __name__ == '__main__':
     """单元测试"""
 
     acr = AsyncCaseRunner(test_obj=test_obj)
-    asyncio.run(acr.scenario_loader())
+    asyncio.run(acr.main())
+

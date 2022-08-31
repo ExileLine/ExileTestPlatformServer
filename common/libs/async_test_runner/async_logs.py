@@ -195,29 +195,120 @@ class AsyncDataLogs:
         return result
 
 
-class AsyncRunnerLogs:
-    """异步日志对象"""
+class AsyncLogs:
+    """异步日志"""
 
-    @staticmethod
-    async def gen_case_logs(case_id, case_name):
+    def __init__(self):
+        self.case_logs_dict = {}  # 用例日志字典
+        self.scenario_logs_dict = {}  # 场景日志字典
+        self.scenario_case_dict = {}  # 场景中的用例日志字典
+        self.flag_dict = {
+            "case": self.set_case_flag,
+            "scenario": self.set_scenario_flag
+        }
+
+    async def gen_case_logs_dict(self, case_list, is_scenario=False):
         """
-        生成用例日志对象
-        :param case_id: 用例id
-        :param case_name: 用例名称
+        生成用例日志字典模型
+        :param case_list: 用例列表
+        :param is_scenario: 是否场景中的用例
         :return:
         """
 
-        result = {
-            "case_id": case_id,
-            "case_name": case_name,
-            "logs": [],
-            "flag": None,
-            "data_dict": {}
-        }
-        return result
+        for case in case_list:
+            case_id = case.get('case_info').get('id')
+            case_name = case.get('case_info').get('case_name')
+            d = {
+                "case_id": case_id,
+                "case_name": case_name,
+                "logs": [],
+                "flag": None,
+                "data_dict": {}
+            }
+            if is_scenario:
+                self.scenario_case_dict[case_id] = d
+            else:
+                self.case_logs_dict[case_id] = d
+
+    async def gen_scenario_logs_dict(self, scenario_list):
+        """
+        生成场景日志字典模型
+        :param scenario_list: 场景列表
+        :return:
+        """
+        for scenario in scenario_list:
+            scenario_id = scenario.get('id')
+            scenario_title = scenario.get('scenario_title')
+            case_list = scenario.get('case_list')
+            await self.gen_case_logs_dict(case_list=case_list, is_scenario=True)
+            d = {
+                "scenario_id": scenario_id,
+                "scenario_title": scenario_title,
+                "logs": [],
+                "flag": None,
+                "case_dict": self.scenario_case_dict
+            }
+            self.scenario_logs_dict[scenario_id] = d
+
+    async def add_case_logs(self, case_id, logs):
+        """
+        增加用例日志
+        :param case_id: 用例id
+        :param logs: 日志内容
+        :return:
+        """
+        self.case_logs_dict.get(case_id)['logs'].append(logs)
+
+    async def add_scenario_logs(self, scenario_id, logs):
+        """
+        增加用例日志
+        :param scenario_id: 场景id
+        :param logs: 日志内容
+        :return:
+        """
+        self.scenario_logs_dict.get(scenario_id)['logs'].append(logs)
+
+    async def add_case_data_logs(self, case_id, data_id, logs):
+        """
+        增加用例中执行参数日志
+        :param case_id: 用例id
+        :param data_id: 参数id
+        :param logs: 日志内容
+        :return:
+        """
+        self.case_logs_dict.get(case_id).get('data_dict')[data_id] = logs
+
+    async def add_scenario_case_data_logs(self, scenario_id, case_id, data_id, logs):
+        """
+        增加场景用例执行参数日志
+        :param scenario_id: 场景id
+        :param case_id: 用例id
+        :param data_id: 参数id
+        :param logs: 日志内容
+        :return:
+        """
+        self.scenario_logs_dict.get(scenario_id).get('case_dict').get(case_id).get('data_dict')[data_id] = logs
+
+    async def set_case_flag(self, case_id, flag: bool):
+        """
+        设置用例标识(通过/失败)
+        :param case_id: 用例id
+        :param flag: True/False
+        :return:
+        """
+        self.case_logs_dict.get(case_id)['flag'] = flag
+
+    async def set_scenario_flag(self, scenario_id, flag: bool):
+        """
+        设置场景标识(通过/失败)
+        :param scenario_id: 场景id
+        :param flag: True/False
+        :return:
+        """
+        self.scenario_logs_dict.get(scenario_id)['flag'] = flag
 
     @staticmethod
-    async def gen_data_logs(data_id, data_name):
+    async def gen_data_logs_obj(data_id, data_name):
         """
         生成参数日志对象
         :param data_id: 参数id
@@ -226,3 +317,7 @@ class AsyncRunnerLogs:
         """
 
         return AsyncDataLogs(data_id, data_name)
+
+    async def main(self):
+        """main"""
+        return

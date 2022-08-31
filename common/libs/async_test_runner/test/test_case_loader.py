@@ -550,6 +550,7 @@ test_obj = {
             ]
         }
     ],
+    "scenario_list": [],
     "execute_dict": {},
     "is_dd_push": False,
     "dd_push_id": None,
@@ -565,8 +566,7 @@ test_obj = {
 }
 
 if __name__ == '__main__':
-    """1"""
+    """单元测试"""
 
-    # test async request
     acr = AsyncCaseRunner(test_obj=test_obj)
     asyncio.run(acr.case_loader())
