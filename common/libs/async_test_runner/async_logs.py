@@ -202,10 +202,6 @@ class AsyncLogs:
         self.case_logs_dict = {}  # 用例日志字典
         self.scenario_logs_dict = {}  # 场景日志字典
         self.scenario_case_dict = {}  # 场景中的用例日志字典
-        self.flag_dict = {
-            "case": self.set_case_flag,
-            "scenario": self.set_scenario_flag
-        }
 
     async def gen_case_logs_dict(self, case_list, is_scenario=False):
         """
@@ -245,7 +241,7 @@ class AsyncLogs:
                 "scenario_id": scenario_id,
                 "scenario_title": scenario_title,
                 "logs": [],
-                "flag": None,
+                "flag": True,
                 "case_dict": self.scenario_case_dict
             }
             self.scenario_logs_dict[scenario_id] = d
@@ -298,14 +294,34 @@ class AsyncLogs:
         """
         self.case_logs_dict.get(case_id)['flag'] = flag
 
-    async def set_scenario_flag(self, scenario_id, flag: bool):
+    async def set_scenario_flag(self, scenario_id, case_id, flag: bool):
         """
         设置场景标识(通过/失败)
         :param scenario_id: 场景id
+        :param case_id: 场景里面用例的id
         :param flag: True/False
         :return:
         """
-        self.scenario_logs_dict.get(scenario_id)['flag'] = flag
+        if self.scenario_logs_dict.get(scenario_id).get('flag'):
+            self.scenario_logs_dict.get(scenario_id)['flag'] = flag
+        self.scenario_logs_dict.get(scenario_id).get('case_dict').get(case_id)['flag'] = flag
+
+    async def set_flag(self, logs_type, flag: bool, case_id=None, scenario_id=None):
+        """
+        设置用例/场景(通过/失败)
+        :param logs_type: 类型(case;scenario)
+        :param case_id:
+        :param scenario_id:
+        :param flag:
+        :return:
+        """
+
+        if logs_type == 'case':
+            await self.set_case_flag(case_id=case_id, flag=flag)
+        elif logs_type == 'scenario':
+            await self.set_scenario_flag(scenario_id=scenario_id, case_id=case_id, flag=flag)
+        else:
+            raise TypeError(f'错误logs_type:{logs_type}')
 
     @staticmethod
     async def gen_data_logs_obj(data_id, data_name):

@@ -341,8 +341,8 @@ class AsyncCaseRunner:
         """参数"""
 
         # for data_index, bind in enumerate(bind_info, 1):
-        scenario_id = kwargs.get('scenario_id')
         logs_type = kwargs.get('logs_type')
+        scenario_id = kwargs.get('scenario_id')
         case_id = kwargs.get('case_id')
         url = kwargs.get('url')
         request_method = kwargs.get('request_method')
@@ -432,7 +432,7 @@ class AsyncCaseRunner:
             await data_logs.add_logs(key='http_code', val=http_code)
             await data_logs.add_logs(key='response_headers', val=resp_headers)
             await data_logs.add_logs(key='response_body', val=resp_json)
-            await self.al.set_case_flag(case_id=case_id, flag=True)
+            await self.al.set_flag(logs_type=logs_type, flag=True, **{"case_id": case_id, "scenario_id": scenario_id})
 
         except BaseException as e:
             await data_logs.add_logs(key='url', val=f"=== 数据驱动:{data_index} ===")
@@ -441,7 +441,7 @@ class AsyncCaseRunner:
             await data_logs.add_logs(key='request_headers', val=headers)
             await data_logs.add_logs(key='request_body', val=payload.get(list(payload.keys())[0]))
             await data_logs.add_logs(key='http_code', val=f"请求失败:{e}")
-            await self.al.set_case_flag(case_id=case_id, flag=False)
+            await self.al.set_flag(logs_type=logs_type, flag=False, **{"case_id": case_id, "scenario_id": scenario_id})
             return False
 
         await self.request_after(data_id, data_name, case_data_info, data_logs)
@@ -460,7 +460,9 @@ class AsyncCaseRunner:
         await self.test_result.add_resp_ass(ass_resp_result)
         # 从下至上设置flag以最下为基准
         current_flag = ass_resp_result.get('flag', 'flag异常')
-        await self.al.set_case_flag(case_id=case_id, flag=current_flag)
+        await self.al.set_flag(
+            logs_type=logs_type, flag=current_flag, **{"case_id": case_id, "scenario_id": scenario_id}
+        )
         await data_logs.set_flag(flag=current_flag)
 
         ass_field = AsyncAssertionField(
@@ -473,7 +475,9 @@ class AsyncCaseRunner:
         await self.test_result.add_field_ass(ass_field_result)
         """
         current_flag = ass_field_result.get('flag', 'flag异常')
-        await self.al.set_case_flag(case_id=case_id, flag=current_flag)
+        await self.al.set_flag(
+        logs_type=logs_type, flag=current_flag, **{"case_id": case_id, "scenario_id": scenario_id}
+        )
         await data_logs.set_flag(flag=current_flag)
         """
 
