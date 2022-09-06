@@ -7,6 +7,7 @@
 
 import json
 import time
+import datetime
 import random
 import string
 import operator
@@ -32,6 +33,8 @@ class F:
         str(datetime.datetime.now().date())
         :return:
         """
+        if kwargs.get('func'):
+            return datetime.datetime.now().date()
         return time.strftime("%Y-%m-%d")
 
     @classmethod
@@ -42,6 +45,8 @@ class F:
         time.strftime("%H:%M:%S")
         :return:
         """
+        if kwargs.get('func'):
+            return datetime.datetime.now().time()
         return time.strftime("%H:%M:%S")
 
     @classmethod
@@ -52,6 +57,8 @@ class F:
         str(datetime.datetime.now()).split('.')[0]
         :return:
         """
+        if kwargs.get('func'):
+            return datetime.datetime.now()
         return time.strftime("%Y-%m-%d %H:%M:%S")
 
     @classmethod
