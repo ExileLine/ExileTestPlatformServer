@@ -22,7 +22,7 @@ from flask.views import MethodView
 from flask import abort, render_template, request, g
 
 from ExtendRegister.db_register import db
-from common.libs.data_dict import GlobalsDict, expect_val_type_dict, rule_dict, execute_type_tuple, gen_redis_first_logs
+from common.libs.data_dict import GlobalsDict, expect_val_type_dict, rule_dict, execute_type_tuple
 from common.libs.db import project_db, R
 from common.libs.api_result import *
 from common.libs.set_app_context import set_app_context

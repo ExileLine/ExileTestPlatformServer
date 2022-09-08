@@ -19,11 +19,12 @@ import shortuuid
 from loguru import logger
 
 from common.libs.db import project_db, R
+from common.libs.data_dict import GlobalsDict
 from common.libs.assert_related import AssertResponseMain, AssertFieldMain
 from common.libs.StringIOLog import StringIOLog
 from common.libs.report_template import RepostTemplate
 from common.libs.execute_code import execute_code
-from common.libs.data_dict import F, execute_label_tuple, gen_redis_first_logs
+from common.libs.data_dict import F, execute_label_tuple
 from common.tools.send_mail import SendEmail
 from common.tools.message_push import MessagePush
 from config.config import config_obj
@@ -859,7 +860,7 @@ class MainTest:
             "total_time": str(self.total_time)
         }
         R.set(self.save_key, json.dumps(return_case_result))
-        current_save_dict = gen_redis_first_logs(execute_id=self.execute_id)
+        current_save_dict = GlobalsDict.redis_first_logs_dict(execute_id=self.execute_id)
         save_obj_first = current_save_dict.get(self.execute_type, "未知执行类型")
         R.set(save_obj_first, json.dumps(return_case_result))
         logger.success('=== save redis ok ===')
