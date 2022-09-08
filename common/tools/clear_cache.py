@@ -104,3 +104,4 @@ if __name__ == '__main__':
     ClearCache.clear_first_log()
     ClearCache.clear_cicd()
     ClearCache.clear_exile_test_logs()
+    list(map(lambda x: R.delete(x), R.keys(pattern="zzzzzzzzzz_*")))
