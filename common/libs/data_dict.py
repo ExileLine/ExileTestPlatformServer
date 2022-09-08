@@ -218,6 +218,7 @@ class GlobalsDict(F):
         d = {
             "int": int,
             "str": str,
+            "float": float,
             "list": list,
             "dict": dict,
             "bool": bool,
