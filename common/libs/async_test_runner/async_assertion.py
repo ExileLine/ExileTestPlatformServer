@@ -210,6 +210,7 @@ class AsyncAssertionField:
         self.count = {
             "success": 0,
             "fail": 0,
+            "flag": True  # 调试时候设置为True
         }
 
     async def main(self):

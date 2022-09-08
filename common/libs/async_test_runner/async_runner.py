@@ -11,7 +11,7 @@ import time
 import aiohttp
 import asyncio
 
-from common.libs.db import project_db
+from common.libs.db import project_db, R
 from common.libs.data_dict import GlobalsDict, F
 from common.libs.StringIOLog import StringIOLog
 from common.libs.async_test_runner.async_assertion import AsyncAssertionResponse, AsyncAssertionField
@@ -31,9 +31,18 @@ class AsyncCaseRunner:
     异步用例执行
     """
 
-    def __init__(self, test_obj=None):
+    def __init__(self, test_obj=None, is_debug=False):
+
+        self.is_debug = is_debug
 
         self.test_obj = test_obj if test_obj else {}
+        self.execute_id = test_obj.get('execute_id')  # 执行名称(用例id,场景id,任务id,模块id...)
+        self.execute_name = test_obj.get('execute_name')  # 执行名称(用例名,场景名,任务名,模块名...)
+        self.execute_type = test_obj.get('execute_type')  # 执行名称(case,scenario,task,module...)
+        self.execute_username = test_obj.get('execute_username')
+        self.execute_user_id = test_obj.get('execute_user_id')
+        self.trigger_type = test_obj.get('trigger_type')  # 触发执行类型(user_execute,timed_execute...)
+
         self.base_url = test_obj.get('base_url')
         self.use_base_url = test_obj.get('use_base_url')
         self.data_driven = test_obj.get('data_driven')
@@ -49,6 +58,7 @@ class AsyncCaseRunner:
         self.case_logs = {}  # 格式化用例日志
         self.scenario_logs = {}  # 格式化场景日志
         self.test_result = AsyncTestResult()  # 测试结果实例
+        self.redis_key = ""
 
         self.start_time = 0
         self.end_time = 0
@@ -502,6 +512,7 @@ class AsyncCaseRunner:
             await data_logs.add_logs(key='response_headers', val=resp_headers)
             await data_logs.add_logs(key='response_body', val=resp_json)
             await self.al.set_flag(logs_type=logs_type, flag=True, **{"case_id": case_id, "scenario_id": scenario_id})
+            await self.test_result.add_request(True)
 
         except BaseException as e:
             await data_logs.add_logs(key='url', val=f"=== 数据驱动:{data_index} ===")
@@ -511,10 +522,12 @@ class AsyncCaseRunner:
             await data_logs.add_logs(key='request_body', val=payload.get(list(payload.keys())[0]))
             await data_logs.add_logs(key='http_code', val=f"请求失败:{e}")
             await self.al.set_flag(logs_type=logs_type, flag=False, **{"case_id": case_id, "scenario_id": scenario_id})
+            await self.test_result.add_request(False)
             return False
 
         await self.request_after(data_id, data_name, case_data_info, data_logs)
 
+        # 响应断言
         case_resp_ass_info = await self.var_conversion(case_resp_ass_info)
         ass_resp = AsyncAssertionResponse(
             http_code=http_code,
@@ -526,13 +539,14 @@ class AsyncCaseRunner:
             sio=self.sio
         )
         ass_resp_result = await ass_resp.main()
-        await self.test_result.add_resp_ass(ass_resp_result)
         current_flag = ass_resp_result.get('flag', 'flag异常')  # 从下至上设置flag以最下为基准
         await data_logs.set_flag(flag=current_flag)
         await self.al.set_flag(
             logs_type=logs_type, flag=current_flag, **{"case_id": case_id, "scenario_id": scenario_id}
         )
+        await self.test_result.add_resp_ass(current_flag)
 
+        # 字段断言
         ass_field = AsyncAssertionField(
             case_field_ass_info=case_field_ass_info,
             data_logs=data_logs,
@@ -540,14 +554,12 @@ class AsyncCaseRunner:
             sio=self.sio
         )
         ass_field_result = await ass_field.main()
-        await self.test_result.add_field_ass(ass_field_result)
-        """
         current_flag = ass_field_result.get('flag', 'flag异常')
-        await self.al.set_flag(
-        logs_type=logs_type, flag=current_flag, **{"case_id": case_id, "scenario_id": scenario_id}
-        )
         await data_logs.set_flag(flag=current_flag)
-        """
+        await self.al.set_flag(
+            logs_type=logs_type, flag=current_flag, **{"case_id": case_id, "scenario_id": scenario_id}
+        )
+        await self.test_result.add_field_ass(current_flag)
 
         self.sio.log(f"=== data_logs_flag === {data_logs.flag}")
         if data_logs.flag:
@@ -693,20 +705,71 @@ class AsyncCaseRunner:
             await self.scenario_case_task(**d)
 
     async def gen_logs(self):
-        """日志"""
+        """生成日志"""
 
-    async def debug_logs(self):
-        """调试日志"""
-
-        self.sio.log("=== 用例日志 ===")
         self.case_logs = [v for k, v in self.al.case_logs_dict.items()]
         case_logs_json = json.dumps(self.case_logs, ensure_ascii=False)
-        self.sio.log(case_logs_json)
+        if self.is_debug:
+            self.sio.log(f"=== 用例日志 ===\n{case_logs_json}")
 
-        self.sio.log("=== 场景日志 ===")
         self.scenario_logs = [v for k, v in self.al.scenario_logs_dict.items()]
         scenario_logs_json = json.dumps(self.scenario_logs, ensure_ascii=False)
-        self.sio.log(scenario_logs_json)
+        if self.is_debug:
+            self.sio.log(f"=== 场景日志 ===\n{scenario_logs_json}")
+
+        result_summary = await self.test_result.get_test_result()
+
+        self.redis_key = f"test_log_{F.gen_datetime()}_{F.gen_uuid_short()}"
+
+        return_case_result = {
+            "uuid": self.redis_key,
+            "execute_user_id": self.execute_user_id,
+            "execute_username": self.execute_username,
+            "execute_type": self.execute_type,
+            "execute_name": self.execute_name,
+            "case_logs": self.case_logs,
+            "scenario_logs": self.scenario_logs,
+            "result_summary": result_summary
+        }
+        json_str = json.dumps(return_case_result, ensure_ascii=False)
+
+        if self.is_debug:
+            self.sio.log(f'=== json_str ===\n{json_str}')
+
+        R.set(self.redis_key, json_str)
+        R.expire(self.redis_key, 86400 * 30)
+        current_save_dict = GlobalsDict.redis_first_logs_dict(execute_id=self.execute_id)
+        save_obj_first = current_save_dict.get(self.execute_type, "未知执行类型")
+        R.set(save_obj_first, json_str)
+        R.expire(save_obj_first, 86400 * 30)
+
+        self.sio.log('=== 生成日志写入Redis完成 ===', status="success")
+
+    async def save_logs(self, execute_status: bool, report_url=None, file_name=None):
+        """
+
+        :param execute_status: 总执行结果:1/0(通过/不通过)
+        :param report_url: 报告地址
+        :param file_name: 文件名称
+        :return:
+        """
+
+        sql = """INSERT INTO exile_test_execute_logs (`is_deleted`, `create_time`, `create_timestamp`,  `execute_id`, `execute_name`, `execute_type`, `redis_key`, `report_url`, `execute_status`, `creator`, `creator_id`, `trigger_type`, `file_name`) VALUES (0,'{}','{}','{}','{}','{}','{}','{}','{}','{}','{}','{}','{}');""".format(
+            F.gen_datetime(),
+            int(self.start_time),
+            self.execute_id,
+            self.execute_name,
+            self.execute_type,
+            self.redis_key,
+            report_url,
+            execute_status,
+            self.execute_username,
+            self.execute_user_id,
+            self.trigger_type,
+            file_name
+        )
+        project_db.insert(sql)
+        self.sio.log('=== save_logs ok ===', status="success")
 
     async def case_loader(self):
         """用例加载执行"""
@@ -732,7 +795,19 @@ class AsyncCaseRunner:
         await self.al.gen_case_logs_dict(case_list=self.case_list)
         await self.al.gen_scenario_logs_dict(scenario_list=self.scenario_list)
 
-        # 开始时间
+        # 设置总用例/场景数
+        self.test_result.start_time = time.time()
+        await self.test_result.set_count(
+            test_case_count=len(self.al.case_logs_dict),
+            test_scenario_count=len(self.al.scenario_logs_dict)
+        )
+
+        if self.is_debug:
+            print(json.dumps(self.al.case_logs_dict, ensure_ascii=False))
+            print("=" * 100)
+            print(json.dumps(self.al.scenario_logs_dict, ensure_ascii=False))
+
+        # 开始时间戳
         self.start_time = time.time()
 
         if self.case_list:
@@ -741,13 +816,18 @@ class AsyncCaseRunner:
         if self.scenario_list:
             await self.scenario_loader()
 
-        # 结束时间
-        self.end_time = f"{time.time() - self.start_time}s"
+        await self.gen_logs()  # 日志格式化
 
-        # 日志格式化
-        await self.debug_logs()
+        # await self.save_logs()  # 日志缓存
 
-        await self.gen_logs()
+        if self.is_debug:
+            print('obj_id_list', self.obj_id_list)
+
+            # 测试
+            print('=== 测试t1 ===')
+            await self.t1()
+            print('=== 测试t2 ===')
+            await self.t2()
 
     async def t1(self):
         """1"""
@@ -770,38 +850,3 @@ class AsyncCaseRunner:
                 for k1, v1 in data_dict.items():
                     print(n, v1.get('logs').get('request_body').get('logs')[0].get('username'))
                     n += 1
-
-    async def test(self):
-        """test"""
-
-        # 生成日志数据结构
-        await self.al.gen_case_logs_dict(case_list=self.case_list)
-        await self.al.gen_scenario_logs_dict(scenario_list=self.scenario_list)
-
-        print(json.dumps(self.al.case_logs_dict, ensure_ascii=False))
-        print("=" * 100)
-        print(json.dumps(self.al.scenario_logs_dict, ensure_ascii=False))
-
-        # 开始时间
-        self.start_time = time.time()
-
-        if self.case_list:
-            await self.case_loader()
-
-        if self.scenario_list:
-            await self.scenario_loader()
-
-        # 结束时间
-        self.end_time = f"{time.time() - self.start_time}s"
-        print(self.end_time)
-
-        print('obj_id_list', self.obj_id_list)
-
-        # 日志格式化
-        await self.debug_logs()
-
-        # 测试
-        print('=== 测试t1 ===')
-        await self.t1()
-        print('=== 测试t2 ===')
-        await self.t2()
