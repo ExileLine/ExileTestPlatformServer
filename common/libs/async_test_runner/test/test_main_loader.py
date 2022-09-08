@@ -39,5 +39,5 @@ test_obj = {
 if __name__ == '__main__':
     """单元测试"""
 
-    acr = AsyncCaseRunner(test_obj=test_obj)
-    asyncio.run(acr.test())
+    acr = AsyncCaseRunner(test_obj=test_obj, is_debug=True)
+    asyncio.run(acr.main())
