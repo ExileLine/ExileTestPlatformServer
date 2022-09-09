@@ -58,7 +58,8 @@ class AsyncCaseRunner:
         self.case_logs = {}  # 格式化用例日志
         self.scenario_logs = {}  # 格式化场景日志
         self.test_result = AsyncTestResult()  # 测试结果实例
-        self.redis_key = ""
+        self.redis_key = ""  # redis缓存日志的key
+        self.execute_status = True  # 执行完全通过标识
 
         self.start_time = 0
         self.end_time = 0
@@ -513,6 +514,7 @@ class AsyncCaseRunner:
             await data_logs.add_logs(key='response_body', val=resp_json)
             await self.al.set_flag(logs_type=logs_type, flag=True, **{"case_id": case_id, "scenario_id": scenario_id})
             await self.test_result.add_request(True)
+            await self.set_execute_status(True)
 
         except BaseException as e:
             await data_logs.add_logs(key='url', val=f"=== 数据驱动:{data_index} ===")
@@ -523,6 +525,7 @@ class AsyncCaseRunner:
             await data_logs.add_logs(key='http_code', val=f"请求失败:{e}")
             await self.al.set_flag(logs_type=logs_type, flag=False, **{"case_id": case_id, "scenario_id": scenario_id})
             await self.test_result.add_request(False)
+            await self.set_execute_status(False)
             return False
 
         await self.request_after(data_id, data_name, case_data_info, data_logs)
@@ -545,6 +548,7 @@ class AsyncCaseRunner:
             logs_type=logs_type, flag=current_flag, **{"case_id": case_id, "scenario_id": scenario_id}
         )
         await self.test_result.add_resp_ass(current_flag)
+        await self.set_execute_status(current_flag)
 
         # 字段断言
         ass_field = AsyncAssertionField(
@@ -560,6 +564,7 @@ class AsyncCaseRunner:
             logs_type=logs_type, flag=current_flag, **{"case_id": case_id, "scenario_id": scenario_id}
         )
         await self.test_result.add_field_ass(current_flag)
+        await self.set_execute_status(current_flag)
 
         self.sio.log(f"=== data_logs_flag === {data_logs.flag}")
         if data_logs.flag:
@@ -704,8 +709,21 @@ class AsyncCaseRunner:
             d['case'] = case
             await self.scenario_case_task(**d)
 
+    async def set_execute_status(self, flag: bool):
+        """
+        设置执行完全通过标识
+        :param flag:
+        :return:
+        """
+
+        if self.execute_status:
+            self.execute_status = flag
+
     async def gen_logs(self):
-        """生成日志"""
+        """
+        日志格式化并缓存redis
+        :return:
+        """
 
         self.case_logs = [v for k, v in self.al.case_logs_dict.items()]
         case_logs_json = json.dumps(self.case_logs, ensure_ascii=False)
@@ -745,16 +763,15 @@ class AsyncCaseRunner:
 
         self.sio.log('=== 生成日志写入Redis完成 ===', status="success")
 
-    async def save_logs(self, execute_status: bool, report_url=None, file_name=None):
+    async def save_logs(self, report_url=None, file_name=None):
         """
-
-        :param execute_status: 总执行结果:1/0(通过/不通过)
+        日志上层信息写入mysql
         :param report_url: 报告地址
         :param file_name: 文件名称
         :return:
         """
 
-        sql = """INSERT INTO exile_test_execute_logs (`is_deleted`, `create_time`, `create_timestamp`,  `execute_id`, `execute_name`, `execute_type`, `redis_key`, `report_url`, `execute_status`, `creator`, `creator_id`, `trigger_type`, `file_name`) VALUES (0,'{}','{}','{}','{}','{}','{}','{}','{}','{}','{}','{}','{}');""".format(
+        sql = """INSERT INTO exile_test_execute_logs (`is_deleted`, `create_time`, `create_timestamp`,  `execute_id`, `execute_name`, `execute_type`, `redis_key`, `report_url`, `execute_status`, `creator`, `creator_id`, `trigger_type`, `file_name`) VALUES (0,'{}','{}','{}','{}','{}','{}','{}',{},'{}','{}','{}','{}');""".format(
             F.gen_datetime(),
             int(self.start_time),
             self.execute_id,
@@ -762,13 +779,14 @@ class AsyncCaseRunner:
             self.execute_type,
             self.redis_key,
             report_url,
-            execute_status,
+            self.execute_status,
             self.execute_username,
             self.execute_user_id,
             self.trigger_type,
             file_name
         )
         project_db.insert(sql)
+        self.sio.log(f'=== save_logs sql ===\n{sql}')
         self.sio.log('=== save_logs ok ===', status="success")
 
     async def case_loader(self):
@@ -816,9 +834,9 @@ class AsyncCaseRunner:
         if self.scenario_list:
             await self.scenario_loader()
 
-        await self.gen_logs()  # 日志格式化
+        await self.gen_logs()  # 日志格式化并缓存redis
 
-        # await self.save_logs()  # 日志缓存
+        await self.save_logs()  # 日志上层信息写入mysql
 
         if self.is_debug:
             print('obj_id_list', self.obj_id_list)
