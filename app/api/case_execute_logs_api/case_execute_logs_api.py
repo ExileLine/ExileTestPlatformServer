@@ -12,38 +12,37 @@ from app.models.test_logs.models import TestExecuteLogs
 
 class CaseExecuteLogsApi(MethodView):
     """
-    用例/场景
-    GET: 日志明细
+    用例/场景最新日志
+    GET: 指定日志明细
     POST: 最新日志明细
     """
 
     def get(self, redis_key):
-        """日志明细"""
+        """指定日志明细"""
 
         result = R.get(redis_key)
         if not result:
-            return api_result(code=400, message='暂无日志', data={})
+            return api_result(code=NO_DATA, message='暂无日志(日志仅保存7天)', data={})
         else:
             data = json.loads(result)
-            return api_result(code=200, message='操作成功', data=data)
+            return api_result(code=SUCCESS, message='操作成功', data=data)
 
     def post(self):
         """最新日志明细"""
+
         data = request.get_json()
         execute_id = data.get('execute_id')
         execute_type = data.get('execute_type')
+        logs_key = GlobalsDict.redis_first_logs_dict(execute_id=execute_id)
+        redis_key = logs_key.get(execute_type)
+        if not redis_key:
+            return api_result(code=NO_DATA, message=f'执行类型: {execute_type} 不存在')
 
-        if execute_id and execute_type:
-            current_get_dict = gen_redis_first_logs(execute_id=execute_id)
-            key = current_get_dict.get(execute_type)
-            if not key:
-                return api_result(code=400, message=f'执行类型错误:{execute_type}')
+        result = R.get(redis_key)
+        if not result:
+            return api_result(code=NO_DATA, message='暂无日志(日志仅保存7天)', data={})
 
-            result = R.get(key)
-            if not result:
-                return api_result(code=400, message='暂无日志', data={})
-
-            return api_result(code=200, message='操作成功', data=json.loads(result))
+        return api_result(code=POST_SUCCESS, message='操作成功', data=json.loads(result))
 
 
 class CaseExecuteLogsPageApi(MethodView):
