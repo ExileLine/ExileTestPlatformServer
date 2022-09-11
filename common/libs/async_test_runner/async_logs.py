@@ -108,53 +108,65 @@ class AsyncDataLogs:
         self.logs = {
             "request_before": {
                 "description": "参数前置准备",
-                "logs": []
+                "logs": [],
+                "flag": True
             },
             "url": {
                 "description": "请求地址",
-                "logs": []
+                "logs": [],
+                "flag": True
             },
             "method": {
                 "description": "请求方式",
-                "logs": []
+                "logs": [],
+                "flag": True
             },
             "request_headers": {
                 "description": "请求头",
                 "type": None,
-                "logs": []
+                "logs": [],
+                "flag": True
             },
             "request_body": {
                 "description": "请求体",
-                "logs": []
+                "logs": [],
+                "flag": True
             },
             "http_code": {
                 "description": "HTTP响应码",
-                "logs": []
+                "logs": [],
+                "flag": True
             },
             "response_headers": {
                 "description": "响应头",
-                "logs": []
+                "logs": [],
+                "flag": True
             },
             "response_body": {
                 "description": "响应体",
                 "type": None,
-                "logs": []
+                "logs": [],
+                "flag": True
             },
             "response_assert": {
                 "description": "响应断言",
-                "logs": []
+                "logs": [],
+                "flag": True
             },
             "field_assert": {
                 "description": "字段断言",
-                "logs": []
+                "logs": [],
+                "flag": True
             },
             "request_after": {
                 "description": "参数后置准备",
-                "logs": []
+                "logs": [],
+                "flag": True
             },
             "update_variable": {
                 "description": "更新变量记录",
-                "logs": []
+                "logs": [],
+                "flag": True
             }
         }
         self.flag = True
@@ -169,7 +181,7 @@ class AsyncDataLogs:
         if self.flag:
             self.flag = flag
 
-    async def add_logs(self, key, val, flag=None):
+    async def add_logs(self, key, val, flag=True):
         """
         添加日志
         :param key: 日志分类标识
@@ -182,7 +194,8 @@ class AsyncDataLogs:
             raise KeyError(f"日志分类错误:{key}")
 
         self.logs[key]['logs'].append(val)
-        self.logs[key]['flag'] = flag
+        if self.logs[key].get('flag'):
+            self.logs[key]['flag'] = flag
 
         log_desc = log_desc_dict.get(key)
         if log_desc not in self.logs_summary:
