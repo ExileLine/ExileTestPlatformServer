@@ -551,6 +551,7 @@ class AsyncCaseRunner:
         await self.set_execute_status(current_flag)
 
         # 字段断言
+        case_field_ass_info = await self.var_conversion(case_field_ass_info)
         ass_field = AsyncAssertionField(
             case_field_ass_info=case_field_ass_info,
             data_logs=data_logs,
