@@ -157,7 +157,7 @@ class AsyncDataLogs:
                 "logs": []
             }
         }
-        self.flag = None
+        self.flag = True
         self.logs_summary = []
 
     async def set_flag(self, flag: bool):
@@ -166,7 +166,8 @@ class AsyncDataLogs:
         :param flag:
         :return:
         """
-        self.flag = flag
+        if self.flag:
+            self.flag = flag
 
     async def add_logs(self, key, val, flag=None):
         """
@@ -222,7 +223,7 @@ class AsyncLogs:
                 "case_id": case_id,
                 "case_name": case_name,
                 "logs": [],
-                "flag": None,
+                "flag": True,
                 "data_dict": {}
             }
             self.case_logs_dict[case_id] = d
@@ -252,7 +253,7 @@ class AsyncLogs:
                     "case_id": case_id,
                     "case_name": case_name,
                     "logs": [],
-                    "flag": None,
+                    "flag": True,
                     "data_dict": {}
                 }
                 d['case_dict'][case_id] = case_dict
@@ -305,7 +306,9 @@ class AsyncLogs:
         :param flag: True/False
         :return:
         """
-        self.case_logs_dict.get(case_id)['flag'] = flag
+
+        if self.case_logs_dict.get(case_id).get('flag'):
+            self.case_logs_dict.get(case_id)['flag'] = flag
 
     async def set_scenario_flag(self, scenario_id, case_id, flag: bool):
         """
@@ -317,7 +320,9 @@ class AsyncLogs:
         """
         if self.scenario_logs_dict.get(scenario_id).get('flag'):
             self.scenario_logs_dict.get(scenario_id)['flag'] = flag
-        self.scenario_logs_dict.get(scenario_id).get('case_dict').get(case_id)['flag'] = flag
+
+        if self.scenario_logs_dict.get(scenario_id).get('case_dict').get(case_id).get('flag'):
+            self.scenario_logs_dict.get(scenario_id).get('case_dict').get(case_id)['flag'] = flag
 
     async def set_flag(self, logs_type, flag: bool, case_id=None, scenario_id=None):
         """
