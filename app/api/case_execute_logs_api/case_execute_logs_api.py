@@ -10,6 +10,14 @@ from all_reference import *
 from app.models.test_logs.models import TestExecuteLogs
 
 
+class LatestLogsApi(MethodView):
+    """最新10条日志"""
+
+    def post(self):
+        """10"""
+        return api_result(code=POST_SUCCESS, message="操作成功")
+
+
 class CaseExecuteLogsApi(MethodView):
     """
     用例/场景最新日志
