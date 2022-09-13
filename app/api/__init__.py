@@ -20,6 +20,7 @@ from .case_variable_api.case_variable_api import CaseVarApi, CaseVarPageApi, Cas
 from .case_db_api.case_db_api import CaseDBApi, CaseDBPageApi, CaseDBPingApi
 from .case_logs_api.case_logs_api import CaseLogsPageApi
 from .case_execute_logs_api.case_execute_logs_api import CaseExecuteLogsApi, CaseExecuteLogsPageApi
+from .case_report_api.case_report_api import CaseReportApi
 from .case_bind_api.case_bind_api import CaseBindApi
 from .case_assertion_api.case_assertion_api import RespAssertionRuleApi, FieldAssertionRuleApi, AssertionRulePageApi
 from .rule_test_api.rule_test_api import RuleTestApi
@@ -88,6 +89,8 @@ api.add_url_rule('/case_logs_page', view_func=CaseLogsPageApi.as_view('case_logs
 api.add_url_rule('/case_execute_logs/<redis_key>', view_func=CaseExecuteLogsApi.as_view('case_execute_logs'))
 api.add_url_rule('/case_execute_logs', view_func=CaseExecuteLogsApi.as_view('case_execute_logs_first'))
 api.add_url_rule('/case_execute_logs_page', view_func=CaseExecuteLogsPageApi.as_view('case_execute_logs_page'))
+
+api.add_url_rule('/case_report/<redis_key>', view_func=CaseReportApi.as_view('case_report'))
 
 api.add_url_rule('/resp_ass_rule', view_func=RespAssertionRuleApi.as_view('resp_ass_rule'))
 api.add_url_rule('/resp_ass_rule/<ass_resp_id>', view_func=RespAssertionRuleApi.as_view('resp_ass_rule_detail'))
