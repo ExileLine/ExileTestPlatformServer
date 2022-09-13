@@ -19,7 +19,7 @@ from .case_data_api.case_data_api import CaseReqDataApi, CaseReqDataPageApi
 from .case_variable_api.case_variable_api import CaseVarApi, CaseVarPageApi, CaseVarHistoryApi
 from .case_db_api.case_db_api import CaseDBApi, CaseDBPageApi, CaseDBPingApi
 from .case_logs_api.case_logs_api import CaseLogsPageApi
-from .case_execute_logs_api.case_execute_logs_api import CaseExecuteLogsApi, CaseExecuteLogsPageApi
+from .case_execute_logs_api.case_execute_logs_api import CaseExecuteLogsApi, CaseExecuteLogsPageApi, LatestLogsApi
 from .case_report_api.case_report_api import CaseReportApi
 from .case_bind_api.case_bind_api import CaseBindApi
 from .case_assertion_api.case_assertion_api import RespAssertionRuleApi, FieldAssertionRuleApi, AssertionRulePageApi
@@ -86,6 +86,7 @@ api.add_url_rule('/case_db_page', view_func=CaseDBPageApi.as_view('case_db_page'
 api.add_url_rule('/case_db_ping/<db_id>', view_func=CaseDBPingApi.as_view('case_db_ping'))
 
 api.add_url_rule('/case_logs_page', view_func=CaseLogsPageApi.as_view('case_logs_page'))
+api.add_url_rule('/case_latest_logs', view_func=LatestLogsApi.as_view('case_latest_logs_10'))
 api.add_url_rule('/case_execute_logs/<redis_key>', view_func=CaseExecuteLogsApi.as_view('case_execute_logs'))
 api.add_url_rule('/case_execute_logs', view_func=CaseExecuteLogsApi.as_view('case_execute_logs_first'))
 api.add_url_rule('/case_execute_logs_page', view_func=CaseExecuteLogsPageApi.as_view('case_execute_logs_page'))

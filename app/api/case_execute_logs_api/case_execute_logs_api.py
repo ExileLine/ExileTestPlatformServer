@@ -15,7 +15,12 @@ class LatestLogsApi(MethodView):
 
     def post(self):
         """10"""
-        return api_result(code=POST_SUCCESS, message="操作成功")
+
+        data = request.get_json()
+        execute_id = data.get('execute_id')
+        query_10 = TestExecuteLogs.query.filter_by(execute_id=execute_id).limit(2).all()
+        result = [json.loads(R.get(q.redis_key)) for q in query_10]
+        return api_result(code=POST_SUCCESS, message=f"操作成功: {len(result)} 条", data=result)
 
 
 class CaseExecuteLogsApi(MethodView):
