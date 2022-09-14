@@ -15,7 +15,7 @@ class CaseReportApi(MethodView):
     """
 
     def get(self, redis_key):
-        """1"""
+        """生成测试报告"""
 
         query_logs_json = R.get(redis_key)
         if not query_logs_json:

@@ -18,9 +18,22 @@ class LatestLogsApi(MethodView):
 
         data = request.get_json()
         execute_id = data.get('execute_id')
-        query_10 = TestExecuteLogs.query.filter_by(execute_id=execute_id).limit(2).all()
-        result = [json.loads(R.get(q.redis_key)) for q in query_10]
-        return api_result(code=POST_SUCCESS, message=f"操作成功: {len(result)} 条", data=result)
+        execute_type = data.get('execute_type')
+        query_10 = TestExecuteLogs.query.filter_by(execute_id=execute_id, execute_type=execute_type).limit(2).all()
+        case_logs = []
+        scenario_logs = []
+        for q in query_10:
+            case_logs += json.loads(R.get(q.redis_key)).get('case_logs')
+            scenario_logs += json.loads(R.get(q.redis_key)).get('scenario_logs')
+
+        if not case_logs and not scenario_logs:
+            return api_result(code=NO_DATA, message='暂无日志(日志仅保存7天)')
+
+        result = {
+            "case_logs": case_logs,
+            "scenario_logs": scenario_logs
+        }
+        return api_result(code=POST_SUCCESS, message=f"操作成功: {len(case_logs)} 条", data=result)
 
 
 class CaseExecuteLogsApi(MethodView):
