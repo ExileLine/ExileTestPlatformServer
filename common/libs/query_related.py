@@ -75,6 +75,7 @@ class MapToJsonObj:
         result = []
         for data_obj in query_mid_obj_list:
             data_id = data_obj.get('data_id')
+            data_index = data_obj.get('index')
             ass_resp_id_list = data_obj.get('ass_resp_id_list')
             ass_field_id_list = data_obj.get('ass_field_id_list')
 
@@ -89,7 +90,10 @@ class MapToJsonObj:
                     "case_resp_ass_info": case_resp_ass_info,
                     "case_field_ass_info": case_field_ass_info,
                 }
-                result.append(bind_info)
+                if data_index == 1:
+                    result.insert(0, bind_info)
+                else:
+                    result.append(bind_info)
         return result
 
 
