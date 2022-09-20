@@ -22,11 +22,10 @@ class CaseEnvApi(MethodView):
         """环境详情"""
 
         query_env = TestEnv.query.get(env_id)
-
         if not query_env:
-            return api_result(code=400, message='环境id:{}数据不存在'.format(env_id))
+            return api_result(code=NO_DATA, message='环境地址不存在')
 
-        return api_result(code=200, message='删除成功', data=query_env.to_json())
+        return api_result(code=SUCCESS, message='操作成功', data=query_env.to_json())
 
     def post(self):
         """环境新增"""
@@ -36,10 +35,9 @@ class CaseEnvApi(MethodView):
         env_name = data.get('env_name')
         remark = data.get('remark')
 
-        query_env = TestEnv.query.filter_by(env_url=env_url).first()
-
+        query_env = TestEnv.query.filter_by(env_url=env_url, is_deleted=0).first()
         if query_env:
-            return api_result(code=400, message='环境:{} 已经存在'.format(env_url))
+            return api_result(code=UNIQUE_ERROR, message=f'环境: {env_url} 已经存在')
 
         new_env = TestEnv(
             env_url=env_url,
@@ -49,7 +47,7 @@ class CaseEnvApi(MethodView):
             creator_id=g.app_user.id
         )
         new_env.save()
-        return api_result(code=201, message='创建成功')
+        return api_result(code=POST_SUCCESS, message='创建成功')
 
     def put(self):
         """环境编辑"""
@@ -61,13 +59,12 @@ class CaseEnvApi(MethodView):
         remark = data.get('remark')
 
         query_env = TestEnv.query.get(env_id)
-
         if not query_env:
-            return api_result(code=400, message='环境id:{} 不存在'.format(env_id))
+            return api_result(code=NO_DATA, message='环境地址不存在')
 
         if query_env.env_url != env_url:
-            if TestEnv.query.filter_by(env_url=env_url).all():
-                return api_result(code=400, message='环境url:{} 已经存在'.format(env_url))
+            if TestEnv.query.filter_by(env_url=env_url, is_deleted=0).all():
+                return api_result(code=UNIQUE_ERROR, message=f'环境: {env_url} 已经存在')
 
         query_env.env_url = env_url
         query_env.env_name = env_name
@@ -75,23 +72,22 @@ class CaseEnvApi(MethodView):
         query_env.modifier = g.app_user.username
         query_env.modifier_id = g.app_user.id
         db.session.commit()
-        return api_result(code=203, message='编辑成功')
+        return api_result(code=PUT_SUCCESS, message='编辑成功')
 
     def delete(self):
         """环境删除"""
 
         data = request.get_json()
-        env_id = data.get('env_id')
+        env_id = data.get('id')
 
         query_env = TestEnv.query.get(env_id)
-
         if not query_env:
-            return api_result(code=400, message='环境id:{}数据不存在'.format(env_id))
+            return api_result(code=NO_DATA, message='环境地址不存在')
 
         query_env.modifier_id = g.app_user.id
         query_env.modifier = g.app_user.username
         query_env.delete()
-        return api_result(code=204, message='删除成功')
+        return api_result(code=DEL_SUCCESS, message='删除成功')
 
 
 class CaseEnvPageApi(MethodView):
@@ -127,7 +123,7 @@ class CaseEnvPageApi(MethodView):
         where_dict = {
             "id": env_id,
             "is_deleted": is_deleted,
-            "creator_id": creator_id
+            "creator_id": creator_id,
         }
 
         result_data = general_query(
@@ -139,4 +135,4 @@ class CaseEnvPageApi(MethodView):
             size=size
         )
 
-        return api_result(code=200, message='操作成功', data=result_data)
+        return api_result(code=SUCCESS, message='操作成功', data=result_data)
