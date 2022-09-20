@@ -53,6 +53,20 @@ def db_ping(db_type, db_connection):
         return False, 'db 连接失败，请检查配置'
 
 
+def case_db_decorator(func):
+    @wraps(func)
+    def wrapper(*args, **kwargs):
+        data = request.get_json()
+        db_type = data.get('db_type')
+
+        if str(db_type).lower() not in db_list:
+            return api_result(code=BUSINESS_ERROR, message=f'暂未支持: {db_type} 数据库')
+
+        return func(*args, **kwargs)
+
+    return wrapper
+
+
 class CaseDBApi(MethodView):
     """
     用例关联 db api
@@ -66,29 +80,26 @@ class CaseDBApi(MethodView):
         """db详情"""
 
         query_db = TestDatabases.query.get(db_id)
-
         if not query_db:
-            return api_result(code=400, message='db_id:{}数据不存在'.format(db_id))
+            return api_result(code=NO_DATA, message='数据库不存在')
 
-        return api_result(code=200, message='操作成功', data=query_db.to_json())
+        return api_result(code=SUCCESS, message='操作成功', data=query_db.to_json())
 
+    @case_db_decorator
     def post(self):
         """db新增"""
+
         data = request.get_json()
         name = data.get('name')
         db_type = data.get('db_type')
         db_connection = data.get('db_connection')
         remark = data.get('remark')
 
-        if str(db_type).lower() not in db_list:
-            return api_result(code=400, message='不存在数据库类型:{}'.format(db_type))
-
-        query_var = TestDatabases.query.filter_by(name=name).first()
-
+        query_var = TestDatabases.query.filter_by(name=name, is_deleted=0).first()
         if query_var:
-            return api_result(code=200, message='db名称:【{}】已存在'.format(name))
+            return api_result(code=UNIQUE_ERROR, message=f'数据库名称: {name} 已存在')
 
-        new_mysql = TestDatabases(
+        new_db = TestDatabases(
             name=name,
             db_type=db_type,
             db_connection=db_connection,
@@ -96,9 +107,10 @@ class CaseDBApi(MethodView):
             creator=g.app_user.username,
             creator_id=g.app_user.id
         )
-        new_mysql.save()
-        return api_result(code=201, message='创建成功')
+        new_db.save()
+        return api_result(code=POST_SUCCESS, message='创建成功')
 
+    @case_db_decorator
     def put(self):
         """db编辑"""
 
@@ -109,42 +121,37 @@ class CaseDBApi(MethodView):
         db_connection = data.get('db_connection')
         remark = data.get('remark')
 
-        if str(db_type).lower() not in db_list:
-            return api_result(code=400, message='不存在数据库类型:{}'.format(db_type))
-
-        query_db_filter = TestDatabases.query.filter_by(name=name).first()
         query_db = TestDatabases.query.get(db_id)
+        if not query_db:
+            return api_result(code=NO_DATA, message='数据库不存在')
 
+        query_db_filter = TestDatabases.query.filter_by(name=name, is_deleted=0).first()
         if query_db_filter and query_db.to_json().get('name') != name:
-            return api_result(code=400, message='db名称:{} 已存在'.format(name))
+            return api_result(code=UNIQUE_ERROR, message=f'数据库名称: {name} 已存在')
 
-        if query_db:
-            query_db.name = name
-            query_db.db_type = db_type
-            query_db.db_connection = db_connection
-            query_db.remark = remark
-            query_db.modifier = g.app_user.username
-            query_db.modifier_id = g.app_user.id
-            db.session.commit()
-            return api_result(code=203, message='编辑成功')
-        else:
-            return api_result(code=400, message='db_id:{}数据不存在'.format(db_id))
+        query_db.name = name
+        query_db.db_type = db_type
+        query_db.db_connection = db_connection
+        query_db.remark = remark
+        query_db.modifier = g.app_user.username
+        query_db.modifier_id = g.app_user.id
+        db.session.commit()
+        return api_result(code=PUT_SUCCESS, message='编辑成功')
 
     def delete(self):
         """db删除"""
 
         data = request.get_json()
-        db_id = data.get('db_id')
+        db_id = data.get('id')
 
         query_db = TestDatabases.query.get(db_id)
-
         if not query_db:
-            return api_result(code=400, message='用例变量id:{}数据不存在'.format(db_id))
+            return api_result(code=NO_DATA, message='数据库不存在')
 
         query_db.modifier_id = g.app_user.id
         query_db.modifier = g.app_user.username
         query_db.delete()
-        return api_result(code=204, message='删除成功')
+        return api_result(code=DEL_SUCCESS, message='删除成功')
 
 
 class CaseDBPageApi(MethodView):
@@ -161,6 +168,7 @@ class CaseDBPageApi(MethodView):
         name = data.get('name')
         db_type = data.get('db_type')
         is_deleted = data.get('is_deleted', 0)
+        creator_id = data.get('creator_id')
         page = data.get('page')
         size = data.get('size')
 
@@ -178,7 +186,8 @@ class CaseDBPageApi(MethodView):
         where_dict = {
             "id": db_id,
             "db_type": db_type,
-            "is_deleted": is_deleted
+            "is_deleted": is_deleted,
+            "creator_id": creator_id
         }
 
         result_data = general_query(
@@ -189,7 +198,7 @@ class CaseDBPageApi(MethodView):
             page=page,
             size=size
         )
-        return api_result(code=200, message='操作成功', data=result_data)
+        return api_result(code=SUCCESS, message='操作成功', data=result_data)
 
 
 class CaseDBPingApi(MethodView):
@@ -201,13 +210,12 @@ class CaseDBPingApi(MethodView):
         """db ping"""
 
         query_db = TestDatabases.query.get(db_id)
-
         if not query_db:
-            return api_result(code=400, message=f'db_id: {db_id} 数据不存在')
+            return api_result(code=NO_DATA, message='数据库不存在')
 
         db_type = query_db.to_json().get('db_type', {})
         if db_type not in db_list:
-            return api_result(400, message=f'暂未支持：{db_type}')
+            return api_result(code=BUSINESS_ERROR, message=f'暂未支持: {db_type} 数据库')
 
         db_connection = query_db.to_json().get('db_connection', {})
         print(db_connection)
@@ -220,4 +228,4 @@ class CaseDBPingApi(MethodView):
             print(db_connection)
         _bool, _result = db_ping(db_type=db_type, db_connection=db_connection)
 
-        return api_result(code=200 if _bool else 400, message=_result, data=_result)
+        return api_result(code=SUCCESS if _bool else BUSINESS_ERROR, message=_result, data=_result)
