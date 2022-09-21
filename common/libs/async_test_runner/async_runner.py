@@ -221,7 +221,7 @@ class AsyncCaseRunner:
         select id, var_name, var_value, var_type, is_active 
         from exile_test_variable 
         where {f"var_name in {tuple(var_name_list)}" if len(var_name_list) > 1 else f"var_name='{var_name_list[-1]}'"} 
-        and is_deleted=0;
+        and is_deleted=0 and project_id={self.project_id};
         """
         print('=== sql ===')
         print(sql)
@@ -342,7 +342,8 @@ class AsyncCaseRunner:
             old_var = json.dumps(var_value, ensure_ascii=False)
             new_var = json.dumps(update_val_result, ensure_ascii=False)
 
-            sql = f"""UPDATE exile_test_variable SET var_value='{new_var}', update_time='{F.gen_datetime()}', update_timestamp={F.gen_timestamp()} WHERE id='{var_id}';"""
+            sql = f"""
+            UPDATE exile_test_variable SET var_value='{new_var}', update_time='{F.gen_datetime()}', update_timestamp={F.gen_timestamp()} WHERE id='{var_id}' and project_id={self.project_id}; """
             self.sio.log(f'=== update variable sql ===\n{sql}', status='success')
             project_db.update(sql)
 
