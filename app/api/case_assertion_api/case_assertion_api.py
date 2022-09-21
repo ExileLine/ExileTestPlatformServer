@@ -109,13 +109,15 @@ def assertion_decorator(func):
     @wraps(func)
     def wrapper(*args, **kwargs):
         data = request.get_json()
-        assert_description = data.get('assert_description')
-        ass_json = data.get('ass_json', [])
-        is_public = data.get('is_public')
+        project_id = data.get('project_id')
+        if not qp(project_id):
+            return api_result(code=NO_DATA, message=f"项目id: {project_id} 不存在")
 
+        assert_description = data.get('assert_description')
         if not assert_description or assert_description == '':
             return api_result(code=REQUIRED, message='断言描述不能为空')
 
+        ass_json = data.get('ass_json', [])
         if not isinstance(ass_json, list) or not ass_json:
             return api_result(code=TYPE_ERROR, message='断言规则不能为空')
 
@@ -186,6 +188,7 @@ class RespAssertionRuleApi(MethodView):
         """响应断言规则新增"""
 
         data = request.get_json()
+        project_id = data.get('project_id')
         assert_description = data.get('assert_description')
         ass_json = data.get('ass_json', [])
         is_public = data.get('is_public')
@@ -204,6 +207,7 @@ class RespAssertionRuleApi(MethodView):
                 return api_result(code=BUSINESS_ERROR, message=result)
 
         new_ass_resp = TestCaseAssertion(
+            project_id=project_id,
             assert_description=assert_description,
             ass_json=ass_json,
             assertion_type="response",
@@ -337,6 +341,7 @@ class FieldAssertionRuleApi(MethodView):
         """字段断言规则新增"""
 
         data = request.get_json()
+        project_id = data.get('project_id')
         version_id_list = data.get('version_id_list')
         assert_description = data.get('assert_description')
         ass_json = data.get('ass_json', [])
@@ -369,6 +374,7 @@ class FieldAssertionRuleApi(MethodView):
                         return api_result(code=BUSINESS_ERROR, message=result)
 
         new_ass_field = TestCaseAssertion(
+            project_id=project_id,
             assert_description=assert_description,
             ass_json=ass_json,
             is_public=is_public,
@@ -467,6 +473,7 @@ class AssertionRulePageApi(MethodView):
         """断言规则分页模糊查询"""
 
         data = request.get_json()
+        project_id = data.get('project_id')
         assertion_id = data.get('id')
         assert_description = data.get('assert_description')
         assertion_type = data.get('assertion_type')
@@ -479,6 +486,7 @@ class AssertionRulePageApi(MethodView):
             return api_result(code=BUSINESS_ERROR, message=f'断言类型不存在:{assertion_type}')
 
         where_dict = {
+            "project_id": project_id,
             "id": assertion_id,
             "is_deleted": is_deleted,
             "assertion_type": assertion_type,

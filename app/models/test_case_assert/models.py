@@ -55,6 +55,7 @@ class TestCaseAssertion(BaseModel):
     hidden_fields = ["_is_public"]
     handle_property = True
 
+    project_id = db.Column(BIGINT(20, unsigned=True), comment='项目id')
     assert_description = db.Column(db.String(255), nullable=False, comment='断言描述')
     ass_json = db.Column(db.JSON, comment='断言')
     _is_public = db.Column('is_public', TINYINT(1, unsigned=True), default=1, comment='是否公共使用:0-否;1-是')
