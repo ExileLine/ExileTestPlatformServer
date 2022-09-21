@@ -10,6 +10,7 @@ from flask import Blueprint
 
 from .demo_api.demo_api import TestApi, TestCeleryAsyncTaskApi
 from .index_api.index_api import IndexApi
+from .dashboard_api.dashboard_api import DashboardApi
 from .login_api.login_api import LoginApi
 from .user_api.user_api import TouristApi, UserApi, UserPasswordApi, UserPageApi, UserProfileApi
 from .auth_api.auth_api import AuthApi
@@ -51,6 +52,8 @@ api.add_url_rule('/index', view_func=IndexApi.as_view('index_api'))
 api.add_url_rule('/index/<version_id>', view_func=IndexApi.as_view('index_version_api'))
 
 api.add_url_rule('/login', view_func=LoginApi.as_view('login_api'))
+
+api.add_url_rule('/dashboard', view_func=DashboardApi.as_view('dashboard_api'))
 
 api.add_url_rule('/tourist', view_func=TouristApi.as_view('tourist_api'))
 api.add_url_rule('/user', view_func=UserApi.as_view('user_api'))
