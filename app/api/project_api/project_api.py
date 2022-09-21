@@ -10,6 +10,15 @@ from all_reference import *
 from app.models.test_project.models import TestProject, TestProjectVersion
 
 
+def qp(project_id):
+    """查询项目"""
+
+    query_project = TestProject.query.get(project_id)
+    if not query_project:
+        return False
+    return True
+
+
 class ProjectApi(MethodView):
     """
     项目管理 api
@@ -22,9 +31,7 @@ class ProjectApi(MethodView):
     def get(self, project_id):
         """项目详情"""
 
-        query_project = TestProject.query.get(project_id)
-
-        if not project_id:
+        if not qp(project_id):
             return api_result(code=NO_DATA, message=f"项目id: {project_id} 不存在")
 
         query_version_list = TestProjectVersion.query.filter_by(project_id=project_id).all()
@@ -69,9 +76,7 @@ class ProjectApi(MethodView):
         project_name = data.get('project_name')
         remark = data.get('remark')
 
-        query_project = TestProject.query.get(project_id)
-
-        if not query_project:
+        if not qp(project_id):
             return api_result(code=NO_DATA, message=f"项目id: {project_id} 不存在")
 
         if query_project.project_name != project_name:
@@ -90,9 +95,8 @@ class ProjectApi(MethodView):
 
         data = request.get_json()
         project_id = data.get('id')
-        query_project = TestProject.query.get(project_id)
 
-        if not query_project:
+        if not qp(project_id):
             return api_result(code=NO_DATA, message=f"项目id: {project_id} 不存在")
 
         query_project.modifier = g.app_user.username
