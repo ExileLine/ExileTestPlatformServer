@@ -16,6 +16,7 @@ class TestVariable(BaseModel):
     hidden_fields = ["_is_source", "_is_expression", "_is_public", "_is_active"]
     handle_property = True
 
+    project_id = db.Column(BIGINT(20, unsigned=True), comment='项目id')
     var_name = db.Column(db.String(255), nullable=False, comment='变量名称')
     var_init_value = db.Column(db.JSON, nullable=False, comment='初始变量值')
     var_value = db.Column(db.JSON, nullable=False, comment='当前变量值')

@@ -8,6 +8,7 @@
 from types import MethodType, FunctionType
 
 from all_reference import *
+from app.api.project_api.project_api import qp
 from app.models.test_variable.models import TestVariable, TestVariableHistory
 
 
@@ -42,6 +43,10 @@ def variable_decorator(func):
     def wrapper(*args, **kwargs):
 
         data = request.get_json()
+
+        project_id = data.get('project_id')
+        if not qp(project_id):
+            return api_result(code=NO_DATA, message=f"项目id: {project_id} 不存在")
 
         var_name = data.get('var_name', '').strip()
         if not var_name:
@@ -87,6 +92,7 @@ class CaseVarApi(MethodView):
         """变量新增"""
 
         data = request.get_json()
+        project_id = data.get('project_id')
         var_name = data.get('var_name', '').strip()
         var_value = data.get('var_value', "")
         var_type = data.get('var_type')
@@ -104,6 +110,7 @@ class CaseVarApi(MethodView):
             return api_result(code=UNIQUE_ERROR, message=f'变量: {var_name} 已存在')
 
         new_variable = TestVariable(
+            project_id=project_id,
             var_name=var_name,
             var_init_value=var_value,
             var_value=var_value,
@@ -245,7 +252,8 @@ class CaseVarPageApi(MethodView):
         """变量分页模糊查询"""
 
         data = request.get_json()
-        var_id = data.get('var_id')
+        var_id = data.get('id')
+        project_id = data.get('project_id')
         var_name = data.get('var_name')
         var_type = data.get('var_type')
         var_source = data.get('var_source')
@@ -267,6 +275,7 @@ class CaseVarPageApi(MethodView):
 
         where_dict = {
             "id": var_id,
+            "project_id": project_id,
             "var_type": var_type,
             "var_source": var_source,
             "is_deleted": is_deleted,
