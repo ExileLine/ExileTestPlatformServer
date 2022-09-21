@@ -31,6 +31,7 @@ class TestProjectVersion(BaseModel):
     version_name = db.Column(db.String(128), nullable=False, comment='版本名称')
     version_number = db.Column(db.String(32), nullable=False, comment='版本号')
     project_id = db.Column(BIGINT(20, unsigned=True), comment='项目id')
+    icon = db.Column(db.String(1024), comment='Icon')
     creator = db.Column(db.String(32), comment='创建人')
     creator_id = db.Column(BIGINT(20, unsigned=True), comment='创建人id')
     modifier = db.Column(db.String(32), comment='更新人')

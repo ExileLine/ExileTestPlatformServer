@@ -5,8 +5,18 @@
 # @File    : version_api.py
 # @Software: PyCharm
 
+import random
+
 from all_reference import *
 from app.models.test_project.models import TestProject, TestProjectVersion
+
+
+def gen_icon(n):
+    """生成icon标识"""
+
+    if not n:
+        return random.randint(1, 4)
+    return n
 
 
 class ProjectVersionApi(MethodView):
@@ -35,6 +45,7 @@ class ProjectVersionApi(MethodView):
         project_id = data.get('project_id')
         version_name = data.get('version_name')
         version_number = data.get('version_number')
+        icon = data.get('icon')
         remark = data.get('remark')
 
         query_project = TestProject.query.get(project_id)
@@ -50,6 +61,7 @@ class ProjectVersionApi(MethodView):
             version_name=version_name,
             version_number=version_number,
             project_id=project_id,
+            icon=gen_icon(n=icon),
             remark=remark,
             creator=g.app_user.username,
             creator_id=g.app_user.id
@@ -65,6 +77,7 @@ class ProjectVersionApi(MethodView):
         version_id = data.get('id')
         version_name = data.get('version_name')
         version_number = data.get('version_number')
+        icon = data.get('icon')
         remark = data.get('remark')
 
         query_project = TestProject.query.get(project_id)
@@ -88,6 +101,7 @@ class ProjectVersionApi(MethodView):
         query_version.version_name = version_name
         query_version.version_number = version_number
         query_version.project_id = project_id
+        query_version.icon = gen_icon(n=icon)
         query_version.remark = remark
         query_version.modifier = g.app_user.username
         query_version.modifier_id = g.app_user.id
