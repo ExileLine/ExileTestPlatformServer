@@ -13,6 +13,7 @@ class TestExecuteLogs(BaseModel):
     __tablename__ = 'exile_test_execute_logs'
     __table_args__ = {'comment': '用例执行记录表'}
 
+    project_id = db.Column(BIGINT(20, unsigned=True), comment='项目id')
     execute_id = db.Column(db.String(255), comment='用例id/场景id/module_code')
     execute_name = db.Column(db.String(255), nullable=False, comment='用例名称/场景名称')
     execute_type = db.Column(db.String(255), nullable=False, comment='执行类型')
@@ -26,8 +27,8 @@ class TestExecuteLogs(BaseModel):
     remark = db.Column(db.String(255), comment='备注')
 
     def __repr__(self):
-        return 'TestExecuteLogs 模型对象-> ID:{} execute_id:{} execute_name:{} execute_type:{} redis_key:{}'.format(
-            self.id, self.execute_id, self.execute_name, self.execute_type, self.redis_key
+        return 'TestExecuteLogs 模型对象-> ID:{} project_id:{} execute_id:{} execute_name:{} execute_type:{} redis_key:{}'.format(
+            self.id, self.project_id, self.execute_id, self.execute_name, self.execute_type, self.redis_key
         )
 
 

@@ -10,6 +10,7 @@ import asyncio
 from common.libs.async_test_runner import AsyncCaseRunner, case_list, scenario_list
 
 test_obj = {
+    "project_id": 30,
     "execute_id": 8646,
     "execute_name": "执行用例8646:[登录成功okc2]",
     "execute_type": "case",

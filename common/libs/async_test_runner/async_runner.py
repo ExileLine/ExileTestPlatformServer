@@ -36,6 +36,7 @@ class AsyncCaseRunner:
         self.is_debug = is_debug
 
         self.test_obj = test_obj if test_obj else {}
+        self.project_id = test_obj.get('project_id')  # 项目归属id
         self.execute_id = test_obj.get('execute_id')  # 执行名称(用例id,场景id,任务id,模块id...)
         self.execute_name = test_obj.get('execute_name')  # 执行名称(用例名,场景名,任务名,模块名...)
         self.execute_type = test_obj.get('execute_type')  # 执行名称(case,scenario,task,module...)
@@ -772,9 +773,10 @@ class AsyncCaseRunner:
         :return:
         """
 
-        sql = """INSERT INTO exile_test_execute_logs (`is_deleted`, `create_time`, `create_timestamp`,  `execute_id`, `execute_name`, `execute_type`, `redis_key`, `report_url`, `execute_status`, `creator`, `creator_id`, `trigger_type`, `file_name`) VALUES (0,'{}','{}','{}','{}','{}','{}','{}',{},'{}','{}','{}','{}');""".format(
+        sql = """INSERT INTO exile_test_execute_logs (`is_deleted`, `create_time`, `create_timestamp`,  `project_id`, `execute_id`, `execute_name`, `execute_type`, `redis_key`, `report_url`, `execute_status`, `creator`, `creator_id`, `trigger_type`, `file_name`) VALUES (0,'{}','{}','{}','{}','{}','{}','{}','{}',{},'{}','{}','{}','{}');""".format(
             F.gen_datetime(),
             int(self.start_time),
+            self.project_id,
             self.execute_id,
             self.execute_name,
             self.execute_type,
