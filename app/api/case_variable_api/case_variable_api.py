@@ -134,6 +134,7 @@ class CaseVarApi(MethodView):
         """变量编辑"""
 
         data = request.get_json()
+        project_id = data.get('project_id')
         var_id = data.get('id')
         var_name = data.get('var_name', '').strip()
         var_value = data.get('var_value', "")
@@ -159,7 +160,7 @@ class CaseVarApi(MethodView):
             return api_result(code=BUSINESS_ERROR, message='该变量未开放,只能被创建人修改!')
 
         before_var = query_variable.var_value
-        query_var_filter = TestVariable.query.filter_by(var_name=var_name, is_deleted=0).first()
+        query_var_filter = TestVariable.query.filter_by(project_id=project_id, var_name=var_name, is_deleted=0).first()
 
         if query_var_filter and query_variable.id != query_var_filter.id:
             return api_result(code=UNIQUE_ERROR, message=f'变量名称:{var_name} 已存在')
