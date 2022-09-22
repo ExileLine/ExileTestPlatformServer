@@ -26,6 +26,7 @@ class CaseRequestSendApi(MethodView):
         """用例调试"""
 
         data = request.get_json()
+        project_id = data.get('project_id')
         request_base_url = data.get('request_base_url')
         request_url = data.get('request_url')
         request_method = data.get('request_method')
@@ -65,7 +66,7 @@ class CaseRequestSendApi(MethodView):
             else:
                 before_send['payload'].update(req_json_data)
 
-            acr = AsyncCaseRunner({})
+            acr = AsyncCaseRunner(test_obj={"project_id": project_id})
             send = await acr.var_conversion(before_send)
             url = send.get('url')
             headers = send.get('headers')
@@ -93,4 +94,4 @@ class CaseRequestSendApi(MethodView):
             }
             return api_result(code=SUCCESS, message='操作成功', data=result)
         except BaseException as e:
-            return api_result(code=BUSINESS_ERROR, message='参数异常', data=[str(e)])
+            return api_result(code=BUSINESS_ERROR, message=f'参数异常:{e}')
