@@ -276,6 +276,20 @@ class GlobalsDict(F):
             print(k, v.__class__)
 
     @classmethod
+    def execute_type_tuple(cls):
+        """执行类型"""
+
+        t = (
+            "case", "scenario",
+            "project_all", "project_case", "project_scenario",
+            "version_all", "version_case", "version_scenario",
+            "task_all", "task_case", "task_scenario",
+            "module_all", "module_case", "module_scenario",
+            "module_app",
+        )
+        return t
+
+    @classmethod
     def redis_first_logs_dict(cls, execute_id):
         """
         redis最新日志存储字典
