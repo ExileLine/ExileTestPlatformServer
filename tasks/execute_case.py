@@ -14,5 +14,5 @@ from common.libs.async_test_runner.async_runner import AsyncCaseRunner
 @cel.task
 def execute_case(test_obj):
     acr = AsyncCaseRunner(test_obj=test_obj)
-    asyncio.run(acr.case_loader())
+    asyncio.run(acr.main())
     return "执行完成"
