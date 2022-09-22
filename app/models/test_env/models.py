@@ -13,6 +13,7 @@ class TestEnv(BaseModel):
     __tablename__ = 'exile_test_env'
     __table_args__ = {'comment': '测试环境'}
 
+    project_id = db.Column(BIGINT(20, unsigned=True), comment='项目id')
     env_url = db.Column(db.String(2048), nullable=False, comment='环境url')
     env_name = db.Column(db.String(255), nullable=False, comment='环境名称')
     creator = db.Column(db.String(32), comment='创建人')

@@ -6,6 +6,7 @@
 # @Software: PyCharm
 
 from all_reference import *
+from app.api.project_api.project_api import qp
 from app.models.test_env.models import TestEnv
 
 
@@ -31,15 +32,20 @@ class CaseEnvApi(MethodView):
         """环境新增"""
 
         data = request.get_json()
+        project_id = data.get('project_id')
         env_url = data.get('env_url')
         env_name = data.get('env_name')
         remark = data.get('remark')
 
-        query_env = TestEnv.query.filter_by(env_url=env_url, is_deleted=0).first()
+        if not qp(project_id):
+            return api_result(code=NO_DATA, message=f"项目id: {project_id} 不存在")
+
+        query_env = TestEnv.query.filter_by(project_id=project_id, env_url=env_url, is_deleted=0).first()
         if query_env:
             return api_result(code=UNIQUE_ERROR, message=f'环境: {env_url} 已经存在')
 
         new_env = TestEnv(
+            project_id=project_id,
             env_url=env_url,
             env_name=env_name,
             remark=remark,
@@ -53,6 +59,7 @@ class CaseEnvApi(MethodView):
         """环境编辑"""
 
         data = request.get_json()
+        project_id = data.get('project_id')
         env_id = data.get('id')
         env_url = data.get('env_url')
         env_name = data.get('env_name')
@@ -63,7 +70,7 @@ class CaseEnvApi(MethodView):
             return api_result(code=NO_DATA, message='环境地址不存在')
 
         if query_env.env_url != env_url:
-            if TestEnv.query.filter_by(env_url=env_url, is_deleted=0).all():
+            if TestEnv.query.filter_by(project_id=project_id, env_url=env_url, is_deleted=0).all():
                 return api_result(code=UNIQUE_ERROR, message=f'环境: {env_url} 已经存在')
 
         query_env.env_url = env_url
@@ -100,6 +107,7 @@ class CaseEnvPageApi(MethodView):
         """环境分页模糊查询"""
 
         data = request.get_json()
+        project_id = data.get('project_id')
         env_id = data.get('env_id')
         env_url = data.get('env_url')
         env_name = data.get('env_name')
@@ -121,6 +129,7 @@ class CaseEnvPageApi(MethodView):
         """
 
         where_dict = {
+            "project_id": project_id,
             "id": env_id,
             "is_deleted": is_deleted,
             "creator_id": creator_id,
