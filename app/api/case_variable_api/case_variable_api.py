@@ -105,7 +105,7 @@ class CaseVarApi(MethodView):
         is_public = data.get('is_public')
         remark = data.get('remark')
 
-        query_variable = TestVariable.query.filter_by(var_name=var_name, is_deleted=0).first()
+        query_variable = TestVariable.query.filter_by(project_id=project_id, var_name=var_name, is_deleted=0).first()
         if query_variable:
             return api_result(code=UNIQUE_ERROR, message=f'变量: {var_name} 已存在')
 
