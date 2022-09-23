@@ -17,9 +17,14 @@ class LatestLogsApi(MethodView):
         """10"""
 
         data = request.get_json()
+        project_id = data.get('project_id')
         execute_id = data.get('execute_id')
         execute_type = data.get('execute_type')
-        query_10 = TestExecuteLogs.query.filter_by(execute_id=execute_id, execute_type=execute_type).limit(2).all()
+        query_10 = TestExecuteLogs.query.filter_by(
+            project_id=project_id,
+            execute_id=execute_id,
+            execute_type=execute_type
+        ).order_by(TestExecuteLogs.id.desc()).limit(10).all()
         case_logs = []
         scenario_logs = []
         for q in query_10:
