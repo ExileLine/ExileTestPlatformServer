@@ -566,9 +566,6 @@ class QueryExecuteData:
 
         # query_case.add_total_execution()
 
-        if not query_case:
-            return False, f'用例id:{case_id}不存在'
-
         if not bool(case_info.get('is_shared')):
             return False, '执行失败,该用例是私有的,仅创建者执行!'
 
