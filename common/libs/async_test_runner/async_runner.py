@@ -426,7 +426,7 @@ class AsyncCaseRunner:
         url = kwargs.get('url')
         request_method = kwargs.get('request_method')
 
-        case_data_info = data.get('case_data_info', {})
+        case_data_info = data.get('data_info', {})
         case_resp_ass_info = data.get('case_resp_ass_info', [])
         case_field_ass_info = data.get('case_field_ass_info', [])
 
@@ -446,10 +446,10 @@ class AsyncCaseRunner:
 
         await self.request_before(data_id, data_name, case_data_info, data_logs)
 
-        headers = case_data_info.get('request_headers')
-        request_params = case_data_info.get('request_params')
-        request_body = case_data_info.get('request_body')
-        request_body_type = case_data_info.get('request_body_type')
+        headers = case_data_info.get('request_headers', {})
+        request_params = case_data_info.get('request_params', {})
+        request_body = case_data_info.get('request_body', {})
+        request_body_type = case_data_info.get('request_body_type', 'none')
 
         req_type_dict = {
             "none": "",
