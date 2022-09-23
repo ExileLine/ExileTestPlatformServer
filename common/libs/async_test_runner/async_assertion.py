@@ -46,8 +46,8 @@ class AsyncAssertionResponse:
             "flag": None
         }
 
-    async def result(self, rule, response_source, assert_key, expect_val, expect_val_type, is_expression,
-                     python_val_exp, **kwargs):
+    async def main_assert(self, rule, response_source, assert_key, expect_val, expect_val_type, is_expression,
+                          python_val_exp, **kwargs):
         """
 
         :param rule: 规则
@@ -59,6 +59,12 @@ class AsyncAssertionResponse:
         :param python_val_exp:  表达式
         :return:
         """
+
+        self.sio.log(f'=== 断言:{self.desc} ===')
+        await self.data_logs.add_logs(
+            key="response_assert",
+            val=f"=== 断言:{self.desc} ==="
+        )
 
         if response_source not in resp_source_tuple:
             self.sio.log(f"响应来源:{response_source}不存在，无法断言", status="error")
@@ -126,16 +132,11 @@ class AsyncAssertionResponse:
             return False
 
         # 日志
-        self.sio.log(f'=== 断言:{self.desc} ===')
         kv = '=== 键值:{} ==='.format({assert_key: assert_val})
         self.sio.log(kv)
         message = f'{assert_val}:{type(assert_val)} [{rule}] {expect_val}:{expect_val_type}'
         self.sio.log(f'function: {native_function}')
         self.sio.log(message)
-        await self.data_logs.add_logs(
-            key="response_assert",
-            val=f"=== 断言:{self.desc} ==="
-        )
         await self.data_logs.add_logs(
             key="response_assert",
             val=f"{kv}"
@@ -165,13 +166,11 @@ class AsyncAssertionResponse:
             )
             return False
 
-    async def main(self):
-        """main"""
+    async def gen_ass_json(self, ass_json):
+        """断言规则"""
 
-        print('=== AsyncAssertionResponse ===')
-        print(self.case_resp_ass_info)
-        for index, ass in enumerate(self.case_resp_ass_info, 1):
-            ass_result = await self.result(**ass)
+        for ass in ass_json:
+            ass_result = await self.main_assert(**ass)
             if ass_result:
                 self.sio.log('=== Response 断言通过 ===', status='success')
                 self.count['success'] += 1
@@ -188,6 +187,15 @@ class AsyncAssertionResponse:
                     val="=== Response 断言失败 ===",
                     flag=False
                 )
+
+    async def main(self):
+        """main"""
+
+        print('=== AsyncAssertionResponse ===')
+        print(self.case_resp_ass_info)
+        for index, ass in enumerate(self.case_resp_ass_info, 1):
+            ass_json = ass.get('ass_json')
+            await self.gen_ass_json(ass_json)
         self.count['flag'] = False if self.count.get('fail') > 0 else True
         return self.count
 
