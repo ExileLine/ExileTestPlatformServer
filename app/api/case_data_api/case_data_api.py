@@ -78,10 +78,23 @@ def check_update_var(update_var_list):
     ]
     """
     if update_var_list:
-        update_var_id_list = list(set(map(lambda x: x.get('id') if isinstance(x, dict) else 0, update_var_list)))
+        update_var_id_list = set()
+        for var in update_var_list:
+            if not isinstance(var, dict):
+                return False, f'数据异常:{var}-{type(var)}'
+            _id = var.get('id')
+            var_source = var.get('var_source')
+            var_get_key = var.get('var_get_key')
+            var_name = var.get('var_name')
+            if var_source not in GlobalsDict.var_source_tuple():
+                return False, f'变量: {var_name} 更新值来源为空'
+            if not var_get_key:
+                return False, f'变量: {var_name} 取值的key为空'
+            update_var_id_list.add(_id)
+        update_var_id_list = list(update_var_id_list)
+
         query_variable = TestVariable.query.filter(
             TestVariable.is_deleted == 0,
-            TestVariable.var_source.in_(GlobalsDict.resp_source_tuple()),
             TestVariable.id.in_(update_var_id_list)
         ).all()
         if not query_variable:
