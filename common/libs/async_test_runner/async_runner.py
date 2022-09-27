@@ -39,7 +39,7 @@ class AsyncCaseRunner:
         self.project_id = test_obj.get('project_id')  # 项目归属id
         self.execute_id = test_obj.get('execute_id')  # 执行名称(用例id,场景id,任务id,模块id...)
         self.execute_name = test_obj.get('execute_name')  # 执行名称(用例名,场景名,任务名,模块名...)
-        self.execute_type = test_obj.get('execute_type')  # 执行名称(case,scenario,task,module...)
+        self.execute_type = test_obj.get('execute_type')  # 执行类型(case,scenario,task,module...)
         self.execute_username = test_obj.get('execute_username')
         self.execute_user_id = test_obj.get('execute_user_id')
         self.trigger_type = test_obj.get('trigger_type')  # 触发执行类型(user_execute,timed_execute...)
