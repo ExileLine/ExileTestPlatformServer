@@ -94,7 +94,9 @@ class CaseVarApi(MethodView):
         data = request.get_json()
         project_id = data.get('project_id')
         var_name = data.get('var_name', '').strip()
+        var_init_value = data.get('var_init_value', "")
         var_value = data.get('var_value', "")
+        var_args = data.get('var_args', {})
         var_type = data.get('var_type')
         var_source = data.get('var_source')
         var_get_key = data.get('var_get_key')
@@ -112,8 +114,9 @@ class CaseVarApi(MethodView):
         new_variable = TestVariable(
             project_id=project_id,
             var_name=var_name,
-            var_init_value=var_value,
+            var_init_value=var_init_value,
             var_value=var_value,
+            var_args=var_args,
             var_type=var_type,
             var_source=var_source,
             var_get_key=var_get_key,
@@ -137,7 +140,9 @@ class CaseVarApi(MethodView):
         project_id = data.get('project_id')
         var_id = data.get('id')
         var_name = data.get('var_name', '').strip()
+        var_init_value = data.get('var_init_value', "")
         var_value = data.get('var_value', "")
+        var_args = data.get('var_args', {})
         var_type = data.get('var_type')
         var_source = data.get('var_source')
         var_get_key = data.get('var_get_key')
@@ -166,7 +171,9 @@ class CaseVarApi(MethodView):
             return api_result(code=UNIQUE_ERROR, message=f'变量名称:{var_name} 已存在')
 
         query_variable.var_name = var_name
+        query_variable.var_init_value = var_init_value
         query_variable.var_value = var_value
+        query_variable.var_args = var_args
         query_variable.var_type = var_type
         query_variable.var_source = var_source
         query_variable.var_get_key = var_get_key
