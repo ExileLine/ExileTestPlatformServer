@@ -18,6 +18,15 @@ import shortuuid
 class F:
 
     @classmethod
+    def gen_length(cls, *args, **kwargs):
+        """生成数据长度"""
+
+        length = kwargs.get('length')
+        if isinstance(length, int) and length:
+            return length
+        return 6
+
+    @classmethod
     def gen_uuid_long(cls, *args, **kwargs):
         return shortuuid.uuid()[0:11] + str(int(time.time())) + shortuuid.uuid()[0:11]
 
@@ -75,36 +84,37 @@ class F:
             return str(int(time.time()))
 
     @classmethod
-    def gen_random_int(cls, length=6, *args, **kwargs):
+    def gen_random_int(cls, *args, **kwargs):
         """
         生成随机数字
-        :param length:
         :return: 随机数字
         """
+
+        length = cls.gen_length(*args, **kwargs)
         random_int = ''.join(random.choice(string.digits) for _ in range(length))
         if random_int[0] == '0':
             random_int += random.choice(string.digits)
         return int(random_int)
 
     @classmethod
-    def gen_random_str(cls, length=6, *args, **kwargs):
+    def gen_random_str(cls, *args, **kwargs):
         """
         生成随机字符串
-        :param length:
-        :param key:
         :return: 随机字符串
         """
+
+        length = cls.gen_length(*args, **kwargs)
         random_str = ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(length))
         return random_str
 
     @classmethod
-    def gen_random_str_number(cls, length=6, *args, **kwargs):
+    def gen_random_str_number(cls, *args, **kwargs):
         """
         生成随机字符串数字
-        :param length:
-        :return: 随机字符串
+        :return: 随机字符串数字
         """
 
+        length = cls.gen_length(*args, **kwargs)
         random_str_number = ''.join(random.choice(string.digits) for _ in range(length))
         return random_str_number
 
@@ -114,6 +124,7 @@ class F:
         生成随机布尔值
         :return:
         """
+
         return random.choice([True, False])
 
 
