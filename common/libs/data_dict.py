@@ -19,11 +19,11 @@ class F:
 
     @classmethod
     def gen_uuid_long(cls, *args, **kwargs):
-        return shortuuid.uuid()[0:10] + str(int(time.time())) + shortuuid.uuid()[0:10]
+        return shortuuid.uuid()[0:11] + str(int(time.time())) + shortuuid.uuid()[0:11]
 
     @classmethod
     def gen_uuid_short(cls, *args, **kwargs):
-        return shortuuid.uuid()
+        return shortuuid.uuid()[0:16]
 
     @classmethod
     def gen_date(cls, *args, **kwargs):
@@ -250,6 +250,13 @@ class GlobalsDict(F):
         if merge:
             d.update(cls.value_type_dict())
         return d
+
+    @classmethod
+    def variable_args_dict(cls):
+        """变量扩展参数key"""
+
+        t = ("length", "test")
+        return t
 
     @classmethod
     def test_dict(cls, l, r):
