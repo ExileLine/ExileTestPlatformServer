@@ -218,20 +218,14 @@ class AsyncCaseRunner:
 
         # TODO 改为 aiomysql
         sql = f"""
-        select id, var_name, var_value, var_type, is_active 
-        from exile_test_variable 
-        where {f"var_name in {tuple(var_name_list)}" if len(var_name_list) > 1 else f"var_name='{var_name_list[-1]}'"} 
-        and is_deleted=0 and project_id={self.project_id};
+        SELECT id, var_name, var_value, var_type, var_args, is_active 
+        FROM exile_test_variable 
+        WHERE {f"var_name in {tuple(var_name_list)}" if len(var_name_list) > 1 else f"var_name='{var_name_list[-1]}'"} 
+        AND is_deleted=0 AND project_id={self.project_id};
         """
         print('=== sql ===')
         print(sql)
         query_result = project_db.select(sql=sql)
-
-        print('=== value_type_dict ===')
-        print(value_type_dict)
-
-        print('=== variable_type_dict ===')
-        print(variable_type_dict)
 
         d = {}
         for obj in query_result:  # 生成: {"var_name":"var_value"}
@@ -239,12 +233,17 @@ class AsyncCaseRunner:
             var_name = obj.get('var_name')
             var_value = obj.get('var_value')
             var_type = obj.get('var_type')
+            var_args = obj.get('var_args')
             is_active = obj.get('is_active')
-            print('===var_type===', var_type)
-            print('===var_name===', var_name)
-            if var_type in variable_type_dict.keys():  # 函数
+
+            print('=== var_name ===', var_name)
+            print('=== var_value ===', var_value)
+            print('=== var_type ===', var_type)
+            print('=== var_args ===', var_args)
+
+            if var_type in variable_type_dict.keys():  # 自定义函数
                 if var_id not in self.var_conversion_active_list:
-                    new_val = variable_type_dict.get(var_type)()  # 首次触函数
+                    new_val = variable_type_dict.get(var_type)(**var_args)  # 首次触函数
                     d[var_name] = new_val
                     self.current_var_value = new_val
                     self.var_conversion_active_list.append(var_id)
@@ -255,7 +254,7 @@ class AsyncCaseRunner:
                     else:
                         d[var_name] = self.current_var_value
             else:
-                if var_type in value_type_dict:
+                if var_type in value_type_dict:  # 内置函数
                     d[var_name] = json.loads(var_value)
                 else:
                     d[var_name] = var_value
