@@ -5,6 +5,7 @@
 # @File    : dashboard_api.py
 # @Software: PyCharm
 
+
 from all_reference import *
 from app.models.test_project.models import MidProjectAndCase, MidProjectScenario
 from app.models.test_variable.models import TestVariable
@@ -30,9 +31,15 @@ class DashboardApi(MethodView):
         total_execute_success = TestExecuteLogs.query.filter_by(project_id=project_id, execute_status=1).count()
         total_execute_fail = TestExecuteLogs.query.filter_by(project_id=project_id, execute_status=0).count()
 
-        l_time = int(datetime.datetime.strptime(time.strftime("%Y-%m-%d"), '%Y-%m-%d').timestamp())
-        r_time = l_time + 86400 - 1
-        total_the_day_execute = TestExecuteLogs.query.filter(TestExecuteLogs.id.between(l_time, r_time)).count()
+        l_time_1 = TimeTool.the_day_timestamp()
+        r_time_1 = l_time + 86400 - 1
+        total_the_day_execute = TestExecuteLogs.query.filter(TestExecuteLogs.id.between(l_time_1, r_time_1)).count()
+
+        l_time_2 = TimeTool.current_month_timestamp()
+        r_time_2 = TimeTool.next_month_first_timestamp() - 1
+        total_current_month_execute = TestExecuteLogs.query.filter(
+            TestExecuteLogs.id.between(l_time_2, r_time_2)
+        ).count()
 
         data = {
             "total_case": total_case,
@@ -43,6 +50,7 @@ class DashboardApi(MethodView):
             "total_execute_success": total_execute_success,
             "total_execute_fail": total_execute_fail,
             "total_execute_error": 0,
-            "total_the_day_execute": total_the_day_execute
+            "total_the_day_execute": total_the_day_execute,
+            "total_current_month_execute": total_current_month_execute
         }
         return api_result(code=POST_SUCCESS, message='操作成功', data=data)
