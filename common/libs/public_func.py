@@ -6,6 +6,8 @@
 # @Software: PyCharm
 
 import time
+import datetime
+from dateutil.relativedelta import relativedelta
 import json
 from functools import wraps
 
@@ -186,6 +188,40 @@ class ActionSet:
         if r1 and r2:
             return True
         return False
+
+
+class TimeTool:
+    """时间工具类"""
+
+    @classmethod
+    def the_day_timestamp(cls):
+        """当天起始时间戳"""
+
+        result = int(datetime.datetime.strptime(time.strftime("%Y-%m-%d"), '%Y-%m-%d').timestamp())
+        return result
+
+    @classmethod
+    def current_month_timestamp(cls):
+        """当月第一天起始时间戳"""
+
+        result = int(datetime.datetime.strptime(time.strftime("%Y-%m"), '%Y-%m').timestamp())
+        return result
+
+    @classmethod
+    def next_month_first_datetime(cls):
+        """获取下个月第一天日期如:2022-11-01 00:00:00"""
+
+        current_date_str = str(time.strftime("%Y-%m", time.localtime())) + "-01"
+        current_date_str = datetime.datetime.strptime(current_date_str, '%Y-%m-%d')
+        result = current_date_str + relativedelta(months=1)
+        return result
+
+    @classmethod
+    def next_month_first_timestamp(cls):
+        """获取下个月第一天起始时间戳"""
+
+        result = int(datetime.datetime.strptime(str(cls.next_month_first_datetime()), '%Y-%m-%d %H:%M:%S').timestamp())
+        return result
 
 
 if __name__ == '__main__':
