@@ -221,6 +221,47 @@ class AsyncAssertionField:
             "flag": True  # 调试时候设置为True
         }
 
+    async def main_assert(self):
+        """1"""
+        a = [
+            {
+                "db_id": 12,
+                "assert_list": [
+                    {
+                        "query": "select id, case_name FROM ExileTestPlatform.exile_test_case WHERE id=1;",
+                        "assert_field_list": [
+                            {"rule": "==", "uuid": "bWoYKFhwWJpds8xbxkZwY6-1661138466", "assert_key": "id",
+                             "expect_val": 1,
+                             "is_expression": True, "expect_val_type": "int"},
+                            {"rule": "==", "uuid": "mjVoCFDgpURn57PtdKWd37-1661138466", "assert_key": "case_name",
+                             "expect_val": "测试用例B1", "is_expression": True, "expect_val_type": "str"
+                             }
+                        ]
+                    }
+                ]
+            },
+            {
+                "db_id": 9,
+                "assert_list": [
+                    {
+                        "query": "get 127.0.0.1",
+                        "assert_field_list": [
+                            {
+                                "rule": "==",
+                                "uuid": "8Ch6i5XqwqmSnB4tmyo62c-1661138466",
+                                "assert_key": "username",
+                                "expect_val": "user_00007",
+                                "is_expression": False,
+                                "python_val_exp": "obj.get('username')",
+                                "expect_val_type": "str"
+                            }
+                        ]
+                    }
+                ]
+            }
+        ]
+        return
+
     async def main(self):
         """main"""
 
