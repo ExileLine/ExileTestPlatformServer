@@ -21,6 +21,7 @@ celery = "*"
 psutil = "*"
 pymssql = "*"
 dbutils = "*"
+aiomysql = "*"
 
 [dev-packages]
 
