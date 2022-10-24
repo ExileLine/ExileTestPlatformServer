@@ -32,7 +32,7 @@ class DashboardApi(MethodView):
         total_execute_fail = TestExecuteLogs.query.filter_by(project_id=project_id, execute_status=0).count()
 
         l_time_1 = TimeTool.the_day_timestamp()
-        r_time_1 = l_time + 86400 - 1
+        r_time_1 = l_time_1 + 86400 - 1
         total_the_day_execute = TestExecuteLogs.query.filter(TestExecuteLogs.id.between(l_time_1, r_time_1)).count()
 
         l_time_2 = TimeTool.current_month_timestamp()
