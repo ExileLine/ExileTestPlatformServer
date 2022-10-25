@@ -23,6 +23,21 @@ class DashboardApi(MethodView):
 
         data = request.get_json()
         project_id = data.get('project_id')
+        env = data.get('env')
+        if env:
+            data = {
+                "total_case": 7198705,
+                "total_scenario": 637568,
+                "total_assert": 666666,
+                "total_variable": 999999,
+                "total_execute_count": 1111110,
+                "total_execute_success": 888888,
+                "total_execute_fail": 200000,
+                "total_execute_error": 22222,
+                "total_the_day_execute": 888,
+                "total_current_month_execute": 666
+            }
+            return api_result(code=POST_SUCCESS, message='操作成功(dev)', data=data)
 
         total_case = MidProjectAndCase.query.filter_by(project_id=project_id).count()
         total_scenario = MidProjectScenario.query.filter_by(project_id=project_id).count()
