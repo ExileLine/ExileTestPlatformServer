@@ -25,11 +25,16 @@ class LatestLogsApi(MethodView):
             execute_id=execute_id,
             execute_type=execute_type
         ).order_by(TestExecuteLogs.id.desc()).limit(10).all()
+
+        if not query_10:
+            return api_result(code=NO_DATA, message='暂无日志')
+
         case_logs = []
         scenario_logs = []
         for q in query_10:
-            case_logs += json.loads(R.get(q.redis_key)).get('case_logs')
-            scenario_logs += json.loads(R.get(q.redis_key)).get('scenario_logs')
+            if R.get(q.redis_key):
+                case_logs += json.loads(R.get(q.redis_key)).get('case_logs')
+                scenario_logs += json.loads(R.get(q.redis_key)).get('scenario_logs')
 
         if not case_logs and not scenario_logs:
             return api_result(code=NO_DATA, message='暂无日志(日志仅保存7天)')
