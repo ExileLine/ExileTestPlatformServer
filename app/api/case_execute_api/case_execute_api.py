@@ -33,7 +33,7 @@ class GenExecuteData:
             "case_info":{},
             "bind_info":[
                 {
-                    "case_data_info":{},
+                    "data_info":{},
                     "case_resp_ass_info":[],
                     "case_field_ass_info":[]
                 }
@@ -118,7 +118,7 @@ class GenExecuteData:
                     case_data_info[key] = val
             _func()
             b = {
-                "case_data_info": case_data_info,
+                "data_info": case_data_info,
                 "case_resp_ass_info": case_resp_ass_info,
                 "case_field_ass_info": case_field_ass_info
             }
@@ -131,7 +131,7 @@ class GenExecuteData:
                     case_data_info[key] = val
             _func()
             b = {
-                "case_data_info": case_data_info,
+                "data_info": case_data_info,
                 "case_resp_ass_info": case_resp_ass_info,
                 "case_field_ass_info": case_field_ass_info
             }
@@ -327,7 +327,7 @@ class QueryExecuteData:
                 case_list = GenExecuteData.main(case_id_list, query_case_zip_list, case_expand_map)
 
                 scenario_obj = {
-                    "scenario_id": scenario.get('id'),
+                    "id": scenario.get('id'),
                     "scenario_title": scenario.get('scenario_title'),
                     "case_list": case_list
                 }
