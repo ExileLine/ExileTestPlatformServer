@@ -5,83 +5,6 @@
 # @File    : async_logs.py
 # @Software: PyCharm
 
-import asyncio
-
-case_logs_demo = [
-    {
-        "case_id": 1,
-        "case_name": "yy",
-        "logs": [],
-        "fail": True,  # bool
-        "data_dict": {
-            "9": {
-                "data_id": 9,
-                "data_name": "xx",
-                "fail": True,  # bool
-                "logs": {
-                    "request_before": {
-                        "description": "参数前置准备",
-                        "logs": []
-                    },
-                    "url": {
-                        "description": "请求地址",
-                        "logs": []
-                    },
-                    "request_headers": {
-                        "description": "请求头",
-                        "type": None,
-                        "logs": []
-                    },
-                    "request_body": {
-                        "description": "请求体",
-                        "logs": []
-                    },
-                    "http_code": {
-                        "description": "HTTP响应码",
-                        "logs": []
-                    },
-                    "response_headers": {
-                        "description": "响应头",
-                        "logs": []
-                    },
-                    "response_body": {
-                        "description": "响应体",
-                        "type": None,
-                        "logs": []
-                    },
-                    "request_after": {
-                        "description": "参数后置准备",
-                        "logs": []
-                    },
-                    "response_assert": {
-                        "description": '响应断言',
-                        "fail": True,  # bool
-                        "logs": [
-                            '=== 公式取值结果: 200 ===',
-                            '=== 断言:1-123-第一个 ===',
-                            "=== 键值:{'code': 200} ===",
-                            "function: <class 'int'>",
-                            "200:<class 'int'> [==] 200:int",
-                            '=== Response 断言通过 ===',
-                            '=== 取值结果: 200 ===',
-                            '=== 断言:1-123-第一个 ===',
-                            "=== 键值:{'code': 200} ===",
-                            "function: <class 'int'>",
-                            "200:<class 'int'> [==] 200:int",
-                            '=== Response 断言通过 ===',
-                        ],
-                    },
-                    "field_assert": {
-                        "description": '字段断言',
-                        "fail": True,  # bool
-                        "logs": ["=== case_resp_ass_info ===\n[{'field_ass': '1'}]\n1-123-第一个"],
-                    },
-                },
-                "logs_summary": ['=== 日志1 ===', '=== 日志2 ===', '=== ... ==='],
-            }
-        }
-    }
-]
 
 log_desc_dict = {
     "request_before": "=== 前置准备 ===",
@@ -216,7 +139,7 @@ class AsyncDataLogs:
 
 
 class AsyncLogs:
-    """异步日志"""
+    """异步执行日志"""
 
     def __init__(self):
         self.case_logs_dict = {}  # 用例日志字典
@@ -230,16 +153,18 @@ class AsyncLogs:
         """
 
         for case in case_list:
+            case_uuid = case.get('uuid')
             case_id = case.get('case_info').get('id')
             case_name = case.get('case_info').get('case_name')
             d = {
+                "case_uuid": case_uuid,
                 "case_id": case_id,
                 "case_name": case_name,
                 "logs": [],
                 "flag": True,
                 "data_dict": {}
             }
-            self.case_logs_dict[case_id] = d
+            self.case_logs_dict[case_uuid] = d
 
     async def gen_scenario_logs_dict(self, scenario_list):
         """
@@ -249,107 +174,112 @@ class AsyncLogs:
         """
 
         for scenario in scenario_list:
+            scenario_uuid = scenario.get('uuid')
             scenario_id = scenario.get('id')
             scenario_title = scenario.get('scenario_title')
             case_list = scenario.get('case_list')
             d = {
-                "scenario_id": scenario_id,
+                "scenario_uuid": scenario_uuid,
+                "id": scenario_id,
                 "scenario_title": scenario_title,
                 "logs": [],
                 "flag": True,
                 "case_dict": {}
             }
             for case in case_list:
+                case_uuid = case.get('uuid')
                 case_id = case.get('case_info').get('id')
                 case_name = case.get('case_info').get('case_name')
                 case_dict = {
+                    "case_uuid": case_uuid,
                     "case_id": case_id,
                     "case_name": case_name,
                     "logs": [],
                     "flag": True,
                     "data_dict": {}
                 }
-                d['case_dict'][case_id] = case_dict
+                d['case_dict'][case_uuid] = case_dict
 
-            self.scenario_logs_dict[scenario_id] = d
+            self.scenario_logs_dict[scenario_uuid] = d
 
-    async def add_case_logs(self, case_id, logs):
+    async def add_case_logs(self, case_uuid, logs):
         """
         增加用例日志
-        :param case_id: 用例id
+        :param case_uuid: 用例uuid
         :param logs: 日志内容
         :return:
         """
-        self.case_logs_dict.get(case_id)['logs'].append(logs)
+        self.case_logs_dict.get(case_uuid)['logs'].append(logs)
 
-    async def add_scenario_logs(self, scenario_id, logs):
+    async def add_scenario_logs(self, scenario_uuid, logs):
         """
         增加用例日志
-        :param scenario_id: 场景id
+        :param scenario_uuid: 场景uuid
         :param logs: 日志内容
         :return:
         """
-        self.scenario_logs_dict.get(scenario_id)['logs'].append(logs)
+        self.scenario_logs_dict.get(scenario_uuid)['logs'].append(logs)
 
-    async def add_case_data_logs(self, case_id, data_id, logs):
+    async def add_case_data_logs(self, case_uuid, data_id, logs):
         """
         增加用例中执行参数日志
-        :param case_id: 用例id
+        :param case_uuid: 用例uuid
         :param data_id: 参数id
         :param logs: 日志内容
         :return:
         """
-        self.case_logs_dict.get(case_id).get('data_dict')[data_id] = logs
+        self.case_logs_dict.get(case_uuid).get('data_dict')[data_id] = logs
 
-    async def add_scenario_case_data_logs(self, scenario_id, case_id, data_id, logs):
+    async def add_scenario_case_data_logs(self, scenario_uuid, case_uuid, data_id, logs):
         """
         增加场景用例执行参数日志
-        :param scenario_id: 场景id
-        :param case_id: 用例id
+        :param scenario_uuid: 场景uuid
+        :param case_uuid: 用例uuid
         :param data_id: 参数id
         :param logs: 日志内容
         :return:
         """
-        self.scenario_logs_dict.get(scenario_id).get('case_dict').get(case_id).get('data_dict')[data_id] = logs
+        self.scenario_logs_dict.get(scenario_uuid).get('case_dict').get(case_uuid).get('data_dict')[data_id] = logs
 
-    async def set_case_flag(self, case_id, flag: bool):
+    async def set_case_flag(self, case_uuid, flag: bool):
         """
         设置用例标识(通过/失败)
-        :param case_id: 用例id
+        :param case_uuid: 用例uuid
         :param flag: True/False
         :return:
         """
 
-        if self.case_logs_dict.get(case_id).get('flag'):
-            self.case_logs_dict.get(case_id)['flag'] = flag
+        if self.case_logs_dict.get(case_uuid).get('flag'):
+            self.case_logs_dict.get(case_uuid)['flag'] = flag
 
-    async def set_scenario_flag(self, scenario_id, case_id, flag: bool):
+    async def set_scenario_flag(self, scenario_uuid, case_uuid, flag: bool):
         """
         设置场景标识(通过/失败)
-        :param scenario_id: 场景id
-        :param case_id: 场景里面用例的id
+        :param scenario_uuid: 场景uuid
+        :param case_uuid: 场景里面用例的uuid
         :param flag: True/False
         :return:
         """
-        if self.scenario_logs_dict.get(scenario_id).get('flag'):
-            self.scenario_logs_dict.get(scenario_id)['flag'] = flag
 
-        if self.scenario_logs_dict.get(scenario_id).get('case_dict').get(case_id).get('flag'):
-            self.scenario_logs_dict.get(scenario_id).get('case_dict').get(case_id)['flag'] = flag
+        if self.scenario_logs_dict.get(scenario_uuid).get('flag'):
+            self.scenario_logs_dict.get(scenario_uuid)['flag'] = flag
 
-    async def set_flag(self, logs_type, flag: bool, case_id=None, scenario_id=None):
+        if self.scenario_logs_dict.get(scenario_uuid).get('case_dict').get(case_uuid).get('flag'):
+            self.scenario_logs_dict.get(scenario_uuid).get('case_dict').get(case_uuid)['flag'] = flag
+
+    async def set_flag(self, logs_type, flag: bool, case_uuid=None, scenario_uuid=None):
         """
         设置用例/场景(通过/失败)
         :param logs_type: 类型(case;scenario)
-        :param case_id:
-        :param scenario_id:
+        :param case_uuid:
+        :param scenario_uuid:
         :param flag:
         :return:
         """
 
         if logs_type == 'case':
-            await self.set_case_flag(case_id=case_id, flag=flag)
+            await self.set_case_flag(case_uuid=case_uuid, flag=flag)
         elif logs_type == 'scenario':
-            await self.set_scenario_flag(scenario_id=scenario_id, case_id=case_id, flag=flag)
+            await self.set_scenario_flag(scenario_uuid=scenario_uuid, case_uuid=case_uuid, flag=flag)
         else:
             raise TypeError(f'错误logs_type:{logs_type}')
