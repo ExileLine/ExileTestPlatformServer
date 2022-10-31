@@ -5,10 +5,14 @@
 # @File    : async_assertion.py
 # @Software: PyCharm
 
+import json
+import redis
 import operator
 
 from common.libs.data_dict import GlobalsDict
 from common.libs.execute_code import execute_code
+from common.libs.db import project_db
+from common.libs.db import MyPyMysql, MyPostgreSql, MySqlServer
 
 resp_source_tuple = GlobalsDict.resp_source_tuple()
 rule_dict_op = GlobalsDict.rule_dict_op()
@@ -139,15 +143,7 @@ class AsyncAssertionResponse:
         self.sio.log(message)
         await self.data_logs.add_logs(
             key="response_assert",
-            val=f"{kv}"
-        )
-        await self.data_logs.add_logs(
-            key="response_assert",
-            val=f"function: {native_function}"
-        )
-        await self.data_logs.add_logs(
-            key="response_assert",
-            val=f"{message}"
+            val=[f"{kv}", f"function: {native_function}", f"{message}"]
         )
 
         op_function = rule_dict_op.get(rule)
@@ -192,15 +188,88 @@ class AsyncAssertionResponse:
         """main"""
 
         print('=== AsyncAssertionResponse ===')
-        print(self.case_resp_ass_info)
-        for index, ass in enumerate(self.case_resp_ass_info, 1):
+        await self.data_logs.add_logs(
+            key="response_assert",
+            val="=== 响应断言 ==="
+        )
+        for ass in self.case_resp_ass_info:
             ass_json = ass.get('ass_json')
             await self.gen_ass_json(ass_json)
         self.count['flag'] = False if self.count.get('fail') > 0 else True
         return self.count
 
 
-class AsyncAssertionField:
+class DBUtil:
+    """DBUtil"""
+
+    @staticmethod
+    def get_mysql(**kwargs):
+        """连接:Mysql"""
+
+        db = MyPyMysql(**kwargs, debug=True)  # MySql实例
+        ping = db.db_obj().open
+        return {
+            "db": db,
+            "cmd": "select"
+        }
+
+    @staticmethod
+    def get_redis(**kwargs):
+        """连接:Redis"""
+
+        kwargs.update({"decode_responses": True})  # bytes to str
+        pool = redis.ConnectionPool(**kwargs)
+        db = redis.Redis(connection_pool=pool)  # Redis实例
+        db.ping()
+
+        return {
+            "db": db,
+            "cmd": "execute_command"
+        }
+
+    @staticmethod
+    def get_postgresql(**kwargs):
+        """连接:PostgreSQL"""
+
+        db = MyPostgreSql(**kwargs)  # postgreSql实例
+        return {
+            "db": db,
+            "cmd": "select"
+        }
+
+    @staticmethod
+    def get_mongodb(**kwargs):
+        """连接:Mongodb"""
+
+    @staticmethod
+    def get_es(**kwargs):
+        """连接:ES"""
+
+    @staticmethod
+    def get_oracle(**kwargs):
+        """连接:Oracle"""
+
+    @staticmethod
+    def get_db2(**kwargs):
+        """连接:DB2"""
+
+    @staticmethod
+    def get_sqlserver(**kwargs):
+        """连接:SqlServer"""
+
+        connection = {
+            "server": f"{kwargs['host']}:{kwargs['port']}",
+            "user": kwargs['user'],
+            "password": kwargs['password']
+        }
+        db = MySqlServer(**connection)  # Sqlserver实例
+        return {
+            "db": db,
+            "cmd": "select"
+        }
+
+
+class AsyncAssertionField(DBUtil):
     """异步字段断言"""
 
     def __init__(self, case_field_ass_info, data_logs, desc=None, sio=None):
@@ -221,55 +290,195 @@ class AsyncAssertionField:
             "flag": True  # 调试时候设置为True
         }
 
-    async def main_assert(self):
+        self.db_dict = {
+            "mysql": self.get_mysql,
+            "redis": self.get_redis,
+            "postgresql": self.get_postgresql,
+            "mongodb": self.get_mongodb,
+            'es': self.get_es,
+            "oracle": self.get_oracle,
+            "db2": self.get_db2,
+            "sqlserver": self.get_sqlserver
+        }
+
+    async def ass_dict_consume(self, query_result, assert_field_obj):
         """1"""
-        a = [
-            {
-                "db_id": 12,
-                "assert_list": [
-                    {
-                        "query": "select id, case_name FROM ExileTestPlatform.exile_test_case WHERE id=1;",
-                        "assert_field_list": [
-                            {"rule": "==", "uuid": "bWoYKFhwWJpds8xbxkZwY6-1661138466", "assert_key": "id",
-                             "expect_val": 1,
-                             "is_expression": True, "expect_val_type": "int"},
-                            {"rule": "==", "uuid": "mjVoCFDgpURn57PtdKWd37-1661138466", "assert_key": "case_name",
-                             "expect_val": "测试用例B1", "is_expression": True, "expect_val_type": "str"
-                             }
-                        ]
-                    }
-                ]
-            },
-            {
-                "db_id": 9,
-                "assert_list": [
-                    {
-                        "query": "get 127.0.0.1",
-                        "assert_field_list": [
-                            {
-                                "rule": "==",
-                                "uuid": "8Ch6i5XqwqmSnB4tmyo62c-1661138466",
-                                "assert_key": "username",
-                                "expect_val": "user_00007",
-                                "is_expression": False,
-                                "python_val_exp": "obj.get('username')",
-                                "expect_val_type": "str"
-                            }
-                        ]
-                    }
-                ]
-            }
-        ]
-        return
+
+        print('=== ass_dict_consume ===')
+        assert_key = assert_field_obj.get('assert_key')
+        this_val = query_result.get(assert_key)
+        rule = assert_field_obj.get('rule')
+        expect_val = assert_field_obj.get('expect_val')
+        expect_val_type = assert_field_obj.get('expect_val_type')
+
+        self.sio.log(f'=== 断言:{self.assert_description} ===', status='success')
+        self.sio.log(f'=== 字段:{assert_key} ===', status='success')
+
+        try:
+            if self.gen_assert_result(this_val=this_val, rule_key=rule, expect_val_type=expect_val_type,
+                                      expect_val=expect_val, sio=self.sio):
+                self.sio.log('=== Field 断言通过 ===', status='success')
+                self.ass_field_success.append(True)
+            else:
+                self.sio.log('=== Field 断言失败 ===', status='error')
+                self.ass_field_fail.append(False)
+
+        except BaseException as e:
+            self.sio.log(f'数据异常:{str(e)}', status='error')
+            self.sio.log('这种情况一般会因为以下两种原因导致:', status='error')
+            self.sio.log('1.查看数据库确认该数据是否有被手动修改过.', status='error')
+            self.sio.log(
+                '2.查看: case_assertion_api.py 中的 FieldAssertionRuleApi 中的逻辑是否被修改.',
+                status='error')
+            self.sio.log('=== 断言异常 ===', status="error")
+            self.ass_field_fail.append(False)
+
+    async def ass_str_or_int_consume(self, query_result, assert_field_obj):
+        """1"""
+
+    async def ass_list_consume(self):
+        """1"""
+
+    async def ass_query_set(self, query_result, assert_field_obj, db_type):
+        """
+        assert_field_obj = {
+            "assert_key": "id",
+            "expect_val": 1,
+            "is_expression": 0,
+            "python_val_exp": "",
+            "expect_val_type": "int",
+            "rule": "=="
+        }
+        :param query_result: 查询结果
+        :param assert_field_obj:
+        :param db_type:
+        :return:
+        """
+
+        expect_val_type = str(assert_field_obj.get('expect_val_type'))  # 期望值类型
+        expect_val = assert_field_obj.get('expect_val')  # 期望值
+        py_func = value_type_dict.get(expect_val_type)  # 反射原生方法
+        assert_field_obj['expect_val'] = py_func(expect_val)  # 期望值强转类型重新赋值: 如 int(1)
+
+        if db_type in ['mysql', 'postgresql', 'sqlserver']:
+            # TODO 暂时支持唯一数据检验
+            if len(query_result) == 1 and isinstance(query_result, list):
+                query_result = query_result[0]
+            await self.ass_dict_consume(query_result, assert_field_obj)
+
+        elif db_type in ['redis']:
+            query_result = json.loads(query_result)
+            if isinstance(query_result, (dict, list)) and bool(assert_field_obj.get('is_expression')):
+                await self.ass_dict_consume(query_result, assert_field_obj)
+            else:
+                await self.ass_str_or_int_consume(query_result, assert_field_obj)
+
+    async def main_assert(self, ass, db_result, db_type):
+        """
+
+        :param ass: 断言规则
+        :param db_result: 数据库字典
+        :param db_type: 数据库类型
+        :return:
+        """
+
+        query = ass.get('query')
+        assert_field_list = ass.get('assert_field_list')
+        db = db_result.get("db")  # 数据库连接对象
+        cmd = db_result.get("cmd")  # 数据库对应的查询api
+
+        query_result = getattr(db, cmd)(query)
+        print('query:', query)
+        print('query_result:', query_result)
+        await self.data_logs.add_logs(
+            key="field_assert",
+            val=[f"=== 语句 ===", query]
+        )
+        await self.data_logs.add_logs(
+            key="field_assert",
+            val=[f"=== 查询结果: ===", query_result]
+        )
+
+        for assert_field_obj in assert_field_list:
+            # TODO 写到这里
+            pass
+            # await self.ass_query_set(query_result=query_result, assert_field_obj=assert_field_obj, db_type=db_type)
+
+    async def ping_db_connection(self, db_id, assert_description, name, db_type, db_connection):
+        """
+        检查db是否可以连接
+        :param db_id: 数据库id
+        :param assert_description: 断言描述
+        :param name: 数据库名称
+        :param db_type: 数据库类型
+        :param db_connection: 数据库连接配置
+        :return:
+        """
+
+        db_obj = self.db_dict.get(db_type.lower())
+
+        if not db_obj:
+            error_message = f"=== 数据断言:{assert_description} 使用ID为 {db_id} 的数据库数据类型: {db_type} 暂不支持 ==="
+            await self.data_logs.add_logs(
+                key="field_assert",
+                val=error_message
+            )
+            self.sio.log(error_message, status='error')
+            return False
+        else:
+            try:
+                return db_obj(**db_connection)
+            except BaseException as e:
+                error_message = f"=== 数据断言:{assert_description} 数据库: {db_id}-{name} 连接失败 ==="
+                await self.data_logs.add_logs(
+                    key="field_assert",
+                    val=error_message
+                )
+                self.sio.log(f'{error_message},{e}', status='error')
+                return False
+
+    async def ass_json_untie(self, assert_description, ass_json):
+        """
+        断言
+        :return:
+        """
+
+        for index, ass in enumerate(ass_json):
+            db_id = ass.get('db_id')
+            sql = f"""SELECT * FROM exile_test_databases WHERE id={db_id} and is_deleted=0;"""
+            query_db = project_db.select(sql=sql, only=True)
+
+            if query_db:  # 检查db配置是否存在或者是否可用
+                name = query_db.get('name')
+                db_type = query_db.get('db_type')
+                db_connection = query_db.get('db_connection')
+                ping_result = await self.ping_db_connection(db_id, assert_description, name, db_type, db_connection)
+
+                if ping_result:
+                    # print('ping_result', ping_result, json.dumps(ass, ensure_ascii=False))
+                    assert_list = ass.get('assert_list')
+                    [await self.main_assert(ass=ass, db_result=ping_result, db_type=db_type) for ass in assert_list]
+
+            else:
+                error_message = f"=== 数据断言:{assert_description} 使用ID为 {db_id} 的数据库不存在或禁用 ==="
+                await self.data_logs.add_logs(
+                    key="field_assert",
+                    val=error_message
+                )
+                self.sio.log(error_message, status='error')
+                self.count['fail'] += 1
 
     async def main(self):
         """main"""
 
         print('=== AsyncAssertionField ===')
-        self.sio.log(f'=== case_resp_ass_info ===\n{self.case_field_ass_info}\n{self.desc}')
-
         await self.data_logs.add_logs(
             key="field_assert",
-            val=f'=== case_resp_ass_info ===\n{self.case_field_ass_info}\n{self.desc}'
+            val="=== 字段断言 ==="
         )
+        for field_ass in self.case_field_ass_info:
+            assert_description = field_ass.get('assert_description')
+            ass_json = field_ass.get('ass_json')
+            await self.ass_json_untie(assert_description=assert_description, ass_json=ass_json)
+        self.count['flag'] = False if self.count.get('fail') > 0 else True
         return self.count
