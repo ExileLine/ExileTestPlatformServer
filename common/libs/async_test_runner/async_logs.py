@@ -116,14 +116,22 @@ class AsyncDataLogs:
         if not self.logs.get(key):
             raise KeyError(f"日志分类错误:{key}")
 
-        self.logs[key]['logs'].append(val)
+        if isinstance(val, list):
+            self.logs[key]['logs'] += val
+        else:
+            self.logs[key]['logs'].append(val)
+
         if self.logs[key].get('flag'):
             self.logs[key]['flag'] = flag
 
         log_desc = log_desc_dict.get(key)
         if log_desc not in self.logs_summary:
             self.logs_summary.append(log_desc)
-        self.logs_summary.append(val)
+
+        if isinstance(val, list):
+            self.logs_summary += val
+        else:
+            self.logs_summary.append(val)
 
     async def to_json(self):
         """输入日志"""
