@@ -622,7 +622,7 @@ class AsyncCaseRunner:
         case_expand = case.get('case_expand', {})
         case_sleep = case_expand.get('sleep')
 
-        case_uuid = case.get('uuid')
+        case_uuid = case.get('case_uuid')
         case_id = case_info.get('id')
         case_name = case_info.get('case_name')
         creator = case_info.get('creator')
@@ -663,7 +663,7 @@ class AsyncCaseRunner:
         case_index = kwargs.get('case_index')
         case = kwargs.get('case')
         case_info = case.get('case_info', {})
-        case_uuid = case.get('uuid')
+        case_uuid = case.get('case_uuid')
         case_id = case_info.get('id')
         case_name = case_info.get('case_name')
         case_expand = case.get('case_expand', {})
@@ -706,7 +706,7 @@ class AsyncCaseRunner:
         :return:
         """
 
-        scenario_uuid = scenario.get('uuid')
+        scenario_uuid = scenario.get('scenario_uuid')
         scenario_id = scenario.get('id')
         scenario_title = scenario.get('scenario_title')
         case_list = scenario.get('case_list')

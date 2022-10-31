@@ -198,6 +198,7 @@ class GenExecuteData:
         for _id in case_id_list:
             if _id in current_dict:
                 case = current_dict.get(_id)
+                case['case_uuid'] = shortuuid.uuid()
                 if _id in case_expand_map:
                     case_expand_list = case_expand_map.get(_id)
                     if len(case_expand_list) > 1:
@@ -327,6 +328,7 @@ class QueryExecuteData:
                 case_list = GenExecuteData.main(case_id_list, query_case_zip_list, case_expand_map)
 
                 scenario_obj = {
+                    "scenario_uuid": shortuuid.uuid(),
                     "id": scenario.get('id'),
                     "scenario_title": scenario.get('scenario_title'),
                     "case_list": case_list
@@ -439,6 +441,7 @@ class ExecuteQuery:
         case_info = query_case.to_json()
         bind_info = MapToJsonObj.gen_bind(case_id)
         result = {
+            "case_uuid": shortuuid.uuid(),
             "case_info": case_info,
             "bind_info": bind_info
         }

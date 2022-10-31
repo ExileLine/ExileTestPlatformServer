@@ -153,7 +153,7 @@ class AsyncLogs:
         """
 
         for case in case_list:
-            case_uuid = case.get('uuid')
+            case_uuid = case.get('case_uuid')
             case_id = case.get('case_info').get('id')
             case_name = case.get('case_info').get('case_name')
             d = {
@@ -174,7 +174,7 @@ class AsyncLogs:
         """
 
         for scenario in scenario_list:
-            scenario_uuid = scenario.get('uuid')
+            scenario_uuid = scenario.get('scenario_uuid')
             scenario_id = scenario.get('id')
             scenario_title = scenario.get('scenario_title')
             case_list = scenario.get('case_list')
@@ -187,7 +187,7 @@ class AsyncLogs:
                 "case_dict": {}
             }
             for case in case_list:
-                case_uuid = case.get('uuid')
+                case_uuid = case.get('case_uuid')
                 case_id = case.get('case_info').get('id')
                 case_name = case.get('case_info').get('case_name')
                 case_dict = {
