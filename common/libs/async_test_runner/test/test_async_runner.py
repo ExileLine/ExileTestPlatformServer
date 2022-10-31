@@ -165,6 +165,18 @@ case_list = [
                         "project_id": 30,
                         "ass_json": [
                             {
+                                "db_id": 8899,
+                                "assert_list": []
+                            },  # 测试-数据库不存在或禁用
+                            {
+                                "db_id": 4,
+                                "assert_list": []
+                            },  # 测试-数据库数据类型暂不支持
+                            {
+                                "db_id": 18,
+                                "assert_list": []
+                            },  # 测试-数据库连接失败
+                            {
                                 "db_id": 12,
                                 "assert_list": [
                                     {
@@ -176,7 +188,7 @@ case_list = [
                                                 "expect_val": 1,
                                                 "is_expression": 1,
                                                 "python_val_exp": "obj.get(\"id\")",
-                                                "expect_val_type": "1"
+                                                "expect_val_type": "int"
                                             },
                                             {
                                                 "rule": "==",
@@ -184,7 +196,7 @@ case_list = [
                                                 "expect_val": "yyx",
                                                 "is_expression": 1,
                                                 "python_val_exp": "obj.get(\"case_name\")",
-                                                "expect_val_type": "2"
+                                                "expect_val_type": "str"
                                             }
                                         ]
                                     }
@@ -202,7 +214,7 @@ case_list = [
                                                 "expect_val": "user_00007",
                                                 "is_expression": 1,
                                                 "python_val_exp": "obj.get('username')",
-                                                "expect_val_type": "2"
+                                                "expect_val_type": "str"
                                             }
                                         ]
                                     }
@@ -219,7 +231,7 @@ case_list = [
                                                 "assert_key": "7",
                                                 "expect_val": "7",
                                                 "python_val_exp": "",
-                                                "expect_val_type": "2"
+                                                "expect_val_type": "str"
                                             }
                                         ]
                                     }
@@ -399,7 +411,7 @@ case_list = [
                                                 "expect_val": 1,
                                                 "is_expression": 1,
                                                 "python_val_exp": "obj.get(\"id\")",
-                                                "expect_val_type": "1"
+                                                "expect_val_type": "int"
                                             },
                                             {
                                                 "rule": "==",
@@ -407,7 +419,7 @@ case_list = [
                                                 "expect_val": "yyx",
                                                 "is_expression": 1,
                                                 "python_val_exp": "obj.get(\"case_name\")",
-                                                "expect_val_type": "2"
+                                                "expect_val_type": "str"
                                             }
                                         ]
                                     }
@@ -425,7 +437,7 @@ case_list = [
                                                 "expect_val": "user_00007",
                                                 "is_expression": 1,
                                                 "python_val_exp": "obj.get('username')",
-                                                "expect_val_type": "2"
+                                                "expect_val_type": "str"
                                             }
                                         ]
                                     }
@@ -442,7 +454,7 @@ case_list = [
                                                 "assert_key": "7",
                                                 "expect_val": "7",
                                                 "python_val_exp": "",
-                                                "expect_val_type": "2"
+                                                "expect_val_type": "str"
                                             }
                                         ]
                                     }
@@ -790,7 +802,7 @@ scenario_list = [
                                                         "expect_val": 1,
                                                         "is_expression": 1,
                                                         "python_val_exp": "obj.get(\"id\")",
-                                                        "expect_val_type": "1"
+                                                        "expect_val_type": "int"
                                                     },
                                                     {
                                                         "rule": "==",
@@ -798,7 +810,7 @@ scenario_list = [
                                                         "expect_val": "yyx",
                                                         "is_expression": 1,
                                                         "python_val_exp": "obj.get(\"case_name\")",
-                                                        "expect_val_type": "2"
+                                                        "expect_val_type": "str"
                                                     }
                                                 ]
                                             }
@@ -816,7 +828,7 @@ scenario_list = [
                                                         "expect_val": "user_00007",
                                                         "is_expression": 1,
                                                         "python_val_exp": "obj.get('username')",
-                                                        "expect_val_type": "2"
+                                                        "expect_val_type": "str"
                                                     }
                                                 ]
                                             }
@@ -833,7 +845,7 @@ scenario_list = [
                                                         "assert_key": "7",
                                                         "expect_val": "7",
                                                         "python_val_exp": "",
-                                                        "expect_val_type": "2"
+                                                        "expect_val_type": "str"
                                                     }
                                                 ]
                                             }
@@ -1030,7 +1042,7 @@ scenario_list = [
                                                         "expect_val": 1,
                                                         "is_expression": 1,
                                                         "python_val_exp": "obj.get(\"id\")",
-                                                        "expect_val_type": "1"
+                                                        "expect_val_type": "int"
                                                     },
                                                     {
                                                         "rule": "==",
@@ -1038,7 +1050,7 @@ scenario_list = [
                                                         "expect_val": "yyx",
                                                         "is_expression": 1,
                                                         "python_val_exp": "obj.get(\"case_name\")",
-                                                        "expect_val_type": "2"
+                                                        "expect_val_type": "str"
                                                     }
                                                 ]
                                             }
@@ -1056,7 +1068,7 @@ scenario_list = [
                                                         "expect_val": "user_00007",
                                                         "is_expression": 1,
                                                         "python_val_exp": "obj.get('username')",
-                                                        "expect_val_type": "2"
+                                                        "expect_val_type": "str"
                                                     }
                                                 ]
                                             }
@@ -1073,7 +1085,7 @@ scenario_list = [
                                                         "assert_key": "7",
                                                         "expect_val": "7",
                                                         "python_val_exp": "",
-                                                        "expect_val_type": "2"
+                                                        "expect_val_type": "str"
                                                     }
                                                 ]
                                             }
@@ -1117,7 +1129,7 @@ test_obj = {
     "use_base_url": False,
     "data_driven": True,
     "case_list": case_list,
-    "scenario_list": scenario_list,
+    "scenario_list": [],
     "use_dd_push": False,
     "dd_push_id": "",
     "ding_talk_url": "",
@@ -1469,7 +1481,7 @@ test_obj2 = {
                                                             "expect_val": 1,
                                                             "is_expression": 1,
                                                             "python_val_exp": "obj.get(\"id\")",
-                                                            "expect_val_type": "1"
+                                                            "expect_val_type": "int"
                                                         },
                                                         {
                                                             "rule": "==",
@@ -1477,7 +1489,7 @@ test_obj2 = {
                                                             "expect_val": "yyx",
                                                             "is_expression": 1,
                                                             "python_val_exp": "obj.get(\"case_name\")",
-                                                            "expect_val_type": "2"
+                                                            "expect_val_type": "str"
                                                         }
                                                     ]
                                                 }
@@ -1495,7 +1507,7 @@ test_obj2 = {
                                                             "expect_val": "user_00007",
                                                             "is_expression": 1,
                                                             "python_val_exp": "obj.get('username')",
-                                                            "expect_val_type": "2"
+                                                            "expect_val_type": "str"
                                                         }
                                                     ]
                                                 }
@@ -1512,7 +1524,7 @@ test_obj2 = {
                                                             "assert_key": "7",
                                                             "expect_val": "7",
                                                             "python_val_exp": "",
-                                                            "expect_val_type": "2"
+                                                            "expect_val_type": "str"
                                                         }
                                                     ]
                                                 }
@@ -1709,7 +1721,7 @@ test_obj2 = {
                                                             "expect_val": 1,
                                                             "is_expression": 1,
                                                             "python_val_exp": "obj.get(\"id\")",
-                                                            "expect_val_type": "1"
+                                                            "expect_val_type": "int"
                                                         },
                                                         {
                                                             "rule": "==",
@@ -1717,7 +1729,7 @@ test_obj2 = {
                                                             "expect_val": "yyx",
                                                             "is_expression": 1,
                                                             "python_val_exp": "obj.get(\"case_name\")",
-                                                            "expect_val_type": "2"
+                                                            "expect_val_type": "str"
                                                         }
                                                     ]
                                                 }
@@ -1735,7 +1747,7 @@ test_obj2 = {
                                                             "expect_val": "user_00007",
                                                             "is_expression": 1,
                                                             "python_val_exp": "obj.get('username')",
-                                                            "expect_val_type": "2"
+                                                            "expect_val_type": "str"
                                                         }
                                                     ]
                                                 }
@@ -1752,7 +1764,7 @@ test_obj2 = {
                                                             "assert_key": "7",
                                                             "expect_val": "7",
                                                             "python_val_exp": "",
-                                                            "expect_val_type": "2"
+                                                            "expect_val_type": "str"
                                                         }
                                                     ]
                                                 }
