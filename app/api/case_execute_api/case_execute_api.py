@@ -18,7 +18,7 @@ from app.models.test_project.models import (
 )
 from app.models.test_env.models import TestEnv
 from app.models.push_reminder.models import DingDingConfModel, MailConfModel
-from common.libs.async_test_runner.test.test_main_loader import test_obj, test_obj2
+from common.libs.async_test_runner.test.test_async_runner import test_obj as debug_test_obj
 from tasks.execute_case import execute_case
 
 
@@ -505,7 +505,7 @@ class CaseExecuteApi(MethodView):
     def get(self):
         """调试"""
 
-        results = execute_case.delay(test_obj2)
+        results = execute_case.delay(debug_test_obj)
         print(results)
         return api_result(code=SUCCESS, message='GET:操作成功,请前往日志查看执行结果', data=[str(results)])
 
