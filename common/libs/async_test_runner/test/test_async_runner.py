@@ -201,12 +201,38 @@ case_list = [
                                         ]
                                     }
                                 ]
-                            },
+                            },  # 测试mysql-有查询结果
+                            {
+                                "db_id": 12,
+                                "assert_list": [
+                                    {
+                                        "query": "select id, case_name FROM ExileTestPlatform.exile_test_case WHERE id=0;",
+                                        "assert_field_list": [
+                                            {
+                                                "rule": "==",
+                                                "assert_key": "id",
+                                                "expect_val": 1,
+                                                "is_expression": 1,
+                                                "python_val_exp": "obj.get(\"id\")",
+                                                "expect_val_type": "int"
+                                            },
+                                            {
+                                                "rule": "==",
+                                                "assert_key": "case_name",
+                                                "expect_val": "yyx",
+                                                "is_expression": 1,
+                                                "python_val_exp": "obj.get(\"case_name\")",
+                                                "expect_val_type": "str"
+                                            }
+                                        ]
+                                    }
+                                ]
+                            },  # 测试mysql-无查询结果
                             {
                                 "db_id": 9,
                                 "assert_list": [
                                     {
-                                        "query": "get 127.0.0.1",
+                                        "query": "get 127.0.0.1111111",
                                         "assert_field_list": [
                                             {
                                                 "rule": "==",
@@ -219,7 +245,25 @@ case_list = [
                                         ]
                                     }
                                 ]
-                            },
+                            },  # 测试redis-无查询结果
+                            {
+                                "db_id": 9,
+                                "assert_list": [
+                                    {
+                                        "query": "get 127.0.0.1",
+                                        "assert_field_list": [
+                                            {
+                                                "rule": "==",
+                                                "assert_key": "username",
+                                                "expect_val": "yyx_999",
+                                                "is_expression": 1,
+                                                "python_val_exp": "obj.get('username')",
+                                                "expect_val_type": "str"
+                                            }
+                                        ]
+                                    }
+                                ]
+                            },  # 测试redis-查询结果为dict以及用表达式取值
                             {
                                 "db_id": 9,
                                 "assert_list": [
@@ -236,7 +280,7 @@ case_list = [
                                         ]
                                     }
                                 ]
-                            }
+                            }  # 测试redis-查询结果为str
                         ],
                         "creator": "admin",
                         "modifier": None,
@@ -424,7 +468,7 @@ case_list = [
                                         ]
                                     }
                                 ]
-                            },
+                            },  # 测试mysql-有查询结果
                             {
                                 "db_id": 9,
                                 "assert_list": [
@@ -434,7 +478,7 @@ case_list = [
                                             {
                                                 "rule": "==",
                                                 "assert_key": "username",
-                                                "expect_val": "user_00007",
+                                                "expect_val": "yyx_999",
                                                 "is_expression": 1,
                                                 "python_val_exp": "obj.get('username')",
                                                 "expect_val_type": "str"
@@ -442,7 +486,7 @@ case_list = [
                                         ]
                                     }
                                 ]
-                            },
+                            },  # 测试redis-查询结果为dict以及用表达式取值
                             {
                                 "db_id": 9,
                                 "assert_list": [
@@ -459,7 +503,7 @@ case_list = [
                                         ]
                                     }
                                 ]
-                            }
+                            }  # 测试redis-查询结果为str
                         ],
                         "creator": "admin",
                         "modifier": None,
@@ -637,38 +681,41 @@ scenario_list = [
                 "case_uuid": "7B5UDGtbZfemm5Xf857zgT",
                 "case_info": {
                     "id": 8646,
-                    "is_deleted": 0,
-                    "case_name": "测试重构用例相关123",
                     "request_method": "POST",
-                    "request_base_url": "http://0.0.0.0:7878",
-                    "request_url": "${重构url}",
-                    "is_shared": 1,
-                    "is_public": 1,
-                    "total_execution": 0,
-                    "creator": "admin",
-                    "creator_id": 1,
-                    "create_time": "2022-08-15 22:33:28",
-                    "create_timestamp": 1660557652,
                     "modifier": "admin",
+                    "create_timestamp": 1660557652,
+                    "request_base_url": "http://0.0.0.0:7878",
                     "modifier_id": 1,
                     "update_time": "2022-09-22 16:16:46",
+                    "request_url": "${重构url}",
+                    "remark": "123",
                     "update_timestamp": 1663834584,
-                    "remark": "123"
+                    "case_status": "active",
+                    "create_time": "2022-08-15 22:33:28",
+                    "is_deleted": 0,
+                    "is_pass": 0,
+                    "status": 1,
+                    "total_execution": 0,
+                    "case_name": "测试重构用例相关123",
+                    "creator": "admin",
+                    "creator_id": 1,
+                    "is_public": True,
+                    "is_shared": True
                 },
                 "bind_info": [
                     {
                         "data_info": {
                             "id": 19345,
+                            "status": 1,
+                            "request_body_hash": "{\n  \"a\":\"123\"\n}",
+                            "creator": "admin",
                             "data_name": "5.0新的参数",
-                            "request_params": {},
-                            "request_headers": {
-                                "token": "123"
-                            },
-                            "request_body": {
-                                "a": "123"
-                            },
                             "request_body_type": "json",
-                            "var_list": "",
+                            "request_params": {},
+                            "use_var_list": None,
+                            "creator_id": 1,
+                            "create_time": "2022-08-16 20:25:50",
+                            "request_params_hash": [],
                             "update_var_list": [
                                 {
                                     "id": 28,
@@ -693,92 +740,77 @@ scenario_list = [
                                     "last_func_var": None,
                                     "create_timestamp": 1639213949,
                                     "update_timestamp": 1639730968
-                                },
-                                {
-                                    "id": 102,
-                                    "remark": None,
-                                    "status": 1,
-                                    "creator": "admin",
-                                    "modifier": None,
-                                    "var_args": {},
-                                    "var_name": "zxc",
-                                    "var_type": "int",
-                                    "is_active": False,
-                                    "is_public": False,
-                                    "is_source": False,
-                                    "last_func": None,
-                                    "var_value": "1",
-                                    "creator_id": 1,
-                                    "expression": None,
-                                    "is_deleted": 0,
-                                    "project_id": 30,
-                                    "var_source": "response_body",
-                                    "create_time": "2022-09-26 17:10:26",
-                                    "modifier_id": None,
-                                    "update_time": "2022-09-26 17:10:26",
-                                    "var_get_key": "123",
-                                    "is_expression": True,
-                                    "last_func_var": None,
-                                    "var_init_value": "1",
-                                    "create_timestamp": 1664179672,
-                                    "update_timestamp": None
                                 }
                             ],
-                            "is_deleted": 0,
-                            "is_public": 0,
-                            "creator": "admin",
-                            "creator_id": 1,
-                            "create_time": "2022-08-16 20:25:50",
-                            "create_timestamp": 1660652718,
                             "modifier": "admin",
-                            "modifier_id": 1,
-                            "update_time": "2022-09-26 17:38:58",
-                            "update_timestamp": 1664185124,
-                            "remark": None,
-                            "is_before": 0,
+                            "create_timestamp": 1660652718,
+                            "request_headers": {
+                                "token": "123"
+                            },
                             "data_before": [],
-                            "is_after": 0,
-                            "data_after": []
+                            "modifier_id": 1,
+                            "update_time": "2022-09-19 14:04:18",
+                            "request_headers_hash": [
+                                {
+                                    "cid": 1,
+                                    "key": "token",
+                                    "desc": "",
+                                    "value": "123",
+                                    "active": True
+                                }
+                            ],
+                            "data_after": [],
+                            "remark": None,
+                            "update_timestamp": 1663234923,
+                            "request_body": {
+                                "a": "123"
+                            },
+                            "md5": None,
+                            "is_deleted": 0,
+                            "data_size": 30,
+                            "is_public": False,
+                            "is_before": False,
+                            "is_after": False
                         },
                         "case_resp_ass_info": [
                             {
                                 "id": 1,
                                 "create_timestamp": 1660190869,
-                                "update_time": "2022-09-23 10:46:45",
+                                "update_timestamp": 1663837753,
+                                "status": 1,
+                                "assert_description": "调试用例执行专用resp断言",
+                                "assertion_type": "response",
+                                "creator_id": 1,
+                                "modifier_id": 1,
+                                "remark": "调试用例执行专用resp断言",
+                                "update_time": "2022-09-22 17:12:28",
+                                "create_time": "2022-08-11 12:07:55",
                                 "is_deleted": 0,
                                 "project_id": 30,
                                 "ass_json": [
                                     {
                                         "rule": "==",
-                                        "uuid": "TpDMbUm9dEMXZw2wdNvSVF-1663901205",
-                                        "assert_key": "code",
+                                        "uuid": "fypU7LmFya7zfcfUtf54uX-1663837947",
+                                        "assert_key": "data",
                                         "expect_val": "200",
                                         "is_expression": False,
-                                        "python_val_exp": "obj.get('code')",
+                                        "python_val_exp": "obj.get('data')",
                                         "expect_val_type": "str",
                                         "response_source": "response_body"
                                     },
                                     {
                                         "rule": "==",
-                                        "uuid": "YRhwmQA9MbdYG3YQnxv3CC-1663901205",
-                                        "assert_key": "code",
-                                        "expect_val": "400",
+                                        "uuid": "HTtKYnE5Yoxr8hTqd2Eaty-1663837947",
+                                        "assert_key": "data",
+                                        "expect_val": "200",
                                         "is_expression": True,
-                                        "python_val_exp": "obj.get('code')",
+                                        "python_val_exp": "obj.get('data')",
                                         "expect_val_type": "int",
                                         "response_source": "response_body"
                                     }
                                 ],
                                 "creator": "admin",
                                 "modifier": "admin",
-                                "remark": "调试用例执行专用resp断言",
-                                "create_time": "2022-08-11 12:07:55",
-                                "update_timestamp": 1663901103,
-                                "status": 1,
-                                "assert_description": "调试用例执行专用resp断言",
-                                "assertion_type": "response",
-                                "creator_id": 1,
-                                "modifier_id": 1,
                                 "is_public": False
                             }
                         ],
@@ -786,10 +818,30 @@ scenario_list = [
                             {
                                 "id": 3,
                                 "create_timestamp": 1660191877,
+                                "update_timestamp": None,
+                                "status": 1,
+                                "assert_description": "okclol",
+                                "assertion_type": "field",
+                                "creator_id": 1,
+                                "modifier_id": None,
+                                "remark": "",
                                 "update_time": "2022-08-11 12:25:11",
+                                "create_time": "2022-08-11 12:25:10",
                                 "is_deleted": 0,
                                 "project_id": 30,
                                 "ass_json": [
+                                    {
+                                        "db_id": 8899,
+                                        "assert_list": []
+                                    },  # 测试-数据库不存在或禁用
+                                    {
+                                        "db_id": 4,
+                                        "assert_list": []
+                                    },  # 测试-数据库数据类型暂不支持
+                                    {
+                                        "db_id": 18,
+                                        "assert_list": []
+                                    },  # 测试-数据库连接失败
                                     {
                                         "db_id": 12,
                                         "assert_list": [
@@ -815,12 +867,38 @@ scenario_list = [
                                                 ]
                                             }
                                         ]
-                                    },
+                                    },  # 测试mysql-有查询结果
+                                    {
+                                        "db_id": 12,
+                                        "assert_list": [
+                                            {
+                                                "query": "select id, case_name FROM ExileTestPlatform.exile_test_case WHERE id=0;",
+                                                "assert_field_list": [
+                                                    {
+                                                        "rule": "==",
+                                                        "assert_key": "id",
+                                                        "expect_val": 1,
+                                                        "is_expression": 1,
+                                                        "python_val_exp": "obj.get(\"id\")",
+                                                        "expect_val_type": "int"
+                                                    },
+                                                    {
+                                                        "rule": "==",
+                                                        "assert_key": "case_name",
+                                                        "expect_val": "yyx",
+                                                        "is_expression": 1,
+                                                        "python_val_exp": "obj.get(\"case_name\")",
+                                                        "expect_val_type": "str"
+                                                    }
+                                                ]
+                                            }
+                                        ]
+                                    },  # 测试mysql-无查询结果
                                     {
                                         "db_id": 9,
                                         "assert_list": [
                                             {
-                                                "query": "get 127.0.0.1",
+                                                "query": "get 127.0.0.1111111",
                                                 "assert_field_list": [
                                                     {
                                                         "rule": "==",
@@ -833,7 +911,25 @@ scenario_list = [
                                                 ]
                                             }
                                         ]
-                                    },
+                                    },  # 测试redis-无查询结果
+                                    {
+                                        "db_id": 9,
+                                        "assert_list": [
+                                            {
+                                                "query": "get 127.0.0.1",
+                                                "assert_field_list": [
+                                                    {
+                                                        "rule": "==",
+                                                        "assert_key": "username",
+                                                        "expect_val": "yyx_999",
+                                                        "is_expression": 1,
+                                                        "python_val_exp": "obj.get('username')",
+                                                        "expect_val_type": "str"
+                                                    }
+                                                ]
+                                            }
+                                        ]
+                                    },  # 测试redis-查询结果为dict以及用表达式取值
                                     {
                                         "db_id": 9,
                                         "assert_list": [
@@ -850,18 +946,10 @@ scenario_list = [
                                                 ]
                                             }
                                         ]
-                                    }
+                                    }  # 测试redis-查询结果为str
                                 ],
                                 "creator": "admin",
                                 "modifier": None,
-                                "remark": "",
-                                "create_time": "2022-08-11 12:25:10",
-                                "update_timestamp": None,
-                                "status": 1,
-                                "assert_description": "okclol",
-                                "assertion_type": "field",
-                                "creator_id": 1,
-                                "modifier_id": None,
                                 "is_public": True
                             }
                         ]
@@ -877,38 +965,41 @@ scenario_list = [
                 "case_uuid": "2kZGYrkarcb9Aa2SK7R7NU",
                 "case_info": {
                     "id": 8646,
-                    "is_deleted": 0,
-                    "case_name": "测试重构用例相关456",
                     "request_method": "POST",
-                    "request_base_url": "http://0.0.0.0:7878",
-                    "request_url": "${重构url}",
-                    "is_shared": 1,
-                    "is_public": 1,
-                    "total_execution": 0,
-                    "creator": "admin",
-                    "creator_id": 1,
-                    "create_time": "2022-08-15 22:33:28",
-                    "create_timestamp": 1660557652,
                     "modifier": "admin",
+                    "create_timestamp": 1660557652,
+                    "request_base_url": "http://0.0.0.0:7878",
                     "modifier_id": 1,
                     "update_time": "2022-09-22 16:16:46",
+                    "request_url": "${重构url}",
+                    "remark": "123",
                     "update_timestamp": 1663834584,
-                    "remark": "123"
+                    "case_status": "active",
+                    "create_time": "2022-08-15 22:33:28",
+                    "is_deleted": 0,
+                    "is_pass": 0,
+                    "status": 1,
+                    "total_execution": 0,
+                    "case_name": "测试重构用例相关123",
+                    "creator": "admin",
+                    "creator_id": 1,
+                    "is_public": True,
+                    "is_shared": True
                 },
                 "bind_info": [
                     {
                         "data_info": {
                             "id": 19345,
+                            "status": 1,
+                            "request_body_hash": "{\n  \"a\":\"123\"\n}",
+                            "creator": "admin",
                             "data_name": "5.0新的参数",
-                            "request_params": {},
-                            "request_headers": {
-                                "token": "123"
-                            },
-                            "request_body": {
-                                "a": "123"
-                            },
                             "request_body_type": "json",
-                            "var_list": "",
+                            "request_params": {},
+                            "use_var_list": None,
+                            "creator_id": 1,
+                            "create_time": "2022-08-16 20:25:50",
+                            "request_params_hash": [],
                             "update_var_list": [
                                 {
                                     "id": 28,
@@ -933,92 +1024,77 @@ scenario_list = [
                                     "last_func_var": None,
                                     "create_timestamp": 1639213949,
                                     "update_timestamp": 1639730968
-                                },
-                                {
-                                    "id": 102,
-                                    "remark": None,
-                                    "status": 1,
-                                    "creator": "admin",
-                                    "modifier": None,
-                                    "var_args": {},
-                                    "var_name": "zxc",
-                                    "var_type": "int",
-                                    "is_active": False,
-                                    "is_public": False,
-                                    "is_source": False,
-                                    "last_func": None,
-                                    "var_value": "1",
-                                    "creator_id": 1,
-                                    "expression": None,
-                                    "is_deleted": 0,
-                                    "project_id": 30,
-                                    "var_source": "response_body",
-                                    "create_time": "2022-09-26 17:10:26",
-                                    "modifier_id": None,
-                                    "update_time": "2022-09-26 17:10:26",
-                                    "var_get_key": "123",
-                                    "is_expression": True,
-                                    "last_func_var": None,
-                                    "var_init_value": "1",
-                                    "create_timestamp": 1664179672,
-                                    "update_timestamp": None
                                 }
                             ],
-                            "is_deleted": 0,
-                            "is_public": 0,
-                            "creator": "admin",
-                            "creator_id": 1,
-                            "create_time": "2022-08-16 20:25:50",
-                            "create_timestamp": 1660652718,
                             "modifier": "admin",
-                            "modifier_id": 1,
-                            "update_time": "2022-09-26 17:38:58",
-                            "update_timestamp": 1664185124,
-                            "remark": None,
-                            "is_before": 0,
+                            "create_timestamp": 1660652718,
+                            "request_headers": {
+                                "token": "123"
+                            },
                             "data_before": [],
-                            "is_after": 0,
-                            "data_after": []
+                            "modifier_id": 1,
+                            "update_time": "2022-09-19 14:04:18",
+                            "request_headers_hash": [
+                                {
+                                    "cid": 1,
+                                    "key": "token",
+                                    "desc": "",
+                                    "value": "123",
+                                    "active": True
+                                }
+                            ],
+                            "data_after": [],
+                            "remark": None,
+                            "update_timestamp": 1663234923,
+                            "request_body": {
+                                "a": "123"
+                            },
+                            "md5": None,
+                            "is_deleted": 0,
+                            "data_size": 30,
+                            "is_public": False,
+                            "is_before": False,
+                            "is_after": False
                         },
                         "case_resp_ass_info": [
                             {
                                 "id": 1,
                                 "create_timestamp": 1660190869,
-                                "update_time": "2022-09-23 10:46:45",
+                                "update_timestamp": 1663837753,
+                                "status": 1,
+                                "assert_description": "调试用例执行专用resp断言",
+                                "assertion_type": "response",
+                                "creator_id": 1,
+                                "modifier_id": 1,
+                                "remark": "调试用例执行专用resp断言",
+                                "update_time": "2022-09-22 17:12:28",
+                                "create_time": "2022-08-11 12:07:55",
                                 "is_deleted": 0,
                                 "project_id": 30,
                                 "ass_json": [
                                     {
                                         "rule": "==",
-                                        "uuid": "TpDMbUm9dEMXZw2wdNvSVF-1663901205",
-                                        "assert_key": "code",
+                                        "uuid": "fypU7LmFya7zfcfUtf54uX-1663837947",
+                                        "assert_key": "data",
                                         "expect_val": "200",
                                         "is_expression": False,
-                                        "python_val_exp": "obj.get('code')",
+                                        "python_val_exp": "obj.get('data')",
                                         "expect_val_type": "str",
                                         "response_source": "response_body"
                                     },
                                     {
                                         "rule": "==",
-                                        "uuid": "YRhwmQA9MbdYG3YQnxv3CC-1663901205",
-                                        "assert_key": "code",
-                                        "expect_val": "400",
+                                        "uuid": "HTtKYnE5Yoxr8hTqd2Eaty-1663837947",
+                                        "assert_key": "data",
+                                        "expect_val": "200",
                                         "is_expression": True,
-                                        "python_val_exp": "obj.get('code')",
+                                        "python_val_exp": "obj.get('data')",
                                         "expect_val_type": "int",
                                         "response_source": "response_body"
                                     }
                                 ],
                                 "creator": "admin",
                                 "modifier": "admin",
-                                "remark": "调试用例执行专用resp断言",
-                                "create_time": "2022-08-11 12:07:55",
-                                "update_timestamp": 1663901103,
-                                "status": 1,
-                                "assert_description": "调试用例执行专用resp断言",
-                                "assertion_type": "response",
-                                "creator_id": 1,
-                                "modifier_id": 1,
                                 "is_public": False
                             }
                         ],
@@ -1026,7 +1102,15 @@ scenario_list = [
                             {
                                 "id": 3,
                                 "create_timestamp": 1660191877,
+                                "update_timestamp": None,
+                                "status": 1,
+                                "assert_description": "okclol",
+                                "assertion_type": "field",
+                                "creator_id": 1,
+                                "modifier_id": None,
+                                "remark": "",
                                 "update_time": "2022-08-11 12:25:11",
+                                "create_time": "2022-08-11 12:25:10",
                                 "is_deleted": 0,
                                 "project_id": 30,
                                 "ass_json": [
@@ -1055,7 +1139,7 @@ scenario_list = [
                                                 ]
                                             }
                                         ]
-                                    },
+                                    },  # 测试mysql-有查询结果
                                     {
                                         "db_id": 9,
                                         "assert_list": [
@@ -1065,7 +1149,7 @@ scenario_list = [
                                                     {
                                                         "rule": "==",
                                                         "assert_key": "username",
-                                                        "expect_val": "user_00007",
+                                                        "expect_val": "yyx_999",
                                                         "is_expression": 1,
                                                         "python_val_exp": "obj.get('username')",
                                                         "expect_val_type": "str"
@@ -1073,7 +1157,7 @@ scenario_list = [
                                                 ]
                                             }
                                         ]
-                                    },
+                                    },  # 测试redis-查询结果为dict以及用表达式取值
                                     {
                                         "db_id": 9,
                                         "assert_list": [
@@ -1090,18 +1174,10 @@ scenario_list = [
                                                 ]
                                             }
                                         ]
-                                    }
+                                    }  # 测试redis-查询结果为str
                                 ],
                                 "creator": "admin",
                                 "modifier": None,
-                                "remark": "",
-                                "create_time": "2022-08-11 12:25:10",
-                                "update_timestamp": None,
-                                "status": 1,
-                                "assert_description": "okclol",
-                                "assertion_type": "field",
-                                "creator_id": 1,
-                                "modifier_id": None,
                                 "is_public": True
                             }
                         ]
@@ -1117,11 +1193,12 @@ scenario_list = [
     }
 ]
 
+# 单用例/多用例
 test_obj = {
     "project_id": 30,
-    "execute_id": 65,
-    "execute_name": "测试编辑场景",
-    "execute_type": "scenario",
+    "execute_id": 8646,
+    "execute_name": "测试重构用例相关",
+    "execute_type": "case",
     "execute_label": "execute_label",
     "execute_user_id": 1,
     "execute_username": "admin",
@@ -1139,6 +1216,7 @@ test_obj = {
     "request_timeout": 5
 }
 
+# 单场景/多场景
 test_obj2 = {
     "project_id": 30,
     "execute_id": 65,
@@ -1805,6 +1883,29 @@ test_obj2 = {
     "request_timeout": 5
 }
 
+# 混合
+test_obj3 = {
+    "project_id": 30,
+    "execute_id": 30,
+    "execute_name": "测试编辑场景",
+    "execute_type": "project",
+    "execute_label": "execute_label",
+    "execute_user_id": 1,
+    "execute_username": "admin",
+    "base_url": "",
+    "use_base_url": False,
+    "data_driven": True,
+    "case_list": [],
+    "scenario_list": [],
+    "use_dd_push": False,
+    "dd_push_id": "",
+    "ding_talk_url": "",
+    "use_mail": False,
+    "mail_list": [],
+    "trigger_type": "user_execute",
+    "request_timeout": 5
+}
+
 
 async def test_ael():
     """测试生成异步执行日志模型"""
@@ -1823,6 +1924,7 @@ async def test_execute():
 
     acr = AsyncCaseRunner(test_obj=test_obj, is_debug=True)
     # acr = AsyncCaseRunner(test_obj=test_obj2, is_debug=True)
+    # acr = AsyncCaseRunner(test_obj=test_obj3, is_debug=True)
     await acr.main()
 
 
