@@ -24,7 +24,7 @@ value_type_dict = GlobalsDict.value_type_dict()
 variable_type_dict = GlobalsDict.variable_type_dict(merge=False)
 
 
-# TODO: request_before; request_after; AsyncAssertionField
+# TODO: request_before; request_after
 
 class AsyncCaseRunner:
     """
@@ -555,6 +555,7 @@ class AsyncCaseRunner:
         )
         await self.test_result.add_resp_ass(current_flag)
         await self.set_execute_status(current_flag)
+        await data_logs.add_logs(key='response_assert', val="-" * 33)
 
         # 字段断言
         case_field_ass_info = await self.var_conversion(case_field_ass_info)
@@ -572,6 +573,7 @@ class AsyncCaseRunner:
         )
         await self.test_result.add_field_ass(current_flag)
         await self.set_execute_status(current_flag)
+        await data_logs.add_logs(key='field_assert', val="-" * 33)
 
         self.sio.log(f"=== data_logs_flag === {data_logs.flag}")
         if data_logs.flag:
