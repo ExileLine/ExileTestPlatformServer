@@ -19,7 +19,70 @@ rule_dict_op = GlobalsDict.rule_dict_op()
 value_type_dict = GlobalsDict.value_type_dict()
 
 
-class AsyncAssertionResponse:
+class BaseAsyncAssertion:
+    """BaseAsyncAssertion"""
+
+    def __init__(self, logs_key, data_logs, sio=None):
+        self.logs_key = logs_key  # response_assert 或 field_assert
+        self.data_logs = data_logs
+        self.sio = sio
+
+    async def common_assert(self, assert_key, rule, expect_val, expect_val_type, assert_val):
+        """
+
+        :param assert_key:
+        :param rule:
+        :param expect_val:
+        :param expect_val_type:
+        :param assert_val:
+        :return:
+        """
+
+        # 获取内置函数如:int,str...
+        # 将需要断言的值进行转换
+        # 如果出现异常很大几率是手动修改了数据库的数据(因为case_assertion_api.py中的CheckAssertion新增断言时会进行校验)
+        native_function = value_type_dict.get(expect_val_type)
+        try:
+            assert_val = native_function(assert_val)
+            expect_val = native_function(expect_val)
+        except BaseException as e:
+            self.sio.log(f"数据异常->内置函数:{native_function}转换值:{assert_val} 时失败", status="error")
+            self.sio.log(f"异常描述->{e}", status="error")
+            await self.data_logs.add_logs(
+                key=self.logs_key,
+                val=f"数据异常->内置函数:{native_function}转换值:{assert_val} 时失败\n异常描述->{e}"
+            )
+            return False
+
+        # 日志
+        kv = '=== 键值:{} ==='.format({assert_key: assert_val})
+        self.sio.log(kv)
+        message = f'{assert_val}:{type(assert_val)} [{rule}] {expect_val}:{expect_val_type}'
+        self.sio.log(f'function: {native_function}')
+        self.sio.log(message)
+        await self.data_logs.add_logs(
+            key=self.logs_key,
+            val=[f"{kv}", f"function: {native_function}", f"{message}"]
+        )
+
+        op_function = rule_dict_op.get(rule)
+        try:
+            if op_function != 'contains':
+                assert_result = getattr(operator, op_function)(assert_val, expect_val)
+            else:
+                assert_result = getattr(operator, op_function)(str(assert_val), str(expect_val))
+            return assert_result
+        except BaseException as e:
+            self.sio.log(f"数据异常->规则:{op_function}错误", status="error")
+            self.sio.log(f"异常描述->{e}", status="error")
+            await self.data_logs.add_logs(
+                key=self.logs_key,
+                val=f"数据异常->规则:{op_function}错误\n异常描述->{e}"
+            )
+            return False
+
+
+class AsyncAssertionResponse(BaseAsyncAssertion):
     """异步响应断言"""
 
     def __init__(self, http_code, resp_headers, resp_json, case_resp_ass_info, data_logs, desc=None, sio=None):
@@ -33,6 +96,7 @@ class AsyncAssertionResponse:
         :param desc: 描述
         :param sio: 日志缓存
         """
+        super(AsyncAssertionResponse, self).__init__(logs_key='response_assert', data_logs=data_logs, sio=sio)
         self.http_code = http_code
         self.resp_headers = resp_headers
         self.resp_json = resp_json
@@ -119,48 +183,14 @@ class AsyncAssertionResponse:
             )
             return False
 
-        # 获取内置函数如:int,str...
-        # 将需要断言的值进行转换
-        # 如果出现异常很大几率是手动修改了数据库的数据(因为case_assertion_api.py中的CheckAssertion新增断言时会进行校验)
-        native_function = value_type_dict.get(expect_val_type)
-        try:
-            assert_val = native_function(assert_val)
-            expect_val = native_function(expect_val)
-        except BaseException as e:
-            self.sio.log(f"数据异常->内置函数:{native_function}转换值:{assert_val} 时失败", status="error")
-            self.sio.log(f"异常描述->{e}", status="error")
-            await self.data_logs.add_logs(
-                key="response_assert",
-                val=f"数据异常->内置函数:{native_function}转换值:{assert_val} 时失败\n异常描述->{e}"
-            )
-            return False
-
-        # 日志
-        kv = '=== 键值:{} ==='.format({assert_key: assert_val})
-        self.sio.log(kv)
-        message = f'{assert_val}:{type(assert_val)} [{rule}] {expect_val}:{expect_val_type}'
-        self.sio.log(f'function: {native_function}')
-        self.sio.log(message)
-        await self.data_logs.add_logs(
-            key="response_assert",
-            val=[f"{kv}", f"function: {native_function}", f"{message}"]
+        assert_result = await self.common_assert(
+            assert_key=assert_key,
+            rule=rule,
+            expect_val=expect_val,
+            expect_val_type=expect_val_type,
+            assert_val=assert_val
         )
-
-        op_function = rule_dict_op.get(rule)
-        try:
-            if op_function != 'contains':
-                assert_result = getattr(operator, op_function)(assert_val, expect_val)
-            else:
-                assert_result = getattr(operator, op_function)(str(assert_val), str(expect_val))
-            return assert_result
-        except BaseException as e:
-            self.sio.log(f"数据异常->规则:{op_function}错误", status="error")
-            self.sio.log(f"异常描述->{e}", status="error")
-            await self.data_logs.add_logs(
-                key="response_assert",
-                val=f"数据异常->规则:{op_function}错误\n异常描述->{e}"
-            )
-            return False
+        return assert_result
 
     async def gen_ass_json(self, ass_json):
         """断言规则"""
@@ -269,7 +299,7 @@ class DBUtil:
         }
 
 
-class AsyncAssertionField(DBUtil):
+class AsyncAssertionField(BaseAsyncAssertion, DBUtil):
     """异步字段断言"""
 
     def __init__(self, case_field_ass_info, data_logs, desc=None, sio=None):
@@ -280,6 +310,7 @@ class AsyncAssertionField(DBUtil):
         :param desc: 描述
         :param sio: 日志缓存
         """
+        super(AsyncAssertionField, self).__init__(logs_key='field_assert', data_logs=data_logs, sio=sio)
         self.case_field_ass_info = case_field_ass_info
         self.data_logs = data_logs
         self.desc = desc
@@ -301,81 +332,167 @@ class AsyncAssertionField(DBUtil):
             "sqlserver": self.get_sqlserver
         }
 
-    async def ass_dict_consume(self, query_result, assert_field_obj):
-        """1"""
+    async def set_count(self, ass_result):
+        """
+        set count
+        :param ass_result: 断言结果
+        :return:
+        """
 
-        print('=== ass_dict_consume ===')
+        if ass_result:
+            self.sio.log('=== Field 断言通过 ===', status='success')
+            self.count['success'] += 1
+            await self.data_logs.add_logs(
+                key="field_assert",
+                val="=== Field 断言通过 ===",
+                flag=True
+            )
+        else:
+            self.sio.log('=== Field 断言失败 ===', status="error")
+            self.count['fail'] += 1
+            await self.data_logs.add_logs(
+                key="field_assert",
+                val="=== Field 断言失败 ===",
+                flag=False
+            )
+
+    async def ass_dict_consume(self, assert_description, query_result, assert_field_obj):
+        """
+        查询结果为一个dict,检验key:value
+        :param assert_description: 断言描述
+        :param query_result: 查询结果
+        :param assert_field_obj: 断言规则
+        :return:
+        """
+
+        self.sio.log('=== ass_dict_consume ===', status='success')
+
         assert_key = assert_field_obj.get('assert_key')
-        this_val = query_result.get(assert_key)
+        rule = assert_field_obj.get('rule')
+        expect_val = assert_field_obj.get('expect_val')
+        expect_val_type = assert_field_obj.get('expect_val_type')
+        is_expression = assert_field_obj.get('is_expression')
+        python_val_exp = assert_field_obj.get('python_val_exp')
+
+        self.sio.log(f'=== 断言:{assert_description} ===', status='success')
+        self.sio.log(f'=== 字段:{assert_key} ===', status='success')
+        await self.data_logs.add_logs(
+            key="field_assert",
+            val=[
+                f'=== 断言:{assert_description} ===',
+                f'=== 字段:{assert_key} ==='
+            ]
+        )
+
+        if rule not in rule_dict_op:
+            self.sio.log(f"规则:{rule}不存在，无法断言", status="error")
+            await self.data_logs.add_logs(
+                key="field_assert",
+                val=f"规则:{rule}不存在，无法断言"
+            )
+            return False
+
+        if expect_val_type not in value_type_dict:
+            self.sio.log(f"期望值类型:{expect_val_type}不存在，无法断言", status="error")
+            await self.data_logs.add_logs(
+                key="field_assert",
+                val=f"期望值类型:{expect_val_type}不存在，无法断言"
+            )
+            return False
+
+        try:
+            if is_expression:
+                expression_result = execute_code(code=python_val_exp, data=query_result)
+                assert_val = expression_result.get('result_data')
+                self.sio.log(f"=== 公式取值结果: {assert_val} ===")
+                await self.data_logs.add_logs(
+                    key="field_assert",
+                    val=f"=== 公式取值结果: {assert_val} ==="
+                )
+            else:
+                assert_val = query_result.get(assert_key)
+                self.sio.log(f"=== 取值结果: {assert_val} ===")
+                await self.data_logs.add_logs(
+                    key="field_assert",
+                    val=f"=== 取值结果: {assert_val} ==="
+                )
+
+        except BaseException as e:
+            self.sio.log(f"数据异常->取值失败:{query_result},键:{assert_key},表达式:{python_val_exp}", status="error")
+            self.sio.log(f"异常描述->{e}", status="error")
+            await self.data_logs.add_logs(
+                key="field_assert",
+                val=f"数据异常->取值失败:{query_result},键:{assert_key},表达式:{python_val_exp}\n异常描述->{e}"
+            )
+            return False
+
+        assert_result = await self.common_assert(
+            assert_key=assert_key,
+            rule=rule,
+            expect_val=expect_val,
+            expect_val_type=expect_val_type,
+            assert_val=assert_val
+        )
+        return assert_result
+
+    async def ass_str_or_int_consume(self, assert_description, query_result, assert_field_obj):
+        """
+        查询结果为一个str或者int,直接使用 query_result 来检验
+        :param assert_description: 断言描述
+        :param query_result: 查询结果
+        :param assert_field_obj: 断言规则
+        :return:
+        """
+
+        self.sio.log('=== ass_str_or_int_consume ===', status='success')
+
+        assert_key = assert_field_obj.get('assert_key')
         rule = assert_field_obj.get('rule')
         expect_val = assert_field_obj.get('expect_val')
         expect_val_type = assert_field_obj.get('expect_val_type')
 
-        self.sio.log(f'=== 断言:{self.assert_description} ===', status='success')
-        self.sio.log(f'=== 字段:{assert_key} ===', status='success')
+        self.sio.log(f'=== 断言:{assert_description} ===', status='success')
+        self.sio.log(f'=== 值:{query_result} ===', status='success')
+        await self.data_logs.add_logs(
+            key="field_assert",
+            val=[
+                f'=== 断言:{assert_description} ===',
+                f'=== 值:{query_result} ==='
+            ]
+        )
 
-        try:
-            if self.gen_assert_result(this_val=this_val, rule_key=rule, expect_val_type=expect_val_type,
-                                      expect_val=expect_val, sio=self.sio):
-                self.sio.log('=== Field 断言通过 ===', status='success')
-                self.ass_field_success.append(True)
-            else:
-                self.sio.log('=== Field 断言失败 ===', status='error')
-                self.ass_field_fail.append(False)
+        if rule not in rule_dict_op:
+            self.sio.log(f"规则:{rule}不存在，无法断言", status="error")
+            await self.data_logs.add_logs(
+                key="field_assert",
+                val=f"规则:{rule}不存在，无法断言"
+            )
+            return False
 
-        except BaseException as e:
-            self.sio.log(f'数据异常:{str(e)}', status='error')
-            self.sio.log('这种情况一般会因为以下两种原因导致:', status='error')
-            self.sio.log('1.查看数据库确认该数据是否有被手动修改过.', status='error')
-            self.sio.log(
-                '2.查看: case_assertion_api.py 中的 FieldAssertionRuleApi 中的逻辑是否被修改.',
-                status='error')
-            self.sio.log('=== 断言异常 ===', status="error")
-            self.ass_field_fail.append(False)
+        if expect_val_type not in value_type_dict:
+            self.sio.log(f"期望值类型:{expect_val_type}不存在，无法断言", status="error")
+            await self.data_logs.add_logs(
+                key="field_assert",
+                val=f"期望值类型:{expect_val_type}不存在，无法断言"
+            )
+            return False
 
-    async def ass_str_or_int_consume(self, query_result, assert_field_obj):
-        """1"""
+        assert_result = await self.common_assert(
+            assert_key=assert_key,
+            rule=rule,
+            expect_val=expect_val,
+            expect_val_type=expect_val_type,
+            assert_val=query_result
+        )
+        return assert_result
 
     async def ass_list_consume(self):
         """1"""
 
-    async def ass_query_set(self, query_result, assert_field_obj, db_type):
-        """
-        assert_field_obj = {
-            "assert_key": "id",
-            "expect_val": 1,
-            "is_expression": 0,
-            "python_val_exp": "",
-            "expect_val_type": "int",
-            "rule": "=="
-        }
-        :param query_result: 查询结果
-        :param assert_field_obj:
-        :param db_type:
-        :return:
+    async def main_assert(self, assert_description, ass, db_result, db_type):
         """
 
-        expect_val_type = str(assert_field_obj.get('expect_val_type'))  # 期望值类型
-        expect_val = assert_field_obj.get('expect_val')  # 期望值
-        py_func = value_type_dict.get(expect_val_type)  # 反射原生方法
-        assert_field_obj['expect_val'] = py_func(expect_val)  # 期望值强转类型重新赋值: 如 int(1)
-
-        if db_type in ['mysql', 'postgresql', 'sqlserver']:
-            # TODO 暂时支持唯一数据检验
-            if len(query_result) == 1 and isinstance(query_result, list):
-                query_result = query_result[0]
-            await self.ass_dict_consume(query_result, assert_field_obj)
-
-        elif db_type in ['redis']:
-            query_result = json.loads(query_result)
-            if isinstance(query_result, (dict, list)) and bool(assert_field_obj.get('is_expression')):
-                await self.ass_dict_consume(query_result, assert_field_obj)
-            else:
-                await self.ass_str_or_int_consume(query_result, assert_field_obj)
-
-    async def main_assert(self, ass, db_result, db_type):
-        """
-
+        :param assert_description: 断言描述
         :param ass: 断言规则
         :param db_result: 数据库字典
         :param db_type: 数据库类型
@@ -400,9 +517,60 @@ class AsyncAssertionField(DBUtil):
         )
 
         for assert_field_obj in assert_field_list:
-            # TODO 写到这里
-            pass
-            # await self.ass_query_set(query_result=query_result, assert_field_obj=assert_field_obj, db_type=db_type)
+            """
+            assert_field_obj = {
+                "assert_key": "id",
+                "expect_val": 1,
+                "is_expression": 0,
+                "python_val_exp": "",
+                "expect_val_type": "int",
+                "rule": "=="
+            }
+            """
+            expect_val_type = assert_field_obj.get('expect_val_type')  # 期望值类型
+            expect_val = assert_field_obj.get('expect_val')  # 期望值
+            is_expression = assert_field_obj.get('is_expression')
+            py_func = value_type_dict.get(str(expect_val_type))  # 反射原生方法
+            assert_field_obj['expect_val'] = py_func(expect_val)  # 期望值强转类型重新赋值: 如 int(1)
+
+            if db_type in ('mysql', 'postgresql', 'sqlserver'):  # TODO 暂时支持唯一数据检验
+                qr = query_result
+                if qr and isinstance(qr, list):
+                    sql_query_result = qr[0]
+                else:
+                    sql_query_result = {}
+                ass_result = await self.ass_dict_consume(
+                    assert_description=assert_description,
+                    query_result=sql_query_result,
+                    assert_field_obj=assert_field_obj
+                )
+                await self.set_count(ass_result)
+
+            elif db_type in ('redis',):
+                qr = query_result
+                if qr:
+                    redis_query_result = json.loads(qr)
+                else:
+                    redis_query_result = {}
+                if isinstance(redis_query_result, (dict, list)) and bool(is_expression):
+                    ass_result = await self.ass_dict_consume(
+                        assert_description=assert_description,
+                        query_result=redis_query_result,
+                        assert_field_obj=assert_field_obj
+                    )
+                    await self.set_count(ass_result)
+                else:
+                    ass_result = await self.ass_str_or_int_consume(
+                        assert_description=assert_description,
+                        query_result=redis_query_result,
+                        assert_field_obj=assert_field_obj
+                    )
+                    await self.set_count(ass_result)
+            else:
+                await self.data_logs.add_logs(
+                    key="field_assert",
+                    val=f"=== 暂未支持数据库:{db_type} ==="
+                )
 
     async def ping_db_connection(self, db_id, assert_description, name, db_type, db_connection):
         """
@@ -457,7 +625,14 @@ class AsyncAssertionField(DBUtil):
                 if ping_result:
                     # print('ping_result', ping_result, json.dumps(ass, ensure_ascii=False))
                     assert_list = ass.get('assert_list')
-                    [await self.main_assert(ass=ass, db_result=ping_result, db_type=db_type) for ass in assert_list]
+                    [
+                        await self.main_assert(
+                            assert_description=assert_description,
+                            ass=ass,
+                            db_result=ping_result,
+                            db_type=db_type
+                        ) for ass in assert_list
+                    ]
 
             else:
                 error_message = f"=== 数据断言:{assert_description} 使用ID为 {db_id} 的数据库不存在或禁用 ==="
@@ -480,5 +655,6 @@ class AsyncAssertionField(DBUtil):
             assert_description = field_ass.get('assert_description')
             ass_json = field_ass.get('ass_json')
             await self.ass_json_untie(assert_description=assert_description, ass_json=ass_json)
+
         self.count['flag'] = False if self.count.get('fail') > 0 else True
         return self.count
