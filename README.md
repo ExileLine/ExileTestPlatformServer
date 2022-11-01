@@ -118,12 +118,12 @@ respect ! ! !
 - 后端：
     - 方法1：本机部署：https://juejin.cn/post/6844903870250876935
     - 方法2：Docker部署：https://juejin.cn/post/7054460759526342687
-    - 方法3：执行该项目下的 `server_start.sh` (推荐)
+    - 方法3：Docker部署：执行该项目下的 `server_start.sh` (推荐)
 
 ### 联系我们
 
 - 文档可能存在不清晰的地方，若有疑问可通过`issues`或以下方式联系我们。
-    - 邮箱：`yang6333yyx@126.com`
+    - 邮箱：`exileplat@gmail.com` or `yang6333yyx@126.com`
     - Wechat：`YYx_33`
     - QQ：`417993207`
 
