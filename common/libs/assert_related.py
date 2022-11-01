@@ -248,7 +248,7 @@ class AssertFieldMain(AssertMain):
     def ping_db_connection(self, from_data_ready=False):
         """检查db是否可以连接"""
 
-        self.db_obj = self.db_dict.get(self.db_type.lower(), None)()
+        self.db_obj = self.db_dict.get(self.db_type.lower(), None)()  # 直接执行db对应的ping方法
 
         if not self.db_obj:
             self.sio.log(f"=== 暂时不支持: {self.db_type} ===", status='error')
