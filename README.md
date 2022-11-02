@@ -32,7 +32,7 @@ respect ! ! !
   ![exile_home](docs/展示图/exile_home.png)
 
 - 项目演示地址：
-  http://106.75.174.40 (admin，123456)
+  http://106.75.174.40 (点击获取游客账号即可)
 - 后端项目地址(Github)：https://github.com/ExileLine/ExileTestPlatformServer
 - 后端项目地址(码云)：待补充
 - 前端项目地址(GitHub)：https://github.com/ExileLine/ExileTestPlatformWeb
