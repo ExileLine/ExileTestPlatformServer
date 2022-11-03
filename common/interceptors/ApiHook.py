@@ -15,6 +15,7 @@ from app.models.admin.models import Admin
 from common.libs.public_func import print_logs
 from common.libs.auth import check_user
 from common.libs.customException import method_view_ab_code as ab_code
+from common.interceptors.ProjectHook import check_project_auth
 
 
 def api_before_request():
@@ -45,6 +46,8 @@ def api_before_request():
                 g.app_user = type('A', (object,), {"id": 1, "username": "admin"})
             else:
                 g.app_user = user
+
+            # return check_project_auth()
             return
 
         if not is_token:
