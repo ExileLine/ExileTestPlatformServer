@@ -14,6 +14,8 @@ class TestProject(BaseModel):
     __table_args__ = {'comment': '项目表'}
 
     project_name = db.Column(db.String(128), nullable=False, unique=True, comment='项目名称')
+    project_auth = db.Column(db.JSON, default=0, comment='是否公开:1-是;0-否')
+    project_user = db.Column(db.JSON, default=[], comment='项目用户:project_auth为是的情况下使用')
     creator = db.Column(db.String(32), comment='创建人')
     creator_id = db.Column(BIGINT(20, unsigned=True), comment='创建人id')
     modifier = db.Column(db.String(32), comment='更新人')
