@@ -76,7 +76,9 @@ class ProjectApi(MethodView):
         project_name = data.get('project_name')
         remark = data.get('remark')
 
-        if not qp(project_id):
+        query_project = TestProject.query.get(project_id)
+        if not query_project:
+        # if not qp(project_id):
             return api_result(code=NO_DATA, message=f"项目id: {project_id} 不存在")
 
         if query_project.project_name != project_name:
