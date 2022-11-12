@@ -527,6 +527,7 @@ class AsyncAssertionField(BaseAsyncAssertion, DBUtil):
                 "rule": "=="
             }
             """
+            print('assert_field_obj:', assert_field_obj)
             expect_val_type = assert_field_obj.get('expect_val_type')  # 期望值类型
             expect_val = assert_field_obj.get('expect_val')  # 期望值
             is_expression = assert_field_obj.get('is_expression')
