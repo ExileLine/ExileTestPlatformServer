@@ -13,14 +13,12 @@ from flask_apscheduler.auth import HTTPBasicAuth
 from apscheduler.jobstores.sqlalchemy import SQLAlchemyJobStore
 from apscheduler.jobstores.redis import RedisJobStore
 
-PROJECT_NAME = 'ExileTestPlatformServer'
-
 
 def get_config():
     """获取配置文件"""
     conf = configparser.ConfigParser()
     flask_env = os.environ.get('FLASK_ENV')
-    base_path = os.getcwd().split(PROJECT_NAME)[0] + '{}/config/'.format(PROJECT_NAME)
+    base_path = os.path.dirname(os.path.abspath(__file__)) + '/'
 
     default_env = {
         'config_path': base_path + 'dev.ini',
