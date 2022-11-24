@@ -17,6 +17,7 @@ from app.models.test_project.models import (
     MidProjectScenario, MidVersionScenario, MidTaskScenario, MidModuleScenario
 )
 from app.models.test_env.models import TestEnv
+from app.models.test_logs.models import TestExecuteLogs
 from app.models.push_reminder.models import DingDingConfModel, MailConfModel
 from common.libs.async_test_runner.test.test_async_runner import test_obj as debug_test_obj
 from tasks.execute_case import execute_case
@@ -499,6 +500,34 @@ class ExecuteQuery:
         self.gen_execute_scenario_list()
 
 
+def create_execute_logs(**kwargs):
+    """创建日志数据"""
+
+    creator = kwargs.get("execute_username")
+    creator_id = kwargs.get("execute_user_id")
+    execute_id = kwargs.get("execute_id")
+    project_id = kwargs.get("project_id")
+    execute_name = kwargs.get("execute_name")
+    execute_type = kwargs.get("execute_type")
+    trigger_type = kwargs.get("trigger_type")
+
+    new_execute_logs = TestExecuteLogs(
+        creator=creator,
+        creator_id=creator_id,
+        execute_id=execute_id,
+        project_id=project_id,
+        execute_name=execute_name,
+        execute_type=execute_type,
+        redis_key="等待执行完毕后回写",
+        report_url="等待执行完毕后回写",
+        execute_status=2,
+        trigger_type=trigger_type,
+        file_name="等待执行完毕后回写",
+    )
+    new_execute_logs.save()
+    return new_execute_logs.id
+
+
 class CaseExecuteApi(MethodView):
     """
     执行用例 Api
@@ -601,6 +630,8 @@ class CaseExecuteApi(MethodView):
             "trigger_type": trigger_type,
             "request_timeout": request_timeout,
         }
+        execute_logs_id = create_execute_logs(**test_obj)
+        test_obj['execute_logs_id'] = execute_logs_id
         results = execute_case.delay(test_obj)
         print(results)
         return api_result(code=SUCCESS, message='操作成功,请前往日志查看执行结果', data=[str(results)])

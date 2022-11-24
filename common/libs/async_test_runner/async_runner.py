@@ -816,6 +816,24 @@ class AsyncCaseRunner:
         self.sio.log(f'=== save_logs sql ===\n{sql}')
         self.sio.log('=== save_logs ok ===', status="success")
 
+    async def write_back_logs(self, report_url=None, file_name=None):
+        """
+        回写日志标识:替代 save_logs 方法
+        """
+
+        sql = """UPDATE `ExileTestPlatform5.0`.`exile_test_execute_logs` SET redis_key='{}', report_url='{}', execute_status={}, file_name='{}', update_time='{}', update_timestamp={} WHERE id={};""".format(
+            self.redis_key,
+            report_url,
+            int(self.execute_status),
+            file_name,
+            GlobalsDict.gen_datetime(),
+            int(time.time()),
+            self.execute_logs_id
+        )
+        await aio_mysql_execute(sql)
+        self.sio.log(f'=== write_back_logs sql ===\n{sql}')
+        self.sio.log('=== write_back_logs ok ===', status="success")
+
     async def case_loader(self):
         """用例加载执行"""
 
@@ -863,7 +881,9 @@ class AsyncCaseRunner:
 
         await self.gen_logs()  # 日志格式化并缓存redis
 
-        await self.save_logs()  # 日志上层信息写入mysql
+        # await self.save_logs()  # 日志上层信息写入mysql
+
+        await self.write_back_logs()  # 回写redis_key等数据
 
         if self.is_debug:
             print('obj_id_list', self.obj_id_list)
