@@ -26,26 +26,32 @@ respect ! ! !
 
 ### 项目演示
 
-- 登录页面
+- 封面
   ![exile_cover](docs/展示图/exile_cover.png)
-- 首页  
+- 主页  
   ![exile_home](docs/展示图/exile_home.png)
 
-- 项目演示地址：
-  http://106.75.174.40 (点击获取游客账号即可)
-- 后端项目地址(Github)：https://github.com/ExileLine/ExileTestPlatformServer
-- 后端项目地址(码云)：待补充
+- 项目演示地址：http://106.75.174.40 (点击：`获取游客账号` 即可)
+- 警告：切勿在该地址平台使用重要或私密数据进行操作，损失概不负责，谢谢！
+
+### 项目地址
+
 - 前端项目地址(GitHub)：https://github.com/ExileLine/ExileTestPlatformWeb
-- 前端项目地址(码云)：待补充
+- 后端项目地址(Github)：https://github.com/ExileLine/ExileTestPlatformServer
+
+- --
+
+- 前端项目地址(码云)：`待补充`
+- 后端项目地址(码云)：`待补充`
 
 ### 操作手册
 
 - 操作手册(GitHub)：https://github.com/ExileLine/ExileTestPlatformDoc
-- 文档地址(码云)：待补充
+- 文档地址(码云)：`待补充`
 
 ### 系统架构图
 
-- 无法查看图片可以前往码云：待补充
+- 无法查看图片可以前往码云：`待补充`
 
 ![系统逻辑架构图](docs/架构图/ExileTestPlatform逻辑架构图.png)
 
