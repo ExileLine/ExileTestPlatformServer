@@ -12,6 +12,7 @@ import aiohttp
 import asyncio
 
 from common.libs.db import project_db, R
+from common.libs.async_db import aio_mysql_query, aio_mysql_execute
 from common.libs.data_dict import GlobalsDict, F
 from common.libs.StringIOLog import StringIOLog
 from common.libs.async_test_runner.async_assertion import AsyncAssertionResponse, AsyncAssertionField
@@ -43,6 +44,7 @@ class AsyncCaseRunner:
         self.execute_username = test_obj.get('execute_username')
         self.execute_user_id = test_obj.get('execute_user_id')
         self.trigger_type = test_obj.get('trigger_type')  # 触发执行类型(user_execute,timed_execute...)
+        self.execute_logs_id = test_obj.get('execute_logs_id')  # 执行日志id用于执行完毕后回写redis_key等数据
 
         self.base_url = test_obj.get('base_url')
         self.use_base_url = test_obj.get('use_base_url')
@@ -216,7 +218,6 @@ class AsyncCaseRunner:
         if not var_name_list:
             return before_value
 
-        # TODO 改为 aiomysql
         sql = f"""
         SELECT id, var_name, var_value, var_type, var_args, is_active 
         FROM exile_test_variable 
@@ -225,7 +226,10 @@ class AsyncCaseRunner:
         """
         print('=== sql ===')
         print(sql)
-        query_result = project_db.select(sql=sql)
+        # query_result = project_db.select(sql=sql)
+
+        query_result = await aio_mysql_query(sql=sql)
+        print(query_result)
 
         d = {}
         for obj in query_result:  # 生成: {"var_name":"var_value"}
@@ -344,7 +348,8 @@ class AsyncCaseRunner:
             sql = f"""
             UPDATE exile_test_variable SET var_value='{new_var}', update_time='{F.gen_datetime()}', update_timestamp={F.gen_timestamp()} WHERE id='{var_id}' and project_id={self.project_id}; """
             self.sio.log(f'=== update variable sql ===\n{sql}', status='success')
-            project_db.update(sql)
+            # project_db.update(sql)
+            await aio_mysql_execute(sql=sql)
 
             await data_logs.add_logs(key='update_variable', val=f"变量: {var_name} 值更新为: {update_val_result}")
 
@@ -806,7 +811,8 @@ class AsyncCaseRunner:
             self.trigger_type,
             file_name
         )
-        project_db.insert(sql)
+        # project_db.insert(sql)
+        await aio_mysql_execute(sql)
         self.sio.log(f'=== save_logs sql ===\n{sql}')
         self.sio.log('=== save_logs ok ===', status="success")
 

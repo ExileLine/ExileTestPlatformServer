@@ -8,29 +8,34 @@
 import asyncio
 import aiomysql
 
-from common.libs.db import result_format
+from common.libs.db import result_format, DB
+
+MYSQL_CONF = DB
+MYSQL_CONF['autocommit'] = 'true'
 
 
 class MyAioMySQL:
 
     def __init__(self, loop=None, pool=None, conf_dict=None, debug=None):
-        self.loop = loop
+
+        if loop:
+            self.loop = loop
+        else:
+            self.loop = asyncio.get_event_loop()
+
         self.pool = pool
         self.conf_dict = conf_dict
         self.debug = debug
 
     async def init_pool(self):
-        if self.pool:
-            pass
-        else:
-            try:
-                if self.conf_dict:
-                    new_pool = await aiomysql.create_pool(**self.conf_dict, charset='utf8', loop=self.loop)
-                    self.pool = new_pool
-                else:
-                    print('conf_dict 为空')
-            except BaseException as e:
-                print('创建连接池异常:{}'.format(e))
+        """初始化连接池"""
+        try:
+            new_pool = await aiomysql.create_pool(**self.conf_dict, charset='utf8', loop=self.loop)
+            self.pool = new_pool
+            return True
+        except BaseException as e:
+            print(f'创建连接池异常:{e}')
+            return False
 
     async def query(self, sql, only=None, size=None):
         """
@@ -74,27 +79,22 @@ class MyAioMySQL:
                 #     return affected
 
 
+async def aio_mysql_query(sql, only=None, size=None):
+    """aio sql查询"""
+    db = MyAioMySQL(conf_dict=MYSQL_CONF)
+    await db.init_pool()
+    query_result = await db.query(sql, only=only, size=size)
+    return query_result
+
+
+async def aio_mysql_execute(sql):
+    """aio sql执行"""
+    db = MyAioMySQL(conf_dict=MYSQL_CONF)
+    await db.init_pool()
+    await db.execute(sql)
+
+
 if __name__ == '__main__':
-    async def main():
-        loop = asyncio.get_event_loop()
-        conf_dict = {
-            'host': '127.0.0.1',
-            'port': 3306,
-            'user': 'root',
-            'password': '12345678',
-            'db': 'ExileTestPlatform5.0',
-            'autocommit': 'true'
-        }
-        db = MyAioMySQL(loop=loop, conf_dict=conf_dict)
-        await db.init_pool()
-
-        sql = "SELECT id, case_name FROM exile_test_case limit 0,6;"
-        result1 = await db.query(sql, only=True)
-        result2 = await db.query(sql, size=3)
-        result3 = await db.query(sql)
-        print(result1, type(result1), len(result1))
-        print(result2, type(result2), len(result2))
-        print(result3, type(result3), len(result3))
-
-
-    asyncio.run(main())
+    sql = "SELECT id, case_name FROM exile_test_case limit 0,6;"
+    result = asyncio.run(aio_mysql_query(sql=sql, only=True))
+    print(result)
