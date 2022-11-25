@@ -10,11 +10,10 @@ import asyncio
 from common.libs.async_db import MyAioMySQL, MYSQL_CONF
 
 
-async def test_aio_mysql(*args, **kwargs):
-    """测试"""
-    db = MyAioMySQL(conf_dict=MYSQL_CONF)
-    await db.init_pool()
+async def test_query():
+    """测试直连查询"""
 
+    db = MyAioMySQL(conf_dict=MYSQL_CONF, debug=True)
     sql = "SELECT id, case_name FROM exile_test_case limit 0,6;"
 
     result1 = await db.query(sql, only=True)
@@ -28,35 +27,49 @@ async def test_aio_mysql(*args, **kwargs):
     return result1, result2, result3
 
 
-class A:
+async def test_pool_query():
+    """测试连接池查询"""
 
-    def __init__(self):
-        self.db = MyAioMySQL(conf_dict=MYSQL_CONF, debug=True)
+    db = MyAioMySQL(conf_dict=MYSQL_CONF, debug=True)
+    sql = "SELECT id, case_name FROM exile_test_case limit 0,6;"
 
-    async def correct_demo(self):
-        """正确例子"""
+    result1 = await db.pool_query(sql, only=True)
+    print(result1, type(result1))
 
-        sql = "SELECT id, case_name FROM exile_test_case limit 0,6;"
-        db = MyAioMySQL(conf_dict=MYSQL_CONF, debug=True)
-        await db.init_pool()
-        result1 = await db.query(sql, only=True)
-        print(result1, type(result1))
+    result2 = await db.pool_query(sql, size=3)
+    print(result2, type(result2), len(result2))
 
-    async def error_demo(self):
-        """错误例子"""
-
-        sql = "SELECT id, case_name FROM exile_test_case limit 0,6;"
-        self.db = MyAioMySQL(conf_dict=MYSQL_CONF, debug=True)
-        await self.db.init_pool()
-        result1 = await self.db.query(sql, only=True)
-        print(result1, type(result1))
+    result3 = await db.pool_query(sql)
+    print(result3, type(result3), len(result3))
+    return result1, result2, result3
 
 
 if __name__ == '__main__':
-    pass
-    result = asyncio.run(test_aio_mysql())
-    print(result)
+    db = MyAioMySQL(conf_dict=MYSQL_CONF, debug=True)
+    sql = "SELECT id, case_name FROM exile_test_case limit 0,6;"
+    result1 = asyncio.run(db.query(sql, only=True))
+    print(result1, type(result1))
 
-    a = A()
-    asyncio.run(a.correct_demo())
-    asyncio.run(a.error_demo())
+    result2 = asyncio.run(db.query(sql, size=3))
+    print(result2, type(result2), len(result2))
+
+    result3 = asyncio.run(db.query(sql))
+    print(result3, type(result3), len(result3))
+
+    print('\n=== 连接池查询测试 ===')
+    result1 = asyncio.run(db.pool_query(sql, only=True))
+    print(result1, type(result1))
+
+    result2 = asyncio.run(db.pool_query(sql, size=3))
+    print(result2, type(result2), len(result2))
+
+    result3 = asyncio.run(db.pool_query(sql))
+    print(result3, type(result3), len(result3))
+
+    print('\n=== test_query ===')
+    test_query_result = asyncio.run(test_query())
+    print(test_query_result)
+
+    print('\n=== test_pool_query ===')
+    test_pool_query_result = asyncio.run(test_pool_query())
+    print(test_pool_query_result)

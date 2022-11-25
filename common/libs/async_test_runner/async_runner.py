@@ -12,7 +12,7 @@ import aiohttp
 import asyncio
 
 from common.libs.db import project_db, R
-from common.libs.async_db import aio_mysql_query, aio_mysql_execute
+from common.libs.async_db import MyAioMySQL, MYSQL_CONF
 from common.libs.data_dict import GlobalsDict, F
 from common.libs.StringIOLog import StringIOLog
 from common.libs.async_test_runner.async_assertion import AsyncAssertionResponse, AsyncAssertionField
@@ -35,6 +35,8 @@ class AsyncCaseRunner:
     def __init__(self, test_obj=None, is_debug=False):
 
         self.is_debug = is_debug
+
+        self.aio_db = MyAioMySQL(conf_dict=MYSQL_CONF, debug=True)
 
         self.test_obj = test_obj if test_obj else {}
         self.project_id = test_obj.get('project_id')  # 项目归属id
@@ -228,7 +230,7 @@ class AsyncCaseRunner:
         print(sql)
         # query_result = project_db.select(sql=sql)
 
-        query_result = await aio_mysql_query(sql=sql)
+        query_result = await self.aio_db.query(sql=sql)
         print(query_result)
 
         d = {}
@@ -349,7 +351,7 @@ class AsyncCaseRunner:
             UPDATE exile_test_variable SET var_value='{new_var}', update_time='{F.gen_datetime()}', update_timestamp={F.gen_timestamp()} WHERE id='{var_id}' and project_id={self.project_id}; """
             self.sio.log(f'=== update variable sql ===\n{sql}', status='success')
             # project_db.update(sql)
-            await aio_mysql_execute(sql=sql)
+            await self.aio_db.execute(sql=sql)
 
             await data_logs.add_logs(key='update_variable', val=f"变量: {var_name} 值更新为: {update_val_result}")
 
@@ -812,7 +814,7 @@ class AsyncCaseRunner:
             file_name
         )
         # project_db.insert(sql)
-        await aio_mysql_execute(sql)
+        await self.aio_db.execute(sql)
         self.sio.log(f'=== save_logs sql ===\n{sql}')
         self.sio.log('=== save_logs ok ===', status="success")
 
@@ -830,7 +832,7 @@ class AsyncCaseRunner:
             int(time.time()),
             self.execute_logs_id
         )
-        await aio_mysql_execute(sql)
+        await self.aio_db.execute(sql)
         self.sio.log(f'=== write_back_logs sql ===\n{sql}')
         self.sio.log('=== write_back_logs ok ===', status="success")
 
