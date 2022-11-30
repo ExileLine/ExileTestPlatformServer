@@ -30,11 +30,6 @@ class MyAioMySQL:
         self.conf_dict = conf_dict
         self.debug = debug
 
-    async def get_loop(self):
-        """1"""
-
-        return
-
     async def init_pool(self):
         """
         初始化连接池
@@ -90,13 +85,14 @@ class MyAioMySQL:
         """
 
         print(f"sql: {sql}")
-
+        sql_type = sql.split(' ')[0]
         try:
             await cur.execute(sql)
+            print(f"{sql_type} 语句执行成功")
             return True
         except BaseException as e:
             message = str(e) if self.debug else ''
-            print(f"{sql.split(' ')[0]}执行出现错误:{message}")
+            print(f"{sql_type} 执行出现错误:{message}")
             await conn.rollback()
             return False
         # else:
@@ -170,15 +166,3 @@ class MyAioMySQL:
                 result = await self.__execute(sql=sql, conn=conn, cur=cur)
 
         return result
-
-
-if __name__ == '__main__':
-    db = MyAioMySQL(conf_dict=MYSQL_CONF, debug=True)
-
-    sql = "SELECT id, case_name FROM exile_test_case limit 0,6;"
-    result = asyncio.run(db.query(sql=sql, only=True))
-    print(result)
-
-    sql = """UPDATE `ExileTestPlatform5.0`.`exile_test_case` SET `request_method` = 'GET123' WHERE `id` = '1';"""
-    result = asyncio.run(db.execute(sql=sql))
-    print(result)

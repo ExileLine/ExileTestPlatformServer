@@ -2,7 +2,7 @@
 # @Time    : 2022/11/23 16:30
 # @Author  : yangyuexiong
 # @Email   : yang6333yyx@126.com
-# @File    : test_aio_db.py
+# @File    : test_aio_mysql.py
 # @Software: PyCharm
 
 import asyncio
@@ -47,6 +47,9 @@ async def test_pool_query():
 if __name__ == '__main__':
     db = MyAioMySQL(conf_dict=MYSQL_CONF, debug=True)
     sql = "SELECT id, case_name FROM exile_test_case limit 0,6;"
+    update_sql = """UPDATE `ExileTestPlatform5.0`.`exile_test_case` SET `request_method` = 'GET123' WHERE `id` = '1';"""
+
+    print('\n=== 直接调用 ===')
     result1 = asyncio.run(db.query(sql, only=True))
     print(result1, type(result1))
 
@@ -55,6 +58,9 @@ if __name__ == '__main__':
 
     result3 = asyncio.run(db.query(sql))
     print(result3, type(result3), len(result3))
+
+    update_result = asyncio.run(db.execute(sql=update_sql))
+    print(update_result)
 
     print('\n=== 连接池查询测试 ===')
     result1 = asyncio.run(db.pool_query(sql, only=True))
@@ -65,6 +71,9 @@ if __name__ == '__main__':
 
     result3 = asyncio.run(db.pool_query(sql))
     print(result3, type(result3), len(result3))
+
+    update_result = asyncio.run(db.pool_execute(sql=update_sql))
+    print(update_result)
 
     print('\n=== test_query ===')
     test_query_result = asyncio.run(test_query())
