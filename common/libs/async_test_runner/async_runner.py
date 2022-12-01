@@ -11,8 +11,9 @@ import time
 import aiohttp
 import asyncio
 
-from common.libs.db import project_db, R, MYSQL_CONF
-from common.libs.async_db import MyAioMySQL
+from common.libs.db import project_db, R
+from common.libs.db import MYSQL_CONF, AIO_REDIS_CONF
+from common.libs.async_db import MyAioMySQL, MyAioRedis
 from common.libs.data_dict import GlobalsDict, F
 from common.libs.StringIOLog import StringIOLog
 from common.libs.async_test_runner.async_assertion import AsyncAssertionResponse, AsyncAssertionField
@@ -36,7 +37,8 @@ class AsyncCaseRunner:
 
         self.is_debug = is_debug
 
-        self.aio_db = MyAioMySQL(conf_dict=MYSQL_CONF, debug=True)
+        self.aio_db = MyAioMySQL(conf_dict=MYSQL_CONF, debug=True)  # 异步Mysql
+        self.aio_redis = MyAioRedis(conf_dict=AIO_REDIS_CONF).redis  # 异步Redis
 
         self.test_obj = test_obj if test_obj else {}
         self.project_id = test_obj.get('project_id')  # 项目归属id
@@ -781,12 +783,17 @@ class AsyncCaseRunner:
         if self.is_debug:
             self.sio.log(f'=== json_str ===\n{json_str}')
 
-        R.set(self.redis_key, json_str)
-        R.expire(self.redis_key, 86400 * 30)
+        # R.set(self.redis_key, json_str)
+        # R.expire(self.redis_key, 86400 * 30)
+        await self.aio_redis.set(self.redis_key, json_str)
+        await self.aio_redis.expire(self.redis_key, 86400 * 30)
+
         current_save_dict = GlobalsDict.redis_first_logs_dict(execute_id=self.execute_id)
         save_obj_first = current_save_dict.get(self.execute_type, "未知执行类型")
-        R.set(save_obj_first, json_str)
-        R.expire(save_obj_first, 86400 * 30)
+        # R.set(save_obj_first, json_str)
+        # R.expire(save_obj_first, 86400 * 30)
+        await self.aio_redis.set(save_obj_first, json_str)
+        await self.aio_redis.expire(save_obj_first, 86400 * 30)
 
         self.sio.log('=== 生成日志写入Redis完成 ===', status="success")
 
