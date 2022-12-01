@@ -22,6 +22,15 @@ CONFIG_OBJ = config_obj.get('new')
 
 REDIS_CONF = CONFIG_OBJ.redis_obj  # Redis连接配置
 
+# Aio Redis连接配置
+AIO_REDIS_CONF = {
+    "url": f"redis://{REDIS_CONF.get('host')}",
+    "password": REDIS_CONF.get('password'),
+    "db": REDIS_CONF.get('db'),
+    "encoding": "utf-8",
+    "decode_responses": REDIS_CONF.get('decode_responses', True)
+}
+
 R = CONFIG_OBJ.R  # Redis连接池
 
 # Mysql连接配置

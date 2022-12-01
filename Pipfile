@@ -22,6 +22,7 @@ psutil = "*"
 pymssql = "*"
 dbutils = "*"
 aiomysql = "*"
+aioredis = "*"
 
 [dev-packages]
 

@@ -6,7 +6,9 @@
 # @Software: PyCharm
 
 import asyncio
+
 import aiomysql
+import aioredis
 
 from common.libs.db import result_format
 
@@ -165,4 +167,41 @@ class MyAioMySQL:
             async with conn.cursor() as cur:
                 result = await self.__execute(sql=sql, conn=conn, cur=cur)
 
+        return result
+
+
+class MyAioRedis:
+    """aioredis v2"""
+
+    def __init__(self, loop=None, is_pool=False, conf_dict=None, max_connections=10, debug=None):
+        """
+
+        :param loop: 事件循环
+        :param is_pool: 是否使用连接池默认False
+        :param conf_dict: 连接配置
+        :param max_connections: 使用连接池时最大连接数默认10
+        :param debug: 调试
+        """
+
+        self.loop = loop
+        self.is_pool = is_pool
+        self.conf_dict = conf_dict
+        self.max_connections = max_connections
+        self.debug = debug
+
+        if self.debug:
+            print(f"连接池:{self.is_pool}")
+            print(self.conf_dict)
+
+        if self.is_pool:  # 连接池对象
+            pool = aioredis.ConnectionPool.from_url(**self.conf_dict, max_connections=self.max_connections)
+            self.redis = aioredis.Redis(connection_pool=pool)
+
+        else:  # redis对象
+            self.redis = aioredis.from_url(**self.conf_dict)
+
+    async def execute(self, command: str):
+        """执行 redis 语句"""
+
+        result = await self.redis.execute_command(command)
         return result
