@@ -20,9 +20,12 @@ from config.config import config_obj
 
 CONFIG_OBJ = config_obj.get('new')
 
-R = CONFIG_OBJ.R  # Redis实例
+REDIS_CONF = CONFIG_OBJ.redis_obj  # Redis连接配置
 
-DB = {
+R = CONFIG_OBJ.R  # Redis连接池
+
+# Mysql连接配置
+MYSQL_CONF = {
     'user': CONFIG_OBJ.MYSQL_USERNAME,
     'password': CONFIG_OBJ.MYSQL_PASSWORD,
     'host': CONFIG_OBJ.MYSQL_HOSTNAME,
@@ -30,6 +33,7 @@ DB = {
     'db': CONFIG_OBJ.MYSQL_DATABASE
 }
 
+# Mysql连接池
 MYSQL_POOL = PooledDB(
     creator=pymysql,
     mincached=0,  # 初始化创建闲置连接线程数
@@ -40,7 +44,7 @@ MYSQL_POOL = PooledDB(
     maxusage=None,  # 一个线程连接可以复用的次数，None表示无限制
     setsession=None,  #
     ping=0,  # 执行前是否ping通数据
-    **DB
+    **MYSQL_CONF
 )
 
 
@@ -342,7 +346,7 @@ project_db = MyPyMysql(pool=MYSQL_POOL, is_pool=True, debug=CONFIG_OBJ.DEBUG)  #
 
 if __name__ == '__main__':
     """test"""
-    project_db = MyPyMysql(**DB, debug=CONFIG_OBJ.DEBUG)  # MySql实例
+    project_db = MyPyMysql(**MYSQL_CONF, debug=CONFIG_OBJ.DEBUG)  # MySql实例
     project_db_pool = MyPyMysql(pool=MYSQL_POOL, is_pool=True, debug=CONFIG_OBJ.DEBUG)  # MySql连接池实例
 
 

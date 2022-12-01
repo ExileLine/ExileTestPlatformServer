@@ -11,8 +11,8 @@ import time
 import aiohttp
 import asyncio
 
-from common.libs.db import project_db, R
-from common.libs.async_db import MyAioMySQL, MYSQL_CONF
+from common.libs.db import project_db, R, MYSQL_CONF
+from common.libs.async_db import MyAioMySQL
 from common.libs.data_dict import GlobalsDict, F
 from common.libs.StringIOLog import StringIOLog
 from common.libs.async_test_runner.async_assertion import AsyncAssertionResponse, AsyncAssertionField

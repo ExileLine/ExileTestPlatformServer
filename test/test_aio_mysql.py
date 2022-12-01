@@ -6,8 +6,8 @@
 # @Software: PyCharm
 
 import asyncio
-
-from common.libs.async_db import MyAioMySQL, MYSQL_CONF
+from common.libs.db import MYSQL_CONF
+from common.libs.async_db import MyAioMySQL
 
 
 async def test_query():
@@ -46,6 +46,7 @@ async def test_pool_query():
 
 if __name__ == '__main__':
     db = MyAioMySQL(conf_dict=MYSQL_CONF, debug=True)
+    print(db.conf_dict)
     sql = "SELECT id, case_name FROM exile_test_case limit 0,6;"
     update_sql = """UPDATE `ExileTestPlatform5.0`.`exile_test_case` SET `request_method` = 'GET123' WHERE `id` = '1';"""
 
