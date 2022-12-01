@@ -15,18 +15,17 @@ from common.libs.db import result_format
 
 class MyAioMySQL:
 
-    def __init__(self, loop=None, pool=None, conf_dict=None, autocommit=True, debug=None):
+    def __init__(self, loop=None, conf_dict=None, autocommit=True, debug=None):
         """
 
         :param loop: 事件循环
-        :param pool: 连接池
         :param conf_dict: 连接配置
         :param autocommit: 自动commit
         :param debug: 调试
         """
 
         self.loop = loop
-        self.pool = pool
+        self.pool = None
         self.conf_dict = conf_dict
         if autocommit:
             self.conf_dict['autocommit'] = 'true'

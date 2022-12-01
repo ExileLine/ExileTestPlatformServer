@@ -48,7 +48,7 @@ if __name__ == '__main__':
     db = MyAioMySQL(conf_dict=MYSQL_CONF, debug=True)
     print(db.conf_dict)
     sql = "SELECT id, case_name FROM exile_test_case limit 0,6;"
-    update_sql = """UPDATE `ExileTestPlatform5.0`.`exile_test_case` SET `request_method` = 'GET123' WHERE `id` = '1';"""
+    update_sql = """UPDATE exile_test_case SET request_method = 'GET123' WHERE id = '1';"""
 
     print('\n=== 直接调用 ===')
     result1 = asyncio.run(db.query(sql, only=True))
