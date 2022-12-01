@@ -15,42 +15,67 @@ from common.libs.db import result_format
 
 class MyAioMySQL:
 
-    def __init__(self, loop=None, conf_dict=None, autocommit=True, debug=None):
+    def __init__(self, pool=None, conf_dict=None, autocommit=True, debug=None):
         """
 
-        :param loop: 事件循环
+        :param pool: 连接池对象
         :param conf_dict: 连接配置
         :param autocommit: 自动commit
         :param debug: 调试
         """
 
-        self.loop = loop
-        self.pool = None
+        self.pool = pool
         self.conf_dict = conf_dict
-        if autocommit:
+        if self.conf_dict and autocommit:
             self.conf_dict['autocommit'] = 'true'
         self.debug = debug
 
     async def init_pool(self):
         """
         初始化连接池
-        当 loop 接收一个来自应用的 `loop` 即 `app.loop` 用于 aioHttp,fastApi,tornado 等异步web框架
-        例如: app['aio_mysql_engine'] = await aiomysql.create_pool(**aio_mysql_conf, charset='utf8', loop=app.loop)
+        使用 aioHttp,fastApi,tornado等异步web框架:
+            接收一个来自应用的 `loop` 即 `app.loop` 创建好的全局连接池对象,例如以下:
+            app['aio_mysql_engine'] = await aiomysql.create_pool(**aio_mysql_conf, charset='utf8', loop=app.loop)
 
-        当 loop 为 None 时获取当前的 `loop` 即 asyncio.run() 注意:如果接收一个新的 `loop` 会出现 attached to a different loop 事件循环不一致的问题
-        例如: asyncio.run(fun(*args,**kwargs))
+            全局注册:
+                async def register_db(app):
+                    aio_mysql_conf = {
+                        "host":"...",
+                        "password":"...",
+                        ...
+                    }
+                    app['aio_mysql_engine'] = await aiomysql.create_pool(**aio_mysql_conf, charset='utf8', loop=app.loop)
+                    yield
+                    app['aio_mysql_engine'].close()
+                    await app['aio_mysql_engine'].wait_closed()
+
+
+                async def create_app():
+                    app = web.Application()
+                    ...
+                    ...
+                    app.cleanup_ctx.append(register_db)  # aio mysql pool 注册
+                    return app
+
+            调用:
+                pool = self.request.app['aio_mysql_engine']
+                db = MyAioMySQL(pool=pool)
+                db.pool_query(sql='select...')
+                db.pool_execute(sql='update...')
+
+        使用 asyncio.run() 如 asyncio.run(fun(*args,**kwargs)):
+            `pool` 应为 None.
+            注意:如果接收一个新的 `loop` 会出现 `attached to a different loop` 事件循环不一致的问题.
         :return:
         """
 
         try:
-            if self.loop:
-                new_pool = await aiomysql.create_pool(**self.conf_dict, charset='utf8', loop=self.loop)
-                self.pool = new_pool
-                print('=== new_pool ===')
+            if self.pool:  # 使用实例的连接池
+                print('=== use self.pool')
                 return self.pool
-            else:
+            else:  # 使用`get_event_loop`创建连接池
                 new_pool = await aiomysql.create_pool(**self.conf_dict, charset='utf8', loop=asyncio.get_event_loop())
-                print('=== get_event_loop ===')
+                print('=== get_event_loop create new pool ===')
                 return new_pool
         except BaseException as e:
             print(f'创建连接池异常:{e}')
