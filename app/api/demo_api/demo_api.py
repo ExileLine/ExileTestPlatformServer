@@ -17,7 +17,16 @@ class TestApi(MethodView):
     """
 
     def get(self):
-        return api_result(code=200, message='GET: test api', data=True)
+        from common.libs.db import R, project_db
+
+        data = {
+            "redis_id": id(R),
+            "mysql_id": id(project_db),
+            "redis_query_id": id(R.get),
+            "mysql_query_id": id(project_db.select),
+            "threading": threading.get_ident()
+        }
+        return api_result(code=200, message='GET: test api', data=data)
 
     def post(self):
         data = request.get_json()
