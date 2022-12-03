@@ -108,6 +108,7 @@ class MyPyMysql(BaseDatabase):
         self.db = db
         self.is_pool = is_pool
         self.pool = pool
+        self.example_type = type(self.pool) if self.is_pool else None
         self.debug = debug
 
     def get_connection(self):
