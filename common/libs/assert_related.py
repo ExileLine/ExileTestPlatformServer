@@ -176,7 +176,7 @@ class AssertFieldMain(AssertMain):
         """连接:Mysql"""
 
         db = MyPyMysql(**self.db_connection, debug=True)  # MySql实例
-        ping = db.db_obj().open
+        ping = db.ping()
         return {
             "db": db,
             "cmd": "select"

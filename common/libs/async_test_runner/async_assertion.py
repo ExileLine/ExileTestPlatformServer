@@ -237,7 +237,7 @@ class DBUtil:
         """连接:Mysql"""
 
         db = MyPyMysql(**kwargs, debug=True)  # MySql实例
-        ping = db.db_obj().open
+        ping = db.ping()
         return {
             "db": db,
             "cmd": "select"
