@@ -20,8 +20,8 @@ class TestApi(MethodView):
         from common.libs.db import R, project_db
 
         data = {
-            "redis_id": id(R),
-            "mysql_id": id(project_db),
+            "redis_id": f"{id(R)}-{type(R)}",
+            "mysql_id": f"{id(project_db)}-{project_db.example_type}",
             "redis_query_id": id(R.get),
             "mysql_query_id": id(project_db.select),
             "threading": threading.get_ident()
