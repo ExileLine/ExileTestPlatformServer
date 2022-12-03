@@ -7,6 +7,7 @@
 
 import json
 import decimal
+from multiprocessing import cpu_count
 from abc import ABCMeta, abstractmethod
 from datetime import datetime
 
@@ -48,7 +49,7 @@ MYSQL_POOL = PooledDB(
     mincached=0,  # 初始化创建闲置连接线程数
     maxcached=0,  # 最大闲置连接线程数
     maxshared=0,
-    maxconnections=100,  # 允许最大连接数
+    maxconnections=cpu_count() * 2 + 1,  # 允许最大连接数(cpu核数*2+有效磁盘数)
     blocking=True,  # 阻塞是否等待，False则阻塞时候报错
     maxusage=None,  # 一个线程连接可以复用的次数，None表示无限制
     setsession=None,  #
@@ -82,65 +83,69 @@ def result_format(data):
 class BaseDatabase(metaclass=ABCMeta):
     """基类"""
 
-    @abstractmethod
-    def db_obj(self):
-        return
+    # @abstractmethod
+    # def db_obj(self):
+    #     return
 
 
 class MyPyMysql(BaseDatabase):
-    def __init__(self, host=None, port=None, user=None, password=None, db=None, pool=None, is_pool=None, debug=None):
+    def __init__(self, host=None, port=None, user=None, password=None, db=None, is_pool=None, pool=None, debug=None):
         """
 
-        :param host:
-        :param port:
-        :param user:
-        :param password:
-        :param db:
-        :param pool:
-        :param is_pool:
-        :param debug:
+        :param host: 地址
+        :param port: 端口
+        :param user: 用户
+        :param password: 密码
+        :param db: 数据库名称
+        :param is_pool: 是否连接池
+        :param pool: 连接池对象
+        :param debug: 调试
         """
         self.host = host
         self.port = port
         self.user = user
         self.password = password
         self.db = db
-        self.pool = pool
         self.is_pool = is_pool
+        self.pool = pool
         self.debug = debug
 
-    def db_obj(self):
+    def get_connection(self):
         """
-        返回db对象
+        获取连接
         :return:
         """
+
         try:
-            if self.is_pool:
-                return self.pool.connection()
-            else:
-                database_obj = pymysql.connect(
+            if self.is_pool:  # 从连接池获取连接
+                connection = self.pool.connection()
+                return connection
+            else:  # 直接连接
+                connection = pymysql.connect(
                     host=self.host,
                     port=self.port,
                     user=self.user,
                     password=self.password,
-                    db=self.db)
-                return database_obj
+                    db=self.db
+                )
+                return connection
         except BaseException as e:
-            return '连接数据库参数异常{}'.format(str(e) if self.debug else '')
+            message = f"{e if self.debug else ''}"
+            raise ConnectionAbortedError(f'连接数据库参数异常 {message}')
 
     def __send(self, sql):
         """执行语句"""
 
         try:
-            db = self.db_obj()
-            with db as db:
-                with db.cursor() as cur:
+            connection = self.get_connection()
+            with connection as conn:
+                with conn.cursor() as cur:
                     result = cur.execute(sql)
-                    db.commit()
+                    conn.commit()
             return result
         except BaseException as e:
             cur.rollback()
-            return f"执行错误:{str(e)}"
+            return f"执行错误:{e}"
 
     def insert(self, sql):
         return self.__send(sql)
@@ -161,9 +166,9 @@ class MyPyMysql(BaseDatabase):
         """
 
         try:
-            db = self.db_obj()
-            with db as db:
-                with db.cursor(pymysql.cursors.DictCursor) as cur:
+            connection = self.get_connection()
+            with connection as conn:
+                with conn.cursor(pymysql.cursors.DictCursor) as cur:
                     cur.execute(sql)  # 执行sql语句
                     if only and not size:  # 唯一结果返回 json/dict
                         query_result = cur.fetchone()
@@ -176,14 +181,15 @@ class MyPyMysql(BaseDatabase):
                         result = list(map(result_format, query_result))
             return result
         except BaseException as e:
-            return 'select:出现错误:{}'.format(str(e) if self.debug else '')
+            message = f"{e if self.debug else ''}"
+            return f'select:出现错误:{message}'
 
     def execute_sql(self, sql=None):
         """execute_sql"""
         try:
-            db = self.db_obj()
-            with db as db:
-                with db.cursor() as cur:
+            connection = self.get_connection()
+            with connection as conn:
+                with conn.cursor() as cur:
                     result = cur.execute(sql)
             return result
         except BaseException as e:
@@ -191,7 +197,12 @@ class MyPyMysql(BaseDatabase):
 
     def ping(self):
         """ping"""
-        return self.db_obj().open
+
+        if not self.is_pool:
+            connection = self.get_connection()
+            return connection.open
+        else:
+            return '连接池ping=0,执行前不需要ping通数据'
 
 
 class MyPostgreSql(BaseDatabase):
