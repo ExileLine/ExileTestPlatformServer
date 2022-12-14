@@ -52,7 +52,7 @@ class TestCeleryAsyncTaskApi(MethodView):
     def get(self):
         """调试Celery异步任务"""
         results1 = send_email.delay('yyx123')
-        results2 = send_msg.delay('yyx456')
+        # results2 = send_msg.delay('yyx456')
         print(results1)
-        print(results2)
-        return api_result(code=200, message='调试Celery异步任务')
+        # print(results2)
+        return api_result(code=200, message='调试Celery异步任务', data=[str(results1)])

@@ -98,10 +98,19 @@ class ClearCache:
         result2 = project_db.execute_sql("""TRUNCATE exile_test_execute_logs;""")
         return [result1, result2]
 
+    @classmethod
+    def clear_celery(cls):
+        """清空celery异步任务"""
+
+        R.select(2)
+        R.flushdb()
+        R.select(3)
+        R.flushdb()
+
 
 if __name__ == '__main__':
     ClearCache.clear_test_log()
     ClearCache.clear_first_log()
     ClearCache.clear_cicd()
     ClearCache.clear_exile_test_logs()
-    list(map(lambda x: R.delete(x), R.keys(pattern="zzzzzzzzzz_*")))
+    ClearCache.clear_celery()
