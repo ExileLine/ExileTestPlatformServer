@@ -13,10 +13,10 @@ from celery.result import AsyncResult
 from celery_app import cel
 
 
-def main():
+def main(n):
     """并发测试"""
     start_time = time.time()
-    for i in range(0, 300):
+    for i in range(0, n):
         headers = {
             'token': '123',
             'Content-Type': 'application/json'
@@ -89,5 +89,5 @@ if __name__ == '__main__':
             12.63s
     """
 
-    main()
+    main(120)
     # get_res(i="77efa261-d875-46a7-a546-f7ce0537d901")
