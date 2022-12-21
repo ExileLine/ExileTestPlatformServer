@@ -1,5 +1,5 @@
 [[source]]
-url = "https://mirrors.aliyun.com/pypi/simple"
+url = "https://pypi.doubanio.com/simple"
 verify_ssl = true
 name = "pypi"
 
@@ -23,6 +23,7 @@ pymssql = "*"
 dbutils = "*"
 aiomysql = "*"
 aioredis = "*"
+selenium = "*"
 
 [dev-packages]
 
