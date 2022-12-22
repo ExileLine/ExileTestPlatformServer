@@ -149,10 +149,9 @@ config_obj = {
 
 if __name__ == '__main__':
     print(config_obj['default'].DB_URI)
-
-    print(config_obj['default'].DB_URI)
-    print(config_obj['new'].DB_URI)
     print(config_obj['default'].R)
+
+    print(config_obj['new'].DB_URI)
     print(config_obj['new'].R)
 
     print(config_obj['new'].RUN_HOST)
