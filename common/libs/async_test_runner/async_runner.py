@@ -27,7 +27,7 @@ variable_type_dict = GlobalsDict.variable_type_dict(merge=False)
 
 
 # TODO: request_before; request_after
-
+# TODO: 异步任务中 aio_redis 执行一次后缺少事件循环的问题
 class AsyncCaseRunner:
     """
     异步用例执行
@@ -38,7 +38,7 @@ class AsyncCaseRunner:
         self.is_debug = is_debug
 
         self.aio_db = MyAioMySQL(conf_dict=MYSQL_CONF, debug=True)  # 异步Mysql
-        self.aio_redis = MyAioRedis(conf_dict=AIO_REDIS_CONF).redis  # 异步Redis
+        # self.aio_redis = MyAioRedis(is_pool=True, conf_dict=AIO_REDIS_CONF).redis  # 异步Redis
 
         self.test_obj = test_obj if test_obj else {}
         self.project_id = test_obj.get('project_id')  # 项目归属id
@@ -783,17 +783,17 @@ class AsyncCaseRunner:
         if self.is_debug:
             self.sio.log(f'=== json_str ===\n{json_str}')
 
-        # R.set(self.redis_key, json_str)
-        # R.expire(self.redis_key, 86400 * 30)
-        await self.aio_redis.set(self.redis_key, json_str)
-        await self.aio_redis.expire(self.redis_key, 86400 * 30)
+        R.set(self.redis_key, json_str)
+        R.expire(self.redis_key, 86400 * 30)
+        # await self.aio_redis.set(self.redis_key, json_str)
+        # await self.aio_redis.expire(self.redis_key, 86400 * 30)
 
         current_save_dict = GlobalsDict.redis_first_logs_dict(execute_id=self.execute_id)
         save_obj_first = current_save_dict.get(self.execute_type, "未知执行类型")
-        # R.set(save_obj_first, json_str)
-        # R.expire(save_obj_first, 86400 * 30)
-        await self.aio_redis.set(save_obj_first, json_str)
-        await self.aio_redis.expire(save_obj_first, 86400 * 30)
+        R.set(save_obj_first, json_str)
+        R.expire(save_obj_first, 86400 * 30)
+        # await self.aio_redis.set(save_obj_first, json_str)
+        # await self.aio_redis.expire(save_obj_first, 86400 * 30)
 
         self.sio.log('=== 生成日志写入Redis完成 ===', status="success")
 
