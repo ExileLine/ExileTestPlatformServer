@@ -43,23 +43,33 @@ class Token:
     """
     Token
     """
-    token = None
 
-    @classmethod
-    def gen_token(cls):
-        """生成token"""
-        token = str(uuid.uuid1()).replace('-', 'YYx')
+    def __init__(self):
+        self.token = None
+        self.mix = "Y"
+
+    def gen_token(self):
+        """
+        生成token
+        :return:
+        """
+
+        token = str(uuid.uuid1()).replace('-', self.mix)
+        self.token = token
         return token
 
-    @classmethod
-    def set_token(cls, user):
-        """缓存token"""
-        token = cls.gen_token()
-        cls.token = token
-        R.hmset('user:{}'.format(user), {'token': token})
-        R.set('token:{}'.format(token), user)
+    def set_token(self, user):
+        """
+        缓存token
+        :param user:
+        :return:
+        """
+
+        self.gen_token()
+        R.hset(name=f'user:{user}', mapping={"token": self.token})
+        R.set(f'token:{self.token}', user)
         R.expire('user:{}'.format(user), 3600 * 24 * 30)
-        R.expire('token:{}'.format(token), 3600 * 24 * 30)
+        R.expire(f'token:{self.token}', 3600 * 24 * 30)
 
     @classmethod
     def del_token(cls, token):
@@ -80,8 +90,8 @@ class Token:
             05885a4aYYxa18aYYx11ebYYxa1f9YYxacde48001122
         """
 
-        user = R.get('token:{}'.format(token))
-        kv = 'user:{}'.format(user)
+        user = R.get(f'token:{token}')
+        kv = f'user:{user}'
         user_token = R.hget(kv, 'token')
 
         """
@@ -93,13 +103,18 @@ class Token:
         if user and user_token:
             R.delete(user)
             R.delete(kv, 'token')
-            R.delete('token:{}'.format(user_token))
+            R.delete(f'token:{user_token}')
+            return True
         else:
-            pass
+            return False
 
-    @classmethod
-    def check_token(cls, user, user_id):
-        """检验token"""
+    def check_token(self, user, user_id):
+        """
+        检验token
+        :param user:
+        :param user_id:
+        :return:
+        """
 
         """
         Input:
@@ -108,12 +123,12 @@ class Token:
         Output:
             05885a4aYYxa18aYYx11ebYYxa1f9YYxacde48001122
         """
-        kv = 'user:{}'.format(user)
+        kv = f'user:{user}'
         user_token = R.hget(kv, 'token')
         if user_token:
-            cls.del_token(token=user_token)  # 删除旧token
+            self.del_token(token=user_token)  # 删除旧token
 
-        cls.set_token(user=user)  # 生成新的token
+        self.set_token(user=user)  # 生成新的token
         R.set(user, user_id, 3600 * 24 * 30)  # 用户(手机,名称等):id
 
 
