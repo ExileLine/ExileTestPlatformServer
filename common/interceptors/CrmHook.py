@@ -11,8 +11,7 @@ import json
 from flask import request, g
 from loguru import logger
 
-from app.models.admin.models import Admin
-from common.libs.auth import check_user, R, AdminRefreshCache
+from common.libs.auth import R, AdminRefreshCache
 from common.libs.public_func import print_logs
 from common.libs.customException import method_view_ab_code as ab_code
 
@@ -39,7 +38,6 @@ def crm_before_request():
             # print(token)
             # 通过 token 查找 user
             # 将 user 存放在全局 g 对象中
-            check_user(token=token, model=Admin)
 
             admin_id = g.app_user.id
             admin_auth_result = R.get('auth:{}'.format(admin_id))

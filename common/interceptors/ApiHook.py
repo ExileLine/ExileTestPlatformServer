@@ -13,7 +13,7 @@ from flask import request, g
 
 from app.models.admin.models import Admin
 from common.libs.public_func import print_logs
-from common.libs.auth import check_user
+from common.libs.auth import Token
 from common.libs.customException import method_view_ab_code as ab_code
 from common.interceptors.ProjectHook import check_project_auth
 
@@ -32,8 +32,8 @@ def api_before_request():
         return
 
     if '/api' in request.path:
-        is_token = request.headers.get('Token', None)  # 是否存在token
-        logger.info('headers是否存在key:token -> {}'.format(is_token))
+        token = request.headers.get('token', '')
+        logger.info(f'headers token -> {token}')
 
         # TODO 开发环境忽略鉴权
         if (request.host.split(':')[0] in dev_host_list) or (request.path in open_api_list):
@@ -50,12 +50,12 @@ def api_before_request():
             # return check_project_auth()
             return
 
-        if not is_token:
+        user_info = Token.get_user_info(token=token)
+        if not user_info:
+            g.app_user = None
             ab_code(401)
 
-        token = request.headers.get('token', '')  # 提取token
-        logger.info('{}'.format(token))
-        check_user(token=token, model=Admin)  # 通过 token 查找 user,将 user 存放在全局 g 对象中
+        g.app_user = type('UserInfo', (object,), user_info)
 
 
 def api_after_request(response):
