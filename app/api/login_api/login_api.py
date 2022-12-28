@@ -42,11 +42,11 @@ class LoginApi(MethodView):
         t = Token()
         t.check_token(user=admin.username, user_id=admin.id)
         admin_obj['token'] = t.token
-        return api_result(code=200, message='登录成功', data=admin_obj)
+        return api_result(code=SUCCESS, message='登录成功', data=admin_obj)
 
     def delete(self):
         """退出"""
 
-        # print(request.headers.get('Token'))
-        Token.del_token(request.headers.get('Token'))
-        return api_result(code=DEL_SUCCESS, message='退出成功')
+        token = request.headers.get('token')
+        Token.del_token(token)
+        return api_result(code=DEL_SUCCESS, message='退出成功', data={"token": token})

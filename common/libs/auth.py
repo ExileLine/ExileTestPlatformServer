@@ -47,6 +47,7 @@ class Token:
     def __init__(self):
         self.token = None
         self.mix = "Y"
+        self.timeout = 3600 * 24 * 30
 
     def gen_token(self):
         """
@@ -68,8 +69,8 @@ class Token:
         self.gen_token()
         R.hset(name=f'user:{user}', mapping={"token": self.token})
         R.set(f'token:{self.token}', user)
-        R.expire('user:{}'.format(user), 3600 * 24 * 30)
-        R.expire(f'token:{self.token}', 3600 * 24 * 30)
+        R.expire(f'user:{user}', self.timeout)
+        R.expire(f'token:{self.token}', self.timeout)
 
     @classmethod
     def del_token(cls, token):
