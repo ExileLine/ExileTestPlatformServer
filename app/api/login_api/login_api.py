@@ -36,11 +36,11 @@ class LoginApi(MethodView):
             return api_result(code=BUSINESS_ERROR, message='密码错误')
 
         """
-        检查是否存在旧token并且生成新token覆盖旧token,或创建一个新的token。然后添加至返回值。
+        检查是否存在旧token并且生成新token覆盖旧token,或创建一个新的token,然后添加至返回值.
         """
         admin_obj = admin.to_json()
         t = Token()
-        t.check_token(user=admin.username, user_id=admin.id)
+        t.refresh_cache(user_info=admin_obj)
         admin_obj['token'] = t.token
         return api_result(code=SUCCESS, message='登录成功', data=admin_obj)
 
@@ -48,5 +48,5 @@ class LoginApi(MethodView):
         """退出"""
 
         token = request.headers.get('token')
-        Token.del_token(token)
+        Token.del_cache(token)
         return api_result(code=DEL_SUCCESS, message='退出成功', data={"token": token})
