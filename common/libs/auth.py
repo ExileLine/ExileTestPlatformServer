@@ -8,11 +8,9 @@
 import json
 import uuid
 
-from flask import g
 from loguru import logger
 
 from common.libs.db import project_db, R
-from common.libs.customException import method_view_ab_code as ab_code
 from app.models.admin.models import Admin, Role, Permission, MidAdminAndRole, MidPermissionAndRole, ApiResource
 
 """
