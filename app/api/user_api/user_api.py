@@ -51,14 +51,14 @@ class TouristApi(MethodView):
         print('===query_tourist===', query_tourist)
 
         if query_tourist:
-            return api_result(code=200, message='操作成功', data=json.loads(query_tourist))
+            return api_result(code=SUCCESS, message='操作成功', data=json.loads(query_tourist))
 
         code = str(Admin.query.count() + 1).zfill(5)  # TODO
         username = "user_{}".format(code)
         password = shortuuid.uuid()[0:6]
         query_user = Admin.query.filter_by(username=username).first()
         if query_user:
-            username = "user_{}".format(code)
+            username = f"user_{code}"
 
         new_admin = Admin(
             username=username,
@@ -77,7 +77,7 @@ class TouristApi(MethodView):
         }
 
         R.set(user_ip, json.dumps(tourist_obj))
-        return api_result(code=200, message='操作成功', data=tourist_obj)
+        return api_result(code=SUCCESS, message='操作成功', data=tourist_obj)
 
 
 class UserApi(MethodView):
@@ -221,20 +221,20 @@ class UserPasswordApi(MethodView):
         user = Admin.query.get(user_id)
 
         if not user:
-            return api_result(code=400, message="用户:{} 不存在".format(user_id))
+            return api_result(code=NO_DATA, message=f"用户: {user_id} 不存在")
 
         if not user.check_password(old_password):
-            return api_result(code=400, message="旧密码错误")
+            return api_result(code=BUSINESS_ERROR, message="旧密码错误")
 
         if new_password != raw_password:
-            return api_result(code=400, message="新密码不一致")
+            return api_result(code=BUSINESS_ERROR, message="新密码不一致")
 
         user.password = new_password
         user.modifier = g.app_user.username
         user.modifier_id = g.app_user.id
         db.session.commit()
 
-        return api_result(code=201, message='操作成功')
+        return api_result(code=POST_SUCCESS, message='操作成功')
 
     def put(self):
         """重置密码"""
@@ -256,7 +256,7 @@ class UserPasswordApi(MethodView):
         user.modifier_id = g.app_user.id
         db.session.commit()
         # TODO 邮件发送,短信
-        return api_result(code=203, message='操作成功', data=[new_password])
+        return api_result(code=PUT_SUCCESS, message='操作成功', data=[new_password])
 
 
 class UserProfileApi(MethodView):
