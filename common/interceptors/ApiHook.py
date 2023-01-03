@@ -14,6 +14,7 @@ from flask import request, g
 from app.models.admin.models import Admin
 from common.libs.public_func import print_logs
 from common.libs.auth import Token
+from common.libs.api_result import Unauthorized
 from common.libs.customException import method_view_ab_code as ab_code
 from common.interceptors.ProjectHook import check_project_auth
 
@@ -53,7 +54,7 @@ def api_before_request():
         user_info = Token.get_user_info(token=token)
         if not user_info:
             g.app_user = None
-            ab_code(401)
+            ab_code(Unauthorized)
 
         g.app_user = type('UserInfo', (object,), user_info)
 

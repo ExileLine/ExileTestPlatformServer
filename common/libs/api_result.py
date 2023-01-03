@@ -13,6 +13,8 @@ POST_SUCCESS = 201
 PUT_SUCCESS = 203
 DEL_SUCCESS = 204
 
+Unauthorized = 401  # 未授权
+
 REQUIRED = 10001  # 必传
 NO_DATA = 10002  # 未找到
 UNIQUE_ERROR = 10003  # 唯一校验
