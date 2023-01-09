@@ -90,35 +90,66 @@ meta_data = [
                 "index": 1,
                 "type": "logic_control",
                 "function": "for",
-                "args": {
-                    "business_list": [
-                        {
-                            "index": 1,
-                            "type": "ui_control",
-                            "desc": "输入控件",
-                            "function": "input",
-                            "args": {
-                                "username": "admin"
+                "num": 3,
+                "data_source": [],
+                "action": [
+                    {
+                        "index": 1,
+                        "type": "ui_control",
+                        "desc": "输入控件A",
+                        "function": "input",
+                        "args": {
+                            "username": "admin"
+                        }
+                    },
+                    {
+                        "index": 2,
+                        "type": "ui_control",
+                        "desc": "输入控件B",
+                        "function": "input",
+                        "args": {
+                            "password": "123456"
+                        }
+                    },
+                    {
+                        "index": 3,
+                        "type": "ui_control",
+                        "desc": "点击控件C",
+                        "function": "click",
+                        "args": {}
+                    },
+                    {
+                        "index": 4,
+                        "type": "logic",
+                        "desc": "循环二(逻辑块)",
+                        "function": "for",
+                        "num": 5,
+                        "data_source": [],
+                        "action": [
+                            {
+                                "index": 11,
+                                "type": "ui_control",
+                                "desc": "点击控件X",
+                                "function": "click",
+                                "args": {}
+                            },
+                            {
+                                "index": 22,
+                                "type": "ui_control",
+                                "desc": "点击控件Y",
+                                "function": "click",
+                                "args": {}
+                            },
+                            {
+                                "index": 33,
+                                "type": "ui_control",
+                                "desc": "点击控件Z",
+                                "function": "click",
+                                "args": {}
                             }
-                        },
-                        {
-                            "index": 2,
-                            "type": "ui_control",
-                            "desc": "输入控件",
-                            "function": "input",
-                            "args": {
-                                "password": "123456"
-                            }
-                        },
-                        {
-                            "index": 3,
-                            "type": "ui_control",
-                            "desc": "点击控件",
-                            "function": "click",
-                            "args": {}
-                        },
-                    ]
-                }
+                        ]
+                    },
+                ]
             },
             {
                 "index": 2,
@@ -138,5 +169,148 @@ meta_data = [
     }
 ]
 
+ccc = {
+          "index": 5,
+          "title": "循环二(业务块)",
+          "type": "master",
+          "business_list": [
+              {
+                  "index": 1,
+                  "type": "ui_control",
+                  "desc": "点击控件",
+                  "function": "click",
+                  "args": {
+                      "business_list": [
+                          {
+                              "index": 1,
+                              "title": "循环三",
+                              "type": "master",
+                              "business_list": [
+                                  {
+                                      "index": 1,
+                                      "type": "ui_control",
+                                      "desc": "点击控件",
+                                      "function": "click",
+                                      "args": {
+                                          "business_list": [
+
+                                          ]
+                                      }
+                                  }
+                              ]
+                          }
+                      ]
+                  }
+              }
+          ]
+      },
+
+
+class CustomLogic:
+    """自定义逻辑"""
+
+    @classmethod
+    def _if(cls, _b: any) -> bool:
+        """if"""
+
+        if _b:
+            return True
+        else:
+            return False
+
+    @classmethod
+    def _for(cls, business_list: list, *args):
+        """for"""
+
+        for b in business_list:
+            print(b, args)
+
+    @classmethod
+    def _try(cls, _t, _e):
+        """try"""
+
+        try:
+            _t
+        except BaseException as e:
+            _e
+
+
+logic_dict = {
+    "if": CustomLogic._if,
+    "for": CustomLogic._for,
+    "try": CustomLogic._try
+}
+
+
+def get_logic(business_dict: dict) -> any:
+    """
+
+    :param business_dict: 逻辑块对象
+    :return:
+    """
+
+    business_type = business_dict.get('type')
+    business_function = business_dict.get('function')
+    logic_function = logic_dict.get(business_function)
+
+    if business_type == 'logic_control' and logic_function:
+        return logic_function
+
+
+def __for_func(action_list: list, num: int = 0, data_list: list = None, t: int = 0, first: bool = True):
+    """1"""
+
+    for i in range(1, num + 1):
+        for index, ac in enumerate(action_list, 1):
+            ac_function = ac.get('function')
+            if ac_function == 'for':
+                print('=== ac_function ===', ac)
+                ac_num = ac.get('num')
+                ac_action = ac.get('action')
+                __for_func(action_list=ac_action, num=ac_num, t=i, first=False)
+            else:
+                if first:
+                    print(f">>>{i}", ac, first)
+                else:
+                    print(f">>>{t}", ac, first)
+    print('\n')
+
+
+def test_001(l):
+    """1"""
+
+    for m in l:
+        business_title = m.get('title')
+        business_list = m.get('business_list')
+        print(business_title)
+        print(business_list)
+        if business_list:
+            test_001(business_list)
+        else:
+            function = m.get('function')
+            m_action = m.get('action')
+            if function == 'for':
+                m_num = m.get('num')
+                print('=== 执行 ===')
+                __for_func(action_list=m_action, num=m_num, t=1)
+            else:
+                print(">>>", m)
+                logic_function = get_logic(business_dict=m)
+                print(">>>", logic_function, m_action, '\n')
+
+
 if __name__ == '__main__':
-    print(json.dumps(meta_data, ensure_ascii=False))
+    # print(json.dumps(meta_data, ensure_ascii=False))
+    l1 = meta_data[2].get('business_list')[0]
+    # print(l1)
+
+    l_for = meta_data[2].get('business_list')[0]
+    print(l_for)
+    l = l_for.get('business_list')
+    # print(l)
+
+    # cl = logic_dict.get('for')(l)
+    # cl = CustomLogic()
+    # cl._for(l)
+
+    test_001(l=meta_data)
