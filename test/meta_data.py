@@ -8,7 +8,7 @@
 
 import json
 
-ccc = {
+child_master = {
     "index": 5,
     "title": "循环四(业务块)",
     "type": "master",
@@ -30,7 +30,7 @@ ccc = {
                 {
                     "index": 771,
                     "type": "ui_control",
-                    "desc": "循环四-内循环-点击控件1",
+                    "desc": "循环四-内循环-点击控件2",
                     "function": "click",
                     "args": {}
                 }
@@ -154,27 +154,27 @@ meta_data = [
                         "type": "logic",
                         "desc": "循环二(逻辑块)",
                         "function": "for",
-                        "num": 5,
+                        "num": 3,
                         "data_source": [],
                         "action": [
                             {
                                 "index": 11,
                                 "type": "ui_control",
-                                "desc": "点击控件X",
+                                "desc": "点击控件X-3",
                                 "function": "click",
                                 "args": {}
                             },
                             {
                                 "index": 22,
                                 "type": "ui_control",
-                                "desc": "点击控件Y",
+                                "desc": "点击控件Y-3",
                                 "function": "click",
                                 "args": {}
                             },
                             {
                                 "index": 33,
                                 "type": "ui_control",
-                                "desc": "点击控件Z",
+                                "desc": "点击控件Z-3",
                                 "function": "click",
                                 "args": {}
                             },
@@ -189,14 +189,14 @@ meta_data = [
                                     {
                                         "index": 3331,
                                         "type": "ui_control",
-                                        "desc": "===点击控件OKC-1===",
+                                        "desc": "===点击控件OKC===2",
                                         "function": "click",
                                         "args": {}
                                     },
                                     {
                                         "index": 3332,
                                         "type": "ui_control",
-                                        "desc": "===点击控件OKC-2===",
+                                        "desc": "===点击控件LOL===2",
                                         "function": "click",
                                         "args": {}
                                     },
@@ -204,7 +204,7 @@ meta_data = [
                             }
                         ]
                     },
-                    ccc
+                    child_master
                 ]
             },
             {
@@ -277,14 +277,16 @@ def get_logic(business_dict: dict) -> any:
         return logic_function
 
 
-def __for_func(action_list: list, data_list: list = None, num: int = 0, t: int = 0, first: bool = True) -> None:
+def __for_func(action_list: list, data_list: list = None, num: int = 0, deep_num: int = 0, first: bool = True,
+               master_function=None) -> None:
     """
 
     :param action_list: 任务列表
     :param data_list: 数据列表
     :param num: 轮次(data_list为空时使用,否则按照数据列表长度作为循序次数)
-    :param t: 子循环的轮次
+    :param deep_num: 子循环的轮次
     :param first: 是否首次循环
+    :param master_function:
     :return:
     """
 
@@ -297,16 +299,19 @@ def __for_func(action_list: list, data_list: list = None, num: int = 0, t: int =
             if ac_function == 'for':
                 ac_num = ac.get('num')
                 ac_action = ac.get('action')
-                __for_func(action_list=ac_action, num=ac_num, t=i, first=False)
+                __for_func(action_list=ac_action, num=ac_num, deep_num=i, first=False, master_function=master_function)
             else:
-
-                """
-                selenium 逻辑操作...
-                """
-                if first:
-                    print(f">>>{i}", ac, first)
+                ac_type = ac.get('type')
+                if ac_type == 'master':
+                    master_function([ac])
                 else:
-                    print(f">>>{t}", ac, first)
+                    """
+                    selenium 逻辑操作...
+                    """
+                    if first:
+                        print(f">>>{i}", ac, first)
+                    else:
+                        print(f">>>{deep_num}", ac, first)
 
         if first:
             print(f'=== 第 {i} 轮结束 ===\n')
@@ -318,8 +323,8 @@ def test_001(test_data: list):
     for m in test_data:
         business_title = m.get('title')
         business_list = m.get('business_list')
-        print(business_title)
-        print(business_list)
+        # print(business_title)
+        # print(business_list)
         if business_list:
             test_001(business_list)
         else:
@@ -330,7 +335,7 @@ def test_001(test_data: list):
             m_action = m.get('action')
             if function == 'for':
                 m_num = m.get('num')
-                __for_func(action_list=m_action, num=m_num, t=1)
+                __for_func(action_list=m_action, num=m_num, deep_num=1, master_function=test_001)
             else:
                 """
                 普通 function 执行
@@ -341,7 +346,7 @@ def test_001(test_data: list):
 
 
 if __name__ == '__main__':
-    # print(json.dumps(meta_data, ensure_ascii=False))
+    print(json.dumps(meta_data, ensure_ascii=False))
     l1 = meta_data[2].get('business_list')[0]
     print(l1)
     test_001(test_data=meta_data)
