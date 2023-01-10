@@ -8,6 +8,37 @@
 
 import json
 
+ccc = {
+    "index": 5,
+    "title": "循环四(业务块)",
+    "type": "master",
+    "business_list": [
+        {
+            "index": 1,
+            "type": "ui_control",
+            "desc": "循环四-点击控件1",
+            "function": "click",
+            "args": {}
+        },
+        {
+            "index": 2,
+            "type": "logic_control",
+            "function": "for",
+            "num": 2,
+            "data_source": [],
+            "action": [
+                {
+                    "index": 771,
+                    "type": "ui_control",
+                    "desc": "循环四-内循环-点击控件1",
+                    "function": "click",
+                    "args": {}
+                }
+            ]
+        }
+    ]
+}
+
 meta_data = [
     {
         "index": 1,
@@ -90,7 +121,7 @@ meta_data = [
                 "index": 1,
                 "type": "logic_control",
                 "function": "for",
-                "num": 3,
+                "num": 2,  # 调试
                 "data_source": [],
                 "action": [
                     {
@@ -146,9 +177,34 @@ meta_data = [
                                 "desc": "点击控件Z",
                                 "function": "click",
                                 "args": {}
+                            },
+                            {
+                                "index": 44,
+                                "type": "logic",
+                                "desc": "循环三(逻辑块)",
+                                "function": "for",
+                                "num": 2,
+                                "data_source": [],
+                                "action": [
+                                    {
+                                        "index": 3331,
+                                        "type": "ui_control",
+                                        "desc": "===点击控件OKC-1===",
+                                        "function": "click",
+                                        "args": {}
+                                    },
+                                    {
+                                        "index": 3332,
+                                        "type": "ui_control",
+                                        "desc": "===点击控件OKC-2===",
+                                        "function": "click",
+                                        "args": {}
+                                    },
+                                ]
                             }
                         ]
                     },
+                    ccc
                 ]
             },
             {
@@ -168,42 +224,6 @@ meta_data = [
         ]
     }
 ]
-
-ccc = {
-          "index": 5,
-          "title": "循环二(业务块)",
-          "type": "master",
-          "business_list": [
-              {
-                  "index": 1,
-                  "type": "ui_control",
-                  "desc": "点击控件",
-                  "function": "click",
-                  "args": {
-                      "business_list": [
-                          {
-                              "index": 1,
-                              "title": "循环三",
-                              "type": "master",
-                              "business_list": [
-                                  {
-                                      "index": 1,
-                                      "type": "ui_control",
-                                      "desc": "点击控件",
-                                      "function": "click",
-                                      "args": {
-                                          "business_list": [
-
-                                          ]
-                                      }
-                                  }
-                              ]
-                          }
-                      ]
-                  }
-              }
-          ]
-      },
 
 
 class CustomLogic:
@@ -257,29 +277,45 @@ def get_logic(business_dict: dict) -> any:
         return logic_function
 
 
-def __for_func(action_list: list, num: int = 0, data_list: list = None, t: int = 0, first: bool = True):
-    """1"""
+def __for_func(action_list: list, data_list: list = None, num: int = 0, t: int = 0, first: bool = True) -> None:
+    """
+
+    :param action_list: 任务列表
+    :param data_list: 数据列表
+    :param num: 轮次(data_list为空时使用,否则按照数据列表长度作为循序次数)
+    :param t: 子循环的轮次
+    :param first: 是否首次循环
+    :return:
+    """
 
     for i in range(1, num + 1):
+        if first:
+            print(f'=== 第 {i} 轮开始 ===')
+
         for index, ac in enumerate(action_list, 1):
             ac_function = ac.get('function')
             if ac_function == 'for':
-                print('=== ac_function ===', ac)
                 ac_num = ac.get('num')
                 ac_action = ac.get('action')
                 __for_func(action_list=ac_action, num=ac_num, t=i, first=False)
             else:
+
+                """
+                selenium 逻辑操作...
+                """
                 if first:
                     print(f">>>{i}", ac, first)
                 else:
                     print(f">>>{t}", ac, first)
-    print('\n')
+
+        if first:
+            print(f'=== 第 {i} 轮结束 ===\n')
 
 
-def test_001(l):
-    """1"""
+def test_001(test_data: list):
+    """测试"""
 
-    for m in l:
+    for m in test_data:
         business_title = m.get('title')
         business_list = m.get('business_list')
         print(business_title)
@@ -287,13 +323,18 @@ def test_001(l):
         if business_list:
             test_001(business_list)
         else:
+            """
+            for function 特殊处理
+            """
             function = m.get('function')
             m_action = m.get('action')
             if function == 'for':
                 m_num = m.get('num')
-                print('=== 执行 ===')
                 __for_func(action_list=m_action, num=m_num, t=1)
             else:
+                """
+                普通 function 执行
+                """
                 print(">>>", m)
                 logic_function = get_logic(business_dict=m)
                 print(">>>", logic_function, m_action, '\n')
@@ -302,15 +343,5 @@ def test_001(l):
 if __name__ == '__main__':
     # print(json.dumps(meta_data, ensure_ascii=False))
     l1 = meta_data[2].get('business_list')[0]
-    # print(l1)
-
-    l_for = meta_data[2].get('business_list')[0]
-    print(l_for)
-    l = l_for.get('business_list')
-    # print(l)
-
-    # cl = logic_dict.get('for')(l)
-    # cl = CustomLogic()
-    # cl._for(l)
-
-    test_001(l=meta_data)
+    print(l1)
+    test_001(test_data=meta_data)
