@@ -255,11 +255,56 @@ class CustomLogic:
             _e
 
 
-logic_dict = {
-    "if": CustomLogic._if,
-    "for": CustomLogic._for,
-    "try": CustomLogic._try
-}
+def control_dict_init() -> dict:
+    web_ui_control_dict = {
+        "open": "",
+        "input": "",
+        "click": ""
+    }
+
+    api_control_dict = {
+        "api": "",
+        "api3": ""
+    }
+
+    assert_control_dict = {
+        "assert_ui": "",
+        "assert_api": "",
+        "assert_db": ""
+    }
+
+    logic_control_dict = {
+        "if": CustomLogic._if,
+        "for": CustomLogic._for,
+        "try": CustomLogic._try
+    }
+
+    message_control_dict = {
+        "ding_ding": "",
+        "wechat": ""
+    }
+
+    middle_control_dict = {
+        "redis": "",
+        "mq": "",
+        "kafka": ""
+    }
+
+    control_dict = {}
+    mg = [
+        web_ui_control_dict,
+        api_control_dict,
+        assert_control_dict,
+        logic_control_dict,
+        message_control_dict,
+        middle_control_dict
+    ]
+    for cd in mg:
+        control_dict.update(cd)
+    return control_dict
+
+
+control_dict = control_dict_init()
 
 
 def get_logic(business_dict: dict) -> any:
@@ -271,7 +316,7 @@ def get_logic(business_dict: dict) -> any:
 
     business_type = business_dict.get('type')
     business_function = business_dict.get('function')
-    logic_function = logic_dict.get(business_function)
+    logic_function = control_dict.get(business_function)
 
     if business_type == 'logic_control' and logic_function:
         return logic_function
@@ -350,3 +395,5 @@ if __name__ == '__main__':
     l1 = meta_data[2].get('business_list')[0]
     print(l1)
     test_001(test_data=meta_data)
+
+    print(control_dict)
