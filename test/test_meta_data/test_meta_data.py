@@ -1,18 +1,10 @@
 # -*- coding: utf-8 -*-
-# @Time    : 2023/1/4 14:36
+# @Time    : 2023/1/12 14:26
 # @Author  : yangyuexiong
 # @Email   : yang6333yyx@126.com
-# @File    : meta_data.py
+# @File    : test_meta_data.py
 # @Software: PyCharm
 
-
-import json
-
-from common.libs.BaseWebDriver import BaseWebDriver
-
-web_ui_lib_dict = {
-    "selenium": BaseWebDriver
-}
 
 child_master = {
     "index": 5,
@@ -57,7 +49,7 @@ meta_data = [
                 "desc": "启动浏览器控件",
                 "function": "open",
                 "args": {
-                    "url": "https://www.github.com"
+                    "url": "http://localhost:3200/login"
                 }
             },
         ]
@@ -230,192 +222,8 @@ meta_data = [
         ]
     }
 ]
-
-
-class WebUiDriver:
-    """1"""
-
-
-class CustomLogic:
-    """自定义逻辑"""
-
-    @classmethod
-    def _if(cls, _b: any) -> bool:
-        """if"""
-
-        if _b:
-            return True
-        else:
-            return False
-
-    @classmethod
-    def _for(cls, business_list: list, *args):
-        """for"""
-
-        for b in business_list:
-            print(b, args)
-
-    @classmethod
-    def _try(cls, _t, _e):
-        """try"""
-
-        try:
-            _t
-        except BaseException as e:
-            _e
-
-
-class ControlFunction:
-    """控件方法字典类"""
-
-    web_ui_control_dict = {
-        "open": "open",
-        "input": "input",
-        "click": "click"
-    }
-
-    api_control_dict = {
-        "api": "",
-        "api3": ""
-    }
-
-    assert_control_dict = {
-        "assert_ui": "",
-        "assert_api": "",
-        "assert_db": ""
-    }
-
-    logic_control_dict = {
-        "if": CustomLogic._if,
-        "for": CustomLogic._for,
-        "try": CustomLogic._try
-    }
-
-    message_control_dict = {
-        "ding_ding": "",
-        "wechat": ""
-    }
-
-    middle_control_dict = {
-        "redis": "",
-        "mq": "",
-        "kafka": ""
-    }
-
-
-control_dict = {
-    "ui_control": ControlFunction.web_ui_control_dict,
-    "api_control": ControlFunction.api_control_dict,
-    "assert_control": ControlFunction.assert_control_dict,
-    "logic_control": ControlFunction.logic_control_dict,
-    "message_control": ControlFunction.message_control_dict,
-    "middle_control": ControlFunction.middle_control_dict
-}
-
-
-def query_function(business_dict: dict) -> any:
-    """
-    获取控件映射的方法
-    :param business_dict: 控件json对象
-    :return:
-    """
-
-    business_type = business_dict.get('type')
-    business_function = business_dict.get('function')
-    function_name = control_dict.get(business_type).get(business_function)  # .get('ui_control').get('open')
-
-    if not function_name:
-        print(f"{business_type} 或 {business_function} 不存在")
-        return None
-    return function_name
-
-
-def for_func(action_list: list, data_list: list = None, num: int = 0, deep_num: int = 0, first: bool = True,
-             master_function=None) -> None:
-    """
-    for递归
-    :param action_list: 任务列表
-    :param data_list: 数据列表
-    :param num: 轮次(data_list为空时使用,否则按照数据列表长度作为循序次数)
-    :param deep_num: 子循环的轮次
-    :param first: 是否首次循环
-    :param master_function:
-    :return:
-    """
-
-    for i in range(1, num + 1):
-        if first:
-            print(f'=== 第 {i} 轮开始 ===')
-
-        for index, ac in enumerate(action_list, 1):
-            ac_function = ac.get('function')
-            if ac_function == 'for':
-                ac_num = ac.get('num')
-                ac_action = ac.get('action')
-                for_func(action_list=ac_action, num=ac_num, deep_num=i, first=False, master_function=master_function)
-            else:
-                ac_type = ac.get('type')
-                if ac_type == 'master':
-                    master_function([ac])
-                else:
-                    """
-                    selenium 逻辑操作...
-                    """
-                    if first:
-                        print(f">>>{i}", ac, first)
-                    else:
-                        print(f">>>{deep_num}", ac, first)
-
-        if first:
-            print(f'=== 第 {i} 轮结束 ===\n')
-
-
-def recursion_main(data_list: list):
-    """主递归"""
-
-    for data in data_list:
-        business_title = data.get('title')
-        business_list = data.get('business_list')
-        if business_list:
-            recursion_main(data_list=business_list)
-        else:
-            """
-            for function 特殊处理
-            """
-            function = data.get('function')
-            m_action = data.get('action')
-            if function == 'for':
-                m_num = data.get('num')
-                for_func(action_list=m_action, num=m_num, deep_num=1, master_function=recursion_main)
-            else:
-                """
-                普通 function 执行
-                """
-                function_name = query_function(business_dict=data)
-                print(">>>", data)
-                print("普通 function 执行>>>", function, m_action, '\n')
-
-
-class RpaMain(WebUiDriver):
-    """rpa"""
-
-    def __init__(self, data_list: list):
-        """
-
-        :param data_list:
-        """
-
-        self.data_list = data_list
-
-    def main(self):
-        """main"""
-
-        recursion_main(data_list=self.data_list)
-
-
 if __name__ == '__main__':
-    print(json.dumps(meta_data, ensure_ascii=False))
-    print(control_dict)
+    from common.libs.BaseWebDriver import BaseWebDriver
 
-    rpa_main = RpaMain(data_list=meta_data)
-    rpa_main.main()
+    bwd = BaseWebDriver()
+    bwd.open(url='http://localhost:3200/login')
