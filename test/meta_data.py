@@ -37,7 +37,7 @@ child_master = {
             "function": "for",
             "num": 2,
             "data_source": [],
-            "action": [
+            "business_list": [
                 {
                     "uuid": shortuuid.uuid(),
                     "index": 771,
@@ -147,7 +147,7 @@ meta_data = [
                 "function": "for",
                 "num": 2,  # 调试
                 "data_source": [],
-                "action": [
+                "business_list": [
                     {
                         "uuid": shortuuid.uuid(),
                         "index": 1,
@@ -184,7 +184,7 @@ meta_data = [
                         "function": "for",
                         "num": 3,
                         "data_source": [],
-                        "action": [
+                        "business_list": [
                             {
                                 "uuid": shortuuid.uuid(),
                                 "index": 11,
@@ -217,7 +217,7 @@ meta_data = [
                                 "function": "for",
                                 "num": 2,
                                 "data_source": [],
-                                "action": [
+                                "business_list": [
                                     {
                                         "uuid": shortuuid.uuid(),
                                         "index": 3331,
@@ -381,7 +381,7 @@ def for_func(action_list: list, data_list: list = None, num: int = 0, deep_num: 
             ac_function = ac.get('function')
             if ac_function == 'for':
                 ac_num = ac.get('num')
-                ac_action = ac.get('action')
+                ac_action = ac.get('business_list')
                 for_func(action_list=ac_action, num=ac_num, deep_num=i, first=False, master_function=master_function)
             else:
                 ac_type = ac.get('type')
@@ -405,25 +405,26 @@ def recursion_main(data_list: list):
 
     for data in data_list:
         business_title = data.get('title')
+        data_type = data.get('type')
         business_list = data.get('business_list')
-        if business_list:
+        if data_type == "master" and business_list:
             recursion_main(data_list=business_list)
         else:
-            """
-            for function 特殊处理
-            """
             function = data.get('function')
-            m_action = data.get('action')
+            child_business_list = data.get('business_list')
             if function == 'for':
-                m_num = data.get('num')
-                for_func(action_list=m_action, num=m_num, deep_num=1, master_function=recursion_main)
+                """
+                for function 特殊处理
+                """
+                for_num = data.get('num')
+                for_func(action_list=child_business_list, num=for_num, deep_num=1, master_function=recursion_main)
             else:
                 """
                 普通 function 执行
                 """
                 function_name = query_function(business_dict=data)
                 print(">>>", data)
-                print("普通 function 执行>>>", function, m_action, '\n')
+                print("普通 function 执行>>>", function, child_business_list, '\n')
 
 
 class RpaMain(WebUiDriver):
