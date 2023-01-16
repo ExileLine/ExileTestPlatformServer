@@ -7,6 +7,7 @@
 
 
 import json
+import shortuuid
 
 from common.libs.BaseWebDriver import BaseWebDriver
 
@@ -15,28 +16,33 @@ web_ui_lib_dict = {
 }
 
 child_master = {
+    "uuid": shortuuid.uuid(),
     "index": 5,
     "title": "循环四(业务块)",
     "type": "master",
     "business_list": [
         {
+            "uuid": shortuuid.uuid(),
             "index": 1,
             "type": "ui_control",
-            "desc": "循环四-点击控件1",
+            "title": "循环四-点击控件1",
             "function": "click",
             "args": {}
         },
         {
+            "uuid": shortuuid.uuid(),
             "index": 2,
             "type": "logic_control",
+            "title": "循环控件",
             "function": "for",
             "num": 2,
             "data_source": [],
             "action": [
                 {
+                    "uuid": shortuuid.uuid(),
                     "index": 771,
                     "type": "ui_control",
-                    "desc": "循环四-内循环-点击控件2",
+                    "title": "循环四-内循环-点击控件2",
                     "function": "click",
                     "args": {}
                 }
@@ -47,14 +53,16 @@ child_master = {
 
 meta_data = [
     {
+        "uuid": shortuuid.uuid(),
         "index": 1,
         "title": "开始",
         "type": "master",
         "business_list": [
             {
+                "uuid": shortuuid.uuid(),
                 "index": 1,
                 "type": "ui_control",
-                "desc": "启动浏览器控件",
+                "title": "启动浏览器控件",
                 "function": "open",
                 "args": {
                     "url": "https://www.github.com"
@@ -63,43 +71,50 @@ meta_data = [
         ]
     },
     {
+        "uuid": shortuuid.uuid(),
         "index": 2,
         "title": "登录",
         "type": "master",
         "business_list": [
             {
+                "uuid": shortuuid.uuid(),
                 "index": 1,
                 "type": "ui_control",
-                "desc": "输入控件",
+                "title": "输入控件",
                 "function": "input",
                 "args": {
                     "username": "admin"
                 }
             },
             {
+                "uuid": shortuuid.uuid(),
                 "index": 2,
                 "type": "ui_control",
-                "desc": "输入控件",
+                "title": "输入控件",
                 "function": "input",
                 "args": {
                     "password": "123456"
                 }
             },
             {
+                "uuid": shortuuid.uuid(),
                 "index": 3,
                 "type": "ui_control",
-                "desc": "点击控件",
+                "title": "点击控件",
                 "function": "click",
                 "args": {}
             },
             {
+                "uuid": shortuuid.uuid(),
                 "index": 4,
                 "title": "检验是否登录成功",
                 "type": "master",
                 "business_list": [
                     {
+                        "uuid": shortuuid.uuid(),
                         "index": 1,
                         "type": "assert_control",
+                        "title": "UI断言控件",
                         "function": "ui_assert",
                         "args": {
                             "expected_results": "aaa",
@@ -119,90 +134,103 @@ meta_data = [
         ]
     },
     {
+        "uuid": shortuuid.uuid(),
         "index": 3,
         "title": "循环录入数据",
         "type": "master",
         "business_list": [
             {
+                "uuid": shortuuid.uuid(),
                 "index": 1,
                 "type": "logic_control",
+                "title": "循环控件",
                 "function": "for",
                 "num": 2,  # 调试
                 "data_source": [],
                 "action": [
                     {
+                        "uuid": shortuuid.uuid(),
                         "index": 1,
                         "type": "ui_control",
-                        "desc": "输入控件A",
+                        "title": "输入控件A",
                         "function": "input",
                         "args": {
                             "username": "admin"
                         }
                     },
                     {
+                        "uuid": shortuuid.uuid(),
                         "index": 2,
                         "type": "ui_control",
-                        "desc": "输入控件B",
+                        "title": "输入控件B",
                         "function": "input",
                         "args": {
                             "password": "123456"
                         }
                     },
                     {
+                        "uuid": shortuuid.uuid(),
                         "index": 3,
                         "type": "ui_control",
-                        "desc": "点击控件C",
+                        "title": "点击控件C",
                         "function": "click",
                         "args": {}
                     },
                     {
+                        "uuid": shortuuid.uuid(),
                         "index": 4,
                         "type": "logic",
-                        "desc": "循环二(逻辑块)",
+                        "title": "循环二(逻辑块)",
                         "function": "for",
                         "num": 3,
                         "data_source": [],
                         "action": [
                             {
+                                "uuid": shortuuid.uuid(),
                                 "index": 11,
                                 "type": "ui_control",
-                                "desc": "点击控件X-3",
+                                "title": "点击控件X-3",
                                 "function": "click",
                                 "args": {}
                             },
                             {
+                                "uuid": shortuuid.uuid(),
                                 "index": 22,
                                 "type": "ui_control",
-                                "desc": "点击控件Y-3",
+                                "title": "点击控件Y-3",
                                 "function": "click",
                                 "args": {}
                             },
                             {
+                                "uuid": shortuuid.uuid(),
                                 "index": 33,
                                 "type": "ui_control",
-                                "desc": "点击控件Z-3",
+                                "title": "点击控件Z-3",
                                 "function": "click",
                                 "args": {}
                             },
                             {
+                                "uuid": shortuuid.uuid(),
                                 "index": 44,
                                 "type": "logic",
-                                "desc": "循环三(逻辑块)",
+                                "title": "循环三(逻辑块)",
                                 "function": "for",
                                 "num": 2,
                                 "data_source": [],
                                 "action": [
                                     {
+                                        "uuid": shortuuid.uuid(),
                                         "index": 3331,
                                         "type": "ui_control",
-                                        "desc": "===点击控件OKC===2",
+                                        "title": "===点击控件OKC===2",
                                         "function": "click",
                                         "args": {}
                                     },
                                     {
+                                        "uuid": shortuuid.uuid(),
                                         "index": 3332,
                                         "type": "ui_control",
-                                        "desc": "===点击控件LOL===2",
+                                        "title": "===点击控件LOL===2",
                                         "function": "click",
                                         "args": {}
                                     },
@@ -214,14 +242,16 @@ meta_data = [
                 ]
             },
             {
+                "uuid": shortuuid.uuid(),
                 "index": 2,
                 "title": "操作2",
                 "type": "master",
                 "business_list": [
                     {
+                        "uuid": shortuuid.uuid(),
                         "index": 1,
                         "type": "ui_control",
-                        "desc": "点击控件",
+                        "title": "点击控件",
                         "function": "click",
                         "args": {}
                     },
