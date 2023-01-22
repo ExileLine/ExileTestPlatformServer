@@ -21,7 +21,7 @@ class AuthApi(MethodView):
         token = request.headers.get('token', '')  # 提取token
         user = R.get(f'token:{token}')
         if not user:
-            return api_result(code=Unauthorized, message=f'token失效:{token}')
+            return api_result(code=UNAUTHORIZED, message=f'token失效:{token}')
 
         user_id = R.get(user)  # 通过手机号或其他字段获取用户id  // redis命令: get yyx
         user = Admin.query.get(user_id)  # 通过id查询用户->获取用户对象
