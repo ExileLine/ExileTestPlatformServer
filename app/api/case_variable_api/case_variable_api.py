@@ -198,7 +198,7 @@ class CaseVarApi(MethodView):
         db.session.add(var_history)
         db.session.commit()
 
-        return api_result(code=PUT_SUCCESS, message='编辑成功', data=query_variable.to_json())
+        return api_result(code=PUT_SUCCESS, message=PUT_MESSAGE, data=query_variable.to_json())
 
     def delete(self):
         """变量删除"""

@@ -273,7 +273,7 @@ class CaseApi(MethodView):
                      module_id_list))
 
         db.session.commit()
-        return api_result(code=PUT_SUCCESS, message='编辑成功', data=query_case.to_json())
+        return api_result(code=PUT_SUCCESS, message=PUT_MESSAGE, data=query_case.to_json())
 
     def delete(self):
         """用例删除"""

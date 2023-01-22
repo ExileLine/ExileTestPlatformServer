@@ -290,7 +290,7 @@ class CaseScenarioApi(MethodView):
                      module_id_list))
 
         db.session.commit()
-        return api_result(code=PUT_SUCCESS, message='编辑成功')
+        return api_result(code=PUT_SUCCESS, message=PUT_MESSAGE)
 
     def delete(self):
         """用例场景删除"""

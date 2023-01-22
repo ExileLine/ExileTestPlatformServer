@@ -245,7 +245,7 @@ class CaseReqDataApi(MethodView):
         query_test_case_data.modifier_id = g.app_user.id
         db.session.commit()
 
-        return api_result(code=PUT_SUCCESS, message='编辑成功', data=query_test_case_data.to_json())
+        return api_result(code=PUT_SUCCESS, message=PUT_MESSAGE, data=query_test_case_data.to_json())
 
     def delete(self):
         """用例req数据删除"""

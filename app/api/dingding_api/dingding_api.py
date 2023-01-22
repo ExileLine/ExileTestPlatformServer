@@ -85,7 +85,7 @@ class DingDingApi(MethodView):
         query_dd.is_deleted = is_deleted
         db.session.commit()
 
-        return api_result(code=203, message='编辑成功')
+        return api_result(code=203, message=PUT_MESSAGE)
 
     def delete(self):
         """钉钉 push 删除"""

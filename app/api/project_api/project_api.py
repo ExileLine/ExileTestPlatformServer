@@ -90,7 +90,7 @@ class ProjectApi(MethodView):
         query_project.modifier = g.app_user.username
         query_project.modifier_id = g.app_user.id
         db.session.commit()
-        return api_result(code=PUT_SUCCESS, message='编辑成功')
+        return api_result(code=PUT_SUCCESS, message=PUT_MESSAGE)
 
     def delete(self):
         """项目删除"""

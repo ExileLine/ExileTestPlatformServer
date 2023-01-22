@@ -264,7 +264,7 @@ class RespAssertionRuleApi(MethodView):
         query_ass_resp.modifier_id = g.app_user.id
         db.session.commit()
 
-        return api_result(code=PUT_SUCCESS, message='编辑成功', data=query_ass_resp.to_json())
+        return api_result(code=PUT_SUCCESS, message=PUT_MESSAGE, data=query_ass_resp.to_json())
 
     def delete(self):
         """响应断言规则删除"""
@@ -443,7 +443,7 @@ class FieldAssertionRuleApi(MethodView):
         query_ass_field.modifier = g.app_user.username
         query_ass_field.modifier_id = g.app_user.id
         db.session.commit()
-        return api_result(code=PUT_SUCCESS, message='编辑成功', data=query_ass_field.to_json())
+        return api_result(code=PUT_SUCCESS, message=PUT_MESSAGE, data=query_ass_field.to_json())
 
     def delete(self):
         """字段断言规则删除"""
