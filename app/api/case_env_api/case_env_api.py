@@ -94,7 +94,7 @@ class CaseEnvApi(MethodView):
         query_env.modifier_id = g.app_user.id
         query_env.modifier = g.app_user.username
         query_env.delete()
-        return api_result(code=DEL_SUCCESS, message='删除成功')
+        return api_result(code=DEL_SUCCESS, message=DEL_MESSAGE)
 
 
 class CaseEnvPageApi(MethodView):

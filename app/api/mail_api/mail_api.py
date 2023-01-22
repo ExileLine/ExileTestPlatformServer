@@ -94,7 +94,7 @@ class MailApi(MethodView):
         query_mail.modifier = g.app_user.username
         query_mail.modifier_id = g.app_user.id
         query_mail.delete()
-        return api_result(code=204, message='删除成功')
+        return api_result(code=204, message=DEL_MESSAGE)
 
 
 class MailPageApi(MethodView):

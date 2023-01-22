@@ -151,7 +151,7 @@ class CaseDBApi(MethodView):
         query_db.modifier_id = g.app_user.id
         query_db.modifier = g.app_user.username
         query_db.delete()
-        return api_result(code=DEL_SUCCESS, message='删除成功')
+        return api_result(code=DEL_SUCCESS, message=DEL_MESSAGE)
 
 
 class CaseDBPageApi(MethodView):

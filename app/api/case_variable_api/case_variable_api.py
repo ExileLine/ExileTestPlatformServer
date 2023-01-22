@@ -216,7 +216,7 @@ class CaseVarApi(MethodView):
         query_var.modifier_id = g.app_user.id
         query_var.modifier = g.app_user.username
         query_var.delete()
-        return api_result(code=DEL_SUCCESS, message='删除成功')
+        return api_result(code=DEL_SUCCESS, message=DEL_MESSAGE)
 
 
 class CaseVarHistoryApi(MethodView):

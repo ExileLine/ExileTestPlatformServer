@@ -282,7 +282,7 @@ class RespAssertionRuleApi(MethodView):
         query_ass_resp.modifier_id = g.app_user.id
         query_ass_resp.modifier = g.app_user.username
         query_ass_resp.delete()
-        return api_result(code=DEL_SUCCESS, message='删除成功')
+        return api_result(code=DEL_SUCCESS, message=DEL_MESSAGE)
 
 
 class FieldAssertionRuleApi(MethodView):
@@ -461,7 +461,7 @@ class FieldAssertionRuleApi(MethodView):
         query_ass_field.modifier_id = g.app_user.id
         query_ass_field.modifier = g.app_user.username
         query_ass_field.delete()
-        return api_result(code=DEL_SUCCESS, message='删除成功')
+        return api_result(code=DEL_SUCCESS, message=DEL_MESSAGE)
 
 
 class AssertionRulePageApi(MethodView):

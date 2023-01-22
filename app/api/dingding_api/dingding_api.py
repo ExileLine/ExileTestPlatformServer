@@ -101,7 +101,7 @@ class DingDingApi(MethodView):
         query_dd.modifier = g.app_user.username
         query_dd.modifier_id = g.app_user.id
         query_dd.delete()
-        return api_result(code=204, message='删除成功')
+        return api_result(code=204, message=DEL_MESSAGE)
 
 
 class DingDingPushPageApi(MethodView):

@@ -121,7 +121,7 @@ class ProjectVersionApi(MethodView):
         query_version.modifier = g.app_user.username
         query_version.modifier_id = g.app_user.id
         query_version.delete()
-        return api_result(code=DEL_SUCCESS, message='删除成功')
+        return api_result(code=DEL_SUCCESS, message=DEL_MESSAGE)
 
 
 class ProjectVersionPageApi(MethodView):

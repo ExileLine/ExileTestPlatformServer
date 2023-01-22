@@ -104,7 +104,7 @@ class ProjectApi(MethodView):
         query_project.modifier = g.app_user.username
         query_project.modifier_id = g.app_user.id
         query_project.delete()
-        return api_result(code=DEL_SUCCESS, message='删除成功')
+        return api_result(code=DEL_SUCCESS, message=DEL_MESSAGE)
 
 
 class ProjectPageApi(MethodView):

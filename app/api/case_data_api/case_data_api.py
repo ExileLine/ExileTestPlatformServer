@@ -263,7 +263,7 @@ class CaseReqDataApi(MethodView):
         query_req_case_data.modifier_id = g.app_user.id
         query_req_case_data.modifier = g.app_user.username
         query_req_case_data.delete()
-        return api_result(code=DEL_SUCCESS, message='删除成功')
+        return api_result(code=DEL_SUCCESS, message=DEL_MESSAGE)
 
 
 class CaseReqDataPageApi(MethodView):

@@ -149,7 +149,7 @@ class CaseCICDMapApi(MethodView):
         query_cicd.modifier = g.app_user.username
         query_cicd.modifier_id = g.app_user.id
         query_cicd.delete()
-        return api_result(code=204, message='删除成功')
+        return api_result(code=204, message=DEL_MESSAGE)
 
 
 class CaseCICDMapPageApi(MethodView):
