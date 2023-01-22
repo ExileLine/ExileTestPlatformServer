@@ -259,7 +259,7 @@ class APSchedulerTaskApi(MethodView):
             if query_version_task:
                 version_id = query_version_task.version_id
 
-        return api_result(code=200, message='操作成功', data={'version_id': version_id})
+        return api_result(code=200, message=SUCCESS_MESSAGE, data={'version_id': version_id})
 
     def post(self):
         """新增APScheduler任务"""
@@ -468,4 +468,4 @@ class APSchedulerTaskPageApi(MethodView):
             'total': result_count[0].get('COUNT(*)')
         }
 
-        return api_result(code=200, message='操作成功', data=result_data)
+        return api_result(code=200, message=SUCCESS_MESSAGE, data=result_data)

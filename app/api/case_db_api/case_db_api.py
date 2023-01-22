@@ -83,7 +83,7 @@ class CaseDBApi(MethodView):
         if not query_db:
             return api_result(code=NO_DATA, message='数据库不存在')
 
-        return api_result(code=SUCCESS, message='操作成功', data=query_db.to_json())
+        return api_result(code=SUCCESS, message=SUCCESS_MESSAGE, data=query_db.to_json())
 
     @case_db_decorator
     def post(self):
@@ -198,7 +198,7 @@ class CaseDBPageApi(MethodView):
             page=page,
             size=size
         )
-        return api_result(code=SUCCESS, message='操作成功', data=result_data)
+        return api_result(code=SUCCESS, message=SUCCESS_MESSAGE, data=result_data)
 
 
 class CaseDBPingApi(MethodView):

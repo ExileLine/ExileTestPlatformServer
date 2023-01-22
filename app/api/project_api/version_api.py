@@ -36,7 +36,7 @@ class ProjectVersionApi(MethodView):
         if not query_version:
             return api_result(code=NO_DATA, message=f"迭代id: {version_id} 不存在")
 
-        return api_result(code=SUCCESS, message='操作成功', data=query_version.to_json())
+        return api_result(code=SUCCESS, message=SUCCESS_MESSAGE, data=query_version.to_json())
 
     def post(self):
         """版本迭代新增"""
@@ -170,4 +170,4 @@ class ProjectVersionPageApi(MethodView):
             size=size
         )
 
-        return api_result(code=SUCCESS, message='操作成功', data=result_data)
+        return api_result(code=SUCCESS, message=SUCCESS_MESSAGE, data=result_data)

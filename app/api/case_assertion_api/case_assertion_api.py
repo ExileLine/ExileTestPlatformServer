@@ -182,7 +182,7 @@ class RespAssertionRuleApi(MethodView):
         if not query_ass_resp:
             return api_result(code=NO_DATA, message='响应断言规则不存在')
         result = query_ass_resp.to_json()
-        return api_result(code=SUCCESS, message='操作成功', data=result)
+        return api_result(code=SUCCESS, message=SUCCESS_MESSAGE, data=result)
 
     @assertion_decorator
     def post(self):
@@ -335,7 +335,7 @@ class FieldAssertionRuleApi(MethodView):
         if not query_ass_field:
             return api_result(code=NO_DATA, message='字段断言规则不存在')
         result = query_ass_field.to_json()
-        return api_result(code=SUCCESS, message='操作成功', data=result)
+        return api_result(code=SUCCESS, message=SUCCESS_MESSAGE, data=result)
 
     @assertion_decorator
     def post(self):
@@ -502,4 +502,4 @@ class AssertionRulePageApi(MethodView):
             page=page,
             size=size
         )
-        return api_result(code=SUCCESS, message='操作成功', data=result_data)
+        return api_result(code=SUCCESS, message=SUCCESS_MESSAGE, data=result_data)

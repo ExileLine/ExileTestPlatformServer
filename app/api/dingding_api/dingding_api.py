@@ -52,7 +52,7 @@ class DingDingApi(MethodView):
         )
         new_dd.save()
 
-        return api_result(code=201, message='操作成功')
+        return api_result(code=201, message=SUCCESS_MESSAGE)
 
     def put(self):
         """钉钉 push 编辑"""
@@ -143,4 +143,4 @@ class DingDingPushPageApi(MethodView):
             size=size
         )
 
-        return api_result(code=200, message='操作成功', data=result_data)
+        return api_result(code=200, message=SUCCESS_MESSAGE, data=result_data)

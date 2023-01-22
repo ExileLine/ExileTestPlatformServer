@@ -88,7 +88,7 @@ class CaseCICDMapApi(MethodView):
             creator_id=g.app_user.id
         )
         new_cicd.save()
-        return api_result(code=200, message='操作成功')
+        return api_result(code=200, message=SUCCESS_MESSAGE)
 
     def put(self):
         """编辑cicd映射"""
@@ -135,7 +135,7 @@ class CaseCICDMapApi(MethodView):
         query_cicd.modifier = g.app_user.username
         query_cicd.modifier_id = g.app_user.id
         db.session.commit()
-        return api_result(code=203, message='操作成功')
+        return api_result(code=203, message=SUCCESS_MESSAGE)
 
     def delete(self):
         """删除cicd映射"""
@@ -183,7 +183,7 @@ class CaseCICDMapPageApi(MethodView):
             page=page,
             size=size
         )
-        return api_result(code=200, message='操作成功', data=result_data)
+        return api_result(code=200, message=SUCCESS_MESSAGE, data=result_data)
 
 
 class CaseCICDApi(MethodView):
@@ -221,7 +221,7 @@ class CaseCICDApi(MethodView):
         resp_json = resp.json()
         send['resp_json'] = resp_json
         R.set(f'test_cicd_{g.app_user.username}_{int(time.time())}', json.dumps(send))
-        return api_result(code=200, message='操作成功')
+        return api_result(code=200, message=SUCCESS_MESSAGE)
 
     def post(self):
         """提交代码调用"""
@@ -308,4 +308,4 @@ class CaseCICDApi(MethodView):
             "api_auto": {"celery_id": str(api_auto_results)},
             "ui_auto": ui_auto_result,
         }
-        return api_result(code=200, message='操作成功', data=d)
+        return api_result(code=200, message=SUCCESS_MESSAGE, data=d)

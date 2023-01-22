@@ -46,4 +46,4 @@ class CaseSetApi(MethodView):
             new_set.creator_id = g.app_user.id
             new_set.save()
 
-        return api_result(code=200, message='操作成功')
+        return api_result(code=200, message=SUCCESS_MESSAGE)

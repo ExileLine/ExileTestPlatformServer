@@ -44,4 +44,4 @@ class CaseLogsPageApi(MethodView):
             page=page,
             size=size
         )
-        return api_result(code=200, message='操作成功', data=result_data)
+        return api_result(code=200, message=SUCCESS_MESSAGE, data=result_data)

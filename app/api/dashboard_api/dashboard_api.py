@@ -68,4 +68,4 @@ class DashboardApi(MethodView):
             "total_the_day_execute": total_the_day_execute,
             "total_current_month_execute": total_current_month_execute
         }
-        return api_result(code=POST_SUCCESS, message='操作成功', data=data)
+        return api_result(code=POST_SUCCESS, message=SUCCESS_MESSAGE, data=data)

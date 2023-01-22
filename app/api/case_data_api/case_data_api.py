@@ -154,7 +154,7 @@ class CaseReqDataApi(MethodView):
         if not query_req_case_data:
             return api_result(code=NO_DATA, message=f'参数不存在:{req_data_id}')
 
-        return api_result(code=SUCCESS, message='操作成功', data=query_req_case_data.to_json())
+        return api_result(code=SUCCESS, message=SUCCESS_MESSAGE, data=query_req_case_data.to_json())
 
     @data_decorator("post")
     def post(self):
@@ -319,4 +319,4 @@ class CaseReqDataPageApi(MethodView):
             'total': result_count[0].get('COUNT(*)')
         }
 
-        return api_result(code=SUCCESS, message='操作成功', data=result_data)
+        return api_result(code=SUCCESS, message=SUCCESS_MESSAGE, data=result_data)

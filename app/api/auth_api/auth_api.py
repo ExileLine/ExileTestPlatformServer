@@ -26,4 +26,4 @@ class AuthApi(MethodView):
         user_id = R.get(user)  # 通过手机号或其他字段获取用户id  // redis命令: get yyx
         user = Admin.query.get(user_id)  # 通过id查询用户->获取用户对象
         user_obj = user.to_json()
-        return api_result(code=SUCCESS, message='操作成功', data=user_obj)
+        return api_result(code=SUCCESS, message=SUCCESS_MESSAGE, data=user_obj)

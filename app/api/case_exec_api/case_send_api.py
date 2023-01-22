@@ -92,6 +92,6 @@ class CaseRequestSendApi(MethodView):
                 "http_code": http_code,
                 "time": f"{Decimal((end_time - start_time) * 1000).quantize(Decimal('1'))}ms"
             }
-            return api_result(code=SUCCESS, message='操作成功', data=result)
+            return api_result(code=SUCCESS, message=SUCCESS_MESSAGE, data=result)
         except BaseException as e:
             return api_result(code=BUSINESS_ERROR, message=f'参数异常:{e}')

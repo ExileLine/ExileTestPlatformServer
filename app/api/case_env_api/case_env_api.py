@@ -26,7 +26,7 @@ class CaseEnvApi(MethodView):
         if not query_env:
             return api_result(code=NO_DATA, message='环境地址不存在')
 
-        return api_result(code=SUCCESS, message='操作成功', data=query_env.to_json())
+        return api_result(code=SUCCESS, message=SUCCESS_MESSAGE, data=query_env.to_json())
 
     def post(self):
         """环境新增"""
@@ -144,4 +144,4 @@ class CaseEnvPageApi(MethodView):
             size=size
         )
 
-        return api_result(code=SUCCESS, message='操作成功', data=result_data)
+        return api_result(code=SUCCESS, message=SUCCESS_MESSAGE, data=result_data)

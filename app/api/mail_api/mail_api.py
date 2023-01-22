@@ -51,7 +51,7 @@ class MailApi(MethodView):
             db.session.add(new_mail)
         db.session.commit()
 
-        return api_result(code=201, message='操作成功')
+        return api_result(code=201, message=SUCCESS_MESSAGE)
 
     def put(self):
         """邮箱编辑"""
@@ -136,4 +136,4 @@ class MailPageApi(MethodView):
             size=size
         )
 
-        return api_result(code=200, message='操作成功', data=result_data)
+        return api_result(code=200, message=SUCCESS_MESSAGE, data=result_data)

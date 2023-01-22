@@ -51,7 +51,7 @@ class TouristApi(MethodView):
         print('===query_tourist===', query_tourist)
 
         if query_tourist:
-            return api_result(code=SUCCESS, message='操作成功', data=json.loads(query_tourist))
+            return api_result(code=SUCCESS, message=SUCCESS_MESSAGE, data=json.loads(query_tourist))
 
         code = str(Admin.query.count() + 1).zfill(5)  # TODO
         username = "user_{}".format(code)
@@ -77,7 +77,7 @@ class TouristApi(MethodView):
         }
 
         R.set(user_ip, json.dumps(tourist_obj))
-        return api_result(code=SUCCESS, message='操作成功', data=tourist_obj)
+        return api_result(code=SUCCESS, message=SUCCESS_MESSAGE, data=tourist_obj)
 
 
 class UserApi(MethodView):
@@ -150,7 +150,7 @@ class UserApi(MethodView):
         else:
             new_admin.set_code()
         new_admin.save()
-        return api_result(code=POST_SUCCESS, message='操作成功')
+        return api_result(code=POST_SUCCESS, message=SUCCESS_MESSAGE)
 
     def put(self):
         """编辑用户信息"""
@@ -184,7 +184,7 @@ class UserApi(MethodView):
         query_admin.modifier = g.app_user.username
         query_admin.modifier_id = g.app_user.id
         db.session.commit()
-        return api_result(code=PUT_SUCCESS, message='操作成功')
+        return api_result(code=PUT_SUCCESS, message=SUCCESS_MESSAGE)
 
     def delete(self):
         """禁用用户"""
@@ -199,7 +199,7 @@ class UserApi(MethodView):
 
         query_admin.status = status
         db.session.commit()
-        return api_result(code=DEL_SUCCESS, message='操作成功')
+        return api_result(code=DEL_SUCCESS, message=SUCCESS_MESSAGE)
 
 
 class UserPasswordApi(MethodView):
@@ -234,7 +234,7 @@ class UserPasswordApi(MethodView):
         user.modifier_id = g.app_user.id
         db.session.commit()
 
-        return api_result(code=POST_SUCCESS, message='操作成功')
+        return api_result(code=POST_SUCCESS, message=SUCCESS_MESSAGE)
 
     def put(self):
         """重置密码"""
@@ -256,7 +256,7 @@ class UserPasswordApi(MethodView):
         user.modifier_id = g.app_user.id
         db.session.commit()
         # TODO 邮件发送,短信
-        return api_result(code=PUT_SUCCESS, message='操作成功', data=[new_password])
+        return api_result(code=PUT_SUCCESS, message=SUCCESS_MESSAGE, data=[new_password])
 
 
 class UserProfileApi(MethodView):
@@ -300,7 +300,7 @@ class UserProfileApi(MethodView):
         user.modifier = g.app_user.username
         user.modifier_id = g.app_user.id
         db.session.commit()
-        return api_result(code=PUT_SUCCESS, message='操作成功')
+        return api_result(code=PUT_SUCCESS, message=SUCCESS_MESSAGE)
 
 
 class UserPageApi(MethodView):
@@ -345,4 +345,4 @@ class UserPageApi(MethodView):
         # current_user = g.app_user.to_json()
         # records.pop(size - 1)
         # records.insert(0, current_user)
-        return api_result(code=SUCCESS, message='操作成功', data=result_data)
+        return api_result(code=SUCCESS, message=SUCCESS_MESSAGE, data=result_data)

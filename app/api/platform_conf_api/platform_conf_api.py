@@ -22,7 +22,7 @@ class PlatformConfApi(MethodView):
         res = db.session.query(func.max(PlatformConfModel.weights)).one()
         query_platform_conf = PlatformConfModel.query.filter_by(weights=res[0]).first()
         result = query_platform_conf.to_json()
-        return api_result(code=200, message='操作成功', data=result)
+        return api_result(code=200, message=SUCCESS_MESSAGE, data=result)
 
     # def post(self):
     #     """新增平台配置"""
@@ -46,4 +46,4 @@ class PlatformConfApi(MethodView):
     #     )
     #
     #     new_platform_conf.save()
-    #     return api_result(code=201, message='操作成功')
+    #     return api_result(code=201, message=SUCCESS_MESSAGE)

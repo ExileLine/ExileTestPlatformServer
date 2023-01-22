@@ -173,7 +173,7 @@ class CaseScenarioApi(MethodView):
         result['case_list'] = case_list
         result["version_list"] = version_list
         result["module_list"] = module_list
-        return api_result(code=SUCCESS, message='操作成功', data=result)
+        return api_result(code=SUCCESS, message=SUCCESS_MESSAGE, data=result)
 
     @scenario_decorator
     def post(self):
@@ -392,4 +392,4 @@ class CaseScenarioPageApi(MethodView):
             'total': result_count[0].get('COUNT(*)')
         }
 
-        return api_result(code=SUCCESS, message='操作成功', data=result_data)
+        return api_result(code=SUCCESS, message=SUCCESS_MESSAGE, data=result_data)

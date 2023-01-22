@@ -61,7 +61,7 @@ class CaseExecuteLogsApi(MethodView):
             return api_result(code=NO_DATA, message='暂无日志(日志仅保存7天)', data={})
         else:
             data = json.loads(result)
-            return api_result(code=SUCCESS, message='操作成功', data=data)
+            return api_result(code=SUCCESS, message=SUCCESS_MESSAGE, data=data)
 
     def post(self):
         """最新日志明细"""
@@ -78,7 +78,7 @@ class CaseExecuteLogsApi(MethodView):
         if not result:
             return api_result(code=NO_DATA, message='暂无日志(日志仅保存7天)', data={})
 
-        return api_result(code=POST_SUCCESS, message='操作成功', data=json.loads(result))
+        return api_result(code=POST_SUCCESS, message=SUCCESS_MESSAGE, data=json.loads(result))
 
 
 class CaseExecuteLogsPageApi(MethodView):
@@ -129,4 +129,4 @@ class CaseExecuteLogsPageApi(MethodView):
             page=page,
             size=size
         )
-        return api_result(code=200, message='操作成功', data=result_data)
+        return api_result(code=200, message=SUCCESS_MESSAGE, data=result_data)

@@ -42,7 +42,7 @@ class ProjectApi(MethodView):
             "version_list": version_list
         }
 
-        return api_result(code=SUCCESS, message='操作成功', data=result)
+        return api_result(code=SUCCESS, message=SUCCESS_MESSAGE, data=result)
 
     def post(self):
         """项目新增"""
@@ -146,4 +146,4 @@ class ProjectPageApi(MethodView):
             size=size
         )
 
-        return api_result(code=SUCCESS, message='操作成功', data=result_data)
+        return api_result(code=SUCCESS, message=SUCCESS_MESSAGE, data=result_data)

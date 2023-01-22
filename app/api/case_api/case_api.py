@@ -139,7 +139,7 @@ class CaseApi(MethodView):
         if not result:
             return api_result(code=NO_DATA, message=f'用例id:{case_id}不存在')
 
-        return api_result(code=SUCCESS, message='操作成功', data=result)
+        return api_result(code=SUCCESS, message=SUCCESS_MESSAGE, data=result)
 
     @case_decorator
     def post(self):
@@ -391,7 +391,7 @@ class CasePageApi(MethodView):
             'total': result_count[0].get('COUNT(*)')
         }
 
-        return api_result(code=SUCCESS, message='操作成功', data=result_data)
+        return api_result(code=SUCCESS, message=SUCCESS_MESSAGE, data=result_data)
 
 
 class CaseCopyApi(MethodView):
@@ -504,4 +504,4 @@ class CaseCopyApi(MethodView):
             )
 
         db.session.commit()
-        return api_result(code=SUCCESS, message='操作成功')
+        return api_result(code=SUCCESS, message=SUCCESS_MESSAGE)

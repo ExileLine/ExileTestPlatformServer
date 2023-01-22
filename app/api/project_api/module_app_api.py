@@ -39,7 +39,7 @@ class ModuleAppApi(MethodView):
         result['case_list'] = case_list
         result['scenario_list'] = scenario_list
 
-        return api_result(code=SUCCESS, message='操作成功', data=result)
+        return api_result(code=SUCCESS, message=SUCCESS_MESSAGE, data=result)
 
     def post(self):
         """模块应用新增"""
@@ -97,7 +97,7 @@ class ModuleAppApi(MethodView):
                      scenario_list))
 
         db.session.commit()
-        return api_result(code=POST_SUCCESS, message='操作成功')
+        return api_result(code=POST_SUCCESS, message=SUCCESS_MESSAGE)
 
     def put(self):
         """模块应用编辑"""
@@ -163,7 +163,7 @@ class ModuleAppApi(MethodView):
                      scenario_list))
 
         db.session.commit()
-        return api_result(code=PUT_SUCCESS, message='操作成功')
+        return api_result(code=PUT_SUCCESS, message=SUCCESS_MESSAGE)
 
     def delete(self):
         """模块应用删除"""
@@ -183,7 +183,7 @@ class ModuleAppApi(MethodView):
         db.session.query(MidModuleScenario).filter(MidModuleScenario.module_id == module_id).delete(
             synchronize_session=False)
         db.session.commit()
-        return api_result(code=DEL_SUCCESS, message='操作成功')
+        return api_result(code=DEL_SUCCESS, message=SUCCESS_MESSAGE)
 
 
 class ModuleAppPageApi(MethodView):

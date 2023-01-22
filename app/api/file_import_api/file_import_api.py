@@ -269,7 +269,7 @@ class InterfaceFileImportApi(MethodView):
             file_main_content=file_content_json,
             remark=remark
         )
-        return api_result(code=201, message='操作成功')
+        return api_result(code=201, message=SUCCESS_MESSAGE)
 
 
 if __name__ == '__main__':

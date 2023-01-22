@@ -85,7 +85,7 @@ class CaseVarApi(MethodView):
         query_variable = TestVariable.query.get(var_id)
         if not query_variable:
             return api_result(code=NO_DATA, message='变量不存在')
-        return api_result(code=SUCCESS, message='操作成功', data=query_variable.to_json())
+        return api_result(code=SUCCESS, message=SUCCESS_MESSAGE, data=query_variable.to_json())
 
     @variable_decorator
     def post(self):
@@ -247,7 +247,7 @@ class CaseVarHistoryApi(MethodView):
             'now_page': page,
             'total': total
         }
-        return api_result(code=200, message='操作成功', data=result_data)
+        return api_result(code=200, message=SUCCESS_MESSAGE, data=result_data)
 
 
 class CaseVarPageApi(MethodView):
@@ -298,4 +298,4 @@ class CaseVarPageApi(MethodView):
             page=page,
             size=size
         )
-        return api_result(code=SUCCESS, message='操作成功', data=result_data)
+        return api_result(code=SUCCESS, message=SUCCESS_MESSAGE, data=result_data)
