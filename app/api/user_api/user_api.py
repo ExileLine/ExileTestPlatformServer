@@ -96,7 +96,7 @@ class UserApi(MethodView):
         if not query_admin:
             return api_result(code=NO_DATA, message="用户不存在")
 
-        return api_result(code=SUCCESS, message="操作成功", data=query_admin.to_json())
+        return api_result(code=SUCCESS, message=SUCCESS_MESSAGE, data=query_admin.to_json())
 
     def post(self):
         """创建用户"""
@@ -272,7 +272,7 @@ class UserProfileApi(MethodView):
         user = Admin.query.get(user_id)
         if not user or user.id != g.app_user.id:
             return api_result(code=NO_DATA, message="个人信息不存在")
-        return api_result(code=SUCCESS, message="操作成功", data=user.to_json())
+        return api_result(code=SUCCESS, message=SUCCESS_MESSAGE, data=user.to_json())
 
     def put(self):
         """编辑个人信息"""

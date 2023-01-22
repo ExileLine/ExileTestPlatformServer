@@ -45,7 +45,7 @@ class VersionTaskApi(MethodView):
         result['case_list'] = case_list
         result['scenario_list'] = scenario_list
 
-        return api_result(code=SUCCESS, message="操作成功", data=result)
+        return api_result(code=SUCCESS, message=SUCCESS_MESSAGE, data=result)
 
     def post(self):
         """迭代任务新增"""
@@ -96,7 +96,7 @@ class VersionTaskApi(MethodView):
                      scenario_list))
 
         db.session.commit()
-        return api_result(code=POST_SUCCESS, message="操作成功")
+        return api_result(code=POST_SUCCESS, message=SUCCESS_MESSAGE)
 
     def put(self):
         """迭代任务编辑"""
@@ -154,7 +154,7 @@ class VersionTaskApi(MethodView):
                      scenario_list))
 
         db.session.commit()
-        return api_result(code=PUT_SUCCESS, message="操作成功")
+        return api_result(code=PUT_SUCCESS, message=SUCCESS_MESSAGE)
 
     def delete(self):
         """迭代任务删除"""
@@ -174,7 +174,7 @@ class VersionTaskApi(MethodView):
         db.session.query(MidTaskScenario).filter(MidTaskScenario.task_id == task_id).delete(
             synchronize_session=False)
         db.session.commit()
-        return api_result(code=DEL_SUCCESS, message="操作成功")
+        return api_result(code=DEL_SUCCESS, message=SUCCESS_MESSAGE)
 
 
 class VersionTaskPageApi(MethodView):
@@ -217,4 +217,4 @@ class VersionTaskPageApi(MethodView):
             size=size
         )
 
-        return api_result(code=SUCCESS, message="操作成功", data=result_data)
+        return api_result(code=SUCCESS, message=SUCCESS_MESSAGE, data=result_data)
