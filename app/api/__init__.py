@@ -41,6 +41,7 @@ from .project_api.module_app_api import ModuleAppApi, ModuleAppPageApi
 from .timed_task_api.timed_task_api import APSchedulerTaskApi, APSchedulerTaskStatusApi, APSchedulerTaskPageApi
 from .download_file_api.download_file_api import DownloadFileApi
 from .file_import_api.file_import_api import InterfaceFileImportApi
+from .ui_case_api.ui_case_api import UiCaseApi
 
 api = Blueprint('api', __name__)
 crm = Blueprint('crm', __name__)
@@ -152,3 +153,6 @@ api.add_url_rule('/open_cicd', view_func=CaseCICDApi.as_view('open_cicd'))
 api.add_url_rule('/open_cicd/<cicd_id>', view_func=CaseCICDApi.as_view('open_cicd_test'))
 api.add_url_rule('/cicd_map', view_func=CaseCICDMapApi.as_view('cicd_map'))
 api.add_url_rule('/cicd_map_page', view_func=CaseCICDMapPageApi.as_view('cicd_map_page'))
+
+api.add_url_rule('/ui_case/<ui_case_id>', view_func=UiCaseApi.as_view('ui_case_detail'))
+api.add_url_rule('/ui_case', view_func=UiCaseApi.as_view('ui_case'))
