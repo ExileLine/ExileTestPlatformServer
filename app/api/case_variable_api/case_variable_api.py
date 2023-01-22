@@ -130,7 +130,7 @@ class CaseVarApi(MethodView):
             creator_id=g.app_user.id
         )
         new_variable.save()
-        return api_result(code=POST_SUCCESS, message='创建成功', data=new_variable.to_json())
+        return api_result(code=POST_SUCCESS, message=POST_MESSAGE, data=new_variable.to_json())
 
     @variable_decorator
     def put(self):

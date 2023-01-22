@@ -67,7 +67,7 @@ class ProjectVersionApi(MethodView):
             creator_id=g.app_user.id
         )
         new_version.save()
-        return api_result(code=POST_SUCCESS, message="创建成功")
+        return api_result(code=POST_SUCCESS, message=POST_MESSAGE)
 
     def put(self):
         """版本迭代编辑"""

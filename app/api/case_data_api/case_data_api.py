@@ -192,7 +192,7 @@ class CaseReqDataApi(MethodView):
             creator_id=g.app_user.id
         )
         new_data.save()
-        return api_result(code=POST_SUCCESS, message='创建成功', data=new_data.to_json())
+        return api_result(code=POST_SUCCESS, message=POST_MESSAGE, data=new_data.to_json())
 
     @data_decorator("put")
     def put(self):

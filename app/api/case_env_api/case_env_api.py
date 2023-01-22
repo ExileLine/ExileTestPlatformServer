@@ -53,7 +53,7 @@ class CaseEnvApi(MethodView):
             creator_id=g.app_user.id
         )
         new_env.save()
-        return api_result(code=POST_SUCCESS, message='创建成功')
+        return api_result(code=POST_SUCCESS, message=POST_MESSAGE)
 
     def put(self):
         """环境编辑"""

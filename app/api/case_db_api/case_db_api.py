@@ -108,7 +108,7 @@ class CaseDBApi(MethodView):
             creator_id=g.app_user.id
         )
         new_db.save()
-        return api_result(code=POST_SUCCESS, message='创建成功')
+        return api_result(code=POST_SUCCESS, message=POST_MESSAGE)
 
     @case_db_decorator
     def put(self):

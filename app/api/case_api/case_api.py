@@ -198,7 +198,7 @@ class CaseApi(MethodView):
                 module_id=module_id, case_id=case_id, creator=g.app_user.username, creator_id=g.app_user.id)),
                  module_id_list))
         db.session.commit()
-        return api_result(code=POST_SUCCESS, message='创建成功', data=new_test_case.to_json())
+        return api_result(code=POST_SUCCESS, message=POST_MESSAGE, data=new_test_case.to_json())
 
     @case_decorator
     def put(self):

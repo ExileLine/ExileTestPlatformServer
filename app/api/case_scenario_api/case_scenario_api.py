@@ -219,7 +219,7 @@ class CaseScenarioApi(MethodView):
                 module_id=module_id, scenario_id=scenario_id, creator=g.app_user.username, creator_id=g.app_user.id)),
                  module_id_list))
         db.session.commit()
-        return api_result(code=POST_SUCCESS, message='创建成功')
+        return api_result(code=POST_SUCCESS, message=POST_MESSAGE)
 
     @scenario_decorator
     def put(self):

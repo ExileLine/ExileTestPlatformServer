@@ -66,7 +66,7 @@ class ProjectApi(MethodView):
             creator_id=g.app_user.id
         )
         new_project.save()
-        return api_result(code=POST_SUCCESS, message="创建成功")
+        return api_result(code=POST_SUCCESS, message=POST_MESSAGE)
 
     def put(self):
         """项目编辑"""

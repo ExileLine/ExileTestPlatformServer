@@ -218,7 +218,7 @@ class RespAssertionRuleApi(MethodView):
         )
         new_ass_resp.is_public = is_public
         new_ass_resp.save()
-        return api_result(code=POST_SUCCESS, message='创建成功', data=new_ass_resp.to_json())
+        return api_result(code=POST_SUCCESS, message=POST_MESSAGE, data=new_ass_resp.to_json())
 
     @assertion_decorator
     def put(self):
@@ -385,7 +385,7 @@ class FieldAssertionRuleApi(MethodView):
             remark=remark
         )
         new_ass_field.save()
-        return api_result(code=POST_SUCCESS, message='创建成功', data=new_ass_field.to_json())
+        return api_result(code=POST_SUCCESS, message=POST_MESSAGE, data=new_ass_field.to_json())
 
     @assertion_decorator
     def put(self):
