@@ -42,12 +42,13 @@ driver_dict = {
 
 class BaseWebDriver:
 
-    def __init__(self, source_path: str = None, options: str = "chrome", headless: bool = False):
+    def __init__(self, source_path: str = None, options: str = "chrome", headless: bool = False, url: str = ""):
         """
 
         :param source_path: 资源保存路径(例如截图等)
         :param options: 浏览器(默认谷歌)
         :param headless: 无界面模式(默认False)
+        :param url: 地址
         """
 
         if source_path:
@@ -58,7 +59,7 @@ class BaseWebDriver:
         self.options = options
         self.headless = headless
         self.driver = None
-        self.url = ""
+        self.url = url
 
     def driver_init(self):
         """
@@ -76,14 +77,25 @@ class BaseWebDriver:
             options.add_argument('headless')
 
         self.driver = driver_dict.get(self.options)(options=options)
+        print(self.driver)
 
     def set_url(self, url):
         self.url = url
 
+    def open(self, url):
+        """启动浏览器"""
+
+        self.url = url
+        self.driver_init()
+        self.start()
+        self.driver.get(self.url)
+
     def start(self):
         """启动"""
+
         start_time = datetime.now()
         print(start_time)
+        print(self.driver.title)
 
     def end(self):
         """结束"""
@@ -109,17 +121,49 @@ class BaseWebDriver:
 
         self.driver.save_screenshot(f"{self.source_path}/test/web_ui_png/baidu_{int(time.time())}.png")  # 截屏
 
+    def wait_element(self, by: By, value: str, wt: int = 5, **kwargs):
+        """
+        等待定位
+        :param by: By.ID , By.XPATH ...
+        :param value: 元素名称
+        :param wt: 等待时间
+        :return: 元素
+        """
+        print(by)
+        print(value)
+        locator = (by, value)
+        return WebDriverWait(self.driver, wt, **kwargs).until(ec.presence_of_element_located(locator))
+
+    def input(self):
+        """1"""
+        return True
+
+    def click(self):
+        """1"""
+        return True
+
     def test(self):
         self.driver_init()
         self.start()
         self.driver.get('https://www.baidu.com')
-        self.driver.maximize_window()
+        # self.driver.maximize_window()
         print(self.driver.title)
-        time.sleep(2)
-        self.x()
+        # time.sleep(2)
+
+        res1 = self.wait_element(by=By.XPATH, value="""//*[@id="kw2"]""")
+        res1.send_keys('yyx')
+
+        res2 = self.wait_element(by=By.XPATH, value="""//*[@id="su"]""")
+        res2.click()
+
+        # res1 = self.wait_element(by=By.ID, value="kw")
+        # res1.send_keys('yyx')
+        # res2 = self.wait_element(by=By.ID, value="su")
+        # res2.click()
+
         self.end()
 
 
 if __name__ == '__main__':
-    bwd = BaseWebDriver(headless=True)
+    bwd = BaseWebDriver(headless=False)
     bwd.test()
