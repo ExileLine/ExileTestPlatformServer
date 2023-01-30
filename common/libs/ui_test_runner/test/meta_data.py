@@ -1,10 +1,9 @@
 # -*- coding: utf-8 -*-
-# @Time    : 2023/1/12 14:26
+# @Time    : 2023/1/30 12:00
 # @Author  : yangyuexiong
 # @Email   : yang6333yyx@126.com
-# @File    : test_meta_data.py
+# @File    : meta_data.py
 # @Software: PyCharm
-
 
 meta_data = [
     {
@@ -249,8 +248,3 @@ meta_data = [
         ]
     }
 ]
-if __name__ == '__main__':
-    from common.libs.BaseWebDriver import BaseWebDriver
-
-    bwd = BaseWebDriver()
-    bwd.open(url='http://localhost:3200/login')

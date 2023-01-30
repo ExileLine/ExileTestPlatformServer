@@ -1,10 +1,9 @@
 # -*- coding: utf-8 -*-
-# @Time    : 2023/1/4 14:36
+# @Time    : 2023/1/30 11:57
 # @Author  : yangyuexiong
 # @Email   : yang6333yyx@126.com
-# @File    : meta_data.py
+# @File    : ui_runner.py
 # @Software: PyCharm
-
 
 import json
 import shortuuid
@@ -360,8 +359,15 @@ def query_function(business_dict: dict) -> any:
     return function_name
 
 
+def get_primary_func(o: object, func_name: str):
+    """基本func"""
+
+    f = getattr(o, func_name)
+    return f
+
+
 def for_func(action_list: list, data_list: list = None, num: int = 0, deep_num: int = 0, first: bool = True,
-             master_function=None) -> None:
+             master_function=None, web_driver_example: object = None) -> None:
     """
     for递归
     :param action_list: 任务列表
@@ -370,6 +376,7 @@ def for_func(action_list: list, data_list: list = None, num: int = 0, deep_num: 
     :param deep_num: 子循环的轮次
     :param first: 是否首次循环
     :param master_function:
+    :param web_driver_example:
     :return:
     """
 
@@ -382,71 +389,98 @@ def for_func(action_list: list, data_list: list = None, num: int = 0, deep_num: 
             if ac_function == 'for':
                 ac_num = ac.get('num')
                 ac_action = ac.get('business_list')
-                for_func(action_list=ac_action, num=ac_num, deep_num=i, first=False, master_function=master_function)
+                for_func(
+                    action_list=ac_action,
+                    num=ac_num,
+                    deep_num=i,
+                    first=False,
+                    master_function=master_function,
+                    web_driver_example=web_driver_example
+                )
             else:
                 ac_type = ac.get('type')
                 if ac_type == 'master':
-                    master_function([ac])
+                    master_function([ac], web_driver_example)
                 else:
                     """
-                    selenium 逻辑操作...
+                    selenium等驱动逻辑操作...
                     """
+                    res_func = query_function(business_dict=ac)
+                    if not res_func:
+                        raise KeyError(f"异常:{ac}")
+
                     if first:
                         print(f">>>{i}", ac, first)
                     else:
                         print(f">>>{deep_num}", ac, first)
 
+                    f = get_primary_func(web_driver_example, res_func)
+                    print(f)
         if first:
             print(f'=== 第 {i} 轮结束 ===\n')
 
 
-def recursion_main(data_list: list):
+def recursion_main(data_list: list, web_driver_example: object = None):
     """主递归"""
 
     for data in data_list:
         business_title = data.get('title')
         data_type = data.get('type')
         business_list = data.get('business_list')
+
         if data_type == "master" and business_list:
-            recursion_main(data_list=business_list)
+            recursion_main(data_list=business_list, web_driver_example=web_driver_example)
         else:
+            res_func = query_function(business_dict=data)
+            if not res_func:
+                return False
+
             function = data.get('function')
             child_business_list = data.get('business_list')
+
             if function == 'for':
                 """
                 for function 特殊处理
                 """
                 for_num = data.get('num')
-                for_func(action_list=child_business_list, num=for_num, deep_num=1, master_function=recursion_main)
+                for_func_kw = {
+                    "action_list": child_business_list,
+                    "num": for_num,
+                    "deep_num": 1,
+                    "master_function": recursion_main,
+                    "web_driver_example": web_driver_example
+                }
+                for_func(**for_func_kw)
             else:
                 """
                 普通 function 执行
                 """
-                function_name = query_function(business_dict=data)
                 print(">>>", data)
-                print("普通 function 执行>>>", function, child_business_list, '\n')
+                f = get_primary_func(web_driver_example, res_func)
+                print("普通 function 反射执行>>>", function, child_business_list, res_func, f, '\n')
 
 
-class RpaMain(WebUiDriver):
+class UiCaseRunner(WebUiDriver):
     """rpa"""
 
-    def __init__(self, data_list: list):
+    def __init__(self, data_list: list, web_driver):
         """
 
         :param data_list:
         """
 
         self.data_list = data_list
+        self.bwd = web_driver(headless=False)
 
     def main(self):
         """main"""
 
-        recursion_main(data_list=self.data_list)
+        recursion_main(data_list=self.data_list, web_driver_example=self.bwd)
 
 
 if __name__ == '__main__':
-    print(json.dumps(meta_data, ensure_ascii=False))
-    print(control_dict)
+    # print(json.dumps(meta_data, ensure_ascii=False))
+    # print(control_dict)
 
-    rpa_main = RpaMain(data_list=meta_data)
-    rpa_main.main()
+    ucr = UiCaseRunner(data_list=meta_data, web_driver=BaseWebDriver)
+    ucr.main()
