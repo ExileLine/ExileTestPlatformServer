@@ -50,214 +50,420 @@ child_master = {
     ]
 }
 
-meta_data = [
-    {
+
+class TestMetaData:
+    """测试"""
+
+    home = {
         "uuid": shortuuid.uuid(),
         "index": 1,
-        "title": "开始",
-        "type": "master",
-        "business_list": [
-            {
-                "uuid": shortuuid.uuid(),
-                "index": 1,
-                "type": "ui_control",
-                "title": "启动浏览器控件",
-                "function": "open",
-                "args": {
-                    "url": "https://www.github.com"
-                }
-            },
-        ]
-    },
-    {
+        "type": "ui_control",
+        "title": "点击前往首页",
+        "function": "click",
+        "args": {
+            "mode": "XPATH",
+            "value": """//*[@id="app"]/div/div[1]/div[1]/div[1]/span"""
+        }
+    }
+
+    acc = {
+        "uuid": shortuuid.uuid(),
+        "index": 1,
+        "type": "ui_control",
+        "title": "输入账号",
+        "function": "input",
+        "args": {
+            "mode": "XPATH",
+            "value": """//*[@id="login-form"]/div[1]/div[2]/div/div/div/input""",
+            "data": "admin",
+        }
+    }
+    pwd = {
         "uuid": shortuuid.uuid(),
         "index": 2,
-        "title": "登录",
-        "type": "master",
-        "business_list": [
-            {
-                "uuid": shortuuid.uuid(),
-                "index": 1,
-                "type": "ui_control",
-                "title": "输入控件",
-                "function": "input",
-                "args": {
-                    "username": "admin"
-                }
-            },
-            {
-                "uuid": shortuuid.uuid(),
-                "index": 2,
-                "type": "ui_control",
-                "title": "输入控件",
-                "function": "input",
-                "args": {
-                    "password": "123456"
-                }
-            },
-            {
-                "uuid": shortuuid.uuid(),
-                "index": 3,
-                "type": "ui_control",
-                "title": "点击控件",
-                "function": "click",
-                "args": {}
-            },
-            {
-                "uuid": shortuuid.uuid(),
-                "index": 4,
-                "title": "检验是否登录成功",
-                "type": "master",
-                "business_list": [
-                    {
-                        "uuid": shortuuid.uuid(),
-                        "index": 1,
-                        "type": "assert_control",
-                        "title": "UI断言控件",
-                        "function": "ui_assert",
-                        "args": {
-                            "expected_results": "aaa",
-                            "rule": "==",
-                            "actual_results": "",
-                            "actual_results_source": {
-                                "source": "web_ui",
-                                "args": {
-                                    "web_ui": {},
-                                    "api_response": {}
-                                }
-                            },
-                        }
-                    },
-                ]
-            },
-        ]
-    },
-    {
+        "type": "ui_control",
+        "title": "输入密码",
+        "function": "input",
+        "args": {
+            "mode": "XPATH",
+            "value": """//*[@id="login-form"]/div[2]/div[2]/div/div/div/input""",
+            "data": "123456"
+        }
+    }
+    login = {
         "uuid": shortuuid.uuid(),
         "index": 3,
-        "title": "循环录入数据",
+        "type": "ui_control",
+        "title": "点击登录",
+        "function": "click",
+        "args": {
+            "mode": "XPATH",
+            "value": """//*[@id="login-form"]/div[3]/div[2]/div/div/div/button[1]"""
+        }
+    }
+
+    project_name = {
+        "uuid": shortuuid.uuid(),
+        "index": 11,
+        "type": "ui_control",
+        "title": "输入项目名称",
+        "function": "input",
+        "args": {
+            "mode": "XPATH",
+            "value": """//*[@id="project-search-container"]/div/form/div/div/div/input""",
+            "data": "zxc"
+        }
+    }
+    project_select = {
+        "uuid": shortuuid.uuid(),
+        "index": 22,
+        "type": "ui_control",
+        "title": "点击搜索",
+        "function": "click",
+        "args": {
+            "mode": "XPATH",
+            "value": """//*[@id="project-search-container"]/div/form/div/span"""
+        }
+    }
+    project_click = {
+        "uuid": shortuuid.uuid(),
+        "index": 33,
+        "type": "ui_control",
+        "title": "点击项目3",
+        "function": "click",
+        "args": {
+            "mode": "XPATH",
+            "value": """//*[@id="main-container"]/div[1]/div[1]/div/div"""
+        }
+    }
+
+    logout1 = {
+        "uuid": shortuuid.uuid(),
+        "index": 4,
+        "type": "ui_control",
+        "title": "点击下拉",
+        "function": "click",
+        "args": {
+            "mode": "XPATH",
+            "value": """//*[@id="app"]/div/div[1]/button[4]/span/div"""
+        }
+    }
+    logout2 = {
+        "uuid": shortuuid.uuid(),
+        "index": 5,
+        "type": "ui_control",
+        "title": "点击退出",
+        "function": "click",
+        "args": {
+            "mode": "XPATH",
+            "value": """/html/body/div[2]/div/div/div/div[3]/li/span/div"""
+        }
+    }
+
+    assert_task = {
+        "uuid": shortuuid.uuid(),
+        "index": 4,
+        "title": "检验是否登录成功",
         "type": "master",
         "business_list": [
             {
                 "uuid": shortuuid.uuid(),
                 "index": 1,
-                "type": "logic_control",
-                "title": "循环控件",
-                "function": "for",
-                "num": 2,  # 调试
-                "data_source": [],
-                "business_list": [
-                    {
-                        "uuid": shortuuid.uuid(),
-                        "index": 1,
-                        "type": "ui_control",
-                        "title": "输入控件A",
-                        "function": "input",
+                "type": "assert_control",
+                "title": "UI断言控件",
+                "function": "ui_assert",
+                "args": {
+                    "expected_results": "aaa",
+                    "rule": "==",
+                    "actual_results": "",
+                    "actual_results_source": {
+                        "source": "web_ui",
                         "args": {
-                            "username": "admin"
+                            "web_ui": {},
+                            "api_response": {}
                         }
                     },
-                    {
-                        "uuid": shortuuid.uuid(),
-                        "index": 2,
-                        "type": "ui_control",
-                        "title": "输入控件B",
-                        "function": "input",
-                        "args": {
-                            "password": "123456"
-                        }
-                    },
-                    {
-                        "uuid": shortuuid.uuid(),
-                        "index": 3,
-                        "type": "ui_control",
-                        "title": "点击控件C",
-                        "function": "click",
-                        "args": {}
-                    },
-                    {
-                        "uuid": shortuuid.uuid(),
-                        "index": 4,
-                        "type": "logic",
-                        "title": "循环二(逻辑块)",
-                        "function": "for",
-                        "num": 3,
-                        "data_source": [],
-                        "business_list": [
-                            {
-                                "uuid": shortuuid.uuid(),
-                                "index": 11,
-                                "type": "ui_control",
-                                "title": "点击控件X-3",
-                                "function": "click",
-                                "args": {}
-                            },
-                            {
-                                "uuid": shortuuid.uuid(),
-                                "index": 22,
-                                "type": "ui_control",
-                                "title": "点击控件Y-3",
-                                "function": "click",
-                                "args": {}
-                            },
-                            {
-                                "uuid": shortuuid.uuid(),
-                                "index": 33,
-                                "type": "ui_control",
-                                "title": "点击控件Z-3",
-                                "function": "click",
-                                "args": {}
-                            },
-                            {
-                                "uuid": shortuuid.uuid(),
-                                "index": 44,
-                                "type": "logic",
-                                "title": "循环三(逻辑块)",
-                                "function": "for",
-                                "num": 2,
-                                "data_source": [],
-                                "business_list": [
-                                    {
-                                        "uuid": shortuuid.uuid(),
-                                        "index": 3331,
-                                        "type": "ui_control",
-                                        "title": "===点击控件OKC===2",
-                                        "function": "click",
-                                        "args": {}
-                                    },
-                                    {
-                                        "uuid": shortuuid.uuid(),
-                                        "index": 3332,
-                                        "type": "ui_control",
-                                        "title": "===点击控件LOL===2",
-                                        "function": "click",
-                                        "args": {}
-                                    },
-                                ]
-                            }
-                        ]
-                    },
-                    child_master
-                ]
+                }
             },
-            {
-                "uuid": shortuuid.uuid(),
-                "index": 2,
-                "title": "操作2",
-                "type": "master",
-                "business_list": [
-                    {
-                        "uuid": shortuuid.uuid(),
-                        "index": 1,
-                        "type": "ui_control",
-                        "title": "点击控件",
-                        "function": "click",
-                        "args": {}
-                    },
-                ]
-            }
         ]
     }
+
+    light = {
+        "uuid": shortuuid.uuid(),
+        "index": 3331,
+        "type": "ui_control",
+        "title": "点击光明2",
+        "function": "click",
+        "args": {
+            "mode": "XPATH",
+            "value": """//*[@id="app"]/div/div[1]/div[2]/div[2]"""
+        }
+    }
+    dark = {
+        "uuid": shortuuid.uuid(),
+        "index": 3332,
+        "type": "ui_control",
+        "title": "点击暗夜2",
+        "function": "click",
+        "args": {
+            "mode": "XPATH",
+            "value": """//*[@id="app"]/div/div[1]/div[2]/div[3]"""
+        }
+    }
+
+
+start = {
+    "uuid": shortuuid.uuid(),
+    "index": 1,
+    "title": "开始",
+    "type": "master",
+    "business_list": [
+        {
+            "uuid": shortuuid.uuid(),
+            "index": 1,
+            "type": "ui_control",
+            "title": "启动浏览器控件",
+            "function": "open",
+            "args": {
+                # "url": "https://www.baidu.com"
+                "url": "http://localhost:3200/login"
+            }
+        },
+    ]
+}
+
+test_001 = {
+    "uuid": shortuuid.uuid(),
+    "index": 2,
+    "title": "登录",
+    "type": "master",
+    "business_list": [
+        TestMetaData.acc,
+        TestMetaData.pwd,
+        TestMetaData.login,
+
+        TestMetaData.project_name,
+        TestMetaData.project_select,
+        TestMetaData.project_click,
+
+        TestMetaData.dark,
+        TestMetaData.light,
+
+        TestMetaData.logout1,
+        TestMetaData.logout2,
+        # TestMetaData.assert_task
+    ]
+}
+
+test_for_001 = {
+    "uuid": shortuuid.uuid(),
+    "index": 3,
+    "title": "嵌套循环操作",
+    "type": "master",
+    "business_list": [
+        {
+            "uuid": shortuuid.uuid(),
+            "index": 1,
+            "type": "logic_control",
+            "title": "第一层循环",
+            "function": "for",
+            "num": 3,  # 调试
+            "data_source": [],
+            "business_list": [
+                TestMetaData.acc,
+                TestMetaData.pwd,
+                TestMetaData.login,
+
+                {
+                    "uuid": shortuuid.uuid(),
+                    "index": 4,
+                    "type": "logic_control",
+                    "title": "第二层循环",
+                    "function": "for",
+                    "num": 3,
+                    "data_source": [],
+                    "business_list": [
+                        TestMetaData.project_name,
+                        TestMetaData.project_select,
+                        TestMetaData.project_click,
+                        TestMetaData.dark,
+                        TestMetaData.light,
+                        TestMetaData.home,
+
+                        # {
+                        #     "uuid": shortuuid.uuid(),
+                        #     "index": 44,
+                        #     "type": "logic",
+                        #     "title": "循环三(逻辑块)",
+                        #     "function": "for",
+                        #     "num": 2,
+                        #     "data_source": [],
+                        #     "business_list": [
+                        #         TestMetaData.dark,
+                        #         TestMetaData.light,
+                        #     ]
+                        # }
+                    ]
+                },
+
+                TestMetaData.logout1,
+                TestMetaData.logout2,
+
+            ]
+        },
+    ]
+}
+
+task_002 = {
+    "uuid": shortuuid.uuid(),
+    "index": 3,
+    "title": "循环录入数据",
+    "type": "master",
+    "business_list": [
+        {
+            "uuid": shortuuid.uuid(),
+            "index": 1,
+            "type": "logic_control",
+            "title": "循环控件",
+            "function": "for",
+            "num": 2,  # 调试
+            "data_source": [],
+            "business_list": [
+                {
+                    "uuid": shortuuid.uuid(),
+                    "index": 1,
+                    "type": "ui_control",
+                    "title": "输入控件A",
+                    "function": "input",
+                    "args": {
+                        "username": "admin"
+                    }
+                },
+                {
+                    "uuid": shortuuid.uuid(),
+                    "index": 2,
+                    "type": "ui_control",
+                    "title": "输入控件B",
+                    "function": "input",
+                    "args": {
+                        "password": "123456"
+                    }
+                },
+                {
+                    "uuid": shortuuid.uuid(),
+                    "index": 3,
+                    "type": "ui_control",
+                    "title": "点击控件C",
+                    "function": "click",
+                    "args": {}
+                },
+                {
+                    "uuid": shortuuid.uuid(),
+                    "index": 4,
+                    "type": "logic",
+                    "title": "循环二(逻辑块)",
+                    "function": "for",
+                    "num": 3,
+                    "data_source": [],
+                    "business_list": [
+                        {
+                            "uuid": shortuuid.uuid(),
+                            "index": 11,
+                            "type": "ui_control",
+                            "title": "点击控件X-3",
+                            "function": "click",
+                            "args": {}
+                        },
+                        {
+                            "uuid": shortuuid.uuid(),
+                            "index": 22,
+                            "type": "ui_control",
+                            "title": "点击控件Y-3",
+                            "function": "click",
+                            "args": {}
+                        },
+                        {
+                            "uuid": shortuuid.uuid(),
+                            "index": 33,
+                            "type": "ui_control",
+                            "title": "点击控件Z-3",
+                            "function": "click",
+                            "args": {}
+                        },
+                        {
+                            "uuid": shortuuid.uuid(),
+                            "index": 44,
+                            "type": "logic",
+                            "title": "循环三(逻辑块)",
+                            "function": "for",
+                            "num": 2,
+                            "data_source": [],
+                            "business_list": [
+                                {
+                                    "uuid": shortuuid.uuid(),
+                                    "index": 3331,
+                                    "type": "ui_control",
+                                    "title": "===点击控件OKC===2",
+                                    "function": "click",
+                                    "args": {}
+                                },
+                                {
+                                    "uuid": shortuuid.uuid(),
+                                    "index": 3332,
+                                    "type": "ui_control",
+                                    "title": "===点击控件LOL===2",
+                                    "function": "click",
+                                    "args": {}
+                                },
+                            ]
+                        }
+                    ]
+                },
+                child_master
+            ]
+        },
+        {
+            "uuid": shortuuid.uuid(),
+            "index": 2,
+            "title": "操作2",
+            "type": "master",
+            "business_list": [
+                {
+                    "uuid": shortuuid.uuid(),
+                    "index": 1,
+                    "type": "ui_control",
+                    "title": "点击控件",
+                    "function": "click",
+                    "args": {}
+                },
+            ]
+        }
+    ]
+}
+
+end = {
+    "uuid": shortuuid.uuid(),
+    "index": 1,
+    "title": "结束",
+    "type": "master",
+    "business_list": [
+        {
+            "uuid": shortuuid.uuid(),
+            "index": 1,
+            "type": "ui_control",
+            "title": "关闭浏览器",
+            "function": "close",
+            "args": {}
+        },
+    ]
+}
+
+meta_data = [
+    start,
+    test_001,
+    test_for_001,
+    # task_002,
+    end
 ]
 
 
@@ -299,8 +505,9 @@ class ControlFunction:
 
     web_ui_control_dict = {
         "open": "open",
-        "input": "input",
-        "click": "click"
+        "close": "close",
+        "input": "custom_input",
+        "click": "custom_click"
     }
 
     api_control_dict = {
@@ -414,8 +621,11 @@ def for_func(action_list: list, data_list: list = None, num: int = 0, deep_num: 
                     else:
                         print(f">>>{deep_num}", ac, first)
 
-                    f = get_primary_func(web_driver_example, res_func)
-                    print(f)
+                    print(">>>", ac)
+                    func = get_primary_func(web_driver_example, res_func)
+                    func_args = ac.get('args')
+                    print(">>> 普通 function 反射执行", func, func_args, '\n')
+                    func(**func_args)
         if first:
             print(f'=== 第 {i} 轮结束 ===\n')
 
@@ -456,8 +666,10 @@ def recursion_main(data_list: list, web_driver_example: object = None):
                 普通 function 执行
                 """
                 print(">>>", data)
-                f = get_primary_func(web_driver_example, res_func)
-                print("普通 function 反射执行>>>", function, child_business_list, res_func, f, '\n')
+                func = get_primary_func(web_driver_example, res_func)
+                func_args = data.get('args')
+                print(">>> 普通 function 反射执行", func, func_args, '\n')
+                func(**func_args)
 
 
 class UiCaseRunner(WebUiDriver):
