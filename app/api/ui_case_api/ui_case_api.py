@@ -22,80 +22,214 @@ class UiCaseApi(MethodView):
 
         meta_data = [
             {
-                "uuid": "SSKXwjUKoQNqG5sV5qNRP8",
+                "uuid": "RqceT7F7VR7MUepkCe3TgP",
                 "index": 1,
                 "title": "开始",
                 "type": "master",
                 "business_list": [
                     {
-                        "uuid": "dq9nUTPm6nypqbDt2xwzA9",
+                        "uuid": "43mcDsxMP5hfgwXpYFekNf",
                         "index": 1,
                         "type": "ui_control",
                         "title": "启动浏览器控件",
                         "function": "open",
                         "args": {
-                            "url": "https://www.github.com"
+                            "url": "http://localhost:3200/login"
                         }
                     }
                 ]
             },
             {
-                "uuid": "KT59rxZaB7c4tMfRJCQzRb",
+                "uuid": "Paahmn4pisq6DCMAb6MTj7",
                 "index": 2,
                 "title": "登录",
                 "type": "master",
                 "business_list": [
                     {
-                        "uuid": "PancmWgaEfCPcwuSFFr3nC",
+                        "uuid": "BeKExy3oDBmffkyh6z5sFh",
                         "index": 1,
                         "type": "ui_control",
-                        "title": "输入控件",
+                        "title": "应用A，页面A，输入账号",
                         "function": "input",
                         "args": {
-                            "username": "admin"
+                            "mode": "XPATH",
+                            "value": "//*[@id=\"login-form\"]/div[1]/div[2]/div/div/div/input",
+                            "data": "admin"
                         }
                     },
                     {
-                        "uuid": "YYtJPzKKAfZ6K2L9CAZrz8",
+                        "uuid": "TgxCgmQ3eAiYJ9poTDa3y8",
                         "index": 2,
                         "type": "ui_control",
-                        "title": "输入控件",
+                        "title": "输入密码",
                         "function": "input",
                         "args": {
-                            "password": "123456"
+                            "mode": "XPATH",
+                            "value": "//*[@id=\"login-form\"]/div[2]/div[2]/div/div/div/input",
+                            "data": "123456"
                         }
                     },
                     {
-                        "uuid": "fnvL2vEpqk95ARzC8n5Bmi",
+                        "uuid": "bAYF8u42at5VDYHRwc63bu",
                         "index": 3,
                         "type": "ui_control",
-                        "title": "点击控件",
+                        "title": "点击登录",
                         "function": "click",
-                        "args": {}
+                        "args": {
+                            "mode": "XPATH",
+                            "value": "//*[@id=\"login-form\"]/div[3]/div[2]/div/div/div/button[1]"
+                        }
                     },
+                ]
+            },
+            {
+                "uuid": "DuykYPs5UhqhULXCqerzGq",
+                "index": 3,
+                "title": "嵌套循环操作",
+                "type": "master",
+                "business_list": [
                     {
-                        "uuid": "UAgXfArTT37o8tvGfvCPAf",
-                        "index": 4,
-                        "title": "检验是否登录成功",
-                        "type": "master",
+                        "uuid": "VwfKjeL87DVythEsHsC8Jd",
+                        "index": 1,
+                        "type": "logic_control",
+                        "title": "第一层循环",
+                        "function": "for",
+                        "num": 3,
+                        "data_source": [],
                         "business_list": [
                             {
-                                "uuid": "oAfe5DJdyjo8H2QcmgrybP",
+                                "uuid": "BeKExy3oDBmffkyh6z5sFh",
                                 "index": 1,
-                                "type": "assert_control",
-                                "title": "UI断言控件",
-                                "function": "ui_assert",
+                                "type": "ui_control",
+                                "title": "输入账号",
+                                "function": "input",
                                 "args": {
-                                    "expected_results": "aaa",
-                                    "rule": "==",
-                                    "actual_results": "",
-                                    "actual_results_source": {
-                                        "source": "web_ui",
+                                    "mode": "XPATH",
+                                    "value": "//*[@id=\"login-form\"]/div[1]/div[2]/div/div/div/input",
+                                    "data": "admin"
+                                }
+                            },
+                            {
+                                "uuid": "TgxCgmQ3eAiYJ9poTDa3y8",
+                                "index": 2,
+                                "type": "ui_control",
+                                "title": "输入密码",
+                                "function": "input",
+                                "args": {
+                                    "mode": "XPATH",
+                                    "value": "//*[@id=\"login-form\"]/div[2]/div[2]/div/div/div/input",
+                                    "data": "123456"
+                                }
+                            },
+                            {
+                                "uuid": "bAYF8u42at5VDYHRwc63bu",
+                                "index": 3,
+                                "type": "ui_control",
+                                "title": "点击登录",
+                                "function": "click",
+                                "args": {
+                                    "mode": "XPATH",
+                                    "value": "//*[@id=\"login-form\"]/div[3]/div[2]/div/div/div/button[1]"
+                                }
+                            },
+                            {
+                                "uuid": "bzjmqAUjuYTs3sASxoXh3r",
+                                "index": 4,
+                                "type": "logic_control",
+                                "title": "第二层循环",
+                                "function": "for",
+                                "num": 3,
+                                "data_source": [],
+                                "business_list": [
+                                    {
+                                        "uuid": "6nBzTGWXAaDdE8fo5XaGVr",
+                                        "index": 11,
+                                        "type": "ui_control",
+                                        "title": "输入项目名称",
+                                        "function": "input",
                                         "args": {
-                                            "web_ui": {},
-                                            "api_response": {}
+                                            "mode": "XPATH",
+                                            "value": "//*[@id=\"project-search-container\"]/div/form/div/div/div/input",
+                                            "data": "zxc"
+                                        }
+                                    },
+                                    {
+                                        "uuid": "oHCN6jjbDCYWzgjzNojecC",
+                                        "index": 22,
+                                        "type": "ui_control",
+                                        "title": "点击搜索",
+                                        "function": "click",
+                                        "args": {
+                                            "mode": "XPATH",
+                                            "value": "//*[@id=\"project-search-container\"]/div/form/div/span"
+                                        }
+                                    },
+                                    {
+                                        "uuid": "dPHmBmPcAGpp5zqcX7MsUV",
+                                        "index": 33,
+                                        "type": "ui_control",
+                                        "title": "点击项目3",
+                                        "function": "click",
+                                        "args": {
+                                            "mode": "XPATH",
+                                            "value": "//*[@id=\"main-container\"]/div[1]/div[1]/div/div"
+                                        }
+                                    },
+                                    {
+                                        "uuid": "68AUdem7SfBnx8CAQs3Uen",
+                                        "index": 3332,
+                                        "type": "ui_control",
+                                        "title": "点击暗夜2",
+                                        "function": "click",
+                                        "args": {
+                                            "mode": "XPATH",
+                                            "value": "//*[@id=\"app\"]/div/div[1]/div[2]/div[3]"
+                                        }
+                                    },
+                                    {
+                                        "uuid": "fhHpv6Wa9ADgJP3xdoG79c",
+                                        "index": 3331,
+                                        "type": "ui_control",
+                                        "title": "点击光明2",
+                                        "function": "click",
+                                        "args": {
+                                            "mode": "XPATH",
+                                            "value": "//*[@id=\"app\"]/div/div[1]/div[2]/div[2]"
+                                        }
+                                    },
+                                    {
+                                        "uuid": "gdympUTxBA59FGNt9J6D8f",
+                                        "index": 1,
+                                        "type": "ui_control",
+                                        "title": "点击前往首页",
+                                        "function": "click",
+                                        "args": {
+                                            "mode": "XPATH",
+                                            "value": "//*[@id=\"app\"]/div/div[1]/div[1]/div[1]/span"
                                         }
                                     }
+                                ]
+                            },
+                            {
+                                "uuid": "Ca8QoABC2QtnjzfHtkAfsq",
+                                "index": 4,
+                                "type": "ui_control",
+                                "title": "点击下拉",
+                                "function": "click",
+                                "args": {
+                                    "mode": "XPATH",
+                                    "value": "//*[@id=\"app\"]/div/div[1]/button[4]/span/div"
+                                }
+                            },
+                            {
+                                "uuid": "Zf3tJvN3t4n8RFLCiTVYLm",
+                                "index": 5,
+                                "type": "ui_control",
+                                "title": "点击退出",
+                                "function": "click",
+                                "args": {
+                                    "mode": "XPATH",
+                                    "value": "/html/body/div[2]/div/div/div/div[3]/li/span/div"
                                 }
                             }
                         ]
@@ -103,162 +237,18 @@ class UiCaseApi(MethodView):
                 ]
             },
             {
-                "uuid": "8s2vTYVAmnAx75hd7Zb6oW",
-                "index": 3,
-                "title": "循环录入数据",
+                "uuid": "3Lr7gkJx9WjXr8DRzWoU4e",
+                "index": 1,
+                "title": "结束",
                 "type": "master",
                 "business_list": [
                     {
-                        "uuid": "2HHDpYRcYAbjMjvb2JcgnW",
+                        "uuid": "e6rL6LWxRZkyGYkQadn3yz",
                         "index": 1,
-                        "type": "logic_control",
-                        "title": "循环控件",
-                        "function": "for",
-                        "num": 2,
-                        "data_source": [],
-                        "business_list": [
-                            {
-                                "uuid": "Q2HSWNo6F37LBQnGce3YZF",
-                                "index": 1,
-                                "type": "ui_control",
-                                "title": "输入控件A",
-                                "function": "input",
-                                "args": {
-                                    "username": "admin"
-                                }
-                            },
-                            {
-                                "uuid": "Tgpqau5oLojKckjYCSSq34",
-                                "index": 2,
-                                "type": "ui_control",
-                                "title": "输入控件B",
-                                "function": "input",
-                                "args": {
-                                    "password": "123456"
-                                }
-                            },
-                            {
-                                "uuid": "Ao5wFr6aJ6XD9aWpRbwJX6",
-                                "index": 3,
-                                "type": "ui_control",
-                                "title": "点击控件C",
-                                "function": "click",
-                                "args": {}
-                            },
-                            {
-                                "uuid": "nmt6gHBAMZNoozMox6AjUb",
-                                "index": 4,
-                                "type": "logic",
-                                "title": "循环二(逻辑块)",
-                                "function": "for",
-                                "num": 3,
-                                "data_source": [],
-                                "business_list": [
-                                    {
-                                        "uuid": "fVWxPXe3wvnAzQb6W8qQX9",
-                                        "index": 11,
-                                        "type": "ui_control",
-                                        "title": "点击控件X-3",
-                                        "function": "click",
-                                        "args": {}
-                                    },
-                                    {
-                                        "uuid": "4X4THtoLhBqAh7MSCNJh37",
-                                        "index": 22,
-                                        "type": "ui_control",
-                                        "title": "点击控件Y-3",
-                                        "function": "click",
-                                        "args": {}
-                                    },
-                                    {
-                                        "uuid": "b8GKiADD35x5B6ENx4EDqU",
-                                        "index": 33,
-                                        "type": "ui_control",
-                                        "title": "点击控件Z-3",
-                                        "function": "click",
-                                        "args": {}
-                                    },
-                                    {
-                                        "uuid": "3Exf8tts4NrdLYxZSSyN5W",
-                                        "index": 44,
-                                        "type": "logic",
-                                        "title": "循环三(逻辑块)",
-                                        "function": "for",
-                                        "num": 2,
-                                        "data_source": [],
-                                        "business_list": [
-                                            {
-                                                "uuid": "YY3TM9xBPSsonno8iBo6F9",
-                                                "index": 3331,
-                                                "type": "ui_control",
-                                                "title": "===点击控件OKC===2",
-                                                "function": "click",
-                                                "args": {}
-                                            },
-                                            {
-                                                "uuid": "2YReAR6kUBRLVBnkjxqq6Q",
-                                                "index": 3332,
-                                                "type": "ui_control",
-                                                "title": "===点击控件LOL===2",
-                                                "function": "click",
-                                                "args": {}
-                                            }
-                                        ]
-                                    }
-                                ]
-                            },
-                            {
-                                "uuid": "XnvkzYRmBzDkoUAiZbYqqv",
-                                "index": 5,
-                                "title": "循环四(业务块)",
-                                "type": "master",
-                                "business_list": [
-                                    {
-                                        "uuid": "Fh6owJBcj8cHrxJALjy5Zs",
-                                        "index": 1,
-                                        "type": "ui_control",
-                                        "title": "循环四-点击控件1",
-                                        "function": "click",
-                                        "args": {}
-                                    },
-                                    {
-                                        "uuid": "P4uJAvG2BW7ELBMF6kSqXt",
-                                        "index": 2,
-                                        "type": "logic_control",
-                                        "title": "循环控件",
-                                        "function": "for",
-                                        "num": 2,
-                                        "data_source": [],
-                                        "business_list": [
-                                            {
-                                                "uuid": "5RGFfqizkAajQUnWw3CFZz",
-                                                "index": 771,
-                                                "type": "ui_control",
-                                                "title": "循环四-内循环-点击控件2",
-                                                "function": "click",
-                                                "args": {}
-                                            }
-                                        ]
-                                    }
-                                ]
-                            }
-                        ]
-                    },
-                    {
-                        "uuid": "DTVNfXZTsKNZFRSSh2eTkx",
-                        "index": 2,
-                        "title": "操作2",
-                        "type": "master",
-                        "business_list": [
-                            {
-                                "uuid": "cSbPDUizQPZyaWwgYwrkoz",
-                                "index": 1,
-                                "type": "ui_control",
-                                "title": "点击控件",
-                                "function": "click",
-                                "args": {}
-                            }
-                        ]
+                        "type": "ui_control",
+                        "title": "关闭浏览器",
+                        "function": "close",
+                        "args": {}
                     }
                 ]
             }
