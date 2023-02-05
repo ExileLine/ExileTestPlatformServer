@@ -49,7 +49,7 @@ class UiCaseApi(MethodView):
                         "uuid": "BeKExy3oDBmffkyh6z5sFh",
                         "index": 1,
                         "type": "ui_control",
-                        "title": "应用A，页面A，输入账号",
+                        "title": "输入账号",
                         "function": "input",
                         "args": {
                             "mode": "XPATH",
@@ -142,84 +142,60 @@ class UiCaseApi(MethodView):
                                 "data_source": [],
                                 "business_list": [
                                     {
-                                        "uuid": "6nBzTGWXAaDdE8fo5XaGVr",
-                                        "index": 11,
-                                        "type": "ui_control",
-                                        "title": "输入项目名称",
-                                        "function": "input",
-                                        "args": {
-                                            "mode": "XPATH",
-                                            "value": "//*[@id=\"project-search-container\"]/div/form/div/div/div/input",
-                                            "data": "zxc"
-                                        }
-                                    },
-                                    {
-                                        "uuid": "oHCN6jjbDCYWzgjzNojecC",
-                                        "index": 22,
-                                        "type": "ui_control",
-                                        "title": "点击搜索",
-                                        "function": "click",
-                                        "args": {
-                                            "mode": "XPATH",
-                                            "value": "//*[@id=\"project-search-container\"]/div/form/div/span"
-                                        }
-                                    },
-                                    {
-                                        "uuid": "dPHmBmPcAGpp5zqcX7MsUV",
-                                        "index": 33,
-                                        "type": "ui_control",
-                                        "title": "点击项目3",
-                                        "function": "click",
-                                        "args": {
-                                            "mode": "XPATH",
-                                            "value": "//*[@id=\"main-container\"]/div[1]/div[1]/div/div"
-                                        }
-                                    },
-                                    {
-                                        "uuid": "68AUdem7SfBnx8CAQs3Uen",
-                                        "index": 3332,
-                                        "type": "ui_control",
-                                        "title": "点击暗夜2",
-                                        "function": "click",
-                                        "args": {
-                                            "mode": "XPATH",
-                                            "value": "//*[@id=\"app\"]/div/div[1]/div[2]/div[3]"
-                                        }
-                                    },
-                                    {
-                                        "uuid": "fhHpv6Wa9ADgJP3xdoG79c",
-                                        "index": 3331,
-                                        "type": "ui_control",
-                                        "title": "点击光明2",
-                                        "function": "click",
-                                        "args": {
-                                            "mode": "XPATH",
-                                            "value": "//*[@id=\"app\"]/div/div[1]/div[2]/div[2]"
-                                        }
-                                    },
-                                    {
-                                        "uuid": "gdympUTxBA59FGNt9J6D8f",
+                                        "uuid": "RqceT7F7VR7MUepkCe3123",
                                         "index": 1,
-                                        "type": "ui_control",
-                                        "title": "点击前往首页",
-                                        "function": "click",
-                                        "args": {
-                                            "mode": "XPATH",
-                                            "value": "//*[@id=\"app\"]/div/div[1]/div[1]/div[1]/span"
-                                        }
-                                    }
+                                        "title": "录入数据",
+                                        "type": "master",
+                                        "business_list": [
+                                            {
+                                                "uuid": "6nBzTGWXAaDdE8fo5Xa123",
+                                                "index": 11,
+                                                "type": "ui_control",
+                                                "title": "输入人员名称",
+                                                "function": "input",
+                                                "args": {
+                                                    "mode": "XPATH",
+                                                    "value": "//*[@id=\"project-search-container\"]/div/form/div/div/div/input",
+                                                    "data": "zxc"
+                                                }
+                                            },
+                                            {
+                                                "uuid": "oHCN6jjbDCYWzgjzNoj123",
+                                                "index": 22,
+                                                "type": "ui_control",
+                                                "title": "点击搜索",
+                                                "function": "click",
+                                                "args": {
+                                                    "mode": "XPATH",
+                                                    "value": "//*[@id=\"project-search-container\"]/div/form/div/span"
+                                                }
+                                            },
+                                            {
+                                                "uuid": "dPHmBmPcAGpp5zqcX7M123",
+                                                "index": 33,
+                                                "type": "ui_control",
+                                                "title": "编辑",
+                                                "function": "click",
+                                                "args": {
+                                                    "mode": "XPATH",
+                                                    "value": "//*[@id=\"main-container\"]/div[1]/div[1]/div/div"
+                                                }
+                                            },
+                                            {
+                                                "uuid": "68AUdem7SfBnx8CAQs3123",
+                                                "index": 3332,
+                                                "type": "ui_control",
+                                                "title": "保存",
+                                                "function": "click",
+                                                "args": {
+                                                    "mode": "XPATH",
+                                                    "value": "//*[@id=\"app\"]/div/div[1]/div[2]/div[3]"
+                                                }
+                                            },
+                                        ]
+                                    },
+
                                 ]
-                            },
-                            {
-                                "uuid": "Ca8QoABC2QtnjzfHtkAfsq",
-                                "index": 4,
-                                "type": "ui_control",
-                                "title": "点击下拉",
-                                "function": "click",
-                                "args": {
-                                    "mode": "XPATH",
-                                    "value": "//*[@id=\"app\"]/div/div[1]/button[4]/span/div"
-                                }
                             },
                             {
                                 "uuid": "Zf3tJvN3t4n8RFLCiTVYLm",
