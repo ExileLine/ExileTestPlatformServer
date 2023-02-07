@@ -23,6 +23,8 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.action_chains import ActionChains
 
+from selenium.common.exceptions import ElementNotVisibleException, ElementNotSelectableException
+
 options_dict = {
     "chrome": webdriver.ChromeOptions,
     "firefox": webdriver.FirefoxOptions,
@@ -122,17 +124,9 @@ class BaseWebDriver:
         print(self.end_time)
         self.driver.quit()
 
-    def pre_wait_to_xpath(self, xpath, t=5):
-        """
-        前置等待
-        :param xpath: xpath路径
-        :param t: 等待时间
-        :return:
-        """
-        return WebDriverWait(self.driver, t).until(ec.presence_of_element_located((By.XPATH, xpath)))
-
     def ts(self, n):
         """隐式等待"""
+
         self.driver.implicitly_wait(n)
 
     def x(self):
@@ -142,7 +136,7 @@ class BaseWebDriver:
 
     def wait_element(self, by: By, value: str, timeout: int = 5):
         """
-        等待定位
+        显式等待
         :param by: By.ID , By.XPATH ...
         :param value: 元素名称
         :param timeout: 等待时间
@@ -154,7 +148,7 @@ class BaseWebDriver:
         element = wait.until(ec.presence_of_element_located(locator))
         return element
 
-    def fluent_wait_ele(self, by: By, value: str, timeout: int = 5):
+    def fluent_wait_element(self, by: By, value: str, timeout: int = 5):
         """
         流畅等待
         :param by: By.ID , By.XPATH ...
