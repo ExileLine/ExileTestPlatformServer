@@ -42,7 +42,8 @@ driver_dict = {
 
 class BaseWebDriver:
 
-    def __init__(self, source_path: str = None, options: str = "chrome", headless: bool = False, url: str = ""):
+    def __init__(self, source_path: str = None, options: str = "chrome", headless: bool = False, url: str = "",
+                 download_path: str = None):
         """
 
         :param source_path: 资源保存路径(例如截图等)
@@ -60,6 +61,10 @@ class BaseWebDriver:
         self.headless = headless
         self.driver = None
         self.url = url
+        self.start_time = 0
+        self.end_time = 0
+
+        self.download_path = download_path
 
     def driver_init(self):
         """
@@ -76,6 +81,14 @@ class BaseWebDriver:
         if self.headless:  # 无界面模式
             options.add_argument('headless')
 
+        if self.options == 'chrome':
+            prefs = {
+                'profile.default_content_settings.popups': 0,
+                'download.default_directory': self.download_path,
+                "profile.default_content_setting_values.automatic_downloads": 1
+            }  # 取消下载多个文件的弹窗，直接自动下载多个文件
+            options.add_experimental_option('prefs', prefs)
+
         self.driver = driver_dict.get(self.options)(options=options)
         print(self.driver)
 
@@ -90,17 +103,23 @@ class BaseWebDriver:
         self.start()
         self.driver.get(self.url)
 
+    def close(self):
+        """关闭"""
+
+        self.end()
+
     def start(self):
         """启动"""
 
-        start_time = datetime.now()
-        print(start_time)
+        self.start_time = datetime.now()
+        print(self.start_time)
         print(self.driver.title)
 
     def end(self):
         """结束"""
-        end_time = datetime.now()
-        print(end_time)
+
+        self.end_time = datetime.now()
+        print(self.end_time)
         self.driver.quit()
 
     def pre_wait_to_xpath(self, xpath, t=5):
@@ -121,26 +140,70 @@ class BaseWebDriver:
 
         self.driver.save_screenshot(f"{self.source_path}/test/web_ui_png/baidu_{int(time.time())}.png")  # 截屏
 
-    def wait_element(self, by: By, value: str, wt: int = 5, **kwargs):
+    def wait_element(self, by: By, value: str, timeout: int = 5):
         """
         等待定位
         :param by: By.ID , By.XPATH ...
         :param value: 元素名称
-        :param wt: 等待时间
+        :param timeout: 等待时间
         :return: 元素
         """
-        print(by)
-        print(value)
+
         locator = (by, value)
-        return WebDriverWait(self.driver, wt, **kwargs).until(ec.presence_of_element_located(locator))
+        wait = WebDriverWait(self.driver, timeout=timeout)
+        element = wait.until(ec.presence_of_element_located(locator))
+        return element
 
-    def input(self):
-        """1"""
-        return True
+    def fluent_wait_ele(self, by: By, value: str, timeout: int = 5):
+        """
+        流畅等待
+        :param by: By.ID , By.XPATH ...
+        :param value: 元素名称
+        :param timeout: 等待时间
+        :return:
+        """
 
-    def click(self):
-        """1"""
-        return True
+        wait = WebDriverWait(
+            self.driver, timeout=timeout, poll_frequency=1,
+            ignored_exceptions=[ElementNotVisibleException, ElementNotSelectableException]
+        )
+        element = wait.until(ec.element_to_be_clickable((by, value)))
+        return element
+
+    def get_element(self, mode: str, value: str):
+        """
+        获取定位对象
+        :param mode: 定位方式,例如id,class,xpath等
+        :param value: 定位对应的值,例如id的值
+        :return:
+        """
+
+        by = getattr(By, mode)
+        ele = self.wait_element(by=by, value=value)
+        return ele
+
+    def custom_input(self, mode: str, value: str, data: any):
+        """
+        输入
+        :param mode: 定位方式,例如id,class,xpath等
+        :param value: 定位对应的值,例如id的值
+        :param data: 输入框的值
+        :return:
+        """
+
+        ele = self.get_element(mode=mode, value=value)
+        ele.send_keys(data)
+
+    def custom_click(self, mode: str, value: str):
+        """
+        点击
+        :param mode: 定位方式,例如id,class,xpath等
+        :param value: 定位对应的值,例如id的值
+        :return:
+        """
+
+        ele = self.get_element(mode=mode, value=value)
+        ele.click()
 
     def test(self):
         self.driver_init()
