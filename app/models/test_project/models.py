@@ -85,16 +85,11 @@ class TestModuleApp(BaseModel):
         )
 
 
-"""
-Api测试用例中间表
-"""
-
-
 class MidProjectAndCase(BaseModel):
     __tablename__ = 'exile_test_mid_project_case'
     __table_args__ = (
         db.Index('idx_project_case', 'project_id', 'case_id'),
-        {'comment': '项目-Api用例中间表'}
+        {'comment': '项目-用例中间表'}
     )
     project_id = db.Column(BIGINT(20, unsigned=True), comment='项目id')
     case_id = db.Column(BIGINT(20, unsigned=True), comment='用例id')
@@ -114,7 +109,7 @@ class MidVersionCase(BaseModel):
     __tablename__ = 'exile_test_mid_version_case'
     __table_args__ = (
         db.Index('idx_version_case', 'version_id', 'case_id'),
-        {'comment': '版本迭代-Api用例中间表'}
+        {'comment': '版本迭代-用例中间表'}
     )
     version_id = db.Column(BIGINT(20, unsigned=True), comment='迭代id')
     case_id = db.Column(BIGINT(20, unsigned=True), comment='用例id')
@@ -134,7 +129,7 @@ class MidTaskCase(BaseModel):
     __tablename__ = 'exile_test_mid_task_case'
     __table_args__ = (
         db.Index('idx_task_case', 'task_id', 'case_id'),
-        {'comment': '任务-Api用例中间表'}
+        {'comment': '任务-用例中间表'}
     )
     task_id = db.Column(BIGINT(20, unsigned=True), comment='任务id')
     case_id = db.Column(BIGINT(20, unsigned=True), comment='用例id')
@@ -154,7 +149,7 @@ class MidModuleCase(BaseModel):
     __tablename__ = 'exile_test_mid_module_case'
     __table_args__ = (
         db.Index('idx_module_case', 'module_id', 'case_id'),
-        {'comment': '模块-Api用例中间表'}
+        {'comment': '模块-用例中间表'}
     )
     module_id = db.Column(BIGINT(20, unsigned=True), comment='模块id')
     case_id = db.Column(BIGINT(20, unsigned=True), comment='用例id')
@@ -174,7 +169,7 @@ class MidProjectScenario(BaseModel):
     __tablename__ = 'exile_test_mid_project_scenario'
     __table_args__ = (
         db.Index('idx_project_scenario', 'project_id', 'scenario_id'),
-        {'comment': '项目-Api场景中间表'}
+        {'comment': '项目-场景中间表'}
     )
     project_id = db.Column(BIGINT(20, unsigned=True), comment='项目id')
     scenario_id = db.Column(BIGINT(20, unsigned=True), comment='场景id')
@@ -194,7 +189,7 @@ class MidVersionScenario(BaseModel):
     __tablename__ = 'exile_test_mid_version_scenario'
     __table_args__ = (
         db.Index('idx_version_scenario', 'version_id', 'scenario_id'),
-        {'comment': '版本迭代-Api场景中间表'}
+        {'comment': '版本迭代-场景中间表'}
     )
     version_id = db.Column(BIGINT(20, unsigned=True), comment='迭代id')
     scenario_id = db.Column(BIGINT(20, unsigned=True), comment='场景id')
@@ -214,7 +209,7 @@ class MidTaskScenario(BaseModel):
     __tablename__ = 'exile_test_mid_task_scenario'
     __table_args__ = (
         db.Index('idx_task_scenario', 'task_id', 'scenario_id'),
-        {'comment': '任务-Api用例中间表'}
+        {'comment': '任务-用例中间表'}
     )
     task_id = db.Column(BIGINT(20, unsigned=True), comment='任务id')
     scenario_id = db.Column(BIGINT(20, unsigned=True), comment='场景id')
@@ -234,7 +229,7 @@ class MidModuleScenario(BaseModel):
     __tablename__ = 'exile_test_mid_module_scenario'
     __table_args__ = (
         db.Index('idx_module_scenario', 'module_id', 'scenario_id'),
-        {'comment': '模块-Api用例中间表'}
+        {'comment': '模块-用例中间表'}
     )
     module_id = db.Column(BIGINT(20, unsigned=True), comment='模块id')
     scenario_id = db.Column(BIGINT(20, unsigned=True), comment='场景id')
@@ -247,89 +242,4 @@ class MidModuleScenario(BaseModel):
     def __repr__(self):
         return 'MidModuleScenario 模型对象-> ID:{} 模块id:{} 场景id:{}'.format(
             self.id, self.module_id, self.scenario_id
-        )
-
-
-"""
-UI测试用例中间表
-"""
-
-
-class MidProjectAndUiCase(BaseModel):
-    __tablename__ = 'exile_test_mid_project_ui_case'
-    __table_args__ = (
-        db.Index('idx_project_case', 'project_id', 'case_id'),
-        {'comment': '项目-UI用例中间表'}
-    )
-    project_id = db.Column(BIGINT(20, unsigned=True), comment='项目id')
-    case_id = db.Column(BIGINT(20, unsigned=True), comment='用例id')
-    creator = db.Column(db.String(32), comment='创建人')
-    creator_id = db.Column(BIGINT(20, unsigned=True), comment='创建人id')
-    modifier = db.Column(db.String(32), comment='更新人')
-    modifier_id = db.Column(BIGINT(20, unsigned=True), comment='更新人id')
-    remark = db.Column(db.String(255), comment='备注')
-
-    def __repr__(self):
-        return 'MidProjectAndCase 模型对象-> ID:{} 项目id:{} 用例id:{}'.format(
-            self.id, self.project_id, self.case_id
-        )
-
-
-class MidVersionUiCase(BaseModel):
-    __tablename__ = 'exile_test_mid_version_ui_case'
-    __table_args__ = (
-        db.Index('idx_version_case', 'version_id', 'case_id'),
-        {'comment': '版本迭代-UI用例中间表'}
-    )
-    version_id = db.Column(BIGINT(20, unsigned=True), comment='迭代id')
-    case_id = db.Column(BIGINT(20, unsigned=True), comment='用例id')
-    creator = db.Column(db.String(32), comment='创建人')
-    creator_id = db.Column(BIGINT(20, unsigned=True), comment='创建人id')
-    modifier = db.Column(db.String(32), comment='更新人')
-    modifier_id = db.Column(BIGINT(20, unsigned=True), comment='更新人id')
-    remark = db.Column(db.String(255), comment='备注')
-
-    def __repr__(self):
-        return 'MidVersionCase 模型对象-> ID:{} 迭代id:{} 用例id:{}'.format(
-            self.id, self.version_id, self.case_id
-        )
-
-
-class MidTaskUiCase(BaseModel):
-    __tablename__ = 'exile_test_mid_task_ui_case'
-    __table_args__ = (
-        db.Index('idx_task_case', 'task_id', 'case_id'),
-        {'comment': '任务-UI用例中间表'}
-    )
-    task_id = db.Column(BIGINT(20, unsigned=True), comment='任务id')
-    case_id = db.Column(BIGINT(20, unsigned=True), comment='用例id')
-    creator = db.Column(db.String(32), comment='创建人')
-    creator_id = db.Column(BIGINT(20, unsigned=True), comment='创建人id')
-    modifier = db.Column(db.String(32), comment='更新人')
-    modifier_id = db.Column(BIGINT(20, unsigned=True), comment='更新人id')
-    remark = db.Column(db.String(255), comment='备注')
-
-    def __repr__(self):
-        return 'MidTaskCase 模型对象-> ID:{} 任务id:{} 用例id:{}'.format(
-            self.id, self.task_id, self.case_id
-        )
-
-
-class MidModuleUiCase(BaseModel):
-    __tablename__ = 'exile_test_mid_module_ui_case'
-    __table_args__ = (
-        db.Index('idx_module_case', 'module_id', 'case_id'),
-        {'comment': '模块-UI用例中间表'}
-    )
-    module_id = db.Column(BIGINT(20, unsigned=True), comment='模块id')
-    case_id = db.Column(BIGINT(20, unsigned=True), comment='用例id')
-    creator = db.Column(db.String(32), comment='创建人')
-    creator_id = db.Column(BIGINT(20, unsigned=True), comment='创建人id')
-    modifier = db.Column(db.String(32), comment='更新人')
-    modifier_id = db.Column(BIGINT(20, unsigned=True), comment='更新人id')
-    remark = db.Column(db.String(255), comment='备注')
-
-    def __repr__(self):
-        return 'MidModuleCase 模型对象-> ID:{} 模块id:{} 用例id:{}'.format(
-            self.id, self.module_id, self.case_id
         )
