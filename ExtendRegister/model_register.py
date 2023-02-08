@@ -11,8 +11,7 @@ from app.models.platform_conf.models import PlatformConfModel
 from app.models.test_project.models import (
     TestProject, TestProjectVersion, TestVersionTask, TestModuleApp,
     MidProjectAndCase, MidVersionCase, MidTaskCase, MidModuleCase,
-    MidProjectScenario, MidVersionScenario, MidTaskScenario, MidModuleScenario,
-    MidProjectAndUiCase, MidVersionUiCase, MidTaskUiCase, MidModuleUiCase,
+    MidProjectScenario, MidVersionScenario, MidTaskScenario, MidModuleScenario
 )
 from app.models.test_case.models import TestCase, TestCaseData
 from app.models.test_case_assert.models import TestCaseAssertion, TestCaseAssResponse, TestCaseAssField, \
@@ -27,4 +26,6 @@ from app.models.push_reminder.models import MailConfModel, DingDingConfModel
 from app.models.timed_task.models import TimedTaskModel
 from app.models.file_import.models import FileImportHistory
 from app.models.test_cicd.models import TestCiCdMap
-from app.models.ui_test_case.models import UiTestCase
+from app.models.ui_test_case.models import (
+    UiTestCase, MidProjectAndUiCase, MidVersionUiCase, MidTaskUiCase, MidModuleUiCase
+)
