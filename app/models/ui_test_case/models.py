@@ -16,6 +16,7 @@ class UiTestCase(BaseModel):
     handle_property = True
 
     case_name = db.Column(db.String(255), nullable=False, comment='用例名称')
+    case_status = db.Column(db.String(255), comment='用例周期状态:active;dev;debug;over')
     _is_shared = db.Column('is_shared', TINYINT(1, unsigned=True), default=1, comment='0-仅创建者执行;1-共享执行')
     _is_public = db.Column('is_public', TINYINT(1, unsigned=True), default=1, comment='是否公共使用:0-否;1-是')
     total_execution = db.Column(BIGINT(20, unsigned=True), default=0, comment='执行次数总计')
@@ -24,6 +25,7 @@ class UiTestCase(BaseModel):
     modifier = db.Column(db.String(32), comment='更新人')
     modifier_id = db.Column(BIGINT(20, unsigned=True), comment='更新人id')
     remark = db.Column(db.String(255), comment='备注')
+    meta_data = db.Column(db.JSON, comment='业务树')
 
     @property
     def is_public(self):

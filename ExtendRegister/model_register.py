@@ -11,7 +11,8 @@ from app.models.platform_conf.models import PlatformConfModel
 from app.models.test_project.models import (
     TestProject, TestProjectVersion, TestVersionTask, TestModuleApp,
     MidProjectAndCase, MidVersionCase, MidTaskCase, MidModuleCase,
-    MidProjectScenario, MidVersionScenario, MidTaskScenario, MidModuleScenario
+    MidProjectScenario, MidVersionScenario, MidTaskScenario, MidModuleScenario,
+    MidProjectAndUiCase, MidVersionUiCase, MidTaskUiCase, MidModuleUiCase,
 )
 from app.models.test_case.models import TestCase, TestCaseData
 from app.models.test_case_assert.models import TestCaseAssertion, TestCaseAssResponse, TestCaseAssField, \
