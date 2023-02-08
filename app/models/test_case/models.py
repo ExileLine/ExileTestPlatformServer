@@ -16,7 +16,7 @@ class TestCase(BaseModel):
     hidden_fields = ["_is_public", "_is_shared"]
     handle_property = True
 
-    case_name = db.Column(db.String(255), nullable=False, comment='用户名称')
+    case_name = db.Column(db.String(255), nullable=False, comment='用例名称')
     request_method = db.Column(db.String(255), nullable=False, comment='请求方式:GET;POST;PUT;DELETE...')
     request_base_url = db.Column(db.String(255), nullable=False, comment='请求BaseUrl')
     request_url = db.Column(db.String(2048), nullable=False, comment='请求URL')
