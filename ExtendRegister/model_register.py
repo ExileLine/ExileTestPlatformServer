@@ -26,3 +26,4 @@ from app.models.push_reminder.models import MailConfModel, DingDingConfModel
 from app.models.timed_task.models import TimedTaskModel
 from app.models.file_import.models import FileImportHistory
 from app.models.test_cicd.models import TestCiCdMap
+from app.models.ui_test_case.models import UiTestCase
