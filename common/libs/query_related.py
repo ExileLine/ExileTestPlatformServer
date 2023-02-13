@@ -41,7 +41,10 @@ class MapToJsonObj:
         """
 
         if ass_resp_id_list:
-            query_ass_resp = TestCaseAssertion.query.filter(TestCaseAssertion.id.in_(ass_resp_id_list)).all()
+            query_ass_resp = TestCaseAssertion.query.filter(
+                TestCaseAssertion.id.in_(ass_resp_id_list),
+                TestCaseAssertion.is_deleted == 0,
+            ).all()
             ass_resp_obj_list = [ass.to_json() for ass in query_ass_resp]
             return ass_resp_obj_list
         else:
@@ -56,7 +59,10 @@ class MapToJsonObj:
         """
 
         if ass_field_id_list:
-            query_ass_field = TestCaseAssertion.query.filter(TestCaseAssertion.id.in_(ass_field_id_list)).all()
+            query_ass_field = TestCaseAssertion.query.filter(
+                TestCaseAssertion.id.in_(ass_field_id_list),
+                TestCaseAssertion.is_deleted == 0,
+            ).all()
             ass_field_obj_list = [ass.to_json() for ass in query_ass_field]
             return ass_field_obj_list
         else:
