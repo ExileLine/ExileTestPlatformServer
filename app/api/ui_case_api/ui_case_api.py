@@ -14,13 +14,13 @@ from app.api.case_api.case_api import new_check_version, new_check_module
 
 demo_data = [
     {
-        "uuid": "RqceT7F7VR7MUepkCe3TgP",
+        "uuid": shortuuid.uuid(),
         "index": 1,
         "title": "开始",
         "type": "master",
         "business_list": [
             {
-                "uuid": "43mcDsxMP5hfgwXpYFekNf",
+                "uuid": shortuuid.uuid(),
                 "index": 1,
                 "type": "ui_control",
                 "title": "启动浏览器控件",
@@ -32,13 +32,13 @@ demo_data = [
         ]
     },
     {
-        "uuid": "Paahmn4pisq6DCMAb6MTj7",
+        "uuid": shortuuid.uuid(),
         "index": 2,
         "title": "登录",
         "type": "master",
         "business_list": [
             {
-                "uuid": "BeKExy3oDBmffkyh6z5sFh",
+                "uuid": shortuuid.uuid(),
                 "index": 1,
                 "type": "ui_control",
                 "title": "输入账号",
@@ -50,7 +50,7 @@ demo_data = [
                 }
             },
             {
-                "uuid": "TgxCgmQ3eAiYJ9poTDa3y8",
+                "uuid": shortuuid.uuid(),
                 "index": 2,
                 "type": "ui_control",
                 "title": "输入密码",
@@ -62,7 +62,7 @@ demo_data = [
                 }
             },
             {
-                "uuid": "bAYF8u42at5VDYHRwc63bu",
+                "uuid": shortuuid.uuid(),
                 "index": 3,
                 "type": "ui_control",
                 "title": "点击登录",
@@ -75,13 +75,13 @@ demo_data = [
         ]
     },
     {
-        "uuid": "DuykYPs5UhqhULXCqerzGq",
+        "uuid": shortuuid.uuid(),
         "index": 3,
         "title": "嵌套循环操作",
         "type": "master",
         "business_list": [
             {
-                "uuid": "VwfKjeL87DVythEsHsC8Jd",
+                "uuid": shortuuid.uuid(),
                 "index": 1,
                 "type": "logic_control",
                 "title": "第一层循环",
@@ -90,7 +90,7 @@ demo_data = [
                 "data_source": [],
                 "business_list": [
                     {
-                        "uuid": "BeKExy3oDBmffkyh6z5sFh",
+                        "uuid": shortuuid.uuid(),
                         "index": 1,
                         "type": "ui_control",
                         "title": "输入账号",
@@ -102,7 +102,7 @@ demo_data = [
                         }
                     },
                     {
-                        "uuid": "TgxCgmQ3eAiYJ9poTDa3y8",
+                        "uuid": shortuuid.uuid(),
                         "index": 2,
                         "type": "ui_control",
                         "title": "输入密码",
@@ -114,7 +114,7 @@ demo_data = [
                         }
                     },
                     {
-                        "uuid": "bAYF8u42at5VDYHRwc63bu",
+                        "uuid": shortuuid.uuid(),
                         "index": 3,
                         "type": "ui_control",
                         "title": "点击登录",
@@ -125,7 +125,7 @@ demo_data = [
                         }
                     },
                     {
-                        "uuid": "bzjmqAUjuYTs3sASxoXh3r",
+                        "uuid": shortuuid.uuid(),
                         "index": 4,
                         "type": "logic_control",
                         "title": "第二层循环",
@@ -134,13 +134,13 @@ demo_data = [
                         "data_source": [],
                         "business_list": [
                             {
-                                "uuid": "RqceT7F7VR7MUepkCe3123",
+                                "uuid": shortuuid.uuid(),
                                 "index": 1,
                                 "title": "录入数据",
                                 "type": "master",
                                 "business_list": [
                                     {
-                                        "uuid": "6nBzTGWXAaDdE8fo5Xa123",
+                                        "uuid": shortuuid.uuid(),
                                         "index": 11,
                                         "type": "ui_control",
                                         "title": "输入人员名称",
@@ -152,7 +152,7 @@ demo_data = [
                                         }
                                     },
                                     {
-                                        "uuid": "oHCN6jjbDCYWzgjzNoj123",
+                                        "uuid": shortuuid.uuid(),
                                         "index": 22,
                                         "type": "ui_control",
                                         "title": "点击搜索",
@@ -163,7 +163,7 @@ demo_data = [
                                         }
                                     },
                                     {
-                                        "uuid": "dPHmBmPcAGpp5zqcX7M123",
+                                        "uuid": shortuuid.uuid(),
                                         "index": 33,
                                         "type": "ui_control",
                                         "title": "编辑",
@@ -174,7 +174,7 @@ demo_data = [
                                         }
                                     },
                                     {
-                                        "uuid": "68AUdem7SfBnx8CAQs3123",
+                                        "uuid": shortuuid.uuid(),
                                         "index": 3332,
                                         "type": "ui_control",
                                         "title": "保存",
@@ -190,7 +190,7 @@ demo_data = [
                         ]
                     },
                     {
-                        "uuid": "Zf3tJvN3t4n8RFLCiTVYLm",
+                        "uuid": shortuuid.uuid(),
                         "index": 5,
                         "type": "ui_control",
                         "title": "点击退出",
@@ -205,13 +205,13 @@ demo_data = [
         ]
     },
     {
-        "uuid": "3Lr7gkJx9WjXr8DRzWoU4e",
+        "uuid": shortuuid.uuid(),
         "index": 1,
         "title": "结束",
         "type": "master",
         "business_list": [
             {
-                "uuid": "e6rL6LWxRZkyGYkQadn3yz",
+                "uuid": shortuuid.uuid(),
                 "index": 1,
                 "type": "ui_control",
                 "title": "关闭浏览器",
@@ -425,3 +425,94 @@ class UiCaseApi(MethodView):
         query_ui_case.modifier_id = g.app_user.id
         query_ui_case.delete()
         return api_result(code=DEL_SUCCESS, message=DEL_MESSAGE, data=[])
+
+
+class UiCasePageApi(MethodView):
+    """
+    ui case page api
+    POST: UI用例分页模糊查询
+    """
+
+    def post(self):
+        """UI用例分页模糊查询"""
+
+        data = request.get_json()
+        project_id = data.get('project_id')
+        version_id = data.get('version_id', 0)
+        module_id = data.get('module_id', 0)
+        case_id = data.get('case_id')
+        case_name = data.get('case_name', '')
+        case_status = data.get('case_status')
+        creator_id = data.get('creator_id')
+        is_deleted = data.get('is_deleted', False)
+        field_order_by = data.get('field_order_by', 'update_time')
+        is_desc = data.get('is_desc', True)
+        page = data.get('page')
+        size = data.get('size')
+        limit = page_size(page=page, size=size)
+
+        if not project_id:
+            return api_result(code=NO_DATA, message='项目不存在')
+
+        sql = f"""
+        SELECT
+            *
+        FROM
+            exile5_ui_test_case
+        WHERE
+            id in( SELECT DISTINCT
+                    A.id FROM exile5_ui_test_case AS A
+                    INNER JOIN exile5_test_mid_project_ui_case AS B ON A.id = B.case_id
+                    {'INNER JOIN exile5_test_mid_version_ui_case AS C ON A.id = C.case_id' if version_id else ''}
+                    {'INNER JOIN exile5_test_mid_module_ui_case AS D ON A.id = D.case_id' if module_id else ''}
+                WHERE
+                    A.is_deleted = 0
+                    AND B.project_id = {project_id}
+                    {f'AND C.version_id={version_id}' if version_id else ''}
+                    {f'AND D.module_id={module_id}' if module_id else ''}
+                )
+            AND is_deleted = 0
+            AND case_name LIKE "%{case_name}%"
+            {f"AND case_status='{case_status}'" if case_status else ''}
+            {f'AND creator_id={creator_id}' if creator_id else ''}
+        ORDER BY
+            {f'{f"{field_order_by} DESC" if is_desc else field_order_by}' if field_order_by else 'update_time DESC'}
+        LIMIT {limit[0]},{limit[1]};
+        """
+
+        sql_count = f"""
+        SELECT
+            COUNT(*)
+        FROM
+            exile_test_case
+        WHERE
+            id in( SELECT DISTINCT
+                    A.id FROM exile_test_case AS A
+                    INNER JOIN exile5_test_mid_project_ui_case AS B ON A.id = B.case_id
+                    {'INNER JOIN exile5_test_mid_version_ui_case AS C ON A.id = C.case_id' if version_id else ''}
+                    {'INNER JOIN exile5_test_mid_module_ui_case AS D ON A.id = D.case_id' if module_id else ''}
+                WHERE
+                    A.is_deleted = 0
+                    AND B.project_id = {project_id}
+                    {f'AND C.version_id={version_id}' if version_id else ''}
+                    {f'AND D.module_id={module_id}' if module_id else ''}
+                )
+            AND is_deleted = 0
+            AND case_name LIKE "%{case_name}%"
+            {f"AND case_status='{case_status}'" if case_status else ''}
+            {f'AND creator_id={creator_id}' if creator_id else ''}
+        """
+
+        # print(sql)
+        # print(sql_count)
+
+        result_list = project_db.select(sql)
+        result_count = project_db.select(sql_count)
+
+        result_data = {
+            'records': result_list if result_list else [],
+            'now_page': page,
+            'total': result_count[0].get('COUNT(*)')
+        }
+
+        return api_result(code=SUCCESS, message=SUCCESS_MESSAGE, data=result_data)
