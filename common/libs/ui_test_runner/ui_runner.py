@@ -163,9 +163,22 @@ class UiCaseRunner:
         recursion_main(data_list=self.data_list, web_driver_example=self.web_driver_example)
 
 
+def ui_case_runner(meta_data_list: list, web_driver):
+    """UI用例执行main"""
+
+    error_index = []
+    for index, meta_data in enumerate(meta_data_list):
+        try:
+            new_ucr = UiCaseRunner(data_list=meta_data, web_driver=web_driver)
+            new_ucr.main()
+        except BaseException as e:
+            error_index.append({"index": index, "error": f"{e}"})
+
+    return error_index
+
+
 if __name__ == '__main__':
     from common.libs.BaseWebDriver import BaseWebDriver
-    from common.libs.ui_test_runner.test.meta_data import meta_data
+    from common.libs.ui_test_runner.test.meta_data import meta_data as md
 
-    ucr = UiCaseRunner(data_list=meta_data, web_driver=BaseWebDriver)
-    ucr.main()
+    ui_case_runner(meta_data_list=[md], web_driver=BaseWebDriver)

@@ -42,6 +42,7 @@ from .timed_task_api.timed_task_api import APSchedulerTaskApi, APSchedulerTaskSt
 from .download_file_api.download_file_api import DownloadFileApi
 from .file_import_api.file_import_api import InterfaceFileImportApi
 from .ui_case_api.ui_case_api import UiCaseApi, UiCasePageApi
+from .ui_case_execute_api.ui_case_execute_api import UiCaseExecuteApi
 
 api = Blueprint('api', __name__)
 crm = Blueprint('crm', __name__)
@@ -157,3 +158,4 @@ api.add_url_rule('/cicd_map_page', view_func=CaseCICDMapPageApi.as_view('cicd_ma
 api.add_url_rule('/ui_case/<ui_case_id>', view_func=UiCaseApi.as_view('ui_case_detail'))
 api.add_url_rule('/ui_case', view_func=UiCaseApi.as_view('ui_case'))
 api.add_url_rule('/ui_case_page', view_func=UiCasePageApi.as_view('ui_case_page'))
+api.add_url_rule('/ui_case_execute', view_func=UiCaseExecuteApi.as_view('ui_case_execute'))
