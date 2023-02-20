@@ -8,6 +8,7 @@
 
 from all_reference import *
 
+from app.models.ui_test_case.models import MidProjectAndUiCase
 from tasks.execute_ui_case import execute_ui_case
 from common.libs.ui_test_runner.test.meta_data import meta_data as md
 
@@ -17,6 +18,10 @@ class UiCaseExecuteApi(MethodView):
     执行UI用例 Api
     POST: 执行UI用例
     """
+
+    def get(self):
+        """调试"""
+        return api_result(code=SUCCESS, message='操作成功,请前往日志查看执行结果', data=[])
 
     def post(self):
         """执行"""
