@@ -8,6 +8,7 @@
 
 import os
 import time
+import platform
 from datetime import datetime
 
 from selenium import webdriver
@@ -54,6 +55,8 @@ class BaseWebDriver:
         :param url: 地址
         """
 
+        self.pf = platform.system()
+
         if source_path:
             self.source_path = source_path
         else:
@@ -82,6 +85,9 @@ class BaseWebDriver:
 
         if self.headless:  # 无界面模式
             options.add_argument('headless')
+
+        if self.pf == "Linux":
+            options.add_argument("--no-sandbox")
 
         if self.options == 'chrome':
             prefs = {
