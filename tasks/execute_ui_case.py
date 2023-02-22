@@ -12,6 +12,6 @@ from common.libs.ui_test_runner.ui_runner import ui_case_runner
 
 
 @cel.task
-def execute_ui_case(meta_data_list):
-    result = ui_case_runner(meta_data_list=meta_data_list, web_driver=BaseWebDriver)
+def execute_ui_case(test_obj):
+    result = ui_case_runner(test_obj=test_obj, web_driver=BaseWebDriver)
     return "执行完成", result
