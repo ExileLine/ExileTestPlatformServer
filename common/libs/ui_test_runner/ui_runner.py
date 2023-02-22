@@ -7,6 +7,8 @@
 
 from common.libs.ui_test_runner.ui_ctrl import ControlFunction
 
+execute_logs_dict = {}
+
 
 def query_function(business_dict: dict) -> any:
     """
@@ -163,22 +165,28 @@ class UiCaseRunner:
         recursion_main(data_list=self.data_list, web_driver_example=self.web_driver_example)
 
 
-def ui_case_runner(meta_data_list: list, web_driver):
+def ui_case_runner(test_obj: dict, web_driver: type):
     """UI用例执行main"""
 
     error_index = []
-    for index, meta_data in enumerate(meta_data_list):
+
+    execute_id = test_obj.get('execute_id')
+    execute_logs_id = test_obj.get('execute_logs_id', 0)
+    execute_logs_dict[execute_logs_id] = {"error_index": []}
+    execute_type = test_obj.get('execute_type')
+    execute_name = test_obj.get('execute_name')
+    execute_user_id = test_obj.get('execute_user_id')
+    execute_username = test_obj.get('execute_username')
+    trigger_type = test_obj.get('trigger_type')
+    execute_label = test_obj.get('execute_label')
+    ui_case_list = test_obj.get('ui_case_list')
+
+    for index, ui_case in enumerate(ui_case_list):
         try:
+            meta_data = ui_case.get('meta_data')
             new_ucr = UiCaseRunner(data_list=meta_data, web_driver=web_driver)
             new_ucr.main()
         except BaseException as e:
-            error_index.append({"index": index, "error": f"{e}"})
+            execute_logs_dict[execute_logs_id]['error_index'].append({"index": index, "error": f"{e}"})
 
     return error_index
-
-
-if __name__ == '__main__':
-    from common.libs.BaseWebDriver import BaseWebDriver
-    from common.libs.ui_test_runner.test.meta_data import meta_data as md
-
-    ui_case_runner(meta_data_list=[md], web_driver=BaseWebDriver)
