@@ -12,7 +12,6 @@ from app.models.ui_test_case.models import UiTestCase, MidProjectAndUiCase, MidV
     MidModuleUiCase
 from tasks.execute_ui_case import execute_ui_case
 from app.api.case_execute_api.case_execute_api import create_execute_logs
-from common.libs.ui_test_runner.test.meta_data import meta_data as md
 
 
 class UiCaseExecuteQuery:
