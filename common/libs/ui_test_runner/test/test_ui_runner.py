@@ -7,7 +7,7 @@
 
 from common.libs.BaseWebDriver import BaseWebDriver
 from common.libs.ui_test_runner.test.meta_data import meta_data as md
-from common.libs.ui_test_runner.ui_runner import ui_case_runner
+from common.libs.ui_test_runner.ui_runner import ExecuteUiCase
 
 test_obj = {
     "project_id": 30,
@@ -16,6 +16,7 @@ test_obj = {
     "execute_name": "测试UI自动化",
     "execute_type": "ui_case",
     "execute_label": "execute_label",
+    "execute_logs_id": 999,
     "ui_case_list": [
         {
             "case_name": "测试UI自动化",
@@ -46,4 +47,5 @@ test_obj = {
 }
 
 if __name__ == '__main__':
-    ui_case_runner(test_obj=test_obj, web_driver=BaseWebDriver)
+    ex_ui_case = ExecuteUiCase(test_obj=test_obj, web_driver=BaseWebDriver)
+    ex_ui_case.main()
