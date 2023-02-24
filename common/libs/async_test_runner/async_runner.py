@@ -766,7 +766,7 @@ class AsyncCaseRunner:
 
         result_summary = await self.test_result.get_test_result()
 
-        self.redis_key = f"test_log_{F.gen_datetime()}_{F.gen_uuid_short()}"
+        self.redis_key = f"api_test_log:{F.gen_datetime(**{'execute': True})}_{F.gen_uuid_short()}"
 
         return_case_result = {
             "uuid": self.redis_key,
