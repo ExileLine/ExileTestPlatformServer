@@ -78,7 +78,8 @@ def for_recursion(action_list: list, data_list: list = None, num: int = 0, deep_
                     first=False,
                     master_function=master_function,
                     master_function_kw=master_function_kw,
-                    web_driver_example=web_driver_example
+                    web_driver_example=web_driver_example,
+                    logs_example=logs_example
                 )
             else:
                 ac_type = ac.get('type')
@@ -102,6 +103,7 @@ def for_recursion(action_list: list, data_list: list = None, num: int = 0, deep_
                     func_args = ac.get('args')
                     print(">>> 普通 function 反射执行", func, func_args, '\n')
                     func(**func_args)
+                    logs_example.logs_add(ac)
         if first:
             print(f'=== 第 {i} 轮结束 ===\n')
             logs_example.logs_add({'message': f'=== 第 {i} 轮结束 ==='})
@@ -162,7 +164,8 @@ def recursion_main(data_list: list, web_driver_example: object = None, logs_exam
 class UiCaseRunner:
     """UI用例执行"""
 
-    def __init__(self, data_list: list, web_driver: type, web_driver_kw: dict = None, logs_example: UiCaseLogs = None):
+    def __init__(self, data_list: list, web_driver: type, web_driver_kw: dict = None, logs_example: UiCaseLogs = None,
+                 is_debug: bool = False):
         """
 
         :param data_list: 任务列表
@@ -170,7 +173,7 @@ class UiCaseRunner:
         :param web_driver_kw: WebDriver构造函数
         :param logs_example: 日志实例
         """
-
+        self.is_debug = is_debug
         self.data_list = data_list
         self.web_driver_kw = web_driver_kw if web_driver_kw else {}
         self.web_driver_example = web_driver(headless=False, **self.web_driver_kw)
@@ -179,13 +182,21 @@ class UiCaseRunner:
     def main(self):
         """main"""
 
-        try:
+        if self.is_debug:
             recursion_main(
                 data_list=self.data_list, web_driver_example=self.web_driver_example, logs_example=self.logs_example
             )
             return True
-        except BaseException as e:
-            return False
+
+        else:
+            try:
+                recursion_main(
+                    data_list=self.data_list, web_driver_example=self.web_driver_example, logs_example=self.logs_example
+                )
+                return True
+            except BaseException as e:
+                print("=== recursion_main_error ===", str(e))
+                return False
 
 
 class ExecuteUiCase:
@@ -264,10 +275,10 @@ class ExecuteUiCase:
         self.start_time = time.time()
 
         for index, ui_case in enumerate(self.ui_case_list):
-            # ui_case['meta_data'] = []
-            # print(ui_case)
             meta_data = ui_case.get('meta_data')
-            new_ucr = UiCaseRunner(data_list=meta_data, web_driver=self.web_driver, logs_example=self.logs_example)
+            new_ucr = UiCaseRunner(
+                data_list=meta_data, web_driver=self.web_driver, logs_example=self.logs_example, is_debug=self.is_debug
+            )
             execute_result = new_ucr.main()
             if not execute_result:
                 d = {
@@ -280,5 +291,5 @@ class ExecuteUiCase:
         self.write_back_logs()
 
         print('=== logs_example ===')
-        print(self.logs_example.logs_list)
+        self.logs_example.get_result(is_json=self.is_debug)
         return 'ok'
