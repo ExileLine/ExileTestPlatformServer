@@ -47,5 +47,5 @@ test_obj = {
 }
 
 if __name__ == '__main__':
-    ex_ui_case = ExecuteUiCase(test_obj=test_obj, web_driver=BaseWebDriver)
+    ex_ui_case = ExecuteUiCase(test_obj=test_obj, web_driver=BaseWebDriver, is_debug=True)
     ex_ui_case.main()
