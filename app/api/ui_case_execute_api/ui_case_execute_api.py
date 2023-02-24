@@ -22,10 +22,10 @@ class UiCaseExecuteQuery:
         self.query_id = query_id
         self.query_func_dict = {
             "ui_case": self.query_single_case,
-            "project_all": self.query_project_case,
-            "version_all": self.query_version_case,
-            "task_all": self.query_task_case,
-            "module_all": self.query_module_case
+            "ui_project_all": self.query_project_case,
+            "ui_version_all": self.query_version_case,
+            "ui_task_all": self.query_task_case,
+            "ui_module_all": self.query_module_case
         }
         self.use_func = self.query_func_dict.get(self.execute_key)
 
@@ -132,10 +132,10 @@ if __name__ == '__main__':
         """测试"""
 
         execute_query = UiCaseExecuteQuery(execute_key='ui_case', query_id=6)
-        # execute_query = UiCaseExecuteQuery(execute_key='project_all', query_id=30)
-        # execute_query = UiCaseExecuteQuery(execute_key='version_all', query_id=1)
-        # execute_query = UiCaseExecuteQuery(execute_key='task_all', query_id=1)
-        # execute_query = UiCaseExecuteQuery(execute_key='module_all', query_id=1)
+        # execute_query = UiCaseExecuteQuery(execute_key='ui_project_all', query_id=30)
+        # execute_query = UiCaseExecuteQuery(execute_key='ui_version_all', query_id=1)
+        # execute_query = UiCaseExecuteQuery(execute_key='ui_task_all', query_id=1)
+        # execute_query = UiCaseExecuteQuery(execute_key='ui_module_all', query_id=1)
         print(execute_query.use_func())
 
 
