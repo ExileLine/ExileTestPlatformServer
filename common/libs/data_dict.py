@@ -68,6 +68,8 @@ class F:
         """
         if kwargs.get('func'):
             return datetime.datetime.now()
+        if kwargs.get('execute'):
+            return time.strftime("%Y-%m-%d_%H-%M-%S")
         return time.strftime("%Y-%m-%d %H:%M:%S")
 
     @classmethod
@@ -330,7 +332,12 @@ class GlobalsDict(F):
             "module_app": f"module_app_first_log:{execute_id}",
             "module_all": f"module_all_first_log:{execute_id}",
             "module_case": f"module_case_first_log:{execute_id}",
-            "module_scenario": f"module_scenario_first_log:{execute_id}"
+            "module_scenario": f"module_scenario_first_log:{execute_id}",
+            "ui_case": f"ui_case_first_log:{execute_id}",
+            "ui_project_all": f"ui_project_all_first_log:{execute_id}",
+            "ui_version_all": f"ui_version_all_first_log:{execute_id}",
+            "ui_task_all": f"ui_task_all_first_log:{execute_id}",
+            "ui_module_all": f"ui_module_all_first_log:{execute_id}",
         }
         return d
 
