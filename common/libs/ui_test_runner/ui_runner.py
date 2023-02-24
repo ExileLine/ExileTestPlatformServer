@@ -5,9 +5,13 @@
 # @File    : ui_runner.py
 # @Software: PyCharm
 
-from common.libs.ui_test_runner.ui_ctrl import ControlFunction
+import json
+import time
 
-execute_logs_dict = {}
+from common.libs.db import project_db, R
+from common.libs.data_dict import GlobalsDict, F
+from common.libs.ui_test_runner.ui_ctrl import ControlFunction
+from common.libs.ui_test_runner.ui_logs import UiCaseLogs
 
 
 def query_function(business_dict: dict) -> any:
@@ -41,7 +45,8 @@ def getattr_func(o: object, func_name: str) -> any:
 
 
 def for_recursion(action_list: list, data_list: list = None, num: int = 0, deep_num: int = 0, first: bool = True,
-                  master_function=None, web_driver_example: object = None) -> None:
+                  master_function=None, master_function_kw: dict = None, web_driver_example: object = None,
+                  logs_example: UiCaseLogs = None) -> None:
     """
     for递归
     :param action_list: 任务列表
@@ -50,13 +55,16 @@ def for_recursion(action_list: list, data_list: list = None, num: int = 0, deep_
     :param deep_num: 子循环的轮次
     :param first: 是否首次循环
     :param master_function:
+    :param master_function_kw:
     :param web_driver_example:
+    :param logs_example:
     :return:
     """
 
     for i in range(1, num + 1):
         if first:
             print(f'=== 第 {i} 轮开始 ===')
+            logs_example.logs_add({'message': f'=== 第 {i} 轮开始 ==='})
 
         for index, ac in enumerate(action_list, 1):
             ac_function = ac.get('function')
@@ -69,12 +77,13 @@ def for_recursion(action_list: list, data_list: list = None, num: int = 0, deep_
                     deep_num=i,
                     first=False,
                     master_function=master_function,
+                    master_function_kw=master_function_kw,
                     web_driver_example=web_driver_example
                 )
             else:
                 ac_type = ac.get('type')
                 if ac_type == 'master':
-                    master_function([ac], web_driver_example)
+                    master_function([ac], web_driver_example, **master_function_kw)
                 else:
                     """
                     selenium等驱动逻辑操作...
@@ -95,13 +104,15 @@ def for_recursion(action_list: list, data_list: list = None, num: int = 0, deep_
                     func(**func_args)
         if first:
             print(f'=== 第 {i} 轮结束 ===\n')
+            logs_example.logs_add({'message': f'=== 第 {i} 轮结束 ==='})
 
 
-def recursion_main(data_list: list, web_driver_example: object = None):
+def recursion_main(data_list: list, web_driver_example: object = None, logs_example: UiCaseLogs = None):
     """
     主递归
     :param data_list: 执行列表
     :param web_driver_example: webUi实例
+    :param logs_example: 日志实例
     :return:
     """
 
@@ -111,7 +122,7 @@ def recursion_main(data_list: list, web_driver_example: object = None):
         business_list = data.get('business_list')
 
         if data_type == "master" and business_list:
-            recursion_main(data_list=business_list, web_driver_example=web_driver_example)
+            recursion_main(data_list=business_list, web_driver_example=web_driver_example, logs_example=logs_example)
         else:
             res_func = query_function(business_dict=data)
             if not res_func:
@@ -130,7 +141,9 @@ def recursion_main(data_list: list, web_driver_example: object = None):
                     "num": for_num,
                     "deep_num": 1,
                     "master_function": recursion_main,
-                    "web_driver_example": web_driver_example
+                    "master_function_kw": {"logs_example": logs_example},
+                    "web_driver_example": web_driver_example,
+                    "logs_example": logs_example
                 }
                 for_recursion(**for_func_kw)
             else:
@@ -143,50 +156,129 @@ def recursion_main(data_list: list, web_driver_example: object = None):
                 print(">>> 普通 function 反射执行", func, func_args, '\n')
                 func(**func_args)
 
+                logs_example.logs_add(data)
+
 
 class UiCaseRunner:
     """UI用例执行"""
 
-    def __init__(self, data_list: list, web_driver: type, web_driver_kw: dict = None):
+    def __init__(self, data_list: list, web_driver: type, web_driver_kw: dict = None, logs_example: UiCaseLogs = None):
         """
 
         :param data_list: 任务列表
         :param web_driver: WebDriver驱动
         :param web_driver_kw: WebDriver构造函数
+        :param logs_example: 日志实例
         """
 
         self.data_list = data_list
         self.web_driver_kw = web_driver_kw if web_driver_kw else {}
         self.web_driver_example = web_driver(headless=False, **self.web_driver_kw)
+        self.logs_example = logs_example
 
     def main(self):
         """main"""
 
-        recursion_main(data_list=self.data_list, web_driver_example=self.web_driver_example)
-
-
-def ui_case_runner(test_obj: dict, web_driver: type):
-    """UI用例执行main"""
-
-    error_index = []
-
-    execute_id = test_obj.get('execute_id')
-    execute_logs_id = test_obj.get('execute_logs_id', 0)
-    execute_logs_dict[execute_logs_id] = {"error_index": []}
-    execute_type = test_obj.get('execute_type')
-    execute_name = test_obj.get('execute_name')
-    execute_user_id = test_obj.get('execute_user_id')
-    execute_username = test_obj.get('execute_username')
-    trigger_type = test_obj.get('trigger_type')
-    execute_label = test_obj.get('execute_label')
-    ui_case_list = test_obj.get('ui_case_list')
-
-    for index, ui_case in enumerate(ui_case_list):
         try:
-            meta_data = ui_case.get('meta_data')
-            new_ucr = UiCaseRunner(data_list=meta_data, web_driver=web_driver)
-            new_ucr.main()
+            recursion_main(
+                data_list=self.data_list, web_driver_example=self.web_driver_example, logs_example=self.logs_example
+            )
+            return True
         except BaseException as e:
-            execute_logs_dict[execute_logs_id]['error_index'].append({"index": index, "error": f"{e}"})
+            return False
 
-    return error_index
+
+class ExecuteUiCase:
+    """应用调用UI用例执行"""
+
+    def __init__(self, test_obj: dict = None, web_driver: type = None, is_debug: bool = False):
+        self.test_obj = test_obj
+        self.web_driver = web_driver
+        self.is_debug = is_debug
+
+        self.test_obj = test_obj if test_obj else {}
+        self.project_id = test_obj.get('project_id')  # 项目归属id
+        self.execute_id = test_obj.get('execute_id')  # 执行名称(用例id,场景id,任务id,模块id...)
+        self.execute_name = test_obj.get('execute_name')  # 执行名称(用例名,场景名,任务名,模块名...)
+        self.execute_type = test_obj.get('execute_type')  # 执行类型(ui_case,scenario,task,module...)
+        self.execute_username = test_obj.get('execute_username')
+        self.execute_user_id = test_obj.get('execute_user_id')
+        self.trigger_type = test_obj.get('trigger_type')  # 触发执行类型(user_execute,timed_execute...)
+        self.execute_logs_id = test_obj.get('execute_logs_id')  # 执行日志id用于执行完毕后回写redis_key等数据
+        self.ui_case_list = test_obj.get('ui_case_list')
+
+        self.logs_example = UiCaseLogs()
+        self.redis_key = ""  # redis缓存日志的key
+        self.execute_status = True  # 执行完全通过标识
+        self.start_time = 0
+        self.end_time = 0
+
+    def gen_logs(self):
+        """
+        日志格式化并缓存redis
+        :return:
+        """
+
+        self.redis_key = f"ui_test_log:{F.gen_datetime(**{'execute': True})}_{F.gen_uuid_short()}"
+
+        return_case_result = {
+            "uuid": self.redis_key,
+            "execute_user_id": self.execute_user_id,
+            "execute_username": self.execute_username,
+            "execute_type": self.execute_type,
+            "execute_name": self.execute_name,
+            "ui_case_logs": [],
+            # "result_summary": result_summary,
+        }
+        json_str = json.dumps(return_case_result, ensure_ascii=False)
+        R.set(self.redis_key, json_str)
+        R.expire(self.redis_key, 86400 * 30)
+
+        current_save_dict = GlobalsDict.redis_first_logs_dict(execute_id=self.execute_id)
+        save_obj_first = current_save_dict.get(self.execute_type, "未知执行类型")
+        R.set(save_obj_first, json_str)
+        R.expire(save_obj_first, 86400 * 30)
+
+    def write_back_logs(self, report_url=None, file_name=None):
+        """
+        回写日志标识
+        """
+
+        sql = """UPDATE `ExileTestPlatform5.0`.`exile_test_execute_logs` SET redis_key='{}', report_url='{}', execute_status={}, file_name='{}', update_time='{}', update_timestamp={} WHERE id={};""".format(
+            self.redis_key,
+            report_url,
+            int(self.execute_status),
+            file_name,
+            GlobalsDict.gen_datetime(),
+            int(time.time()),
+            self.execute_logs_id
+        )
+        project_db.update(sql)
+
+        # self.sio.log(f'=== write_back_logs sql ===\n{sql}')
+        # self.sio.log('=== write_back_logs ok ===', status="success")
+
+    def main(self):
+        """main"""
+
+        self.start_time = time.time()
+
+        for index, ui_case in enumerate(self.ui_case_list):
+            # ui_case['meta_data'] = []
+            # print(ui_case)
+            meta_data = ui_case.get('meta_data')
+            new_ucr = UiCaseRunner(data_list=meta_data, web_driver=self.web_driver, logs_example=self.logs_example)
+            execute_result = new_ucr.main()
+            if not execute_result:
+                d = {
+                    "index": index,
+                    "error": "UI自动化执行出错"
+                }
+                self.logs_example.logs_add(d)
+
+        self.gen_logs()
+        self.write_back_logs()
+
+        print('=== logs_example ===')
+        print(self.logs_example.logs_list)
+        return 'ok'
