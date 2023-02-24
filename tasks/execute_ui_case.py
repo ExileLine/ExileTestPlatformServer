@@ -8,10 +8,11 @@
 
 from tasks.celery import cel
 from common.libs.BaseWebDriver import BaseWebDriver
-from common.libs.ui_test_runner.ui_runner import ui_case_runner
+from common.libs.ui_test_runner.ui_runner import ExecuteUiCase
 
 
 @cel.task
 def execute_ui_case(test_obj):
-    result = ui_case_runner(test_obj=test_obj, web_driver=BaseWebDriver)
+    new_execute = ExecuteUiCase(test_obj=test_obj, web_driver=BaseWebDriver)
+    result = new_execute.main()
     return "执行完成", result
