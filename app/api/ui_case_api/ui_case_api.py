@@ -275,7 +275,12 @@ class UiCaseApi(MethodView):
     def get(self, ui_case_id):
         """UI用例详情"""
 
-        return api_result(code=SUCCESS, message=SUCCESS_MESSAGE, data=demo_data)
+        query_ui_case = UiTestCase.query.get(ui_case_id)
+
+        if not query_ui_case:
+            return api_result(code=NO_DATA, message=f'UI用例id:{ui_case_id}不存在')
+
+        return api_result(code=SUCCESS, message=SUCCESS_MESSAGE, data=query_ui_case.to_json())
 
     @ui_case_decorator
     def post(self):
