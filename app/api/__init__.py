@@ -43,6 +43,7 @@ from .download_file_api.download_file_api import DownloadFileApi
 from .file_import_api.file_import_api import InterfaceFileImportApi
 from .ui_case_api.ui_case_api import UiCaseApi, UiCasePageApi
 from .ui_case_execute_api.ui_case_execute_api import UiCaseExecuteApi
+from .ui_control_dict_api.ui_control_dict_api import UiControlDictApi
 
 api = Blueprint('api', __name__)
 crm = Blueprint('crm', __name__)
@@ -159,3 +160,5 @@ api.add_url_rule('/ui_case/<ui_case_id>', view_func=UiCaseApi.as_view('ui_case_d
 api.add_url_rule('/ui_case', view_func=UiCaseApi.as_view('ui_case'))
 api.add_url_rule('/ui_case_page', view_func=UiCasePageApi.as_view('ui_case_page'))
 api.add_url_rule('/ui_case_execute', view_func=UiCaseExecuteApi.as_view('ui_case_execute'))
+
+api.add_url_rule('/ui_control_dict_api', view_func=UiControlDictApi.as_view('ui_control_dict_api'))

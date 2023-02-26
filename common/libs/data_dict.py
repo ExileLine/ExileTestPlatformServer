@@ -342,6 +342,75 @@ class GlobalsDict(F):
         return d
 
 
+class UiControlDict:
+    """UI控件字典"""
+
+    ui_control_list = [
+        {
+            "title": '启动浏览器(URL)',
+            "type": 'ui_control',
+            "function": "open",
+            "args": {
+                "url": ""
+            }
+        },
+        {
+            "title": "输入(input)",
+            "type": "ui_control",
+            "function": "input",
+            "args": {
+                "data": "",
+                "mode": "",  # XPATH
+                "value": ""  # //*[@id=\"login-form\"]/div[1]/div[2]/div/div/div/input
+            },
+        },
+        {
+            "title": "点击(click)",
+            "type": "ui_control",
+            "function": "click",
+            "args": {
+                "mode": "",
+                "value": ""
+            },
+        }
+    ]
+
+    api_control_list = []
+
+    assert_control_list = []
+
+    logic_control_list = []
+
+    @classmethod
+    def get_ucd(cls):
+        """获取UI控件字典"""
+
+        result = [
+            {
+                "title": "Ui",
+                "type": "ui_control",
+                "control_list": cls.ui_control_list,
+            },
+            {
+                "title": "Api",
+                "type": "api_control",
+                "control_list": cls.api_control_list,
+            },
+            {
+                "title": "断言",
+                "type": "assert_control",
+                "control_list": cls.assert_control_list,
+            },
+            {
+                "title": "逻辑",
+                "type": "logic_control",
+                "control_list": cls.logic_control_list,
+            },
+        ]
+
+        return result
+
+
 """断言相关"""
 
 # RespAssertionRuleApi, FieldAssertionRuleApi 新增,编辑时候使用
