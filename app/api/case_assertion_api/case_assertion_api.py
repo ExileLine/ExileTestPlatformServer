@@ -63,7 +63,7 @@ class CheckAssertion:
 
         rule = ass.get('rule')  # ==,>,< ...
         if not GlobalsDict.rule_dict_op().get(rule):
-            return False, f"规则: {current_rule} 不存在"
+            return False, f"规则: {rule} 不存在"
 
         is_expression = ass.get('is_expression')  # True,False
         if not isinstance(is_expression, bool):
