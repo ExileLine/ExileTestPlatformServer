@@ -460,5 +460,85 @@ meta_data = [
     end
 ]
 
+meta_data2 = [
+    {
+        "type": "master",
+        "uuid": "9yneisAc9nmJCxJw8hepTd",
+        "index": 1,
+        "title": "开始",
+        "business_list": [
+            {
+                "args": {
+                    "url": "http://localhost:3200/login"
+                },
+                "type": "ui_control",
+                "uuid": "9o7pBk2iM3Mh5Nr64JcvWr",
+                "index": 1,
+                "title": "启动浏览器控件",
+                "function": "open"
+            }
+        ]
+    },
+    {
+        "type": "master",
+        "uuid": "CsCug2fZ6D8vtPdHmLUF7F",
+        "index": 2,
+        "title": "登录",
+        "business_list": [
+            {
+                "args": {
+                    "data": "admin",
+                    "mode": "XPATH",
+                    "value": "//*[@id=\"login-form\"]/div[1]/div[2]/div/div/div/input"
+                },
+                "type": "ui_control",
+                "uuid": "2f4dWJyPt2Mq8WGNFXFLdj",
+                "index": 1,
+                "title": "输入账号",
+                "function": "input"
+            },
+            {
+                "args": {
+                    "data": "123456",
+                    "mode": "XPATH",
+                    "value": "//*[@id=\"login-form\"]/div[2]/div[2]/div/div/div/input"
+                },
+                "type": "ui_control",
+                "uuid": "EPc52LPC5xEgfatExrKLgL",
+                "index": 2,
+                "title": "输入密码",
+                "function": "input"
+            },
+            {
+                "args": {
+                    "mode": "XPATH",
+                    "value": "//*[@id=\"login-form\"]/div[3]/div[2]/div/div/div/button[1]"
+                },
+                "type": "ui_control",
+                "uuid": "RdLmXbrkWmUDPA2Wu87kq2",
+                "index": 3,
+                "title": "点击登录",
+                "function": "click"
+            }
+        ]
+    },
+    {
+        "type": "master",
+        "uuid": "92GRBj5ovmgGnBoqFAXSv2",
+        "index": 1,
+        "title": "结束",
+        "business_list": [
+            {
+                "args": {},
+                "type": "ui_control",
+                "uuid": "JJt2EvNZukkJnsPcjBJyLp",
+                "index": 1,
+                "title": "关闭浏览器",
+                "function": "close"
+            }
+        ]
+    }
+]
+
 if __name__ == '__main__':
     print(json.dumps(meta_data, ensure_ascii=False))

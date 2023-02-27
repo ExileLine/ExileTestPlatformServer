@@ -7,6 +7,7 @@
 
 from common.libs.BaseWebDriver import BaseWebDriver
 from common.libs.ui_test_runner.test.meta_data import meta_data as md
+from common.libs.ui_test_runner.test.meta_data import meta_data2 as md2
 from common.libs.ui_test_runner.ui_runner import ExecuteUiCase
 
 test_obj = {
@@ -29,7 +30,7 @@ test_obj = {
             "is_deleted": 0,
             "is_public": True,
             "is_shared": True,
-            "meta_data": md,
+            "meta_data": md2,
             "modifier": None,
             "modifier_id": None,
             "remark": "测试UI自动化123",
