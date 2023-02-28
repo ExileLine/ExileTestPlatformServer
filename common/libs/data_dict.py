@@ -355,6 +355,11 @@ class UiControlDict:
             }
         },
         {
+            "title": "关闭(quit)",
+            "type": "ui_control",
+            "function": "close"
+        },
+        {
             "title": "输入(input)",
             "type": "ui_control",
             "function": "input",
@@ -372,14 +377,102 @@ class UiControlDict:
                 "mode": "",
                 "value": ""
             },
+        },
+        {
+            "title": "获取文本(text)",
+            "type": "ui_control",
+            "function": "text"
+        },
+        {
+            "title": "键盘事件",
+            "type": "ui_control",
+            "function": "keyboard",
+            "args": {}
+        },
+        {
+            "title": "鼠标事件",
+            "type": "ui_control",
+            "function": "mouse",
+            "args": {}
+        },
+    ]
+
+    api_control_list = [
+        {
+            "title": "已有Api",
+            "type": "api_control",
+            "function": "api",
+            "args": {}
+        },
+        {
+            "title": "外部Api",
+            "type": "api_control",
+            "function": "api3",
+            "args": {}
+        },
+    ]
+
+    assert_control_list = [
+        {
+            "title": "ui(页面)",
+            "type": "assert_control",
+            "function": "assert_ui",
+        },
+        {
+            "title": "api(响应)",
+            "type": "assert_control",
+            "function": "assert_api",
+        },
+        {
+            "title": "数据(db)",
+            "type": "assert_control",
+            "function": "assert_db",
+        },
+        {
+            "title": "其他",
+            "type": "assert_control",
+            "function": "assert_order",
         }
     ]
 
-    api_control_list = []
-
-    assert_control_list = []
-
-    logic_control_list = []
+    logic_control_list = [
+        {
+            "title": "循环(for)",
+            "type": "logic_control",
+            "function": "for",
+            "num": 1,
+            "data_source": [],
+            "business_list": []
+        },
+        {
+            "title": "判断(if)",
+            "type": "logic_control",
+            "function": "if",
+            "business_list": []
+        },
+        {
+            "title": "进入下次循环(continue)",
+            "type": "logic_control",
+            "function": "continue"
+        },
+        {
+            "title": "终止循环(break)",
+            "type": "logic_control",
+            "function": "break"
+        },
+        {
+            "title": "异常捕获(try)",
+            "type": "logic_control",
+            "function": "try",
+            "business_list": []
+        },
+        {
+            "title": "变量(var)",
+            "type": "logic_control",
+            "function": "var",
+            "business_list": []
+        },
+    ]
 
     @classmethod
     def get_ucd(cls):
