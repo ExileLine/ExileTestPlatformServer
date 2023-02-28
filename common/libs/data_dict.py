@@ -395,6 +395,12 @@ class UiControlDict:
             "function": "mouse",
             "args": {}
         },
+        {
+            "title": "调用其他UI用例",
+            "type": "ui_control",
+            "function": "other_case",
+            "args": {}
+        },
     ]
 
     api_control_list = [
@@ -408,6 +414,18 @@ class UiControlDict:
             "title": "外部Api",
             "type": "api_control",
             "function": "api3",
+            "args": {}
+        },
+        {
+            "title": "OpenApi",
+            "type": "api_control",
+            "function": "open_api",
+            "args": {}
+        },
+        {
+            "title": "其他",
+            "type": "api_control",
+            "function": "other_api",
             "args": {}
         },
     ]
