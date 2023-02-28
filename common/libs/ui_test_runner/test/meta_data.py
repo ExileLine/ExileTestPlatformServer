@@ -460,6 +460,7 @@ meta_data = [
     end
 ]
 
+# 简单数据结构
 meta_data2 = [
     {
         "type": "master",
@@ -535,6 +536,319 @@ meta_data2 = [
                 "index": 1,
                 "title": "关闭浏览器",
                 "function": "close"
+            }
+        ]
+    }
+]
+
+# 复杂数据结构
+meta_data3 = [
+    {
+        "uuid": "NhSGoX27rgpiaeeoywwaoW",
+        "index": 1,
+        "title": "开始",
+        "type": "master",
+        "business_list": [
+            {
+                "uuid": "nzzUVn9af9VxqtLHsPriVD",
+                "index": 1,
+                "type": "ui_control",
+                "title": "启动浏览器控件",
+                "function": "open",
+                "args": {
+                    "url": "http://localhost:3200/login"
+                }
+            }
+        ]
+    },
+    {
+        "uuid": "CF3KNJoayDkFh4zgKzBJBH",
+        "index": 2,
+        "title": "登录",
+        "type": "master",
+        "business_list": [
+            {
+                "uuid": "dmvsJb7xx4zq3hhSBQ488a",
+                "index": 1,
+                "type": "ui_control",
+                "title": "输入账号",
+                "function": "input",
+                "args": {
+                    "mode": "XPATH",
+                    "value": "//*[@id=\"login-form\"]/div[1]/div[2]/div/div/div/input",
+                    "data": "admin"
+                }
+            },
+            {
+                "uuid": "hW34pAsXZckYJTfcABpsFA",
+                "index": 2,
+                "type": "ui_control",
+                "title": "输入密码",
+                "function": "input",
+                "args": {
+                    "mode": "XPATH",
+                    "value": "//*[@id=\"login-form\"]/div[2]/div[2]/div/div/div/input",
+                    "data": "123456"
+                }
+            },
+            {
+                "uuid": "PAJpUsKda8Bv9oEV3Jyqru",
+                "index": 3,
+                "type": "ui_control",
+                "title": "点击登录",
+                "function": "click",
+                "args": {
+                    "mode": "XPATH",
+                    "value": "//*[@id=\"login-form\"]/div[3]/div[2]/div/div/div/button[1]"
+                }
+            },
+            {
+                "uuid": "WKJ9ahs5vte6NnYV7YGLvL",
+                "index": 11,
+                "type": "ui_control",
+                "title": "输入项目名称",
+                "function": "input",
+                "args": {
+                    "mode": "XPATH",
+                    "value": "//*[@id=\"project-search-container\"]/div/form/div/div/div/input",
+                    "data": "zxc"
+                }
+            },
+            {
+                "uuid": "SyRD7rvk4Gkkv9xpxdnVwg",
+                "index": 22,
+                "type": "ui_control",
+                "title": "点击搜索",
+                "function": "click",
+                "args": {
+                    "mode": "XPATH",
+                    "value": "//*[@id=\"project-search-container\"]/div/form/div/span"
+                }
+            },
+            {
+                "uuid": "HsK7CHGCAYmGhs7EbFHguB",
+                "index": 33,
+                "type": "ui_control",
+                "title": "点击项目3",
+                "function": "click",
+                "args": {
+                    "mode": "XPATH",
+                    "value": "//*[@id=\"main-container\"]/div[1]/div[1]/div/div"
+                }
+            },
+            {
+                "uuid": "WeA8U7Ey9vCU4KLPs5Eu2D",
+                "index": 3332,
+                "type": "ui_control",
+                "title": "点击暗夜2",
+                "function": "click",
+                "args": {
+                    "mode": "XPATH",
+                    "value": "//*[@id=\"app\"]/div/div[1]/div[2]/div[3]"
+                }
+            },
+            {
+                "uuid": "EM8hn8bYx6fZYkJbnL7xPV",
+                "index": 3331,
+                "type": "ui_control",
+                "title": "点击光明2",
+                "function": "click",
+                "args": {
+                    "mode": "XPATH",
+                    "value": "//*[@id=\"app\"]/div/div[1]/div[2]/div[2]"
+                }
+            },
+            {
+                "uuid": "R5dBLSpAtYD2HoZBTFUpPK",
+                "index": 4,
+                "type": "ui_control",
+                "title": "点击下拉",
+                "function": "click",
+                "args": {
+                    "mode": "XPATH",
+                    "value": "//*[@id=\"app\"]/div/div[1]/button[4]/span/div"
+                }
+            },
+            {
+                "uuid": "Rp8hUWpZDCFtGJa2PnqbxY",
+                "index": 5,
+                "type": "ui_control",
+                "title": "点击退出",
+                "function": "click",
+                "args": {
+                    "mode": "XPATH",
+                    "value": "/html/body/div[2]/div/div/div/div[3]/li/span/div"
+                }
+            }
+        ]
+    },
+    {
+        "uuid": "QBi6biMXxDKaW3YefWyAcE",
+        "index": 3,
+        "title": "嵌套循环操作",
+        "type": "master",
+        "business_list": [
+            {
+                "uuid": "TYrU8VFP4dmpyaxcGeYoRP",
+                "index": 1,
+                "type": "logic_control",
+                "title": "第一层循环",
+                "function": "for",
+                "num": 3,
+                "data_source": [],
+                "business_list": [
+                    {
+                        "uuid": "dmvsJb7xx4zq3hhSBQ4881",
+                        "index": 1,
+                        "type": "ui_control",
+                        "title": "输入账号",
+                        "function": "input",
+                        "args": {
+                            "mode": "XPATH",
+                            "value": "//*[@id=\"login-form\"]/div[1]/div[2]/div/div/div/input",
+                            "data": "admin"
+                        }
+                    },
+                    {
+                        "uuid": "hW34pAsXZckYJTfcABpsF1",
+                        "index": 2,
+                        "type": "ui_control",
+                        "title": "输入密码",
+                        "function": "input",
+                        "args": {
+                            "mode": "XPATH",
+                            "value": "//*[@id=\"login-form\"]/div[2]/div[2]/div/div/div/input",
+                            "data": "123456"
+                        }
+                    },
+                    {
+                        "uuid": "PAJpUsKda8Bv9oEV3Jyqr1",
+                        "index": 3,
+                        "type": "ui_control",
+                        "title": "点击登录",
+                        "function": "click",
+                        "args": {
+                            "mode": "XPATH",
+                            "value": "//*[@id=\"login-form\"]/div[3]/div[2]/div/div/div/button[1]"
+                        }
+                    },
+                    {
+                        "uuid": "7wAavqUQH3CbpHPfSQ3iwk",
+                        "index": 4,
+                        "type": "logic_control",
+                        "title": "第二层循环",
+                        "function": "for",
+                        "num": 3,
+                        "data_source": [],
+                        "business_list": [
+                            {
+                                "uuid": "WKJ9ahs5vte6NnYV7YGLv1",
+                                "index": 11,
+                                "type": "ui_control",
+                                "title": "输入项目名称",
+                                "function": "input",
+                                "args": {
+                                    "mode": "XPATH",
+                                    "value": "//*[@id=\"project-search-container\"]/div/form/div/div/div/input",
+                                    "data": "zxc"
+                                }
+                            },
+                            {
+                                "uuid": "SyRD7rvk4Gkkv9xpxdnVw1",
+                                "index": 22,
+                                "type": "ui_control",
+                                "title": "点击搜索",
+                                "function": "click",
+                                "args": {
+                                    "mode": "XPATH",
+                                    "value": "//*[@id=\"project-search-container\"]/div/form/div/span"
+                                }
+                            },
+                            {
+                                "uuid": "HsK7CHGCAYmGhs7EbFHgu1",
+                                "index": 33,
+                                "type": "ui_control",
+                                "title": "点击项目3",
+                                "function": "click",
+                                "args": {
+                                    "mode": "XPATH",
+                                    "value": "//*[@id=\"main-container\"]/div[1]/div[1]/div/div"
+                                }
+                            },
+                            {
+                                "uuid": "WeA8U7Ey9vCU4KLPs5Eu21",
+                                "index": 3332,
+                                "type": "ui_control",
+                                "title": "点击暗夜2",
+                                "function": "click",
+                                "args": {
+                                    "mode": "XPATH",
+                                    "value": "//*[@id=\"app\"]/div/div[1]/div[2]/div[3]"
+                                }
+                            },
+                            {
+                                "uuid": "EM8hn8bYx6fZYkJbnL7xP1",
+                                "index": 3331,
+                                "type": "ui_control",
+                                "title": "点击光明2",
+                                "function": "click",
+                                "args": {
+                                    "mode": "XPATH",
+                                    "value": "//*[@id=\"app\"]/div/div[1]/div[2]/div[2]"
+                                }
+                            },
+                            {
+                                "uuid": "8sqWdJ4qkjCtH7Jc9UDUgM",
+                                "index": 1,
+                                "type": "ui_control",
+                                "title": "点击前往首页",
+                                "function": "click",
+                                "args": {
+                                    "mode": "XPATH",
+                                    "value": "//*[@id=\"app\"]/div/div[1]/div[1]/div[1]/span"
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "uuid": "R5dBLSpAtYD2HoZBTFUpP1",
+                        "index": 4,
+                        "type": "ui_control",
+                        "title": "点击下拉",
+                        "function": "click",
+                        "args": {
+                            "mode": "XPATH",
+                            "value": "//*[@id=\"app\"]/div/div[1]/button[4]/span/div"
+                        }
+                    },
+                    {
+                        "uuid": "Rp8hUWpZDCFtGJa2Pnqbx1",
+                        "index": 5,
+                        "type": "ui_control",
+                        "title": "点击退出",
+                        "function": "click",
+                        "args": {
+                            "mode": "XPATH",
+                            "value": "/html/body/div[2]/div/div/div/div[3]/li/span/div"
+                        }
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "uuid": "J3gwrdJwdWDsJGSQ3vZmZd",
+        "index": 1,
+        "title": "结束",
+        "type": "master",
+        "business_list": [
+            {
+                "uuid": "bJ7R8nbpboMC59vkM3hEaZ",
+                "index": 1,
+                "type": "ui_control",
+                "title": "关闭浏览器",
+                "function": "close",
+                "args": {}
             }
         ]
     }
