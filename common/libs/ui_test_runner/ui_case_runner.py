@@ -2,7 +2,7 @@
 # @Time    : 2023/1/30 11:57
 # @Author  : yangyuexiong
 # @Email   : yang6333yyx@126.com
-# @File    : ui_runner.py
+# @File    : ui_case_runner.py
 # @Software: PyCharm
 
 import json
@@ -10,8 +10,42 @@ import time
 
 from common.libs.db import project_db, R
 from common.libs.data_dict import GlobalsDict, F
-from common.libs.ui_test_runner.ui_ctrl import ControlFunction
-from common.libs.ui_test_runner.ui_logs import UiCaseLogs
+from common.libs.ui_test_runner.ui_case_ctrl import ControlFunction
+from common.libs.ui_test_runner.ui_case_logs import UiCaseLogs
+
+
+class FL:
+    """for logs"""
+
+    @staticmethod
+    def for_logs_start(d, i):
+        """
+
+        :param d: for层数
+        :param i: for次数
+        :return:
+        """
+
+        result = {
+            "message": f"=== 第 {d} 层循环，第 {i} 次开始 ==="
+        }
+        print(result)
+        return result
+
+    @staticmethod
+    def for_logs_end(d, i):
+        """
+
+        :param d: for层数
+        :param i: for次数
+        :return:
+        """
+
+        result = {
+            "message": f"=== 第 {d} 层循环，第 {i} 次结束 ==="
+        }
+        print(result)
+        return result
 
 
 def query_function(business_dict: dict) -> any:
@@ -44,8 +78,8 @@ def getattr_func(o: object, func_name: str) -> any:
     return f
 
 
-def for_recursion(action_list: list, data_list: list = None, num: int = 0, deep_num: int = 0, first: bool = True,
-                  master_function=None, master_function_kw: dict = None, web_driver_example: object = None,
+def for_recursion(action_list: list, data_list: list = None, num: int = 0, deep_num: int = 0, master_function=None,
+                  master_function_kw: dict = None, web_driver_example: object = None,
                   logs_example: UiCaseLogs = None) -> None:
     """
     for递归
@@ -53,18 +87,15 @@ def for_recursion(action_list: list, data_list: list = None, num: int = 0, deep_
     :param data_list: 数据列表
     :param num: 轮次(data_list为空时使用,否则按照数据列表长度作为循序次数)
     :param deep_num: 子循环的轮次
-    :param first: 是否首次循环
-    :param master_function:
-    :param master_function_kw:
-    :param web_driver_example:
-    :param logs_example:
+    :param master_function: 主递归函数
+    :param master_function_kw: 主递归函数参数
+    :param web_driver_example: WebUI实例
+    :param logs_example: 日志实例
     :return:
     """
 
     for i in range(1, num + 1):
-        if first:
-            print(f'=== 第 {i} 轮开始 ===')
-            logs_example.logs_add({'message': f'=== 第 {i} 轮开始 ==='})
+        logs_example.logs_add(FL.for_logs_start(deep_num, i))
 
         for index, ac in enumerate(action_list, 1):
             ac_function = ac.get('function')
@@ -74,8 +105,7 @@ def for_recursion(action_list: list, data_list: list = None, num: int = 0, deep_
                 for_recursion(
                     action_list=ac_action,
                     num=ac_num,
-                    deep_num=i,
-                    first=False,
+                    deep_num=deep_num + 1,
                     master_function=master_function,
                     master_function_kw=master_function_kw,
                     web_driver_example=web_driver_example,
@@ -93,20 +123,14 @@ def for_recursion(action_list: list, data_list: list = None, num: int = 0, deep_
                     if not res_func:
                         raise KeyError(f"异常:{ac}")
 
-                    if first:
-                        print(f">>>{i}", ac, first)
-                    else:
-                        print(f">>>{deep_num}", ac, first)
-
                     print(">>>", ac)
                     func = getattr_func(web_driver_example, res_func)
                     func_args = ac.get('args')
                     print(">>> 普通 function 反射执行", func, func_args, '\n')
                     func(**func_args)
                     logs_example.logs_add(ac)
-        if first:
-            print(f'=== 第 {i} 轮结束 ===\n')
-            logs_example.logs_add({'message': f'=== 第 {i} 轮结束 ==='})
+
+        logs_example.logs_add(FL.for_logs_end(deep_num, i))
 
 
 def recursion_main(data_list: list, web_driver_example: object = None, logs_example: UiCaseLogs = None):
@@ -231,6 +255,8 @@ class ExecuteUiCase:
         """
 
         self.redis_key = f"ui_test_log:{F.gen_datetime(**{'execute': True})}_{F.gen_uuid_short()}"
+        ui_case_logs = self.logs_example.get_logs()
+        result_summary = self.logs_example.get_test_result()
 
         return_case_result = {
             "uuid": self.redis_key,
@@ -238,8 +264,8 @@ class ExecuteUiCase:
             "execute_username": self.execute_username,
             "execute_type": self.execute_type,
             "execute_name": self.execute_name,
-            "ui_case_logs": [],
-            # "result_summary": result_summary,
+            "ui_case_logs": ui_case_logs,
+            "result_summary": result_summary,
         }
         json_str = json.dumps(return_case_result, ensure_ascii=False)
         R.set(self.redis_key, json_str)
@@ -249,6 +275,9 @@ class ExecuteUiCase:
         save_obj_first = current_save_dict.get(self.execute_type, "未知执行类型")
         R.set(save_obj_first, json_str)
         R.expire(save_obj_first, 86400 * 30)
+
+        if self.is_debug:
+            print(json.dumps(return_case_result, ensure_ascii=False))
 
     def write_back_logs(self, report_url=None, file_name=None):
         """
@@ -274,6 +303,9 @@ class ExecuteUiCase:
 
         self.start_time = time.time()
 
+        self.logs_example.start_time = self.start_time
+        self.logs_example.execute_count = len(self.ui_case_list)
+
         for index, ui_case in enumerate(self.ui_case_list):
             meta_data = ui_case.get('meta_data')
             new_ucr = UiCaseRunner(
@@ -286,10 +318,13 @@ class ExecuteUiCase:
                     "error": "UI自动化执行出错"
                 }
                 self.logs_example.logs_add(d)
+                self.logs_example.execute_fail += 1
+            else:
+                self.logs_example.execute_success += 1
+
+        self.logs_example.end_time = time.time()
 
         self.gen_logs()
         self.write_back_logs()
 
-        print('=== logs_example ===')
-        self.logs_example.get_result(is_json=self.is_debug)
         return 'ok'

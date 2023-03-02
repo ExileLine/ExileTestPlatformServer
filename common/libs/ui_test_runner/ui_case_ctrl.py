@@ -2,7 +2,7 @@
 # @Time    : 2023/2/8 15:04
 # @Author  : yangyuexiong
 # @Email   : yang6333yyx@126.com
-# @File    : ui_ctrl.py
+# @File    : ui_case_ctrl.py
 # @Software: PyCharm
 
 class CustomAssert:
@@ -86,9 +86,9 @@ class ControlFunction:
     }
 
     assert_control_dict = {
-        "assert_ui": "",
-        "assert_api": "",
-        "assert_db": ""
+        "assert_ui": CustomAssert.assert_ui,
+        "assert_api": CustomAssert.assert_api,
+        "assert_db": CustomAssert.assert_db
     }
 
     logic_control_dict = {
