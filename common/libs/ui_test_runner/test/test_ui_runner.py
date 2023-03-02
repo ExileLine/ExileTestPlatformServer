@@ -8,11 +8,13 @@
 from common.libs.BaseWebDriver import BaseWebDriver
 from common.libs.ui_test_runner.test.meta_data import meta_data as md
 from common.libs.ui_test_runner.test.meta_data import meta_data2 as md2
-from common.libs.ui_test_runner.ui_runner import ExecuteUiCase
+from common.libs.ui_test_runner.ui_case_runner import ExecuteUiCase
 
 test_obj = {
     "project_id": 30,
     "execute_id": 5,
+    "execute_user_id": 1,
+    "execute_username": "admin",
     "execute_key": "ui_case",
     "execute_name": "测试UI自动化",
     "execute_type": "ui_case",
@@ -30,7 +32,7 @@ test_obj = {
             "is_deleted": 0,
             "is_public": True,
             "is_shared": True,
-            "meta_data": md2,
+            "meta_data": md,
             "modifier": None,
             "modifier_id": None,
             "remark": "测试UI自动化123",
