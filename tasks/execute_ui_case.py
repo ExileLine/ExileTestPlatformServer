@@ -8,7 +8,7 @@
 
 from tasks.celery import cel
 from common.libs.BaseWebDriver import BaseWebDriver
-from common.libs.ui_test_runner.ui_runner import ExecuteUiCase
+from common.libs.ui_test_runner.ui_case_runner import ExecuteUiCase
 
 
 @cel.task
