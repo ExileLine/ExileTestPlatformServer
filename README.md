@@ -6,7 +6,8 @@
 
 主作者 [YangYueXiong](https://github.com/yangyuexiong) 是前某思维测试小伙，某测试平台V1.0与V2.0的设计者，期间充当产品，设计，研发，测试，运维，内部推广等多个角色。
 
-据了解因各种因素导致最后测试平台落地的结果并不理想，但在整个过程中其受益匪浅并有所总结，而主作者 [YangYueXiong](https://github.com/yangyuexiong) 还是想做出一个能让大部测试人员都认可并真正能降本增效的测试平台，从而有了这个放逐测试平台，其言既然不能于公司中很好的实践，那么就流放到整个测试社区，让更多的测试人员使用并提出建议使其更好的发挥实际作用，因此取名放逐。
+据了解因各种因素导致最后测试平台落地的结果并不理想，但在整个过程中其受益匪浅并有所总结，而主作者 [YangYueXiong](https://github.com/yangyuexiong)
+还是想做出一个能让大部测试人员都认可并真正能降本增效的测试平台，从而有了这个放逐测试平台，其言既然不能于公司中很好的实践，那么就流放到整个测试社区，让更多的测试人员使用并提出建议使其更好的发挥实际作用，因此取名放逐。
 
 主作者 [YangYueXiong](https://github.com/yangyuexiong) 希望后续能以组织的形式重构它，使它能够商业定制化，如果你感兴趣，点亮Star，(最下方)请联系我们。
 
@@ -18,7 +19,7 @@ Respect ! ! !
 - 2020-9-18：某某测试平台V2.0（某思维，某某测试平台V1.0重构）
 - 2021-7-20：放逐测试平台V3.0（个人开源，因开发如下V4.0，仓库关闭）
 - 2022-2-23：某某测试平台V4.0（某上市公司，基于上述的个人开源放逐测试平台V3.0扩展定制化开发）
-- 2023-5-18：放逐测试平台V5.0（组织开源）
+- 2023-6-18：放逐测试平台V5.0（组织开源）
 
 ### 项目介绍
 
@@ -35,7 +36,12 @@ Respect ! ! !
   ![exile_cover](docs/展示图/exile_cover.png)
 - 主页  
   ![exile_home](docs/展示图/exile_home.png)
-
+- Api用例
+  ![exile_case1](docs/展示图/exile_case1.png)
+  ![exile_case2](docs/展示图/exile_case2.png)
+- UI用例
+  ![exile_ui_case](docs/展示图/exile_ui_case.png)
+  
 - 项目演示地址：http://106.75.174.40 (点击：`获取游客账号` 即可)
 - 警告：切勿在`演示地址`平台中使用重要或私密数据进行操作，损失概不负责，谢谢！
 
@@ -122,7 +128,7 @@ Respect ! ! !
 
 ### 接口清单
 
-- [Postman文件](docs/接口文档/ExileTestPlatform.postman_collection.json)
+- [Postman文件](docs/接口文档/ExileTestPlatform5.0.postman_collection.json)
 
 ### 项目部署
 

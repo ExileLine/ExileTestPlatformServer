@@ -1,0 +1,2487 @@
+{
+	"info": {
+		"_postman_id": "19ef2ce6-f993-402d-be26-f302f1d6756f",
+		"name": "ExileTestPlatform5.0",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "5688783"
+	},
+	"item": [
+		{
+			"name": "测试",
+			"item": [
+				{
+					"name": "调试celery",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "token",
+								"value": "123",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"a\":\"b\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/api/test_celery",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"test_celery"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "调试/api/test",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "token",
+								"value": "123",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"a\":\"b\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/api/test",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"test"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "调试/api/test",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "token",
+								"value": "123",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"a\":\"b\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/api/test",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"test"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "仪表盘相关",
+			"item": [
+				{
+					"name": "统计",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"project_id\": 30\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/api/dashboard",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"dashboard"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "鉴权",
+			"item": [
+				{
+					"name": "通过token获取用户",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "token",
+								"value": "d83cff2cYYxba11YYx11ecYYxb3c3YYxacde48001122",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/auth",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"auth"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "token调试",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "token",
+								"value": "d83cff2cYYxba11YYx11ecYYxb3c3YYxacde48001122",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/auth",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"auth"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "登录",
+			"item": [
+				{
+					"name": "登录",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var json_data = JSON.parse(responseBody)",
+									"",
+									"var token = json_data.data.token",
+									"",
+									"pm.environment.set(\"token\", token)"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"username\": \"admin\",\n    \"password\": \"123456\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/api/login",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"login"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "退出",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "token",
+								"value": "b3fdbe26Y8676Y11edY9b3dYacde48001122",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/login",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"login"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "用户管理",
+			"item": [
+				{
+					"name": "用户详情",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/user/1",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"user",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "新增用户",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/api/user",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"user"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "编辑用户",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/api/user",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"user"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "禁用用户",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/api/user",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"user"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "用户分页模糊查询",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "token",
+								"value": "yyx",
+								"type": "default"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"user_id\": \"\",\n    \"code\": \"\",\n    \"username\": \"\",\n    \"page\": 1,\n    \"size\": 20,\n    \"is_deleted\": false\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/api/user_page",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"user_page"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "个人信息",
+			"item": [
+				{
+					"name": "个人信息",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/user_profile/1",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"user_profile",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "编辑个人信息",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/user_profile",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"user_profile"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "项目管理",
+			"item": [
+				{
+					"name": "项目详情",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "token",
+								"value": "yyx",
+								"type": "default"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/project/1",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"project",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "新增项目",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "token",
+								"value": "4a453ad0Y8677Y11edY8fb7Yacde48001122",
+								"type": "text",
+								"disabled": true
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"project_name\": \"杨跃雄——{{$timestamp}} \",\n    \"remark\": \"测试yyx\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/api/project",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"project"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "项目编辑",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "token",
+								"value": "yyx",
+								"type": "default"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"id\": 1,\n    \"project_name\": \"杨跃雄\",\n    \"remark\": \"测试yyx\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/api/project",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"project"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "项目删除",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "token",
+								"value": "yyx",
+								"type": "default"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"id\": 2\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/api/project",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"project"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "项目分页模糊查询",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "token",
+								"value": "yyx",
+								"type": "default"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"project_name\": \"\",\n    \"page\": 1,\n    \"size\": 20\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/api/project_page",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"project_page"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "迭代管理",
+			"item": [
+				{
+					"name": "迭代详情",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "token",
+								"value": "yyx",
+								"type": "default"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/project_version/1",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"project_version",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "迭代新增",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "token",
+								"value": "yyx",
+								"type": "default"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"project_id\": \"1\",\n    \"version_name\": \"yyx-{{$timestamp}}\",\n    \"version_number\": \"v1.0\",\n    \"remark\": \"哈哈哈\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/api/project_version",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"project_version"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "迭代编辑",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "token",
+								"value": "yyx",
+								"type": "default"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"id\": 1,\n    \"project_id\": 1,\n    \"version_name\": \"B\",\n    \"version_number\": \"v1.0\",\n    \"remark\": \"哈哈哈123\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/api/project_version",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"project_version"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "迭代删除",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "token",
+								"value": "yyx",
+								"type": "default"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"id\": 2\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/api/project_version",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"project_version"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "迭代分页模糊查询",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "token",
+								"value": "yyx",
+								"type": "default"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"version_name\": \"\",\n    \"project_id\": 30,\n    \"page\": 1,\n    \"size\": 20\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/api/project_version_page",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"project_version_page"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "迭代任务",
+			"item": [
+				{
+					"name": "迭代(任务)页模糊查询",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "token",
+								"value": "yyx",
+								"type": "default"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"version_id\": \"6\",\n    \"id\": \"\",\n    \"task_name\": \"\",\n    \"task_type\": \"\",\n    \"is_deleted\": false,\n    \"page\": 1,\n    \"size\": 20\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/api/version_task_page",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"version_task_page"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "权限管理",
+			"item": []
+		},
+		{
+			"name": "用例管理",
+			"item": [
+				{
+					"name": "用例详情(用例,数据,变量,resp断言,field断言,bind) Copy",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "token",
+								"value": "yyx",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/case/8646",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"case",
+								"8646"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "新增用例",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "token",
+								"value": "yyx",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"project_id\": 1,\n    \"module_list\": [],\n    \"version_list\": [],\n    \"case_name\": \"用例-{{$timestamp}}\",\n    \"request_method\": \"POST\",\n    \"request_base_url\": \" 1\",\n    \"request_url\": \"/api/index\",\n    \"is_shared\": 0,\n    \"is_public\": false,\n    \"case_status\": \"debug\",\n    \"remark\": \"remark\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/api/case",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"case"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "编辑用例",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "token",
+								"value": "yyx",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"id\": 8643,\n    \"case_name\": \"用例-{{$timestamp}}\",\n    \"request_method\": \"Get\",\n    \"request_base_url\": \"http://127.0.0.1:7878\",\n    \"request_url\": \"/api\",\n    \"var_list\": [],\n    \"is_shared\": 1,\n    \"is_public\": true,\n    \"case_status\": \"dev\",\n    \"remark\": \"remark\",\n    \"project_id\": 1,\n    \"module_list\": [],\n    \"version_list\": []\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/api/case",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"case"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "删除用例",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"id\": 8643\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/api/case",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"case"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "用例分页模糊查询",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"case_id\": \"\",\n    \"case_name\": \"\",\n    \"request_url\": \"\",\n    \"creator_id\": \"\",\n    \"project_id\": 1,\n    \"version_id\": \"\",\n    \"case_status\": \"debug\",\n    \"is_deleted\": false,\n    \"page\": 1,\n    \"size\": 20\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/api/case_page",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"case_page"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "场景管理",
+			"item": [
+				{
+					"name": "场景详情",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "token",
+								"value": "yyx",
+								"type": "default"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/api/case_scenario/63",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"case_scenario",
+								"63"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "新增场景",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "token",
+								"value": "yyx",
+								"type": "default"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"scenario_title\": \"场景{{$timestamp}}\",\n    \"case_list\": [\n        {\n            \"case_id\": 8646,\n            \"index\": 1,\n            \"sleep\": 10\n        },\n        {\n            \"case_id\": 8646,\n            \"index\": 2,\n            \"sleep\": 10\n        },\n        {\n            \"case_id\": 8657,\n            \"index\": 3,\n            \"sleep\": 0\n        },\n        {\n            \"case_id\": 8649,\n            \"index\": 8649,\n            \"sleep\": 29\n        }\n    ],\n    \"is_shared\": true,\n    \"is_public\": true,\n    \"module_list\": [],\n    \"version_list\": [],\n    \"project_id\": 30\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/api/case_scenario",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"case_scenario"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "编辑场景",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"id\": 63,\n    \"scenario_title\": \"测试编辑场景\",\n    \"case_list\": [\n        {\n            \"case_id\": 8646,\n            \"index\": 1,\n            \"sleep\": 11\n        },\n        {\n            \"case_id\": 8657,\n            \"index\": 2,\n            \"sleep\": 10\n        },\n        {\n            \"case_id\": 8649,\n            \"index\": 8649,\n            \"sleep\": 22\n        }\n    ],\n    \"is_shared\": false,\n    \"is_public\": true,\n    \"module_list\": [],\n    \"version_list\": [],\n    \"project_id\": 30\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/api/case_scenario",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"case_scenario"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "删除场景",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"id\": 62\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/api/case_scenario",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"case_scenario"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "用例场景分页模糊查询",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "token",
+								"value": "yyx",
+								"type": "default"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"project_id\":30,\n    \"scenario_id\": \"\",\n    \"   \": \"\",\n    \"page\": 1,\n    \"size\": 20,\n    \"is_deleted\": false\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/api/case_scenario_page",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"case_scenario_page"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "参数管理",
+			"item": [
+				{
+					"name": "获取请求参数",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "token",
+								"value": "yyx",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/case_req_data/19302",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"case_req_data",
+								"19302"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "新增请求参数",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "token",
+								"value": "yyx",
+								"type": "default"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"data_name\": \"杨跃雄测试2\",\n    \"request_params_hash\": [\n        {\n            \"active\": true,\n            \"key\": \"a\",\n            \"value\": \"a\",\n            \"desc\": \"测试a\"\n        },\n        {\n            \"active\": true,\n            \"key\": \"b\",\n            \"value\": \"b\",\n            \"desc\": \"测试b\"\n        }\n    ],\n    \"request_headers_hash\": [\n        {\n            \"active\": true,\n            \"key\": \"token\",\n            \"value\": \"token123456789\",\n            \"desc\": \"鉴权\"\n        },\n        {\n            \"active\": true,\n            \"key\": \"xxx\",\n            \"value\": \"xxx123456789\",\n            \"desc\": \"...\"\n        }\n    ],\n    \"request_body_hash\": \"\",\n    \"request_body_type\": \"json\",\n    \"var_list\": [],\n    \"update_var_list\": [],\n    \"is_public\": true,\n    \"is_before\": false,\n    \"is_after\": false\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/api/case_req_data",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"case_req_data"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "编辑请求参数",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"id\": 19335,\n    \"data_name\": \"杨跃雄测试2\",\n    \"request_params_hash\": [\n        {\n            \"active\": true,\n            \"key\": \"a\",\n            \"value\": \"a\",\n            \"desc\": \"测试a\"\n        },\n        {\n            \"active\": true,\n            \"key\": \"b\",\n            \"value\": \"b\",\n            \"desc\": \"测试b\"\n        }\n    ],\n    \"request_headers_hash\": [\n        {\n            \"active\": true,\n            \"key\": \"token\",\n            \"value\": \"token123456789\",\n            \"desc\": \"鉴权\"\n        },\n        {\n            \"active\": true,\n            \"key\": \"xxx\",\n            \"value\": \"xxx123456789\",\n            \"desc\": \"...\"\n        }\n    ],\n    \"request_body_hash\": \"{\\\"yyx\\\": []}\",\n    \"request_body_type\": \"json\",\n    \"var_list\": [],\n    \"update_var_list\": [],\n    \"is_public\": true,\n    \"is_before\": false,\n    \"is_after\": false\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/api/case_req_data",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"case_req_data"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "删除请求参数",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"id\": 19302\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/api/case_req_data",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"case_req_data"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "参数分页模糊查询",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"id\": \"\",\n    \"data_name\": \"\",\n    \"page\": 1,\n    \"size\": 20,\n    \"is_deleted\": false\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/api/case_req_data_page",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"case_req_data_page"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "变量",
+			"item": [
+				{
+					"name": "获取变量详情",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/case_variable/37",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"case_variable",
+								"37"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "新增变量",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"var_name\": \"新的变量{{$timestamp}}\",\n    \"var_value\": \"abc\",\n    \"var_type\": \"json_str\",\n    \"var_source\": \"\",\n    \"var_get_key\": \"code\",\n    \"expression\": \"obj.get('message')\",\n    \"is_source\": true,\n    \"is_expression\": 1,\n    \"is_public\": false,\n    \"is_active\": true,\n    \"remark\": \"remark\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/api/case_variable",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"case_variable"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "编辑变量",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"id\": 95,\n    \"var_name\": \"新的变量{{$timestamp}}\",\n    \"var_value\": \"abc123\",\n    \"var_type\": \"json_str\",\n    \"var_source\": \"response_body\",\n    \"var_get_key\": \"code\",\n    \"expression\": \"obj.get('message')\",\n    \"is_expression\": 1,\n    \"is_public\": false,\n    \"is_active\": true,\n    \"remark\": \"remark\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/api/case_variable",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"case_variable"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "删除变量",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"id\": 39\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/api/case_variable",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"case_variable"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "变量分页模糊查询",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"id\": \"\",\n    \"var_name\": \"\",\n    \"var_type\": \"\",\n    \"var_source\": \"\",\n    \"page\": 1,\n    \"size\": 3,\n    \"is_deleted\": false\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/api/case_variable_page",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"case_variable_page"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "变量更新历史列表查询",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"var_id\": \"1\",\n    \"page\": 1,\n    \"size\": 20\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/api/case_var_history",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"case_var_history"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "断言规则",
+			"item": [
+				{
+					"name": "响应断言规则",
+					"item": [
+						{
+							"name": "获取resp断言规则明细",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/api/resp_ass_rule/1",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"api",
+										"resp_ass_rule",
+										"1"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "新增resp断言规则",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"assert_description\": \"Resp断言999123\",\n    \"remark\": \"remark\",\n    \"ass_json\": [\n        {\n            \"response_source\": \"response_body\",\n            \"assert_key\": \"data\",\n            \"expect_val\": true,\n            \"expect_val_type\": \"bool\",\n            \"rule\": \"==\",\n            \"is_expression\": true,\n            \"python_val_exp\": \"obj.get('data')\"\n        },\n        {\n            \"response_source\": \"response_body\",\n            \"assert_key\": \"data\",\n            \"expect_val\": \"yyx\",\n            \"expect_val_type\": \"str\",\n            \"rule\": \"==\",\n            \"is_expression\": true,\n            \"python_val_exp\": \"obj.get('data')\"\n        },\n        {\n            \"response_source\": \"response_body\",\n            \"assert_key\": \"data\",\n            \"expect_val\": \"123456\",\n            \"expect_val_type\": \"int\",\n            \"rule\": \"==\",\n            \"is_expression\": true,\n            \"python_val_exp\": \"obj.get('data')\"\n        },\n        {\n            \"response_source\": \"response_body\",\n            \"assert_key\": \"data\",\n            \"expect_val\": {},\n            \"expect_val_type\": \"list\",\n            \"rule\": \"==\",\n            \"is_expression\": true,\n            \"python_val_exp\": \"obj.get('data')\"\n        },\n        {\n            \"response_source\": \"response_body\",\n            \"assert_key\": \"data\",\n            \"expect_val\": \"123\",\n            \"expect_val_type\": \"json\",\n            \"rule\": \"==\",\n            \"is_expression\": true,\n            \"python_val_exp\": \"obj.get('data')\"\n        },\n        {\n            \"response_source\": \"response_body\",\n            \"assert_key\": \"data\",\n            \"expect_val\": \"aa\",\n            \"expect_val_type\": \"json_str\",\n            \"rule\": \"==\",\n            \"is_expression\": true,\n            \"python_val_exp\": \"obj.get('data')\"\n        }\n    ]\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{base_url}}/api/resp_ass_rule",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"api",
+										"resp_ass_rule"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "编辑resp断言规则",
+							"request": {
+								"method": "PUT",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"id\": 1,\n    \"assert_description\": \"调试用例执行专用resp断言\",\n    \"remark\": \"调试用例执行专用resp断言\",\n    \"ass_json\": [\n        {\n            \"response_source\": \"response_body\",\n            \"assert_key\": \"data\",\n            \"expect_val\": true,\n            \"expect_val_type\": \"bool\",\n            \"rule\": \"==\",\n            \"is_expression\": true,\n            \"python_val_exp\": \"obj.get('data')\"\n        },\n        {\n            \"response_source\": \"response_body\",\n            \"assert_key\": \"data\",\n            \"expect_val\": \"yyx\",\n            \"expect_val_type\": \"str\",\n            \"rule\": \"==\",\n            \"is_expression\": true,\n            \"python_val_exp\": \"obj.get('data')\"\n        },\n        {\n            \"response_source\": \"response_body\",\n            \"assert_key\": \"data\",\n            \"expect_val\": \"123456\",\n            \"expect_val_type\": \"int\",\n            \"rule\": \"==\",\n            \"is_expression\": true,\n            \"python_val_exp\": \"obj.get('data')\"\n        },\n        {\n            \"response_source\": \"response_body\",\n            \"assert_key\": \"data\",\n            \"expect_val\": {},\n            \"expect_val_type\": \"list\",\n            \"rule\": \"==\",\n            \"is_expression\": true,\n            \"python_val_exp\": \"obj.get('data')\"\n        },\n        {\n            \"response_source\": \"response_body\",\n            \"assert_key\": \"data\",\n            \"expect_val\": \"123\",\n            \"expect_val_type\": \"json\",\n            \"rule\": \"==\",\n            \"is_expression\": true,\n            \"python_val_exp\": \"obj.get('data')\"\n        },\n        {\n            \"response_source\": \"response_body\",\n            \"assert_key\": \"data\",\n            \"expect_val\": \"aa\",\n            \"expect_val_type\": \"json_str\",\n            \"rule\": \"==\",\n            \"is_expression\": true,\n            \"python_val_exp\": \"obj.get('data')\"\n        }\n    ]\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{base_url}}/api/resp_ass_rule",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"api",
+										"resp_ass_rule"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "删除resp断言规则",
+							"request": {
+								"method": "DELETE",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"id\": 1\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{base_url}}/api/resp_ass_rule",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"api",
+										"resp_ass_rule"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "字段断言规则",
+					"item": [
+						{
+							"name": "获取field断言规则明细",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "GET",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": ""
+								},
+								"url": {
+									"raw": "{{base_url}}/api/field_ass_rule/2",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"api",
+										"field_ass_rule",
+										"2"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "新增field断言规则",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"remark\": \"123\",\n    \"is_public\": true,\n    \"assert_description\": \"okclol\",\n    \"ass_json\": [\n        {\n            \"db_id\": 12,\n            \"assert_list\": [\n                {\n                    \"query\": \"select id, case_name FROM ExileTestPlatform.exile_test_case WHERE id=1;\",\n                    \"assert_field_list\": [\n                        {\n                            \"expect_val_type\": \"int\",\n                            \"python_val_exp\": \"obj.get(\\\"id\\\")\",\n                            \"rule\": \"==\",\n                            \"assert_key\": \"id\",\n                            \"expect_val\": \"1\",\n                            \"is_expression\": true\n                        },\n                        {\n                            \"expect_val_type\": \"str\",\n                            \"python_val_exp\": \"obj.get(\\\"case_name\\\")\",\n                            \"rule\": \"==\",\n                            \"assert_key\": \"case_name\",\n                            \"expect_val\": \"yyx\",\n                            \"is_expression\": false\n                        }\n                    ]\n                }\n            ]\n        }\n    ]\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{base_url}}/api/field_ass_rule",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"api",
+										"field_ass_rule"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "编辑field断言规则",
+							"request": {
+								"method": "PUT",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"id\": 2,\n    \"version_id_list\": [],\n    \"assert_description\": \"A通用字段校验\",\n    \"is_public\": true,\n    \"remark\": \"remark\",\n    \"ass_json\": [\n        {\n            \"db_id\": 12,\n            \"assert_list\": [\n                {\n                    \"query\": \"select id, case_name FROM ExileTestPlatform.exile_test_case WHERE id=1;\",\n                    \"assert_field_list\": [\n                        {\n                            \"assert_key\": \"id\",\n                            \"expect_val\": 1,\n                            \"expect_val_type\": \"int\",\n                            \"rule\": \"==\",\n                            \"is_expression\": true\n                        },\n                        {\n                            \"assert_key\": \"case_name\",\n                            \"expect_val\": \"测试用例B1\",\n                            \"expect_val_type\": \"str\",\n                            \"rule\": \"==\",\n                            \"is_expression\": true\n                        }\n                    ]\n                }\n            ]\n        },\n        {\n            \"db_id\": 9,\n            \"assert_list\": [\n                {\n                    \"query\": \"get 127.0.0.1\",\n                    \"assert_field_list\": [\n                        {\n                            \"assert_key\": \"username\",\n                            \"expect_val\": \"user_00007\",\n                            \"expect_val_type\": \"str\",\n                            \"is_expression\": false,\n                            \"python_val_exp\": \"obj.get('username')\",\n                            \"rule\": \"==\"\n                        }\n                    ]\n                }\n            ]\n        }\n    ]\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{base_url}}/api/field_ass_rule",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"api",
+										"field_ass_rule"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "删除field断言规则",
+							"request": {
+								"method": "DELETE",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"id\": 2\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{base_url}}/api/field_ass_rule",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"api",
+										"field_ass_rule"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "断言规则分页模糊查询",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"id\": \"\",\n    \"assert_description\": \"\",\n    \"assertion_type\":\"response\",\n    \"page\": 1,\n    \"size\": 20,\n    \"is_deleted\": false\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/api/assertion_page",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"assertion_page"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "用例关联参数与断言",
+			"item": [
+				{
+					"name": "用例绑定参数/断言/关系变量",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"case_id\": \"8646\",\n    \"data_list\": [\n        {\n            \"case_field_ass_info\": [\n                {\n                    \"ass_json\": [\n                        {\n                            \"assert_list\": [\n                                {\n                                    \"assert_key\": \"id\",\n                                    \"expect_val\": \"1\",\n                                    \"expect_val_type\": \"1\",\n                                    \"rule\": \"==\"\n                                },\n                                {\n                                    \"assert_key\": \"case_name\",\n                                    \"expect_val\": \"测试用例B1\",\n                                    \"expect_val_type\": \"2\",\n                                    \"rule\": \"==\"\n                                }\n                            ],\n                            \"db_id\": 1,\n                            \"query\": \"select id,case_name FROM ExileTestPlatform.exile_test_case WHERE id=1;\"\n                        }\n                    ],\n                    \"assert_description\": \"数据字段断言:1\",\n                    \"create_time\": \"2021-11-11 11:23:23\",\n                    \"create_timestamp\": 1636601002,\n                    \"creator\": \"脚本生成:1\",\n                    \"creator_id\": 999999,\n                    \"id\": 2,\n                    \"is_deleted\": 0,\n                    \"is_public\": null,\n                    \"modifier\": null,\n                    \"modifier_id\": null,\n                    \"remark\": \"脚本生成:1\",\n                    \"status\": 1,\n                    \"update_time\": \"2021-11-11 11:23:23\",\n                    \"update_timestamp\": null\n                }\n            ],\n            \"case_resp_ass_info\": [\n                {\n                    \"ass_json\": [\n                        {\n                            \"assert_key\": \"code\",\n                            \"expect_val\": 200,\n                            \"expect_val_type\": 1,\n                            \"is_expression\": 0,\n                            \"python_val_exp\": \"okc.get('a').get('b').get('c')[0]\",\n                            \"resp_source\": \"response_body\",\n                            \"response_source\": \"response_headers\",\n                            \"rule\": \"==\"\n                        },\n                        {\n                            \"assert_key\": \"code\",\n                            \"expect_val\": 200,\n                            \"expect_val_type\": 1,\n                            \"is_expression\": 0,\n                            \"python_val_exp\": \"okc.get('code')\",\n                            \"resp_source\": \"response_body\",\n                            \"response_source\": \"response_body\",\n                            \"rule\": \"==\"\n                        },\n                        {\n                            \"assert_key\": \"message\",\n                            \"expect_val\": \"index\",\n                            \"expect_val_type\": 2,\n                            \"is_expression\": 0,\n                            \"python_val_exp\": \"okc.get('message')\",\n                            \"resp_source\": \"response_headers\",\n                            \"response_source\": \"response_body\",\n                            \"rule\": \"==\"\n                        },\n                        {\n                            \"assert_key\": \"message\",\n                            \"expect_val\": \"index\",\n                            \"expect_val_type\": 2,\n                            \"is_expression\": 0,\n                            \"python_val_exp\": \"okc.get('message')\",\n                            \"resp_source\": \"response_headers\",\n                            \"response_source\": \"response_body\",\n                            \"rule\": \"==\"\n                        }\n                    ],\n                    \"assert_description\": \"调试用例执行专用resp断言\",\n                    \"create_time\": \"2021-11-11 11:23:22\",\n                    \"create_timestamp\": 1636601002,\n                    \"creator\": \"脚本生成:0\",\n                    \"creator_id\": 999999,\n                    \"id\": 1,\n                    \"is_deleted\": 0,\n                    \"is_public\": 1,\n                    \"modifier\": \"admin\",\n                    \"modifier_id\": 1,\n                    \"remark\": \"调试用例执行专用resp断言\",\n                    \"status\": 1,\n                    \"update_time\": \"2022-02-23 13:54:17\",\n                    \"update_timestamp\": 1645595576\n                },\n                {\n                    \"ass_json\": [\n                        {\n                            \"assert_key\": \"123\",\n                            \"expect_val\": \"123\",\n                            \"expect_val_type\": \"int\",\n                            \"is_expression\": false,\n                            \"python_val_exp\": \"\",\n                            \"response_source\": \"response_body\",\n                            \"rule\": \"==\",\n                            \"uuid\": \"b98A5iWPEnupqhXospnyWK-1660987769\"\n                        }\n                    ],\n                    \"assert_description\": \"12\",\n                    \"assertion_type\": \"response\",\n                    \"create_time\": \"2022-08-20 17:29:29\",\n                    \"create_timestamp\": 1660983443,\n                    \"creator\": \"admin\",\n                    \"creator_id\": 1,\n                    \"id\": 22,\n                    \"is_deleted\": 0,\n                    \"is_public\": 1,\n                    \"modifier\": null,\n                    \"modifier_id\": null,\n                    \"remark\": null,\n                    \"status\": 1,\n                    \"update_time\": \"2022-08-20 17:29:29\",\n                    \"update_timestamp\": null\n                },\n                {\n                    \"ass_json\": [\n                        {\n                            \"assert_key\": \"data\",\n                            \"expect_val\": true,\n                            \"expect_val_type\": \"bool\",\n                            \"is_expression\": true,\n                            \"python_val_exp\": \"obj.get('data')\",\n                            \"response_source\": \"response_body\",\n                            \"rule\": \"==\"\n                        },\n                        {\n                            \"assert_key\": \"data\",\n                            \"expect_val\": \"yyx\",\n                            \"expect_val_type\": \"str\",\n                            \"is_expression\": true,\n                            \"python_val_exp\": \"obj.get('data')\",\n                            \"response_source\": \"response_body\",\n                            \"rule\": \"==\"\n                        },\n                        {\n                            \"assert_key\": \"data\",\n                            \"expect_val\": \"123456\",\n                            \"expect_val_type\": \"int\",\n                            \"is_expression\": true,\n                            \"python_val_exp\": \"obj.get('data')\",\n                            \"response_source\": \"response_body\",\n                            \"rule\": \"==\"\n                        },\n                        {\n                            \"assert_key\": \"data\",\n                            \"expect_val\": {},\n                            \"expect_val_type\": \"list\",\n                            \"is_expression\": true,\n                            \"python_val_exp\": \"obj.get('data')\",\n                            \"response_source\": \"response_body\",\n                            \"rule\": \"==\"\n                        },\n                        {\n                            \"assert_key\": \"data\",\n                            \"expect_val\": \"123\",\n                            \"expect_val_type\": \"json\",\n                            \"is_expression\": true,\n                            \"python_val_exp\": \"obj.get('data')\",\n                            \"response_source\": \"response_body\",\n                            \"rule\": \"==\"\n                        },\n                        {\n                            \"assert_key\": \"data\",\n                            \"expect_val\": \"aa\",\n                            \"expect_val_type\": \"json_str\",\n                            \"is_expression\": true,\n                            \"python_val_exp\": \"obj.get('data')\",\n                            \"response_source\": \"response_body\",\n                            \"rule\": \"==\"\n                        }\n                    ],\n                    \"assert_description\": \"Resp断言999\",\n                    \"assertion_type\": \"response\",\n                    \"create_time\": \"2022-08-19 17:17:11\",\n                    \"create_timestamp\": 1660900574,\n                    \"creator\": \"admin\",\n                    \"creator_id\": 1,\n                    \"id\": 18,\n                    \"is_deleted\": 0,\n                    \"is_public\": 1,\n                    \"modifier\": null,\n                    \"modifier_id\": null,\n                    \"remark\": \"remark\",\n                    \"status\": 1,\n                    \"update_time\": \"2022-08-19 17:17:12\",\n                    \"update_timestamp\": null\n                }\n            ],\n            \"data_info\": {\n                \"create_time\": \"2022-08-16 20:25:50\",\n                \"create_timestamp\": 1660652718,\n                \"creator\": \"admin\",\n                \"creator_id\": 1,\n                \"data_after\": [],\n                \"data_before\": [],\n                \"data_name\": \"5.0新的参数\",\n                \"data_size\": 28,\n                \"id\": 19345,\n                \"is_after\": false,\n                \"is_before\": false,\n                \"is_deleted\": 0,\n                \"is_public\": 1,\n                \"md5\": null,\n                \"modifier\": \"admin\",\n                \"modifier_id\": 1,\n                \"remark\": null,\n                \"request_body\": {\n                    \"a\": 123\n                },\n                \"request_body_hash\": \"{\\n  \\\"a\\\":123\\n}\",\n                \"request_body_type\": \"json\",\n                \"request_headers\": {\n                    \"token\": \"123\"\n                },\n                \"request_headers_hash\": [\n                    {\n                        \"active\": true,\n                        \"cid\": 1,\n                        \"desc\": \"\",\n                        \"key\": \"token\",\n                        \"value\": \"123\"\n                    }\n                ],\n                \"request_params\": {},\n                \"request_params_hash\": [],\n                \"status\": 1,\n                \"update_time\": \"2022-08-19 15:57:09\",\n                \"update_timestamp\": 1660895777,\n                \"update_var_list\": [\n                    {\n                        \"create_time\": \"2021-12-11 17:13:07\",\n                        \"create_timestamp\": 1639213949,\n                        \"creator\": \"user_00001\",\n                        \"creator_id\": 1,\n                        \"expression\": \"okc.aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\",\n                        \"id\": 28,\n                        \"is_deleted\": 0,\n                        \"is_expression\": 1,\n                        \"is_public\": 1,\n                        \"last_func\": null,\n                        \"last_func_var\": null,\n                        \"modifier\": \"admin\",\n                        \"modifier_id\": 1,\n                        \"remark\": \"123\",\n                        \"status\": 1,\n                        \"update_time\": \"2021-12-17 16:49:48\",\n                        \"update_timestamp\": 1639730968,\n                        \"var_get_key\": \"123\",\n                        \"var_name\": \"okc\",\n                        \"var_source\": \"response_body\",\n                        \"var_type\": 6,\n                        \"var_value\": null\n                    }\n                ],\n                \"use_var_list\": null,\n                \"cid\": 3\n            },\n            \"ass_resp_id_list\": [\n                1,\n                22,\n                18\n            ],\n            \"ass_field_id_list\": [\n                2\n            ]\n        },\n        {\n            \"case_field_ass_info\": [],\n            \"case_resp_ass_info\": [],\n            \"data_info\": {\n                \"create_time\": \"2022-08-16 21:29:24\",\n                \"create_timestamp\": 1660652718,\n                \"creator\": \"admin\",\n                \"creator_id\": 1,\n                \"data_after\": [],\n                \"data_before\": [],\n                \"data_name\": \"未命名1111\",\n                \"data_size\": 6,\n                \"id\": 19346,\n                \"is_after\": false,\n                \"is_before\": false,\n                \"is_deleted\": 0,\n                \"is_public\": 1,\n                \"md5\": null,\n                \"modifier\": \"admin\",\n                \"modifier_id\": 1,\n                \"remark\": null,\n                \"request_body\": \"\",\n                \"request_body_hash\": \"\",\n                \"request_body_type\": \"none\",\n                \"request_headers\": {},\n                \"request_headers_hash\": [],\n                \"request_params\": {},\n                \"request_params_hash\": [],\n                \"status\": 1,\n                \"update_time\": \"2022-08-17 11:05:44\",\n                \"update_timestamp\": 1660705431,\n                \"update_var_list\": [],\n                \"use_var_list\": null,\n                \"cid\": 4\n            },\n            \"ass_resp_id_list\": [],\n            \"ass_field_id_list\": []\n        },\n        {\n            \"case_field_ass_info\": [],\n            \"case_resp_ass_info\": [],\n            \"data_info\": {\n                \"create_time\": \"2022-08-16 21:29:24\",\n                \"create_timestamp\": 1660652718,\n                \"creator\": \"admin\",\n                \"creator_id\": 1,\n                \"data_after\": [],\n                \"data_before\": [],\n                \"data_name\": \"未命名2222\",\n                \"data_size\": 6,\n                \"id\": 19347,\n                \"is_after\": false,\n                \"is_before\": false,\n                \"is_deleted\": 0,\n                \"is_public\": 1,\n                \"md5\": null,\n                \"modifier\": \"admin\",\n                \"modifier_id\": 1,\n                \"remark\": null,\n                \"request_body\": \"\",\n                \"request_body_hash\": \"\",\n                \"request_body_type\": \"none\",\n                \"request_headers\": {},\n                \"request_headers_hash\": [],\n                \"request_params\": {},\n                \"request_params_hash\": [],\n                \"status\": 1,\n                \"update_time\": \"2022-08-17 11:05:44\",\n                \"update_timestamp\": 1660705431,\n                \"update_var_list\": [],\n                \"use_var_list\": null,\n                \"cid\": 5\n            },\n            \"ass_resp_id_list\": [],\n            \"ass_field_id_list\": []\n        }\n    ],\n    \"project_id\": 30\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/api/case_bind",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"case_bind"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "接口执行",
+			"item": [
+				{
+					"name": "执行用例(调试)",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"execute_id\": 635,\n    \"execute_type\": \"case\",\n    \"execute_label\": \"only\",\n    \"data_driven\": false,\n    \"is_env_cover\": false,\n    \"env_url_id\": 1,\n    \"use_dd_push\": false,\n    \"dd_push_id\": 1,\n    \"use_mail\": false,\n    \"mail_send_all\": false,\n    \"mail_list\": [],\n    \"request_timeout\": 100\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/api/case_execute",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"case_execute"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "执行用例",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"project_id\": 30,\n    \"execute_id\": 8646,\n    \"execute_key\": \"case\",\n    \"execute_name\": \"测试重构用例相关\",\n    \"execute_type\": \"case\",\n    \"execute_label\": \"execute_label\",\n    \"is_env_cover\": false,\n    \"env_url_id\": \"\",\n    \"data_driven\": true,\n    \"use_dd_push\": false,\n    \"dd_push_id\": \"\",\n    \"use_mail\": false,\n    \"mail_send_all\": false,\n    \"mail_list\": [],\n    \"trigger_type\": \"user_execute\",\n    \"request_timeout\": 5\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/api/case_execute",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"case_execute"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "执行场景",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"project_id\": 30,\n    \"execute_id\": 65,\n    \"execute_key\": \"scenario\",\n    \"execute_name\": \"测试编辑场景\",\n    \"execute_type\": \"scenario\",\n    \"execute_label\": \"execute_label\",\n    \"is_env_cover\": false,\n    \"env_url_id\": \"\",\n    \"data_driven\": true,\n    \"use_dd_push\": false,\n    \"dd_push_id\": \"\",\n    \"use_mail\": false,\n    \"mail_send_all\": false,\n    \"mail_list\": [],\n    \"trigger_type\": \"user_execute\",\n    \"request_timeout\": 5\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/api/case_execute",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"case_execute"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "用例Send",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"data_after\": [],\n    \"data_before\": [],\n    \"is_after\": false,\n    \"is_before\": false,\n    \"request_base_url\": \"http://0.0.0.0:7878\",\n    \"request_method\": \"POST\",\n    \"request_url\": \"/api/test\",\n    \"request_body_hash\": \"{\\n  \\\"a\\\":123\\n}\",\n    \"request_body_type\": \"json\",\n    \"request_headers_hash\": [\n        {\n            \"active\": true,\n            \"cid\": 1,\n            \"desc\": \"\",\n            \"key\": \"token\",\n            \"value\": \"123\"\n        }\n    ],\n    \"request_params_hash\": []\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/api/case_send",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"case_send"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "执行日志",
+			"item": [
+				{
+					"name": "用例最新日志10条",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"execute_id\": 8646\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/api/case_latest_logs",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"case_latest_logs"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "指定日志明细",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Token",
+								"value": "b3fdbe26Y8676Y11edY9b3dYacde48001122",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/case_execute_logs/test_log_2022-12-22 18:09:33_2pkfLXvQACeE3pfG",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"case_execute_logs",
+								"test_log_2022-12-22 18:09:33_2pkfLXvQACeE3pfG"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "最新日志明细",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"execute_id\": 8641,\n    \"execute_type\": \"case\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/api/case_execute_logs",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"case_execute_logs"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "执行日志分页模糊查询",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"execute_id\": \"\",\n    \"execute_name\":\"\",\n    \"execute_type\":\"\",\n    \"page\": 1,\n    \"size\": 20,\n    \"creater\": \"\",\n    \"creater_id\": \"1\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/api/case_execute_logs_page",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"case_execute_logs_page"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "生成HTML报告",
+			"item": [
+				{
+					"name": "通过redis_key渲染HTML",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"execute_id\": 8641,\n    \"execute_type\": \"case\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/api/case_report/test_log_2022-09-09 16:54:23_jEgTuVfzuVHeyhUtHh3EmA",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"case_report",
+								"test_log_2022-09-09 16:54:23_jEgTuVfzuVHeyhUtHh3EmA"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "配置管理",
+			"item": [
+				{
+					"name": "环境配置",
+					"item": [
+						{
+							"name": "环境详情",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/api/case_env/1",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"api",
+										"case_env",
+										"1"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "新增环境",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"env_url\": \"www.metatuple1222.com\",\n    \"env_name\": \"测试环境11\",\n    \"remark\": \"metatuple\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{base_url}}/api/case_env",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"api",
+										"case_env"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "编辑环境",
+							"request": {
+								"method": "PUT",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"env_id\": \"4\",\n    \"env_url\": \"www.okc123.com\",\n    \"env_name\": \"测试环境123\",\n    \"remark\": \"remark123\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{base_url}}/api/case_env",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"api",
+										"case_env"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "删除环境",
+							"request": {
+								"method": "DELETE",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"env_id\": \"4\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{base_url}}/api/case_env",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"api",
+										"case_env"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "环境配置分页模糊查询",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"env_id\": \"\",\n    \"env_url\": \"\",\n    \"env_name\": \"\",\n    \"page\": 1,\n    \"size\": 20,\n    \"is_deleted\": false\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{base_url}}/api/case_env_page",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"api",
+										"case_env_page"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "db配置",
+					"item": [
+						{
+							"name": "获取db详情",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/api/case_db/1",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"api",
+										"case_db",
+										"1"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "新增db配置",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "token",
+										"value": "yyx",
+										"type": "default"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"name\": \"本地的mysql-okc\",\n    \"db_type\": \"mysql\",\n    \"db_connection\": {\n        \"user\": \"root\",\n        \"password\": \"12345678\",\n        \"host\": \"127.0.0.1\",\n        \"port\": 3306\n    },\n    \"remark\": \"remark\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{base_url}}/api/case_db",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"api",
+										"case_db"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "编辑db配置",
+							"request": {
+								"method": "PUT",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"db_id\": \"2\",\n    \"name\": \"yyx的Redis\",\n    \"db_type\": \"redis\",\n    \"db_connection\": {\n        \"host\": \"127.0.0.1\",\n        \"port\": 6379,\n        \"password\": \"123456\",\n        \"db\": \"1\"\n    },\n    \"remark\": \"remark\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{base_url}}/api/case_db",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"api",
+										"case_db"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "删除db配置",
+							"request": {
+								"method": "DELETE",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"db_id\": \"1\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{base_url}}/api/case_db",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"api",
+										"case_db"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "db分页模糊查询",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "token",
+										"value": "yyx",
+										"type": "default"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"db_id\": \"\",\n    \"db_type\": \"\",\n    \"name\": \"\",\n    \"page\": 1,\n    \"size\": 20,\n    \"is_deleted\": false\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{base_url}}/api/case_db_page",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"api",
+										"case_db_page"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "db ping",
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "token",
+										"value": "yyx",
+										"type": "text"
+									}
+								],
+								"url": {
+									"raw": "{{base_url}}/api/case_db_ping/1",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"api",
+										"case_db_ping",
+										"1"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				}
+			]
+		},
+		{
+			"name": "UI用例管理",
+			"item": [
+				{
+					"name": "UI用例详情",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "token",
+								"value": "yyx",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/ui_case/5",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"ui_case",
+								"5"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "新增UI用例",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "token",
+								"value": "yyx",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"project_id\": 1,\n    \"module_list\": [],\n    \"version_list\": [],\n    \"case_name\": \"UI用例-{{$timestamp}}\",\n    \"is_shared\": 0,\n    \"is_public\": false,\n    \"case_status\": \"debug\",\n    \"remark\": \"remark\",\n    \"meta_data\": [\n        {\n            \"business_list\": [\n                {\n                    \"args\": {\n                        \"url\": \"http://localhost:3200/login\"\n                    },\n                    \"function\": \"open\",\n                    \"index\": 1,\n                    \"title\": \"启动浏览器控件\",\n                    \"type\": \"ui_control\",\n                    \"uuid\": \"43mcDsxMP5hfgwXpYFekNf\"\n                }\n            ],\n            \"index\": 1,\n            \"title\": \"开始\",\n            \"type\": \"master\",\n            \"uuid\": \"RqceT7F7VR7MUepkCe3TgP\"\n        },\n        {\n            \"business_list\": [\n                {\n                    \"args\": {\n                        \"data\": \"admin\",\n                        \"mode\": \"XPATH\",\n                        \"value\": \"//*[@id=\\\"login-form\\\"]/div[1]/div[2]/div/div/div/input\"\n                    },\n                    \"function\": \"input\",\n                    \"index\": 1,\n                    \"title\": \"输入账号\",\n                    \"type\": \"ui_control\",\n                    \"uuid\": \"BeKExy3oDBmffkyh6z5sFh\"\n                },\n                {\n                    \"args\": {\n                        \"data\": \"123456\",\n                        \"mode\": \"XPATH\",\n                        \"value\": \"//*[@id=\\\"login-form\\\"]/div[2]/div[2]/div/div/div/input\"\n                    },\n                    \"function\": \"input\",\n                    \"index\": 2,\n                    \"title\": \"输入密码\",\n                    \"type\": \"ui_control\",\n                    \"uuid\": \"TgxCgmQ3eAiYJ9poTDa3y8\"\n                },\n                {\n                    \"args\": {\n                        \"mode\": \"XPATH\",\n                        \"value\": \"//*[@id=\\\"login-form\\\"]/div[3]/div[2]/div/div/div/button[1]\"\n                    },\n                    \"function\": \"click\",\n                    \"index\": 3,\n                    \"title\": \"点击登录\",\n                    \"type\": \"ui_control\",\n                    \"uuid\": \"bAYF8u42at5VDYHRwc63bu\"\n                }\n            ],\n            \"index\": 2,\n            \"title\": \"登录\",\n            \"type\": \"master\",\n            \"uuid\": \"Paahmn4pisq6DCMAb6MTj7\"\n        },\n        {\n            \"business_list\": [\n                {\n                    \"business_list\": [\n                        {\n                            \"args\": {\n                                \"data\": \"admin\",\n                                \"mode\": \"XPATH\",\n                                \"value\": \"//*[@id=\\\"login-form\\\"]/div[1]/div[2]/div/div/div/input\"\n                            },\n                            \"function\": \"input\",\n                            \"index\": 1,\n                            \"title\": \"输入账号\",\n                            \"type\": \"ui_control\",\n                            \"uuid\": \"BeKExy3oDBmffkyh6z5sFh\"\n                        },\n                        {\n                            \"args\": {\n                                \"data\": \"123456\",\n                                \"mode\": \"XPATH\",\n                                \"value\": \"//*[@id=\\\"login-form\\\"]/div[2]/div[2]/div/div/div/input\"\n                            },\n                            \"function\": \"input\",\n                            \"index\": 2,\n                            \"title\": \"输入密码\",\n                            \"type\": \"ui_control\",\n                            \"uuid\": \"TgxCgmQ3eAiYJ9poTDa3y8\"\n                        },\n                        {\n                            \"args\": {\n                                \"mode\": \"XPATH\",\n                                \"value\": \"//*[@id=\\\"login-form\\\"]/div[3]/div[2]/div/div/div/button[1]\"\n                            },\n                            \"function\": \"click\",\n                            \"index\": 3,\n                            \"title\": \"点击登录\",\n                            \"type\": \"ui_control\",\n                            \"uuid\": \"bAYF8u42at5VDYHRwc63bu\"\n                        },\n                        {\n                            \"business_list\": [\n                                {\n                                    \"business_list\": [\n                                        {\n                                            \"args\": {\n                                                \"data\": \"zxc\",\n                                                \"mode\": \"XPATH\",\n                                                \"value\": \"//*[@id=\\\"project-search-container\\\"]/div/form/div/div/div/input\"\n                                            },\n                                            \"function\": \"input\",\n                                            \"index\": 11,\n                                            \"title\": \"输入人员名称\",\n                                            \"type\": \"ui_control\",\n                                            \"uuid\": \"6nBzTGWXAaDdE8fo5Xa123\"\n                                        },\n                                        {\n                                            \"args\": {\n                                                \"mode\": \"XPATH\",\n                                                \"value\": \"//*[@id=\\\"project-search-container\\\"]/div/form/div/span\"\n                                            },\n                                            \"function\": \"click\",\n                                            \"index\": 22,\n                                            \"title\": \"点击搜索\",\n                                            \"type\": \"ui_control\",\n                                            \"uuid\": \"oHCN6jjbDCYWzgjzNoj123\"\n                                        },\n                                        {\n                                            \"args\": {\n                                                \"mode\": \"XPATH\",\n                                                \"value\": \"//*[@id=\\\"main-container\\\"]/div[1]/div[1]/div/div\"\n                                            },\n                                            \"function\": \"click\",\n                                            \"index\": 33,\n                                            \"title\": \"编辑\",\n                                            \"type\": \"ui_control\",\n                                            \"uuid\": \"dPHmBmPcAGpp5zqcX7M123\"\n                                        },\n                                        {\n                                            \"args\": {\n                                                \"mode\": \"XPATH\",\n                                                \"value\": \"//*[@id=\\\"app\\\"]/div/div[1]/div[2]/div[3]\"\n                                            },\n                                            \"function\": \"click\",\n                                            \"index\": 3332,\n                                            \"title\": \"保存\",\n                                            \"type\": \"ui_control\",\n                                            \"uuid\": \"68AUdem7SfBnx8CAQs3123\"\n                                        }\n                                    ],\n                                    \"index\": 1,\n                                    \"title\": \"录入数据\",\n                                    \"type\": \"master\",\n                                    \"uuid\": \"RqceT7F7VR7MUepkCe3123\"\n                                }\n                            ],\n                            \"data_source\": [],\n                            \"function\": \"for\",\n                            \"index\": 4,\n                            \"num\": 3,\n                            \"title\": \"第二层循环\",\n                            \"type\": \"logic_control\",\n                            \"uuid\": \"bzjmqAUjuYTs3sASxoXh3r\"\n                        },\n                        {\n                            \"args\": {\n                                \"mode\": \"XPATH\",\n                                \"value\": \"/html/body/div[2]/div/div/div/div[3]/li/span/div\"\n                            },\n                            \"function\": \"click\",\n                            \"index\": 5,\n                            \"title\": \"点击退出\",\n                            \"type\": \"ui_control\",\n                            \"uuid\": \"Zf3tJvN3t4n8RFLCiTVYLm\"\n                        }\n                    ],\n                    \"data_source\": [],\n                    \"function\": \"for\",\n                    \"index\": 1,\n                    \"num\": 3,\n                    \"title\": \"第一层循环\",\n                    \"type\": \"logic_control\",\n                    \"uuid\": \"VwfKjeL87DVythEsHsC8Jd\"\n                }\n            ],\n            \"index\": 3,\n            \"title\": \"嵌套循环操作\",\n            \"type\": \"master\",\n            \"uuid\": \"DuykYPs5UhqhULXCqerzGq\"\n        },\n        {\n            \"business_list\": [\n                {\n                    \"args\": {},\n                    \"function\": \"close\",\n                    \"index\": 1,\n                    \"title\": \"关闭浏览器\",\n                    \"type\": \"ui_control\",\n                    \"uuid\": \"e6rL6LWxRZkyGYkQadn3yz\"\n                }\n            ],\n            \"index\": 1,\n            \"title\": \"结束\",\n            \"type\": \"master\",\n            \"uuid\": \"3Lr7gkJx9WjXr8DRzWoU4e\"\n        }\n    ]\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/api/ui_case",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"ui_case"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "编辑UI用例",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "token",
+								"value": "yyx",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"id\": 4,\n    \"project_id\": 30,\n    \"module_list\": [],\n    \"version_list\": [],\n    \"case_name\": \"UI用例-{{$timestamp}}\",\n    \"is_shared\": 0,\n    \"is_public\": false,\n    \"case_status\": \"dev\",\n    \"remark\": \"remark\",\n    \"meta_data\": [\n        {\n            \"type\": \"master\",\n            \"uuid\": \"9yneisAc9nmJCxJw8hepTd\",\n            \"index\": 1,\n            \"title\": \"开始\",\n            \"business_list\": [\n                {\n                    \"args\": {\n                        \"url\": \"http://localhost:3200/login\"\n                    },\n                    \"type\": \"ui_control\",\n                    \"uuid\": \"9o7pBk2iM3Mh5Nr64JcvWr\",\n                    \"index\": 1,\n                    \"title\": \"启动浏览器控件\",\n                    \"function\": \"open\"\n                }\n            ]\n        },\n        {\n            \"type\": \"master\",\n            \"uuid\": \"CsCug2fZ6D8vtPdHmLUF7F\",\n            \"index\": 2,\n            \"title\": \"登录\",\n            \"business_list\": [\n                {\n                    \"args\": {\n                        \"data\": \"admin\",\n                        \"mode\": \"XPATH\",\n                        \"value\": \"//*[@id=\\\"login-form\\\"]/div[1]/div[2]/div/div/div/input\"\n                    },\n                    \"type\": \"ui_control\",\n                    \"uuid\": \"2f4dWJyPt2Mq8WGNFXFLdj\",\n                    \"index\": 1,\n                    \"title\": \"输入账号\",\n                    \"function\": \"input\"\n                },\n                {\n                    \"args\": {\n                        \"data\": \"123456\",\n                        \"mode\": \"XPATH\",\n                        \"value\": \"//*[@id=\\\"login-form\\\"]/div[2]/div[2]/div/div/div/input\"\n                    },\n                    \"type\": \"ui_control\",\n                    \"uuid\": \"EPc52LPC5xEgfatExrKLgL\",\n                    \"index\": 2,\n                    \"title\": \"输入密码\",\n                    \"function\": \"input\"\n                },\n                {\n                    \"args\": {\n                        \"mode\": \"XPATH\",\n                        \"value\": \"//*[@id=\\\"login-form\\\"]/div[3]/div[2]/div/div/div/button[1]\"\n                    },\n                    \"type\": \"ui_control\",\n                    \"uuid\": \"RdLmXbrkWmUDPA2Wu87kq2\",\n                    \"index\": 3,\n                    \"title\": \"点击登录\",\n                    \"function\": \"click\"\n                }\n            ]\n        },\n        {\n            \"type\": \"master\",\n            \"uuid\": \"92GRBj5ovmgGnBoqFAXSv2\",\n            \"index\": 1,\n            \"title\": \"结束\",\n            \"business_list\": [\n                {\n                    \"args\": {},\n                    \"type\": \"ui_control\",\n                    \"uuid\": \"JJt2EvNZukkJnsPcjBJyLp\",\n                    \"index\": 1,\n                    \"title\": \"关闭浏览器\",\n                    \"function\": \"close\"\n                }\n            ]\n        }\n    ]\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/api/ui_case",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"ui_case"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "删除UI用例",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "token",
+								"value": "yyx",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"id\": 1\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/api/ui_case",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"ui_case"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "UI执行",
+			"item": [
+				{
+					"name": "UI执行",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Cookie",
+								"value": "ih5_player_1=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiJjZm04dDRwbHMycHZnNXR0cmtsMCIsImlhdCI6MTY3NjQ0NzM3OSwiaXNzIjoiMSJ9.RhIb7_bSjoyXbzB8IqmwCwHhJqQ-6Phvb3Nxo6RDQ9U; ih5bearer=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiJjZm04dWoxbHMycHZnNXR0cm9lMCIsImlhdCI6MTY3NjQ0NzU2NCwiaXNzIjoiaXZ4Iiwic3ViIjoiNjUiLCJ2ZXIiOjF9.vEZxEN3yRVUyPYOBcXWQm-kbFhQef2HFHK6_XI2t4Ls",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"project_id\": 30,\n    \"execute_id\": 4,\n    \"execute_key\": \"ui_case\",\n    \"execute_name\": \"测试UI自动化\",\n    \"execute_type\": \"ui_case\",\n    \"execute_label\": \"execute_label\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/api/ui_case_execute",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"ui_case_execute"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "UI控件字典",
+			"item": [
+				{
+					"name": "获取UI控件",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/api/ui_control_dict_api",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"ui_control_dict_api"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	]
+}
