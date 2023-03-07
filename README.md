@@ -132,11 +132,8 @@ Respect ! ! !
 
 ### 项目部署
 
-- 前端：待补充
-- 后端：
-    - 方法1：本机部署：https://juejin.cn/post/6844903870250876935
-    - 方法2：Docker部署：https://juejin.cn/post/7054460759526342687
-    - 方法3：Docker部署：执行该项目下的 `server_start.sh` (推荐)
+- [部署文档](deploy.md)
+    
 
 ### 联系我们
 
