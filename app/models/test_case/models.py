@@ -13,7 +13,7 @@ class TestCase(BaseModel):
     __tablename__ = 'exile_test_case'
     __table_args__ = {'comment': '测试用例'}
 
-    hidden_fields = ["_is_public", "_is_shared"]
+    hidden_fields = ["_is_public", "_is_shared", "is_copy"]
     handle_property = True
 
     case_name = db.Column(db.String(255), nullable=False, comment='用例名称')
@@ -24,6 +24,7 @@ class TestCase(BaseModel):
     is_pass = db.Column(TINYINT(1, unsigned=True), default=0, comment='0-不跳过;1-跳过')
     _is_shared = db.Column('is_shared', TINYINT(1, unsigned=True), default=1, comment='0-仅创建者执行;1-共享执行')
     _is_public = db.Column('is_public', TINYINT(1, unsigned=True), default=1, comment='是否公共使用:0-否;1-是')
+    is_copy = db.Column(TINYINT(1, unsigned=True), default=0, comment='是否复制生成:0-否;1-是')
     total_execution = db.Column(BIGINT(20, unsigned=True), default=0, comment='执行次数总计')
     creator = db.Column(db.String(32), comment='创建人')
     creator_id = db.Column(BIGINT(20, unsigned=True), comment='创建人id')
