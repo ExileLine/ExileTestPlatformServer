@@ -88,18 +88,16 @@ def scenario_decorator(func):
         if not isinstance(case_list, list) or not case_list or len(case_list) <= 1:
             return api_result(code=BUSINESS_ERROR, message='用例列表不能为空或需要一条以上的用例组成')
 
-        case_index_list = []
         case_sleep_list = []
         for case in case_list:
-            case_index = case.get('index', 0)
-            case_index_list.append(case_index)
+            case_index = case.get('index')
+            case_id = case.get('case_id')
+            if not case_index:
+                case['index'] = case_id
 
             case_sleep = case.get('sleep', 0)
             if case_sleep >= 30:
                 case_sleep_list.append(True)
-
-        if len(set(case_index_list)) != len(case_list):
-            return api_result(code=BUSINESS_ERROR, message='用例排序不能重复或为空')
 
         if case_sleep_list:
             return api_result(code=BUSINESS_ERROR, message='执行后等待时间不能大于30秒')
@@ -126,12 +124,12 @@ class CaseScenarioApi(MethodView):
             return api_result(code=NO_DATA, message=f'场景不存在:{scenario_id}')
 
         result = query_scenario.to_json()
-        case_id_list = result.get('case_list')
-        if not case_id_list:
+        case_list = result.get('case_list')
+        if not case_list:
             return api_result(code=DATA_ERROR, message='异常的数据')
 
         # TODO 后面新增中间表后修改这个逻辑
-        sorted_case_id_list = sorted(case_id_list, key=lambda x: x.get("index", x.get('case_id')), reverse=True)
+        sorted_case_id_list = sorted(case_list, key=lambda x: x.get("index", x.get('case_id')), reverse=True)
 
         # sorted_case_hash_map = {}
         # for i in sorted_case_id_list:
@@ -187,6 +185,7 @@ class CaseScenarioApi(MethodView):
         case_list = data.get('case_list', [])
         is_shared = data.get('is_shared')
         is_public = data.get('is_public')
+        remark = data.get('remark')
 
         query_scenario = TestCaseScenario.query.filter_by(scenario_title=scenario_title, is_deleted=0).first()
         if query_scenario:
@@ -198,7 +197,8 @@ class CaseScenarioApi(MethodView):
             is_shared=is_shared,
             is_public=is_public,
             creator=g.app_user.username,
-            creator_id=g.app_user.id
+            creator_id=g.app_user.id,
+            remark=remark
         )
         new_scenario.save()
         scenario_id = new_scenario.id
@@ -234,6 +234,7 @@ class CaseScenarioApi(MethodView):
         case_list = data.get('case_list', [])
         is_shared = data.get('is_shared')
         is_public = data.get('is_public')
+        remark = data.get('remark')
 
         query_scenario = TestCaseScenario.query.get(scenario_id)
 
@@ -266,6 +267,7 @@ class CaseScenarioApi(MethodView):
         query_scenario.is_public = is_public
         query_scenario.modifier = g.app_user.username
         query_scenario.modifier_id = g.app_user.id
+        query_scenario.remark = remark
 
         db.session.query(MidVersionScenario).filter(MidVersionScenario.scenario_id == scenario_id).delete(
             synchronize_session=False)
