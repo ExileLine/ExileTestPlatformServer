@@ -351,24 +351,24 @@ class ExecuteQuery:
         self.error_message = None
 
         self.use_func_dict = {
-            "case": self.single_use_case,
+            "case": self.single_case,
             "scenario": self.single_scene,
 
             "project_all": self.execute_all,
-            "project_case": self.execute_all_use_cases,
-            "project_scenario": self.execute_all_scenarios,
+            "project_case": self.execute_all_case,
+            "project_scenario": self.execute_all_scenario,
 
             "version_all": self.execute_all,
-            "version_case": self.execute_all_use_cases,
-            "version_scenario": self.execute_all_scenarios,
+            "version_case": self.execute_all_case,
+            "version_scenario": self.execute_all_scenario,
 
             "task_all": self.execute_all,
-            "task_case": self.execute_all_use_cases,
-            "task_scenario": self.execute_all_scenarios,
+            "task_case": self.execute_all_case,
+            "task_scenario": self.execute_all_scenario,
 
             "module_all": self.execute_all,
-            "module_case": self.execute_all_use_cases,
-            "module_scenario": self.execute_all_scenarios
+            "module_case": self.execute_all_case,
+            "module_scenario": self.execute_all_scenario
         }
 
         self.model_dict = {
@@ -430,7 +430,7 @@ class ExecuteQuery:
         self.scenario_list = QueryExecuteData.query_scenario_assemble(scenario_obj_list)
         return self.scenario_list
 
-    def single_use_case(self):
+    def single_case(self):
         """单个用例"""
 
         case_id = self.query_id
@@ -463,7 +463,7 @@ class ExecuteQuery:
             return None
 
         if not query_scenario.is_shared:
-            self.error_message = '执行失败,该场景是私有的,仅创建者执行!'
+            self.error_message = f'执行失败,场景: {query_scenario.scenario_title} 是私有的,仅创建者执行!'
             return None
 
         scenario_obj = query_scenario.to_json()
@@ -483,7 +483,7 @@ class ExecuteQuery:
         self.gen_execute_case_list()
         self.gen_execute_scenario_list()
 
-    def execute_all_use_cases(self):
+    def execute_all_case(self):
         """
         执行所有用例
         :return:
@@ -491,7 +491,7 @@ class ExecuteQuery:
 
         self.gen_execute_case_list()
 
-    def execute_all_scenarios(self):
+    def execute_all_scenario(self):
         """
         执行所有场景
         :return:
@@ -606,6 +606,10 @@ class CaseExecuteApi(MethodView):
 
         execute_query = ExecuteQuery(execute_key=execute_key, query_id=execute_id)
         execute_query.use_func()
+
+        if execute_query.error_message:
+            return api_result(code=BUSINESS_ERROR, message=execute_query.error_message)
+
         case_list = execute_query.case_list
         scenario_list = execute_query.scenario_list
 
@@ -644,7 +648,7 @@ if __name__ == '__main__':
         execute_query = ExecuteQuery(execute_key='project', query_id=30)
 
         execute_query = ExecuteQuery(execute_key='case', query_id=8646)
-        execute_query.single_use_case()
+        execute_query.single_case()
 
         execute_query = ExecuteQuery(execute_key='scenario', query_id=63)
         execute_query.single_scene()
