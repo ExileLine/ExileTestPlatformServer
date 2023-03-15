@@ -65,6 +65,9 @@ class CaseEnvApi(MethodView):
         env_name = data.get('env_name')
         remark = data.get('remark')
 
+        if not qp(project_id):
+            return api_result(code=NO_DATA, message=f"项目id: {project_id} 不存在")
+
         query_env = TestEnv.query.get(env_id)
         if not query_env:
             return api_result(code=NO_DATA, message='环境地址不存在')
