@@ -13,6 +13,54 @@ from app.models.test_case_scenario.models import TestCaseScenario
 from app.models.test_project.models import TestProjectVersion, TestVersionTask, MidTaskCase, MidTaskScenario
 
 
+def vt_decorator(func):
+    @wraps(func)
+    def wrapper(*args, **kwargs):
+        data = request.get_json()
+        version_id = data.get('version_id', '')
+        task_name = data.get('task_name', '')
+        user_list = data.get('user_list', [])
+
+        if not TestProjectVersion.query.get(version_id):
+            return api_result(code=NO_DATA, message=f"版本迭代: {version_id} 不存在")
+
+        if not task_name:
+            return api_result(code=REQUIRED, message="任务名称不能为空")
+
+        for user_id in user_list:
+            query_user = Admin.query.get(user_id)
+            if not query_user:
+                return api_result(code=NO_DATA, message=f"用户: {user_id} 不存在")
+
+        return func(*args, **kwargs)
+
+    return wrapper
+
+
+def save_case_and_scenario_list(task_id: int, case_list: list, scenario_list: list):
+    """
+    写入
+    :param task_id: 任务id
+    :param case_list: 用例列表
+    :param scenario_list: 场景列表
+    :return:
+    """
+
+    if case_list:
+        list(map(lambda case_id: db.session.add(
+            MidTaskCase(
+                task_id=task_id, case_id=case_id, creator=g.app_user.username, creator_id=g.app_user.id)),
+                 case_list))
+
+    if scenario_list:
+        list(map(lambda scenario_id: db.session.add(
+            MidTaskScenario(
+                task_id=task_id, scenario_id=scenario_id, creator=g.app_user.username, creator_id=g.app_user.id)),
+                 scenario_list))
+
+    db.session.commit()
+
+
 class VersionTaskApi(MethodView):
     """
     版本迭代任务 api
@@ -47,6 +95,7 @@ class VersionTaskApi(MethodView):
 
         return api_result(code=SUCCESS, message=SUCCESS_MESSAGE, data=result)
 
+    @vt_decorator
     def post(self):
         """迭代任务新增"""
 
@@ -60,17 +109,6 @@ class VersionTaskApi(MethodView):
         scenario_list = data.get('scenario_list', [])
         remark = data.get('remark')
 
-        if not TestProjectVersion.query.get(version_id):
-            return api_result(code=NO_DATA, message=f"版本迭代: {version_id} 不存在")
-
-        for user_id in user_list:
-            query_user = Admin.query.get(user_id)
-            if not query_user:
-                return api_result(code=NO_DATA, message=f"用户: {user_id} 不存在")
-
-        if not task_name:
-            return api_result(code=REQUIRED, message="任务名称不能为空")
-
         new_version_task = TestVersionTask(
             version_id=version_id,
             task_name=task_name,
@@ -82,22 +120,10 @@ class VersionTaskApi(MethodView):
         )
         new_version_task.save()
         task_id = new_version_task.id
-
-        if case_list:
-            list(map(lambda case_id: db.session.add(
-                MidTaskCase(
-                    task_id=task_id, case_id=case_id, creator=g.app_user.username, creator_id=g.app_user.id)),
-                     case_list))
-
-        if scenario_list:
-            list(map(lambda scenario_id: db.session.add(
-                MidTaskScenario(
-                    task_id=task_id, scenario_id=scenario_id, creator=g.app_user.username, creator_id=g.app_user.id)),
-                     scenario_list))
-
-        db.session.commit()
+        save_case_and_scenario_list(task_id, case_list, scenario_list)
         return api_result(code=POST_SUCCESS, message=SUCCESS_MESSAGE)
 
+    @vt_decorator
     def put(self):
         """迭代任务编辑"""
 
@@ -116,18 +142,6 @@ class VersionTaskApi(MethodView):
         if not query_task:
             return api_result(code=NO_DATA, message=f"任务: {task_id} 不存在")
 
-        query_version = TestProjectVersion.query.get(version_id)
-        if not query_version:
-            return api_result(code=NO_DATA, message=f"版本迭代: {version_id} 不存在")
-
-        for user_id in user_list:
-            query_user = Admin.query.get(user_id)
-            if not query_user:
-                return api_result(code=NO_DATA, message=f"用户: {user_id} 不存在")
-
-        if not task_name:
-            return api_result(code=REQUIRED, message="任务名称不能为空")
-
         query_task.task_name = task_name
         query_task.task_type = task_type
         query_task.user_list = user_list
@@ -141,19 +155,7 @@ class VersionTaskApi(MethodView):
         db.session.query(MidTaskScenario).filter(MidTaskScenario.task_id == task_id).delete(
             synchronize_session=False)
 
-        if case_list:
-            list(map(lambda case_id: db.session.add(
-                MidTaskCase(
-                    task_id=task_id, case_id=case_id, creator=g.app_user.username, creator_id=g.app_user.id)),
-                     case_list))
-
-        if scenario_list:
-            list(map(lambda scenario_id: db.session.add(
-                MidTaskScenario(
-                    task_id=task_id, scenario_id=scenario_id, creator=g.app_user.username, creator_id=g.app_user.id)),
-                     scenario_list))
-
-        db.session.commit()
+        save_case_and_scenario_list(task_id, case_list, scenario_list)
         return api_result(code=PUT_SUCCESS, message=SUCCESS_MESSAGE)
 
     def delete(self):
