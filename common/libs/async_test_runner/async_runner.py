@@ -43,6 +43,7 @@ class AsyncCaseRunner:
         self.test_obj = test_obj if test_obj else {}
         self.project_id = test_obj.get('project_id')  # 项目归属id
         self.execute_id = test_obj.get('execute_id')  # 执行名称(用例id,场景id,任务id,模块id...)
+        self.execute_key = test_obj.get('execute_key')
         self.execute_name = test_obj.get('execute_name')  # 执行名称(用例名,场景名,任务名,模块名...)
         self.execute_type = test_obj.get('execute_type')  # 执行类型(case,scenario,task,module...)
         self.execute_username = test_obj.get('execute_username')
@@ -772,6 +773,7 @@ class AsyncCaseRunner:
             "uuid": self.redis_key,
             "execute_user_id": self.execute_user_id,
             "execute_username": self.execute_username,
+            "execute_key": self.execute_key,
             "execute_type": self.execute_type,
             "execute_name": self.execute_name,
             "case_logs": self.case_logs,
@@ -789,7 +791,7 @@ class AsyncCaseRunner:
         # await self.aio_redis.expire(self.redis_key, 86400 * 30)
 
         current_save_dict = GlobalsDict.redis_first_logs_dict(execute_id=self.execute_id)
-        save_obj_first = current_save_dict.get(self.execute_type, "未知执行类型")
+        save_obj_first = current_save_dict.get(self.execute_key, "未知执行标识")
         R.set(save_obj_first, json_str)
         R.expire(save_obj_first, 86400 * 30)
         # await self.aio_redis.set(save_obj_first, json_str)
@@ -805,12 +807,13 @@ class AsyncCaseRunner:
         :return:
         """
 
-        sql = """INSERT INTO exile_test_execute_logs (`is_deleted`, `create_time`, `create_timestamp`,  `project_id`, `execute_id`, `execute_name`, `execute_type`, `redis_key`, `report_url`, `execute_status`, `creator`, `creator_id`, `trigger_type`, `file_name`) VALUES (0,'{}','{}','{}','{}','{}','{}','{}','{}',{},'{}','{}','{}','{}');""".format(
+        sql = """INSERT INTO exile_test_execute_logs (`is_deleted`, `create_time`, `create_timestamp`,  `project_id`, `execute_id`, `execute_name`, `execute_key`, `execute_type`, `redis_key`, `report_url`, `execute_status`, `creator`, `creator_id`, `trigger_type`, `file_name`) VALUES (0,'{}','{}','{}','{}','{}','{}','{}','{}','{}',{},'{}','{}','{}','{}');""".format(
             F.gen_datetime(),
             int(self.start_time),
             self.project_id,
             self.execute_id,
             self.execute_name,
+            self.execute_key,
             self.execute_type,
             self.redis_key,
             report_url,
