@@ -16,6 +16,7 @@ class TestExecuteLogs(BaseModel):
     project_id = db.Column(BIGINT(20, unsigned=True), comment='项目id')
     execute_id = db.Column(db.String(255), comment='用例id/场景id/module_code')
     execute_name = db.Column(db.String(255), nullable=False, comment='用例名称/场景名称')
+    execute_key = db.Column(db.String(255), nullable=False, comment='执行标识')
     execute_type = db.Column(db.String(255), nullable=False, comment='执行类型')
     redis_key = db.Column(db.String(255), nullable=False, comment='Redis的key')
     report_url = db.Column(db.String(1024), nullable=False, comment='报告地址')
@@ -27,9 +28,7 @@ class TestExecuteLogs(BaseModel):
     remark = db.Column(db.String(255), comment='备注')
 
     def __repr__(self):
-        return 'TestExecuteLogs 模型对象-> ID:{} project_id:{} execute_id:{} execute_name:{} execute_type:{} redis_key:{}'.format(
-            self.id, self.project_id, self.execute_id, self.execute_name, self.execute_type, self.redis_key
-        )
+        return f'TestExecuteLogs 模型对象-> ID:{self.id} project_id:{self.project_id} execute_id:{self.execute_id} execute_key:{self.execute_key} execute_name:{self.execute_name} execute_type:{self.execute_type} redis_key:{self.redis_key}'
 
 
 class TestLogs(BaseModel):
