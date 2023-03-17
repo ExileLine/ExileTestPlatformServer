@@ -342,14 +342,22 @@ class QueryExecuteData:
 class ExecuteQuery:
     """执行数据查询组装"""
 
-    def __init__(self, execute_key=None, query_id=None):
-        self.execute_key = execute_key  # case,scenario,project,version,task,module...
+    def __init__(self, execute_key: str = None, execute_type: str = None, query_id=None):
+        """
+
+        :param execute_key: case,scenario,project_all,project_case,project_scenario,version_all,task_all...
+        :param execute_type: case,scenario,project,version,task,module...
+        :param query_id: 执行对象的id
+        """
+        self.execute_key = execute_key
+        self.execute_type = execute_type
         self.query_id = query_id
-        self.query = {f"{self.execute_key}_id": self.query_id}  # 拼接查询条件
+        self.query = {f"{self.execute_type}_id": self.query_id}  # 拼接查询条件
         self.case_list = []
         self.scenario_list = []
         self.error_message = None
 
+        # 使用 execute_key 来获取值
         self.use_func_dict = {
             "case": self.single_case,
             "scenario": self.single_scene,
@@ -371,6 +379,7 @@ class ExecuteQuery:
             "module_scenario": self.execute_all_scenario
         }
 
+        # 使用 execute_type 来获取值
         self.model_dict = {
             "project": {
                 "class": TestProject,
@@ -403,7 +412,7 @@ class ExecuteQuery:
         :return:
         """
 
-        model = self.model_dict.get(self.execute_key).get('case')
+        model = self.model_dict.get(self.execute_type).get('case')
         query_all_case = model.query.filter_by(**self.query, is_deleted=0).all()
         case_id_list = [obj.case_id for obj in query_all_case]
         query_case_zip_list = QueryExecuteData.query_case_assemble(case_id_list)
@@ -418,7 +427,7 @@ class ExecuteQuery:
         :return:
         """
 
-        model = self.model_dict.get(self.execute_key).get('scenario')
+        model = self.model_dict.get(self.execute_type).get('scenario')
         query_all_scenario = model.query.filter_by(**self.query, is_deleted=0).all()
 
         scenario_id_list = [obj.scenario_id for obj in query_all_scenario]
@@ -508,6 +517,7 @@ def create_execute_logs(**kwargs):
     execute_id = kwargs.get("execute_id")
     project_id = kwargs.get("project_id")
     execute_name = kwargs.get("execute_name")
+    execute_key = kwargs.get("execute_key")
     execute_type = kwargs.get("execute_type")
     trigger_type = kwargs.get("trigger_type")
 
@@ -517,6 +527,7 @@ def create_execute_logs(**kwargs):
         execute_id=execute_id,
         project_id=project_id,
         execute_name=execute_name,
+        execute_key=execute_key,
         execute_type=execute_type,
         redis_key="等待执行完毕后回写",
         report_url="等待执行完毕后回写",
@@ -601,10 +612,13 @@ class CaseExecuteApi(MethodView):
         if mail_send_all and not mail_list:
             return api_result(code=BUSINESS_ERROR, message="邮件不能为空，或者邮件已禁用")
 
+        if execute_key not in GlobalsDict.execute_key_tuple():
+            return api_result(code=TYPE_ERROR, message=f'执行标识错误:{execute_key}')
+
         if execute_type not in GlobalsDict.execute_type_tuple():
             return api_result(code=TYPE_ERROR, message=f'执行类型错误:{execute_type}')
 
-        execute_query = ExecuteQuery(execute_key=execute_key, query_id=execute_id)
+        execute_query = ExecuteQuery(execute_key=execute_key, execute_type=execute_type, query_id=execute_id)
         execute_query.use_func()
 
         if execute_query.error_message:
@@ -617,6 +631,7 @@ class CaseExecuteApi(MethodView):
             "project_id": project_id,
             "execute_id": execute_id,
             "execute_name": execute_name,
+            "execute_key": execute_key,
             "execute_type": execute_type,
             "execute_label": execute_label,
             "execute_user_id": g.app_user.id,
@@ -645,12 +660,12 @@ if __name__ == '__main__':
     @set_app_context
     def test_ExecuteQuery():
         """测试"""
-        execute_query = ExecuteQuery(execute_key='project', query_id=30)
+        execute_query = ExecuteQuery(execute_key='project_all', execute_type="project", query_id=30)
 
-        execute_query = ExecuteQuery(execute_key='case', query_id=8646)
+        execute_query = ExecuteQuery(execute_key='case', execute_type="case", query_id=8646)
         execute_query.single_case()
 
-        execute_query = ExecuteQuery(execute_key='scenario', query_id=63)
+        execute_query = ExecuteQuery(execute_key='scenario', execute_type="scenario", query_id=63)
         execute_query.single_scene()
 
         # print(execute_query.error_message)
