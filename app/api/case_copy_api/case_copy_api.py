@@ -9,21 +9,23 @@
 from all_reference import *
 
 from app.models.test_case.models import TestCase
-from app.models.test_project.models import TestProject, TestProjectVersion, TestModuleApp, MidProjectAndCase, \
-    MidVersionCase, MidModuleCase
+from app.models.test_case_scenario.models import TestCaseScenario
+from app.models.test_project.models import TestProject, MidProjectAndCase
 from app.models.test_case_assert.models import TestCaseDataAssBind
 
 
 class CopyGenExample:
     """复制生成对象"""
 
-    def __init__(self, case_obj: TestCase = None, is_commit=False):
+    def __init__(self, case_obj: TestCase = None, scenario_obj: TestCaseScenario = None, is_commit: bool = False):
         """
 
         :param case_obj: 用例orm实例
-        :param is_commit:
+        :param scenario_obj: 场景orm实例
+        :param is_commit: 是否进行一次事务提交
         """
         self.case_obj = case_obj
+        self.scenario_obj = scenario_obj
         self.is_commit = is_commit
         self.new_case_id = None
 
@@ -36,6 +38,7 @@ class CopyGenExample:
             request_method=query_case.request_method,
             request_base_url=query_case.request_base_url,
             request_url=query_case.request_url,
+            case_status=query_case.case_status,
             is_shared=query_case.is_shared,
             is_public=query_case.is_public,
             is_copy=1,
@@ -63,6 +66,9 @@ class CopyGenExample:
         if self.is_commit:
             db.commit()
 
+    def gen_scenario(self):
+        """生成新的场景"""
+
 
 class CaseCopyApi(MethodView):
     """
@@ -78,96 +84,36 @@ class CaseCopyApi(MethodView):
         is_cross = data.get('is_cross', False)
         cross_project_id = data.get('cross_project_id', 0)
         project_id = data.get('project_id', 0)
-        version_id = data.get('version_id', 0)
-        module_id = data.get('module_id', 0)
 
         query_case = TestCase.query.get(case_id)
         if not query_case:
             return api_result(code=NO_DATA, message=f'用例id:{case_id}不存在')
 
         if not is_cross:  # 复制到当前项目
-
             query_project = TestProject.query.get(project_id)
-            if not query_project:
-                return api_result(code=NO_DATA, message=f'项目id: {project_id} 不存在')
-
-            if version_id:
-                query_version = TestProjectVersion.query.filter_by(id=version_id, project_id=project_id).first()
-                if not query_version:
-                    return api_result(code=NO_DATA, message=f'版本id: {version_id} 不存在')
-
-            if module_id:
-                query_module = TestModuleApp.query.filter_by(id=module_id, project_id=project_id).first()
-                if not query_module:
-                    return api_result(code=NO_DATA, message=f'模块id: {module_id} 不存在')
-
-            cge = CopyGenExample(case_obj=query_case)
-            cge.gen_case_and_bind()
-            new_case_id = cge.new_case_id
-
-            db.session.add(
-                MidProjectAndCase(
-                    project_id=project_id,
-                    case_id=new_case_id,
-                    creator=g.app_user.username,
-                    creator_id=g.app_user.id,
-                    remark="复制用例生成"
-                )
-            )
-            db.session.add(
-                MidVersionCase(
-                    version_id=version_id,
-                    case_id=new_case_id,
-                    creator=g.app_user.username,
-                    creator_id=g.app_user.id,
-                    remark="复制用例生成"
-                )
-            )
-            db.session.add(
-                MidModuleCase(
-                    module_id=module_id,
-                    case_id=new_case_id,
-                    creator=g.app_user.username,
-                    creator_id=g.app_user.id,
-                    remark="复制用例生成"
-                )
-            )
-
-        else:  # TODO 复制到其他项目
-
+            save_project_id = project_id
+            err_message = f'项目id: {project_id} 不存在'
+        else:  # 跨项目复制
             query_project = TestProject.query.get(cross_project_id)
-            if not query_project:
-                return api_result(code=NO_DATA, message=f'跨项目id: {cross_project_id} 不存在')
+            save_project_id = cross_project_id
+            err_message = f'跨项目id: {cross_project_id} 不存在'
 
-            if version_id:
-                query_version = TestProjectVersion.query.filter_by(id=version_id, project_id=cross_project_id).first()
-                if not query_version:
-                    return api_result(code=NO_DATA, message=f'跨项目版本id: {version_id} 不存在')
+        if not query_project:
+            return api_result(code=NO_DATA, message=err_message)
 
-            if module_id:
-                query_module = TestModuleApp.query.filter_by(id=module_id, project_id=cross_project_id).first()
-                if not query_module:
-                    return api_result(code=NO_DATA, message=f'跨项目模块id: {module_id} 不存在')
+        cge = CopyGenExample(case_obj=query_case)
+        cge.gen_case_and_bind()
+        new_case_id = cge.new_case_id
 
-            # query_pc = MidProjectAndCase.query.filter_by(case_id=case_id).all()
-            # query_vc = MidVersionCase.query.filter_by(case_id=case_id).all()
-            # query_mc = MidModuleCase.query.filter_by(case_id=case_id).all()
-            #
-            # if query_pc:
-            #     list(map(lambda mid_obj: db.session.add(
-            #         MidProjectAndCase(project_id=mid_obj.project_id, case_id=new_case_id,
-            #                           creator=g.app_user.username,
-            #                           creator_id=g.app_user.id, remark="复制用例生成")), query_pc))
-            # if query_vc:
-            #     list(map(lambda mid_obj: db.session.add(
-            #         MidVersionCase(version_id=mid_obj.version_id, case_id=new_case_id,
-            #                        creator=g.app_user.username,
-            #                        creator_id=g.app_user.id, remark="复制用例生成")), query_vc))
-            # if query_mc:
-            #     list(map(lambda mid_obj: db.session.add(
-            #         MidModuleCase(module_id=mid_obj.module_id, case_id=new_case_id, creator=g.app_user.username,
-            #                       creator_id=g.app_user.id, remark="复制用例生成")), query_mc))
-
+        db.session.add(
+            MidProjectAndCase(
+                project_id=save_project_id,
+                case_id=new_case_id,
+                creator=g.app_user.username,
+                creator_id=g.app_user.id,
+                remark="复制用例生成"
+            )
+        )
         db.session.commit()
         return api_result(code=SUCCESS, message=POST_MESSAGE)
 
