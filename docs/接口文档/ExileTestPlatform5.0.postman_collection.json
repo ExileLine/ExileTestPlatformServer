@@ -781,6 +781,118 @@
 			"name": "迭代任务",
 			"item": [
 				{
+					"name": "任务详情",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/api/version_task/67",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"version_task",
+								"67"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "新增任务",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"version_id\": 15,\n    \"task_name\": \"新增迭代任务-{{$timestamp}}\",\n    \"task_type\": \"\",\n    \"user_list\": [],\n    \"case_list\": [],\n    \"scenario_list\": [],\n    \"remark\": \"\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/api/version_task",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"version_task"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "编辑任务",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"id\": 64,\n    \"version_id\": 15,\n    \"task_name\": \"新增迭代任务-{{$timestamp}}\",\n    \"task_type\": \"\",\n    \"user_list\": [],\n    \"case_list\": [],\n    \"scenario_list\": [],\n    \"remark\": \"\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/api/version_task",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"version_task"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "删除任务",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"id\": 64\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/api/version_task",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"version_task"
+							]
+						}
+					},
+					"response": []
+				},
+				{
 					"name": "迭代(任务)页模糊查询",
 					"request": {
 						"method": "POST",
@@ -996,14 +1108,14 @@
 							}
 						},
 						"url": {
-							"raw": "{{base_url}}/api/case_scenario/63",
+							"raw": "{{base_url}}/api/case_scenario/68",
 							"host": [
 								"{{base_url}}"
 							],
 							"path": [
 								"api",
 								"case_scenario",
-								"63"
+								"68"
 							]
 						}
 					},
@@ -1716,7 +1828,7 @@
 			]
 		},
 		{
-			"name": "接口执行",
+			"name": "接口用例执行相关",
 			"item": [
 				{
 					"name": "执行用例(调试)",
@@ -1729,60 +1841,6 @@
 						"body": {
 							"mode": "raw",
 							"raw": "{\n    \"execute_id\": 635,\n    \"execute_type\": \"case\",\n    \"execute_label\": \"only\",\n    \"data_driven\": false,\n    \"is_env_cover\": false,\n    \"env_url_id\": 1,\n    \"use_dd_push\": false,\n    \"dd_push_id\": 1,\n    \"use_mail\": false,\n    \"mail_send_all\": false,\n    \"mail_list\": [],\n    \"request_timeout\": 100\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "{{base_url}}/api/case_execute",
-							"host": [
-								"{{base_url}}"
-							],
-							"path": [
-								"api",
-								"case_execute"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "执行用例",
-					"request": {
-						"method": "POST",
-						"header": [],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n    \"project_id\": 30,\n    \"execute_id\": 8646,\n    \"execute_key\": \"case\",\n    \"execute_name\": \"测试重构用例相关\",\n    \"execute_type\": \"case\",\n    \"execute_label\": \"execute_label\",\n    \"is_env_cover\": false,\n    \"env_url_id\": \"\",\n    \"data_driven\": true,\n    \"use_dd_push\": false,\n    \"dd_push_id\": \"\",\n    \"use_mail\": false,\n    \"mail_send_all\": false,\n    \"mail_list\": [],\n    \"trigger_type\": \"user_execute\",\n    \"request_timeout\": 5\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "{{base_url}}/api/case_execute",
-							"host": [
-								"{{base_url}}"
-							],
-							"path": [
-								"api",
-								"case_execute"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "执行场景",
-					"request": {
-						"method": "POST",
-						"header": [],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n    \"project_id\": 30,\n    \"execute_id\": 65,\n    \"execute_key\": \"scenario\",\n    \"execute_name\": \"测试编辑场景\",\n    \"execute_type\": \"scenario\",\n    \"execute_label\": \"execute_label\",\n    \"is_env_cover\": false,\n    \"env_url_id\": \"\",\n    \"data_driven\": true,\n    \"use_dd_push\": false,\n    \"dd_push_id\": \"\",\n    \"use_mail\": false,\n    \"mail_send_all\": false,\n    \"mail_list\": [],\n    \"trigger_type\": \"user_execute\",\n    \"request_timeout\": 5\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -1824,6 +1882,200 @@
 							"path": [
 								"api",
 								"case_send"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "执行用例",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"project_id\": 30,\n    \"execute_id\": 8646,\n    \"execute_key\": \"case\",\n    \"execute_name\": \"测试重构用例相关\",\n    \"execute_type\": \"case\",\n    \"execute_label\": \"execute_label\",\n    \"is_env_cover\": false,\n    \"env_url_id\": \"\",\n    \"data_driven\": true,\n    \"use_dd_push\": false,\n    \"dd_push_id\": \"\",\n    \"use_mail\": false,\n    \"mail_send_all\": false,\n    \"mail_list\": [],\n    \"trigger_type\": \"user_execute\",\n    \"request_timeout\": 5\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/api/case_execute",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"case_execute"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "执行场景",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"project_id\": 30,\n    \"execute_id\": 68,\n    \"execute_key\": \"scenario\",\n    \"execute_name\": \"测试编辑场景\",\n    \"execute_type\": \"scenario\",\n    \"execute_label\": \"execute_label\",\n    \"is_env_cover\": false,\n    \"env_url_id\": \"\",\n    \"data_driven\": true,\n    \"use_dd_push\": false,\n    \"dd_push_id\": \"\",\n    \"use_mail\": false,\n    \"mail_send_all\": false,\n    \"mail_list\": [],\n    \"trigger_type\": \"user_execute\",\n    \"request_timeout\": 5\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/api/case_execute",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"case_execute"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "执行项目用例",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"execute_id\": 30,\n    \"execute_key\": \"project_all\",\n    \"execute_label\": \"\",\n    \"execute_name\": \"master\",\n    \"execute_type\": \"project\",\n    \"mail_list\": [],\n    \"project_id\": 30,\n    \"request_timeout\": 3,\n    \"trigger_type\": \"user_execute\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/api/case_execute",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"case_execute"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "执行迭代用例",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"execute_id\": 15,\n    \"execute_key\": \"version_all\",\n    \"execute_label\": \"\",\n    \"execute_name\": \"测试重构版本迭代\",\n    \"execute_type\": \"version\",\n    \"mail_list\": [],\n    \"project_id\": 30,\n    \"request_timeout\": 3,\n    \"trigger_type\": \"user_execute\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/api/case_execute",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"case_execute"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "执行任务用例",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"execute_id\": 68,\n    \"execute_key\": \"task_all\",\n    \"execute_label\": \"\",\n    \"execute_name\": \"测试任务执行\",\n    \"execute_type\": \"task\",\n    \"mail_list\": [],\n    \"project_id\": 30,\n    \"request_timeout\": 3,\n    \"trigger_type\": \"user_execute\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/api/case_execute",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"case_execute"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "用例与场景复制",
+			"item": [
+				{
+					"name": "用例复制",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"id\": 8646,\n    \"is_cross\": false,\n    \"cross_project_id\": 1,\n    \"project_id\": 30\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/api/case_copy",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"case_copy"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "场景复制",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"id\": 68,\n    \"is_cross\": true,\n    \"cross_project_id\": 1,\n    \"project_id\": 30\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/api/scenario_copy",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"scenario_copy"
 							]
 						}
 					},

@@ -132,7 +132,8 @@ Respect ! ! !
 
 ### 项目部署
 
-- [部署文档](deploy.md)
+- [部署文档](https://github.com/ExileLine/ExileTestPlatformDoc)
+- [备用地址](https://github.com/ExileLine/ExileTestPlatformDoc)
     
 
 ### 联系我们
