@@ -1,6 +1,6 @@
 # ExileTestPlatformServer
 
-# 放逐测试平台
+## 放逐测试平台
 
 ### 前言
 
@@ -41,7 +41,7 @@ Respect ! ! !
   ![exile_case2](docs/展示图/exile_case2.png)
 - UI用例
   ![exile_ui_case](docs/展示图/exile_ui_case.png)
-  
+
 - 项目演示地址：http://106.75.174.40 (点击：`获取游客账号` 即可)
 - 警告：切勿在`演示地址`平台中使用重要或私密数据进行操作，损失概不负责，谢谢！
 
@@ -134,7 +134,6 @@ Respect ! ! !
 
 - [部署文档](https://github.com/ExileLine/ExileTestPlatformDoc)
 - [备用地址](https://github.com/ExileLine/ExileTestPlatformDoc)
-    
 
 ### 联系我们
 
