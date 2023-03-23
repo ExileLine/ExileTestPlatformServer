@@ -2,6 +2,7 @@
 url = "https://pypi.doubanio.com/simple"
 verify_ssl = true
 name = "pypi"
+install_search_all_sources = true
 
 [packages]
 flask = {extras = ["async"], version = "2.0.2"}
@@ -24,6 +25,7 @@ dbutils = "*"
 aiomysql = "*"
 aioredis = "*"
 selenium = "*"
+aiohttp = "*"
 
 [dev-packages]
 
