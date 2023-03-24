@@ -148,7 +148,7 @@ class CaseCopyApi(MethodView):
 class ScenarioCopyApi(MethodView):
     """
     场景复制Api
-    POST: 场景复制
+    POST: 场景复制(仅限于复制在当前项目中)
     """
 
     @copy_api_decorator
@@ -157,8 +157,6 @@ class ScenarioCopyApi(MethodView):
 
         data = request.get_json()
         scenario_id = data.get('id')
-        is_cross = data.get('is_cross', False)
-        cross_project_id = data.get('cross_project_id', 0)
         project_id = data.get('project_id', 0)
 
         query_scenario = TestCaseScenario.query.get(scenario_id)
@@ -169,10 +167,9 @@ class ScenarioCopyApi(MethodView):
         cge.gen_scenario()
         new_scenario_id = cge.new_scenario_id
 
-        save_project_id = cross_project_id if is_cross else project_id
         db.session.add(
             MidProjectScenario(
-                project_id=save_project_id,
+                project_id=project_id,
                 scenario_id=new_scenario_id,
                 creator=g.app_user.username,
                 creator_id=g.app_user.id,
