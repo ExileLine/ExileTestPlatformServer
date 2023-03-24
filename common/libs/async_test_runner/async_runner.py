@@ -66,6 +66,7 @@ class AsyncCaseRunner:
         self.case_logs = {}  # 格式化用例日志
         self.scenario_logs = {}  # 格式化场景日志
         self.test_result = AsyncTestResult()  # 测试结果实例
+        self.result_summary = {}  # 测试结果汇总
         self.redis_key = ""  # redis缓存日志的key
         self.execute_status = True  # 执行完全通过标识
 
@@ -661,6 +662,9 @@ class AsyncCaseRunner:
 
         await self.consume_data_task(bind_info, **p)
 
+        current_case_execute_result = self.al.case_logs_dict.get(case_uuid).get('flag')
+        await self.test_result.add_count(uuid_key=case_uuid, flag=current_case_execute_result)
+
     async def scenario_case_task(self, **kwargs):
         """
         场景中的用例
@@ -709,6 +713,9 @@ class AsyncCaseRunner:
         }
 
         await self.consume_data_task(bind_info, **p)
+
+        current_scenario_execute_result = self.al.scenario_logs_dict.get(scenario_uuid).get('flag')
+        await self.test_result.add_count(uuid_key=scenario_uuid, flag=current_scenario_execute_result)
 
     async def scenario_task(self, scenario_index=None, scenario=None):
         """
@@ -765,7 +772,7 @@ class AsyncCaseRunner:
         if self.is_debug:
             self.sio.log(f"=== 场景日志 ===\n{scenario_logs_json}")
 
-        result_summary = await self.test_result.get_test_result()
+        self.result_summary = await self.test_result.get_test_result()
 
         self.redis_key = f"api_test_log:{F.gen_datetime(**{'execute': True})}_{F.gen_uuid_short()}"
 
@@ -778,7 +785,7 @@ class AsyncCaseRunner:
             "execute_name": self.execute_name,
             "case_logs": self.case_logs,
             "scenario_logs": self.scenario_logs,
-            "result_summary": result_summary
+            "result_summary": self.result_summary
         }
         json_str = json.dumps(return_case_result, ensure_ascii=False)
 

@@ -49,7 +49,9 @@ class AsyncTestResult:
         self.all_test_count = 0
         self.all_test_rate = 0
 
-    async def set_count(self, test_case_count, test_scenario_count):
+        self.add_count_uuid = {}  # 防止在协程中重复增加通过数与失败数
+
+    async def set_count(self, test_case_count: int, test_scenario_count: int):
         """
         设置用例/场景总数
         :param test_case_count:
@@ -59,6 +61,18 @@ class AsyncTestResult:
 
         self.test_case_count = test_case_count
         self.test_scenario_count = test_scenario_count
+        self.all_test_count = self.test_case_count + self.test_scenario_count
+
+    async def add_count(self, uuid_key: str, flag: bool):
+        """通过计数/失败计数"""
+
+        if not self.add_count_uuid.get(uuid_key):
+            if flag:
+                self.pass_count += 1
+            else:
+                self.fail_count += 1
+
+            self.add_count_uuid[uuid_key] = True
 
     async def add_request(self, flag: bool):
         """请求计数"""
@@ -113,8 +127,6 @@ class AsyncTestResult:
                 self.field_ass_fail_rate = await self.gen_rate(self.field_ass_fail, self.field_ass_count)
 
             self.all_ass_count = self.resp_ass_count + self.field_ass_count
-
-            self.all_test_count = self.pass_count + self.fail_count
 
             if self.all_test_count != 0:
                 self.pass_rate = await self.gen_rate(self.pass_count, self.all_test_count)
