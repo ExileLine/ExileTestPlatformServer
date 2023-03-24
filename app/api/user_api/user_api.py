@@ -46,36 +46,35 @@ class TouristApi(MethodView):
 
         # user_ip = request.remote_addr
         user_ip = request.headers.get('X-Forwarded-For', '0.0.0.0')
-        print('===user_ip===', user_ip)
+        logger.info('=== user_ip ===')
+        logger.info(user_ip)
+
         query_tourist = R.get(user_ip)
-        print('===query_tourist===', query_tourist)
+        logger.info('=== query_tourist ===')
+        logger.info(query_tourist)
 
         if query_tourist:
             return api_result(code=SUCCESS, message=SUCCESS_MESSAGE, data=json.loads(query_tourist))
 
-        code = str(Admin.query.count() + 1).zfill(5)  # TODO
-        username = "user_{}".format(code)
+        username = f"user_{shortuuid.uuid()[0:6]}"
         password = shortuuid.uuid()[0:6]
-        query_user = Admin.query.filter_by(username=username).first()
-        if query_user:
-            username = f"user_{code}"
-
         new_admin = Admin(
             username=username,
             password=password,
             phone=None,
             mail=None,
             creator='shell',
-            creator_id='0',
+            creator_id=0,
             remark='游客')
-        new_admin.set_code()
+        new_admin.set_code()  # TODO 处理并发时出现相同code的问题
+        new_admin.username = f"user_{new_admin.code}"
+        new_admin.nickname = f"游客_{new_admin.code}"
         new_admin.save()
 
         tourist_obj = {
-            "username": username,
+            "username": new_admin.username,
             "password": password
         }
-
         R.set(user_ip, json.dumps(tourist_obj))
         return api_result(code=SUCCESS, message=SUCCESS_MESSAGE, data=tourist_obj)
 
