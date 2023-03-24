@@ -44,3 +44,14 @@ class DingDingConfModel(BaseModel):
 
     def __repr__(self):
         return 'DingDingConfModel 模型对象-> ID:{} 标题描述:{}'.format(self.id, self.title)
+
+
+class DingDingPushLogsModel(BaseModel):
+    __tablename__ = 'exile5_ding_ding_push_logs'
+    __table_args__ = {'comment': '钉钉推送记录表'}
+
+    send_message = db.Column(db.TEXT, comment='推送信息')
+    error_info = db.Column(db.TEXT, comment='错误堆栈信息')
+
+    def __repr__(self):
+        return 'DingDingPushLogsModel 模型对象-> ID:{} 状态:{}'.format(self.id, self.status)
