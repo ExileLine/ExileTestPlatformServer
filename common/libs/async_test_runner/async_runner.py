@@ -10,6 +10,7 @@ import json
 import time
 import aiohttp
 import asyncio
+import traceback
 
 from common.libs.db import project_db, R
 from common.libs.db import MYSQL_CONF, AIO_REDIS_CONF
@@ -20,6 +21,7 @@ from common.libs.async_test_runner.async_assertion import AsyncAssertionResponse
 from common.libs.async_test_runner.async_logs import AsyncLogs, AsyncDataLogs
 from common.libs.async_test_runner.async_result import AsyncTestResult
 from common.libs.execute_code import execute_code
+from common.tools.message_push import MessagePush
 
 resp_source_tuple = GlobalsDict.resp_source_tuple()
 value_type_dict = GlobalsDict.value_type_dict()
@@ -57,6 +59,10 @@ class AsyncCaseRunner:
 
         self.case_list = test_obj.get('case_list')  # 执行用例列表
         self.scenario_list = test_obj.get('scenario_list')  # 执行场景列表
+
+        self.use_dd_push = test_obj.get('use_dd_push', False)  # 钉钉推送
+        self.ding_talk_url = test_obj.get('ding_talk_url')  # 钉钉推送群url
+
         self.sio = StringIOLog()  # 控制台日志
         # self.sio = test_obj.get('sio', StringIOLog())  # 控制台日志
 
@@ -906,3 +912,34 @@ class AsyncCaseRunner:
 
         if self.is_debug:
             print('obj_id_list', self.obj_id_list)
+
+        # TODO 生成测试报告
+        report_url = 'http://0.0.0.0:5000/report'
+
+        if self.use_dd_push:
+
+            start_time = self.result_summary.get('start_time')
+            end_time = self.result_summary.get('end_time')
+            total_time = self.result_summary.get('total_time')
+            all_test_count = self.result_summary.get('all_test_count')
+            pass_count = self.result_summary.get('pass_count')
+            fail_count = self.result_summary.get('fail_count')
+            pass_rate = self.result_summary.get('pass_rate')
+
+            markdown_text = f"#### 测试报告:{self.execute_name}  \n  > 测试人员:{self.execute_username}  \n  > 开始时间:{start_time}  \n  > 结束时间:{end_time}  \n  > 合计耗时:{total_time}s  \n  > 用例总数:{all_test_count}  \n  > 成功数:{pass_count}  \n  > 失败数:{fail_count}  \n  > 通过率:{pass_rate}  \n "
+            try:
+                MessagePush.ding_ding_push(
+                    ding_talk_url=self.ding_talk_url,
+                    report_url=report_url,
+                    markdown_text=markdown_text
+                )
+                error_info = ""
+                status = 1
+            except BaseException as e:
+                print(str(e))
+                error_info = traceback.format_exc()
+                status = 2
+
+            sql = f"""INSERT INTO `ExileTestPlatform5.0`.`exile5_ding_ding_push_logs` (`send_message`, `error_info`, `status`) VALUES ('{markdown_text}', '{error_info}', {status});"""
+            print(sql)
+            await self.aio_db.execute(sql=sql)
