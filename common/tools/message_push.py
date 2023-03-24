@@ -73,3 +73,38 @@ class MessagePush:
 
         response = requests.post(url, json=json_data, headers=headers, verify=False)
         print(response.json())
+
+    @staticmethod
+    def ding_ding_push(ding_talk_url=None, report_url=None, markdown_text=None):
+        """
+        钉钉推送
+        :param ding_talk_url:
+        :param report_url:
+        :param markdown_text:
+        :return:
+        """
+
+        url = ding_talk_url
+
+        headers = {
+            "Content-Type": "application/json;charset=utf-8"
+        }
+
+        report_link = f"  \n  > 报告地址:[{report_url}]({report_url})"
+        text = f"{markdown_text}{report_link}"
+        json_data = {
+            "msgtype": "markdown",
+            "markdown": {
+                "title": "测试报告",
+                "text": text
+                # "text": demo_text + report_link
+            },
+            "at": {
+                "atMobiles": [],
+                "atUserIds": [],
+                "isAtAll": True
+            }
+        }
+
+        response = requests.post(url, headers=headers, json=json_data, verify=False)
+        print(response.json())
