@@ -33,7 +33,7 @@ from .case_execute_api.case_execute_api import CaseExecuteApi
 from .case_scenario_api.case_scenario_api import CaseScenarioApi, CaseScenarioPageApi
 from .case_set_api.case_set_api import CaseSetApi
 from .mail_api.mail_api import MailApi, MailPageApi
-from .dingding_api.dingding_api import DingDingApi, DingDingPushPageApi
+from .dingding_api.dingding_api import DingDingPushConfApi, DingDingPushConfPageApi
 from .platform_conf_api.platform_conf_api import PlatformConfApi
 from .project_api.project_api import ProjectApi, ProjectPageApi
 from .project_api.version_api import ProjectVersionApi, ProjectVersionPageApi
@@ -123,8 +123,8 @@ api.add_url_rule('/case_set', view_func=CaseSetApi.as_view('case_set'))
 api.add_url_rule('/mail_conf', view_func=MailApi.as_view('mail_conf'))
 api.add_url_rule('/mail_conf_page', view_func=MailPageApi.as_view('mail_conf_page'))
 
-api.add_url_rule('/dd_conf', view_func=DingDingApi.as_view('dd_conf'))
-api.add_url_rule('/dd_conf_page', view_func=DingDingPushPageApi.as_view('dd_conf_page'))
+api.add_url_rule('/dd_push_conf', view_func=DingDingPushConfApi.as_view('dd_push_conf'))
+api.add_url_rule('/dd_push_conf_page', view_func=DingDingPushConfPageApi.as_view('dd_push_conf_page'))
 
 api.add_url_rule('/platform_conf', view_func=PlatformConfApi.as_view('platform_conf'))
 
