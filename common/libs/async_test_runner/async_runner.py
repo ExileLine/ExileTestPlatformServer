@@ -12,6 +12,7 @@ import aiohttp
 import asyncio
 import traceback
 
+from config.config import config_obj
 from common.libs.db import project_db, R
 from common.libs.db import MYSQL_CONF, AIO_REDIS_CONF
 from common.libs.async_db import MyAioMySQL, MyAioRedis
@@ -841,6 +842,19 @@ class AsyncCaseRunner:
         self.sio.log(f'=== save_logs sql ===\n{sql}')
         self.sio.log('=== save_logs ok ===', status="success")
 
+    async def gen_report_url(self):
+        """生产测试报告链接"""
+
+        try:
+            conf = config_obj['new']
+            host = conf.RUN_HOST
+            port = conf.RUN_PORT
+            report_url = f'http://{host}:{port}/api/case_report/{self.redis_key}'  # 测试报告地址
+        except BaseException as e:
+            report_url = f'http://0.0.0.0:5000/api/case_report/{self.redis_key}'  # 测试报告地址
+
+        return report_url
+
     async def write_back_logs(self, report_url=None, file_name=None):
         """
         回写日志标识:替代 save_logs 方法
@@ -913,8 +927,9 @@ class AsyncCaseRunner:
         if self.is_debug:
             print('obj_id_list', self.obj_id_list)
 
-        # TODO 生成测试报告
-        report_url = 'http://0.0.0.0:5000/report'
+        report_url = await self.gen_report_url()
+        print("=== report_url ===")
+        print(report_url)
 
         if self.use_dd_push:
 
@@ -925,7 +940,6 @@ class AsyncCaseRunner:
             pass_count = self.result_summary.get('pass_count')
             fail_count = self.result_summary.get('fail_count')
             pass_rate = self.result_summary.get('pass_rate')
-
             markdown_text = f"#### 测试报告:{self.execute_name}  \n  > 测试人员:{self.execute_username}  \n  > 开始时间:{start_time}  \n  > 结束时间:{end_time}  \n  > 合计耗时:{total_time}s  \n  > 用例总数:{all_test_count}  \n  > 成功数:{pass_count}  \n  > 失败数:{fail_count}  \n  > 通过率:{pass_rate}  \n "
             try:
                 MessagePush.ding_ding_push(
