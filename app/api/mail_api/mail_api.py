@@ -58,6 +58,7 @@ class MailApi(MethodView):
         mail_id = data.get('id')
         mail = data.get('mail')
         mail_user = data.get('mail_user')
+        remark = data.get('remark')
         is_deleted = data.get('is_deleted', False)
 
         query_mail = MailConfModel.query.get(mail_id)
@@ -73,6 +74,7 @@ class MailApi(MethodView):
         query_mail.modifier = g.app_user.username
         query_mail.modifier_id = g.app_user.id
         query_mail.is_deleted = is_deleted
+        query_mail.remark = remark
         db.session.commit()
         return api_result(code=PUT_SUCCESS, message=PUT_MESSAGE)
 
