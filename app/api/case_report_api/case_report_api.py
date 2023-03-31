@@ -8,6 +8,21 @@
 
 from all_reference import *
 
+demo_html = """
+        <!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>测试报告</title>
+</head>
+<body>
+    <h1 style="color:red">
+        测试报告页面
+    </h1>
+</body>
+</html>
+"""
+
 
 class CaseReportApi(MethodView):
     """
@@ -21,19 +36,4 @@ class CaseReportApi(MethodView):
         if not query_logs_json:
             return api_result(code=NO_DATA, message="日志不存在无法生成测试报告")
 
-        # 渲染逻辑
-        h = """
-        <!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-</head>
-<body>
-    <h1 style="color:red">
-        模块001的index页面
-    </h1>
-</body>
-</html>
-        """
-        return h
+        return demo_html
