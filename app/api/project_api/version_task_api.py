@@ -17,12 +17,17 @@ def vt_decorator(func):
     @wraps(func)
     def wrapper(*args, **kwargs):
         data = request.get_json()
+        project_id = data.get('project_id', 0)
         version_id = data.get('version_id', '')
         task_name = data.get('task_name', '')
         user_list = data.get('user_list', [])
 
-        if not TestProjectVersion.query.get(version_id):
+        query_version = TestProjectVersion.query.get(version_id)
+        if not query_version:
             return api_result(code=NO_DATA, message=f"版本迭代: {version_id} 不存在")
+
+        if query_version.project_id != project_id:
+            return api_result(code=NO_DATA, message=f"版本迭代: {query_version.version_name} 不存在该项目中")
 
         if not task_name:
             return api_result(code=REQUIRED, message="任务名称不能为空")
@@ -100,7 +105,6 @@ class VersionTaskApi(MethodView):
         """迭代任务新增"""
 
         data = request.get_json()
-        project_id = data.get('project_id', 0)
         version_id = data.get('version_id', '')
         task_name = data.get('task_name', '')
         task_type = data.get('task_type', '')
@@ -129,8 +133,6 @@ class VersionTaskApi(MethodView):
 
         data = request.get_json()
         task_id = data.get('id')
-        project_id = data.get('project_id', 0)
-        version_id = data.get('version_id', '')
         task_name = data.get('task_name', '')
         task_type = data.get('task_type', '')
         user_list = data.get('user_list', [])
