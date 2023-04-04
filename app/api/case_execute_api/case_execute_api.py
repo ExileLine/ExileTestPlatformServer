@@ -342,20 +342,44 @@ class QueryExecuteData:
 class ExecuteQuery:
     """执行数据查询组装"""
 
-    def __init__(self, execute_key: str = None, execute_type: str = None, query_id=None):
+    def __init__(self, execute_key: str = None, execute_type: str = None, project_id=None, query_id=None):
         """
 
         :param execute_key: case,scenario,project_all,project_case,project_scenario,version_all,task_all...
         :param execute_type: case,scenario,project,version,task,module...
+        :param project_id: 项目id
         :param query_id: 执行对象的id
         """
         self.execute_key = execute_key
         self.execute_type = execute_type
+        self.project_id = project_id
         self.query_id = query_id
-        self.query = {f"{self.execute_type}_id": self.query_id}  # 拼接查询条件
+        self.query_key = f"{self.execute_type}_id"
+        self.query = {self.query_key: self.query_id}  # 拼接查询条件
         self.case_list = []
         self.scenario_list = []
-        self.error_message = None
+        self.check_execute_result = True  # 检查执行对象结果
+        self.error_message = None  # 错误信息
+
+        # 错误信息中文标识
+        self.execute_type_to_cn = {
+            "case": "用例",
+            "scenario": "场景",
+            "project": "项目",
+            "version": "迭代",
+            "task": "任务",
+            "module": "模块"
+        }
+
+        # 检查执行对象模型字典
+        self.execute_mid_model_dict = {
+            "case": MidProjectAndCase,
+            "scenario": MidProjectScenario,
+            "project": TestProject,
+            "version": TestProjectVersion,
+            "task": TestVersionTask,
+            "module": TestModuleApp
+        }
 
         # 使用 execute_key 来获取值
         self.use_func_dict = {
@@ -403,7 +427,44 @@ class ExecuteQuery:
             }
         }
 
+        # 执行方法
         self.use_func = self.use_func_dict.get(self.execute_key)
+
+    def check_execute(self):
+        """检查执行对象"""
+
+        mid_func = self.execute_mid_model_dict.get(self.execute_type)
+        print(mid_func)
+
+        check_query = {
+            "project_id": self.project_id
+        }
+        if self.execute_type == "project":
+            query_mid = db.session.get(mid_func, self.query_id)
+        elif self.execute_type == "task":
+            query_mid = db.session.get(mid_func, self.query_id)
+            if not query_mid:
+                query_mid = None
+            else:
+                version_id = query_mid.version_id
+                check_query["id"] = version_id
+                query_version = TestProjectVersion.query.filter_by(**check_query).first()
+                if not query_version:
+                    query_mid = None
+
+        elif self.execute_type in ("case", "scenario"):
+            check_query[self.query_key] = self.query_id
+            query_mid = mid_func.query.filter_by(**check_query).first()
+
+        else:
+            check_query["id"] = self.query_id
+            query_mid = mid_func.query.filter_by(**check_query).first()
+
+        print(check_query)
+        print("query_mid", query_mid)
+        if not query_mid:
+            self.error_message = f'执行失败，{self.execute_type_to_cn.get(self.execute_type)}: {self.query_id} 不存在'
+            self.check_execute_result = False
 
     def gen_execute_case_list(self):
         """
@@ -576,6 +637,10 @@ class CaseExecuteApi(MethodView):
         trigger_type = data.get('trigger_type', 'user_execute')
         request_timeout = data.get('request_timeout', 20)
 
+        query_project = db.session.get(TestProject, project_id)
+        if not query_project:
+            return api_result(code=NO_DATA, message=f"项目: {project_id} 不存在")
+
         if is_env_cover:
             query_base_url = TestEnv.query.get(env_url_id)
             if not query_base_url:
@@ -618,8 +683,13 @@ class CaseExecuteApi(MethodView):
         if execute_type not in GlobalsDict.execute_type_tuple():
             return api_result(code=TYPE_ERROR, message=f'执行类型错误:{execute_type}')
 
-        execute_query = ExecuteQuery(execute_key=execute_key, execute_type=execute_type, query_id=execute_id)
-        execute_query.use_func()
+        execute_query = ExecuteQuery(
+            execute_key=execute_key, execute_type=execute_type, project_id=project_id, query_id=execute_id
+        )
+
+        execute_query.check_execute()
+        if execute_query.check_execute_result:
+            execute_query.use_func()
 
         if execute_query.error_message:
             return api_result(code=BUSINESS_ERROR, message=execute_query.error_message)
@@ -658,8 +728,23 @@ class CaseExecuteApi(MethodView):
 
 if __name__ == '__main__':
     @set_app_context
-    def test_ExecuteQuery():
-        """测试"""
+    def test_check_execute():
+        """测试检查执行对象"""
+
+        main = ExecuteQuery(execute_key="case", execute_type="case", project_id=30, query_id=8646)
+        # main = ExecuteQuery(execute_key="scenario", execute_type="scenario", project_id=30, query_id=68)
+        # main = ExecuteQuery(execute_key="project_all", execute_type="project", project_id=30, query_id=30)
+        # main = ExecuteQuery(execute_key="version_all", execute_type="version", project_id=30, query_id=15)
+        # main = ExecuteQuery(execute_key="module_all", execute_type="module", project_id=30, query_id=21)
+        # main = ExecuteQuery(execute_key="task_all", execute_type="task", project_id=30, query_id=68)
+        main.check_execute()
+        print(f'错误信息:{main.error_message}')
+
+
+    @set_app_context
+    def test_execute_query():
+        """测试查询执行结果集"""
+
         execute_query = ExecuteQuery(execute_key='project_all', execute_type="project", query_id=30)
 
         execute_query = ExecuteQuery(execute_key='case', execute_type="case", query_id=8646)
@@ -675,4 +760,4 @@ if __name__ == '__main__':
         # print(len(execute_query.scenario_list))
 
 
-    test_ExecuteQuery()
+    test_check_execute()
