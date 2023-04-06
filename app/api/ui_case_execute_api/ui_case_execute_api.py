@@ -86,7 +86,7 @@ class UiCaseExecuteApi(MethodView):
     def get(self):
         """调试"""
 
-        return api_result(code=SUCCESS, message='操作成功,请前往日志查看执行结果', data=[])
+        return api_result(code=SUCCESS, message='调试:执行UI用例', data=[])
 
     def post(self):
         """执行"""
@@ -106,6 +106,7 @@ class UiCaseExecuteApi(MethodView):
             "project_id": project_id,
             "execute_id": execute_id,
             "execute_name": execute_name,
+            "execute_key": execute_key,
             "execute_type": execute_type,
             "execute_label": execute_label,
             "execute_user_id": g.app_user.id,
@@ -131,7 +132,7 @@ if __name__ == '__main__':
     def test_ExecuteQuery():
         """测试"""
 
-        execute_query = UiCaseExecuteQuery(execute_key='ui_case', query_id=6)
+        execute_query = UiCaseExecuteQuery(execute_key='ui_case', query_id=19)
         # execute_query = UiCaseExecuteQuery(execute_key='ui_project_all', query_id=30)
         # execute_query = UiCaseExecuteQuery(execute_key='ui_version_all', query_id=1)
         # execute_query = UiCaseExecuteQuery(execute_key='ui_task_all', query_id=1)

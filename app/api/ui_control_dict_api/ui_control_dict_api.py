@@ -19,11 +19,24 @@ class UiControlDictApi(MethodView):
     def get(self):
         """获取UI控件字典"""
 
-        ucd = UiControlDict.get_ucd()
+        ucd = UiControlDict.get_uc_dict()
         return api_result(code=SUCCESS, message=SUCCESS_MESSAGE, data=ucd)
 
     def post(self):
         """获取UI控件字典"""
 
-        ucd = UiControlDict.get_ucd()
+        ucd = UiControlDict.get_uc_dict()
         return api_result(code=SUCCESS, message=POST_MESSAGE, data=ucd)
+
+
+class UiControlMappingApi(MethodView):
+    """
+    UI控件映射Api
+    GET: 获取UI控件映射
+    """
+
+    def get(self):
+        """获取UI控件映射"""
+
+        ucm = UiControlDict.get_uc_mapping()
+        return api_result(code=SUCCESS, message=POST_MESSAGE, data=ucm)

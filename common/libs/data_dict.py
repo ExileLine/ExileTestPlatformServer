@@ -499,7 +499,7 @@ class UiControlDict:
     ]
 
     @classmethod
-    def get_ucd(cls):
+    def get_uc_dict(cls):
         """获取UI控件字典"""
 
         result = [
@@ -524,6 +524,183 @@ class UiControlDict:
                 "control_list": cls.logic_control_list,
             },
         ]
+
+        return result
+
+    @classmethod
+    def get_uc_mapping(cls):
+        """获取UI控件映射"""
+
+        result = {
+            "demo": {
+                "fieldList": [
+                    {
+                        "value": "input",
+                        "label": "输入框",
+                        "component": "t-input",
+                    },
+                    {
+                        "value": "select",
+                        "label": "下拉",
+                        "component": "t-select",
+                        "list": [
+                            {"version_name": "xxx", "id": 1}
+                        ],
+                        "extraProps": {
+                            "url": "/api/project_version_page",
+                            "labelKey": "version_name",
+                            "valueKey": "id",
+                        },
+                    },
+                    {
+                        "value": "list",
+                        "label": "多选下拉",
+                        "component": "remote-select",
+                        "extraProps": {
+                            "url": "/api/module_app_page",
+                            "labelKey": "module_name",
+                            "valueKey": "id",
+                            "valueType": "object",  # 写object就是传对象，不要这个key就传id，即传valueKey
+                            "multiple": True,
+                        }
+                    }
+                ],
+                "rules": {
+                    "input": [
+                        {
+                            "required": True,
+                            "message": "请输入xxx'",  # 验证错误提示
+                            "type": "error",
+                            "trigger": "blur",  # select用change，input用blur
+                        }
+                    ],
+                    "select": [
+                        {
+                            "required": True,
+                            "message": "请选择xxx'",  # 验证错误提示
+                            "type": "error",
+                            "trigger": "change",  # select用change，input用blur
+                        }
+                    ],
+                    "list": [
+                        {
+                            "required": True,
+                            "message": "请选择xxx'",  # 验证错误提示
+                            "type": "error",
+                            "trigger": "change",  # select用change，input用blur
+                        }
+                    ]
+                },
+                "extra": {
+                    "label-width": "4em"
+                }
+            },
+            "open": {
+                "fieldList": [
+                    {
+                        "value": "url",
+                        "label": "URL",
+                        "component": 't-input',
+                    }
+                ],
+                "rules": {
+                    "url": [
+                        {
+                            "required": True,
+                            "message": "请输入url",
+                            "type": "error",
+                            "trigger": "blur",
+                        }
+                    ]
+                },
+                "extra": {
+                    "label-width": "4.5em"
+                }
+            },
+            "input": {
+                "fieldList": [
+                    {
+                        "value": "mode",
+                        "label": "定位方式",
+                        "component": "t-select",
+                        "list": [
+                            {"value": "XPATH", 'label': 'XPATH'},
+                            {"value": "CSS", 'label': 'CSS'}
+                        ],
+                    },
+                    {
+                        "value": "value",
+                        "label": "元素",
+                        "component": 't-input',
+                    },
+                    {
+                        "value": "data",
+                        "label": "值",
+                        "component": 't-input',
+                    }
+                ],
+                "rules": {
+                    "mode": [
+                        {
+                            "required": True,
+                            "message": "请选择定位方式",
+                            "type": "error",
+                            "trigger": "change"
+                        }
+                    ],
+                    "value": [
+                        {
+                            "required": True,
+                            "message": "请输入元素",
+                            "type": "error",
+                            "trigger": "blur",
+                        }
+                    ],
+                },
+                "extra": {
+                    "label-width": "5.5em"
+                }
+            },
+            "click": {
+                "fieldList": [
+                    {
+                        "value": "mode",
+                        "label": "定位方式",
+                        "component": "t-select",
+                        "list": [
+                            {"value": "XPATH", 'label': 'XPATH'},
+                            {"value": "CSS", 'label': 'CSS'}
+                        ],
+                    },
+                    {
+                        "value": "value",
+                        "label": "元素",
+                        "component": 't-input',
+                    }
+                ],
+                "rules": {
+                    "mode": [
+                        {
+                            "required": True,
+                            "message": "请选择定位方式",
+                            "type": "error",
+                            "trigger": "change"
+                        }
+                    ],
+                    "value": [
+                        {
+                            "required": True,
+                            "message": "请输入元素",
+                            "type": "error",
+                            "trigger": "blur",
+                        }
+                    ],
+                },
+                "extra": {
+                    "label-width": "5.5em"
+                }
+            }
+        }
 
         return result
 
