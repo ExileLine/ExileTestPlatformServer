@@ -4,12 +4,12 @@
 
 ### 前言
 
-主作者 [YangYueXiong](https://github.com/yangyuexiong) 是前某思维测试小伙，某测试平台V1.0与V2.0的设计者，期间充当产品，设计，研发，测试，运维，内部推广等多个角色。
+主作者 [YangYueXiong](https://github.com/yangyuexiong) 是某测试平台V1.0与V2.0的设计者，期间充当产品，设计，研发，测试，运维，内部推广等多个角色。
 
-据了解因各种因素导致最后测试平台落地的结果并不理想，但在整个过程中其受益匪浅并有所总结，而主作者 [YangYueXiong](https://github.com/yangyuexiong)
+据了解因各种因素导致最后测试平台落地的结果并不理想，但在整个过程中其受益匪浅并有所总结，而组织者 [ExileLine](https://github.com/ExileLine)
 还是想做出一个能让大部测试人员都认可并真正能降本增效的测试平台，从而有了这个放逐测试平台，其言既然不能于公司中很好的实践，那么就流放到整个测试社区，让更多的测试人员使用并提出建议使其更好的发挥实际作用，因此取名放逐。
 
-主作者 [YangYueXiong](https://github.com/yangyuexiong) 希望后续能以组织的形式重构它，使它能够商业定制化，如果你感兴趣，点亮Star，(最下方)请联系我们。
+组织者 [ExileLine](https://github.com/ExileLine) 希望后续能以组织的形式重构它，使它能够商业定制化，如果你感兴趣，点亮Star，(最下方)请联系我们。
 
 Respect ! ! !
 
@@ -18,17 +18,19 @@ Respect ! ! !
 - 2020-7-18：某某测试平台V1.0（某思维）
 - 2020-9-18：某某测试平台V2.0（某思维，某某测试平台V1.0重构）
 - 2021-7-20：放逐测试平台V3.0（个人开源，因开发如下V4.0，仓库关闭）
-- 2022-2-23：某某测试平台V4.0（某上市公司，基于上述的个人开源放逐测试平台V3.0扩展定制化开发）
+- 2022-2-23：某某测试平台V4.0（基于上述的个人开源放逐测试平台V3.0扩展定制化开发）
 - 2023-6-18：放逐测试平台V5.0（组织开源）
 
 ### 项目介绍
 
 `ExileTestPlatform`项目主要基于测试人员对测试用例配置环境，参数，变量，响应断言规则，数据库断言规则后，生成一套具备数据驱动的测试规则，实施接口，UI测试的持续测试平台。
 
-- 当前主要使用`Python`作为主要后端语言，因其丰富的三方扩展库以及对数据的处理方便而选择。
-- 对于使用`NodeJs`而言，前后端都基于`Js`并在webUI自动化与浏览器操作中能起到很好效果，在下一阶段使用它来实现服务端。
-- 对于使用`Golang`而言，没有对`Selenium`很好的支持而且没有类似`Celery`的成熟的异步任务框架，后续再考虑实现。
-- 对于使用`Java`而言，各方面都很好，但主作者 [YangYueXiong](https://github.com/yangyuexiong) 比较抗拒，后续也会实现。
+- 当前主要使用`Python`作为主要后端语言，因其丰富的三方扩展库以及对数据的处理方便而选择，开源：[ExileTestPlatServer-Python](https://github.com/ExileLine/ExileTestPlatformServer)
+- 对于使用`NodeJs`而言，前后端都基于`Js`
+  并在webUI自动化与浏览器操作中能起到很好效果，未开源：[ExileTestPlatServer-Node](https://github.com/ExileLine/ExileTestPlatServer-Node)
+- 对于使用`Golang`而言，没有对`Selenium`很好的支持而且没有类似`Celery`的成熟的异步任务框架，未开源：[ExileTestPlatServer-Go](https://github.com/ExileLine/ExileTestPlatServer-Go)
+- 对于使用`Java`而言，各方面都很好，但主作者 [YangYueXiong](https://github.com/yangyuexiong)
+  比较抗拒，未开源：[ExileTestPlatServer-Java](https://github.com/ExileLine/ExileTestPlatServer-Java)
 
 ### 项目演示
 
@@ -92,7 +94,7 @@ Respect ! ! !
 
 ### 后端技术
 
-- 当前使用的是Python相关技术栈，后续新增golang，java等语言相关技术栈实现相同的功能，尽可以满足不同语言的开发人员进行二次开发
+- 当前使用的是`Python`相关技术栈，后续新增`NodeJs`，`Golang`，`Java`等语言相关技术栈实现相同的功能，尽可以满足不同语言的开发人员进行二次开发
 
 |技术|说明|官网|
 |----------------------------------------|----------------------------------------|---------------------------------------------- |
@@ -145,6 +147,8 @@ Respect ! ! !
 ### 致谢
 
 - [GATING](https://github.com/GATING/) ：感谢核心开发者 GATING
+- [yugijiudai](https://github.com/yugijiudai) ：感谢核心开发者 yugijiudai
+- [miterwan](https://github.com/miterwan) ：感谢核心开发者 miterwan
 - [YangYueXiong](https://github.com/yangyuexiong) ：感谢核心开发者 YangYueXiong
 - [Flask_BestPractices](https://github.com/yangyuexiong/Flask_BestPractices) ：感谢 YangYueXiong 提供的 Flask最佳实践 作为项目结构
 - [TDesign](https://tdesign.tencent.com/) ：感谢 腾讯TDesign 提供的优秀组件库
