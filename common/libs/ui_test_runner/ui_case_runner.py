@@ -14,7 +14,7 @@ from common.libs.ui_test_runner.ui_case_ctrl import ControlFunction
 from common.libs.ui_test_runner.ui_case_logs import UiCaseLogs
 
 
-class FL:
+class ForLogs:
     """for logs"""
 
     @staticmethod
@@ -48,34 +48,38 @@ class FL:
         return result
 
 
-def query_function(business_dict: dict) -> any:
-    """
-    获取控件映射的方法
-    :param business_dict: 控件json对象
-    :return:
-    """
+class FunctionOption:
+    """控件操作类"""
 
-    business_type = business_dict.get('type')
-    business_function = business_dict.get('function')
-    function_name = ControlFunction.control_dict.get(business_type).get(
-        business_function)  # 例子: .get('ui_control').get('open')
+    @classmethod
+    def query_function(cls, business_dict: dict) -> any:
+        """
+        检验控件名称映射的方法是否在字典中
+        :param business_dict: 控件json对象
+        :return:
+        """
 
-    if not function_name:
-        print(f"{business_type} 或 {business_function} 不存在")
-        return None
-    return function_name
+        business_type = business_dict.get('type')
+        business_function = business_dict.get('function')
+        function_name = ControlFunction.control_dict.get(business_type).get(
+            business_function)  # 例子: .get('ui_control').get('open')
 
+        if not function_name:
+            print(f"{business_type} 或 {business_function} 不存在")
+            return None
+        return function_name
 
-def getattr_func(o: object, func_name: str) -> any:
-    """
-    获取实例方法
-    :param o: 实例
-    :param func_name: 方法名称
-    :return:
-    """
+    @classmethod
+    def getattr_func(cls, o: object, func_name: str) -> any:
+        """
+        获取实例方法
+        :param o: 实例
+        :param func_name: 方法名称
+        :return:
+        """
 
-    f = getattr(o, func_name)
-    return f
+        f = getattr(o, func_name)
+        return f
 
 
 def for_recursion(action_list: list, data_list: list = None, num: int = 0, deep_num: int = 0, master_function=None,
@@ -95,7 +99,7 @@ def for_recursion(action_list: list, data_list: list = None, num: int = 0, deep_
     """
 
     for i in range(1, num + 1):
-        logs_example.logs_add(FL.for_logs_start(deep_num, i))
+        logs_example.logs_add(ForLogs.for_logs_start(deep_num, i))
 
         for index, ac in enumerate(action_list, 1):
             ac_function = ac.get('function')
@@ -119,18 +123,18 @@ def for_recursion(action_list: list, data_list: list = None, num: int = 0, deep_
                     """
                     selenium等驱动逻辑操作...
                     """
-                    res_func = query_function(business_dict=ac)
+                    res_func = FunctionOption.query_function(business_dict=ac)
                     if not res_func:
                         raise KeyError(f"异常:{ac}")
 
                     print(">>>", ac)
-                    func = getattr_func(web_driver_example, res_func)
+                    func = FunctionOption.getattr_func(web_driver_example, res_func)
                     func_args = ac.get('args')
                     print(">>> 普通 function 反射执行", func, func_args, '\n')
                     func(**func_args)
                     logs_example.logs_add(ac)
 
-        logs_example.logs_add(FL.for_logs_end(deep_num, i))
+        logs_example.logs_add(ForLogs.for_logs_end(deep_num, i))
 
 
 def recursion_main(data_list: list, web_driver_example: object = None, logs_example: UiCaseLogs = None):
@@ -150,7 +154,7 @@ def recursion_main(data_list: list, web_driver_example: object = None, logs_exam
         if data_type == "master" and business_list:
             recursion_main(data_list=business_list, web_driver_example=web_driver_example, logs_example=logs_example)
         else:
-            res_func = query_function(business_dict=data)
+            res_func = FunctionOption.query_function(business_dict=data)
             if not res_func:
                 return False
 
@@ -177,7 +181,7 @@ def recursion_main(data_list: list, web_driver_example: object = None, logs_exam
                 普通 function 执行
                 """
                 print(">>>", data)
-                func = getattr_func(web_driver_example, res_func)
+                func = FunctionOption.getattr_func(web_driver_example, res_func)
                 func_args = data.get('args')
                 print(">>> 普通 function 反射执行", func, func_args, '\n')
                 func(**func_args)
@@ -201,6 +205,7 @@ class UiCaseRunner:
         self.data_list = data_list
         self.web_driver_kw = web_driver_kw if web_driver_kw else {}
         self.web_driver_example = web_driver(headless=False, **self.web_driver_kw)
+        setattr(self.web_driver_example, "snap_var_dict", {})
         self.logs_example = logs_example
 
     def main(self):
