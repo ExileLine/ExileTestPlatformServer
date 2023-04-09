@@ -636,6 +636,7 @@ class CaseExecuteApi(MethodView):
         mail_list = data.get('mail_list', [])
         trigger_type = data.get('trigger_type', 'user_execute')
         request_timeout = data.get('request_timeout', 20)
+        ding_talk_url = ""
 
         query_project = db.session.get(TestProject, project_id)
         if not query_project:
@@ -662,8 +663,6 @@ class CaseExecuteApi(MethodView):
                 return api_result(code=BUSINESS_ERROR, message=f"钉钉群: {query_dd_push.title} 被禁用")
 
             ding_talk_url = query_dd_push.ding_talk_url
-        else:
-            ding_talk_url = ""
 
         if use_mail:
             if mail_send_all:

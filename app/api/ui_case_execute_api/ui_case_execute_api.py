@@ -11,6 +11,7 @@ from all_reference import *
 from app.models.ui_test_case.models import UiTestCase, MidProjectAndUiCase, MidVersionUiCase, MidTaskUiCase, \
     MidModuleUiCase
 from tasks.execute_ui_case import execute_ui_case
+from app.models.push_reminder.models import DingDingConfModel, MailConfModel
 from app.api.case_execute_api.case_execute_api import create_execute_logs
 
 
@@ -99,6 +100,39 @@ class UiCaseExecuteApi(MethodView):
         execute_type = data.get('execute_type')
         execute_label = data.get('execute_label')
         trigger_type = data.get('trigger_type', 'user_execute')
+        use_client = data.get('use_client', False)
+        client = data.get('client')
+        use_dd_push = data.get('use_dd_push', False)
+        dd_push_id = data.get('dd_push_id')
+        ding_talk_url = ""
+        use_mail = data.get('use_mail', False)
+        mail_send_all = data.get('mail_send_all', False)
+        mail_list = data.get('mail_list', [])
+
+        if use_client:  # TODO PC端执行
+            print(client)
+            return api_result(code=SUCCESS, message='调用PC端成功', data=client)
+
+        if use_dd_push:
+            query_dd_push = DingDingConfModel.query.get(dd_push_id)
+            if not query_dd_push:
+                return api_result(code=NO_DATA, message="钉钉群不存在")
+            if query_dd_push.is_deleted != 0:
+                return api_result(code=BUSINESS_ERROR, message=f"钉钉群: {query_dd_push.title} 被禁用")
+
+            ding_talk_url = query_dd_push.ding_talk_url
+
+        if use_mail:
+            if mail_send_all:
+                mail_list = [m.mail for m in MailConfModel.query.filter_by(is_deleted=0).all()]
+            else:
+                mail_list = [m.mail for m in MailConfModel.query.filter(
+                    MailConfModel.id.in_(mail_list),
+                    MailConfModel.is_deleted == 0
+                ).all()]
+
+        if mail_send_all and not mail_list:
+            return api_result(code=BUSINESS_ERROR, message="邮件不能为空，或者邮件已禁用")
 
         execute_query = UiCaseExecuteQuery(execute_key=execute_key, query_id=execute_id)
         ui_case_list = execute_query.use_func()
@@ -112,11 +146,11 @@ class UiCaseExecuteApi(MethodView):
             "execute_user_id": g.app_user.id,
             "execute_username": g.app_user.username,
             "ui_case_list": ui_case_list,
-            # "use_dd_push": use_dd_push,
-            # "dd_push_id": dd_push_id,
-            # "ding_talk_url": ding_talk_url,
-            # "use_mail": use_mail,
-            # "mail_list": mail_list,
+            "use_dd_push": use_dd_push,
+            "dd_push_id": dd_push_id,
+            "ding_talk_url": ding_talk_url,
+            "use_mail": use_mail,
+            "mail_list": mail_list,
             "trigger_type": trigger_type,
         }
         execute_logs_id = create_execute_logs(**test_obj)
@@ -124,7 +158,7 @@ class UiCaseExecuteApi(MethodView):
 
         results = execute_ui_case.delay(test_obj)
         print(results)
-        return api_result(code=SUCCESS, message='操作成功,请前往日志查看执行结果', data=test_obj)
+        return api_result(code=SUCCESS, message='操作成功,请前往日志查看执行结果', data=[str(results)])
 
 
 if __name__ == '__main__':
