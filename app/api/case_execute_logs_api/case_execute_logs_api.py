@@ -29,21 +29,33 @@ class LatestLogsApi(MethodView):
         if not query_10:
             return api_result(code=NO_DATA, message='暂无日志')
 
-        case_logs = []
-        scenario_logs = []
-        for q in query_10:
-            if R.get(q.redis_key):
-                case_logs += json.loads(R.get(q.redis_key)).get('case_logs')
-                scenario_logs += json.loads(R.get(q.redis_key)).get('scenario_logs')
+        if execute_type == "ui_case":
+            ui_case = []
+            for q in query_10:
+                if R.get(q.redis_key):
+                    ui_case.append(json.loads(R.get(q.redis_key)))
 
-        if not case_logs and not scenario_logs:
-            return api_result(code=NO_DATA, message='暂无日志(日志仅保存7天)')
+            if not ui_case:
+                return api_result(code=NO_DATA, message='暂无日志(日志仅保存7天)')
 
-        result = {
-            "case_logs": case_logs,
-            "scenario_logs": scenario_logs
-        }
-        return api_result(code=POST_SUCCESS, message=f"操作成功: {len(case_logs)} 条", data=result)
+            return api_result(code=POST_SUCCESS, message=f"操作成功: {len(ui_case)} 条", data=ui_case)
+
+        else:  # api case
+            case_logs = []
+            scenario_logs = []
+            for q in query_10:
+                if R.get(q.redis_key):
+                    case_logs += json.loads(R.get(q.redis_key)).get('case_logs')
+                    scenario_logs += json.loads(R.get(q.redis_key)).get('scenario_logs')
+
+            if not case_logs and not scenario_logs:
+                return api_result(code=NO_DATA, message='暂无日志(日志仅保存7天)')
+
+            result = {
+                "case_logs": case_logs,
+                "scenario_logs": scenario_logs
+            }
+            return api_result(code=POST_SUCCESS, message=f"操作成功: {len(case_logs)} 条", data=result)
 
 
 class CaseExecuteLogsApi(MethodView):
