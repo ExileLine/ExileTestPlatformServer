@@ -43,8 +43,25 @@ class BaseAsyncAssertion:
         # 如果出现异常很大几率是手动修改了数据库的数据(因为case_assertion_api.py中的CheckAssertion新增断言时会进行校验)
         native_function = value_type_dict.get(expect_val_type)
         try:
-            assert_val = native_function(assert_val)
-            expect_val = native_function(expect_val)
+            if native_function is bool:
+                self.sio.log(f"=== 检验布尔值: {expect_val} ===")
+                _t = ["True", "true", "1", 1]
+                _f = ["False", "false", "0", 0]
+                if expect_val in _t:
+                    expect_val = True
+                elif expect_val in _f:
+                    expect_val = False
+                else:
+                    _message = f"检验布尔值失败: {expect_val} 不是一个布尔值, 应该为: True, true, False, false"
+                    self.sio.log(_message, status="error")
+                    await self.data_logs.add_logs(
+                        key=self.logs_key,
+                        val=_message
+                    )
+                    return False
+            else:
+                assert_val = native_function(assert_val)
+                expect_val = native_function(expect_val)
         except BaseException as e:
             self.sio.log(f"数据异常->内置函数:{native_function}转换值:{assert_val} 时失败", status="error")
             self.sio.log(f"异常描述->{e}", status="error")
