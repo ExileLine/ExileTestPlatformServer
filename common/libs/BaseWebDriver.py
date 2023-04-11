@@ -111,7 +111,7 @@ class BaseWebDriver:
         self.start()
         self.driver.get(self.url)
 
-    def close(self):
+    def close(self, **kwargs):
         """关闭"""
 
         self.end()
