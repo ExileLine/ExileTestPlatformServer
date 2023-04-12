@@ -8,14 +8,13 @@
 import sqlalchemy
 from flask_sqlalchemy.model import DefaultMeta
 
-from common.libs.db import project_db
 from common.libs.set_app_context import set_app_context
 from app.models.test_case.models import TestCase, TestCaseData
 from app.models.test_case_assert.models import TestCaseDataAssBind, TestCaseAssertion
 from app.models.test_project.models import TestProjectVersion, MidVersionCase, MidModuleCase, TestModuleApp
 
 
-def page_size(page=None, size=None, **kwargs):
+def page_size(page=None, size=None, **kwargs) -> (int, int):
     """
 
     :param page: -> int
@@ -134,8 +133,9 @@ def query_case_assemble(case_id):
 
 
 @set_app_context
-def general_query(model, page, size, like_rule="and_", field_list=[], query_list=[], where_dict={}, in_field_list=None,
-                  in_value_list=None, field_order_by=None):
+def general_query(model: type, page: int, size: int, like_rule: str = "and_", field_list: list = [],
+                  query_list: list = [], where_dict: dict = {}, in_field_list: list = None, in_value_list: list = None,
+                  field_order_by: str = None) -> dict:
     """
     通用分页模糊查询
     :param model: -> DefaultMeta
@@ -146,8 +146,8 @@ def general_query(model, page, size, like_rule="and_", field_list=[], query_list
     :param in_field_list: -> list -> in的字段列表 如: ['id','username']
     :param in_value_list: -> list -> in的入参列表 如: ['id','username'] 对应 [[1,2,3],['y1','y2','y3']] => model.id.in_([1, 2, 3])
     :param field_order_by: -> str -> 字段名称
-    :param page: {"page":1,"size":20}
-    :param size: {"page":1,"size":20}
+    :param page: 页数 -> {"page":1,"size":20}
+    :param size: 条数 -> {"page":1,"size":20}
     :return:
 
     """
@@ -210,51 +210,34 @@ def general_query(model, page, size, like_rule="and_", field_list=[], query_list
 
 
 if __name__ == '__main__':
-    def test_query_case():
-        from app.models.test_case.models import TestCase
+    class TestGQ:
+        """测试通用分页模糊查询"""
 
-        where_dict = {
-            "id": 1,
-            "is_deleted": 0
-        }
+        @staticmethod
+        def test_query_where():
+            where_dict = {
+                "id": 1,
+                "is_deleted": 0
+            }
+            result_data = general_query(
+                model=TestCase,
+                field_list=['case_name'],
+                query_list=[''],
+                where_dict=where_dict,
+                page=1,
+                size=10
+            )
+            print(result_data)
 
-        result_data = general_query(
-            model=TestCase,
-            field_list=['case_name'],
-            query_list=[''],
-            where_dict=where_dict,
-            page=1,
-            size=10
-        )
-        print(result_data)
-
-
-    def test_query_variable():
-        from app.models.test_variable.models import TestVariable
-
-        where_dict = {
-            "id": 1,
-            "is_deleted": 0
-        }
-
-        result_data = general_query(
-            model=TestVariable,
-            field_list=['var_name'],
-            query_list=[''],
-            where_dict=where_dict,
-            page=1,
-            size=20
-        )
-        print(result_data)
-
-
-    # test_query_case()
-    # query_case_zip(case_id=14)
-    # query_case_assemble(185)
 
     @set_app_context
     def main_test():
         """test"""
         MapToJsonObj.gen_bind(190)
 
+
     # main_test()
+    # query_case_zip(case_id=14)
+    # query_case_assemble(185)
+
+    TestGQ.test_query_where()
