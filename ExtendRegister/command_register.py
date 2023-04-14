@@ -104,7 +104,7 @@ def register_commands(app):
         """
 
         admin = {
-            'username': 'admin',
+            'username': 'admin1',
             'password': '123456',
             'phone': '15013038819',
             'mail': 'yangyuexiong33@gmail.com',
@@ -382,15 +382,14 @@ def register_commands(app):
         项目初始化
         :return:
         """
+
         project_data_init = ProjectDataInit()
-        project_data_init.create_platform_conf()
         project_data_init.create_admin()
         project_data_init.create_project_version()
         project_data_init.create_module()
         project_data_init.create_case()
         project_data_init.create_case_data()
         project_data_init.create_ass_response()
+        project_data_init.create_db()
         project_data_init.create_ass_field()
         project_data_init.create_case_bind()
-        project_data_init.create_var()
-        project_data_init.create_db()
