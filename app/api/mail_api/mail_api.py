@@ -114,7 +114,7 @@ class MailPageApi(MethodView):
 
         sql = """
         SELECT * 
-        FROM exile_mail_conf  
+        FROM exile5_mail_conf  
         WHERE 
         id = "id" 
         and mail LIKE"%B1%" 

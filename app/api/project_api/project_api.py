@@ -125,7 +125,7 @@ class ProjectPageApi(MethodView):
 
         sql = """
         SELECT * 
-        FROM exile_test_project  
+        FROM exile5_test_project  
         WHERE 
         id = "id" 
         and project_name LIKE"%B1%" 

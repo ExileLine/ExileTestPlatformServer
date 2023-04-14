@@ -272,7 +272,7 @@ class CaseVarPageApi(MethodView):
 
         sql = """
         SELECT * 
-        FROM exile_test_variable  
+        FROM exile5_test_variable  
         WHERE 
         id = "id" 
         and var_name LIKE"%B1%" 

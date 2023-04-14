@@ -321,7 +321,7 @@ class UserPageApi(MethodView):
 
         sql = """
         SELECT * 
-        FROM exile_auth_admin  
+        FROM exile5_auth_admin  
         WHERE 
         id = "id" 
         or username LIKE"%admin%" 

@@ -432,7 +432,7 @@ class APSchedulerTaskPageApi(MethodView):
             FROM_UNIXTIME(B.next_run_time) as next_run_time,
             A.remark
         FROM
-            exile_timed_task A
+            exile5_timed_task A
             LEFT JOIN APSchedulerJobs.apscheduler_jobs B ON A.task_uuid = B.id
         WHERE
             A.project_id = {project_id}
@@ -449,7 +449,7 @@ class APSchedulerTaskPageApi(MethodView):
         SELECT
             COUNT(*)
         FROM
-            exile_timed_task A
+            exile5_timed_task A
             LEFT JOIN APSchedulerJobs.apscheduler_jobs B ON A.task_uuid = B.id
         WHERE
             A.project_id = {project_id}

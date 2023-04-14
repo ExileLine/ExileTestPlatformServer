@@ -42,7 +42,7 @@ def check_variable(before_var):
         return result
 
     for res in result_list:
-        sql = """select var_value from exile_test_variable where var_name='{}';""".format(res)
+        sql = """select var_value from exile5_test_variable where var_name='{}';""".format(res)
         query_result = project_db.select(sql=sql, only=True)
         if query_result:
             query_done_list.append(res)
@@ -283,7 +283,7 @@ class CaseReqDataPageApi(MethodView):
         SELECT
             *
         FROM
-            exile_test_case_data
+            exile5_test_case_data
         WHERE
             is_deleted = 0
             {f'AND data_name LIKE "%{data_name}%"' if data_name else ''}
@@ -297,7 +297,7 @@ class CaseReqDataPageApi(MethodView):
         SELECT
             COUNT(*)
         FROM
-            exile_test_case_data
+            exile5_test_case_data
         WHERE
             is_deleted = 0
             {f'AND data_name LIKE "%{data_name}%"' if data_name else ''}

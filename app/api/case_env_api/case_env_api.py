@@ -121,7 +121,7 @@ class CaseEnvPageApi(MethodView):
 
         sql = """
         SELECT * 
-        FROM exile_test_env  
+        FROM exile5_test_env  
         WHERE 
         id = "id" 
         and env_url LIKE"%%" 

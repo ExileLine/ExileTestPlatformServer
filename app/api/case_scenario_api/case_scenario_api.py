@@ -49,7 +49,7 @@ def query_case_order_by_field(case_id_list):
     :return:
     """
 
-    sql = f"""SELECT * FROM exile_test_case WHERE id in {tuple(case_id_list)} ORDER BY FIELD(id,{','.join(list(map(str, case_id_list)))});"""
+    sql = f"""SELECT * FROM exile5_test_case WHERE id in {tuple(case_id_list)} ORDER BY FIELD(id,{','.join(list(map(str, case_id_list)))});"""
     result = project_db.select(sql)
 
     if len(set(case_id_list)) != len(case_id_list):
@@ -342,13 +342,13 @@ class CaseScenarioPageApi(MethodView):
         SELECT
             *
         FROM
-            exile_test_case_scenario
+            exile5_test_case_scenario
         WHERE
             id in( SELECT DISTINCT
-                    A.id FROM exile_test_case_scenario AS A
-                    INNER JOIN exile_test_mid_project_scenario AS B ON A.id = B.scenario_id
-                    {'INNER JOIN exile_test_mid_version_scenario AS C ON A.id = C.scenario_id' if version_id else ''}
-                    {'INNER JOIN exile_test_mid_module_scenario AS D ON A.id = D.scenario_id' if module_id else ''}
+                    A.id FROM exile5_test_case_scenario AS A
+                    INNER JOIN exile5_test_mid_project_scenario AS B ON A.id = B.scenario_id
+                    {'INNER JOIN exile5_test_mid_version_scenario AS C ON A.id = C.scenario_id' if version_id else ''}
+                    {'INNER JOIN exile5_test_mid_module_scenario AS D ON A.id = D.scenario_id' if module_id else ''}
                 WHERE
                     A.is_deleted = 0
                     AND B.project_id = {project_id}
@@ -367,13 +367,13 @@ class CaseScenarioPageApi(MethodView):
         SELECT
             COUNT(*)
         FROM
-            exile_test_case_scenario
+            exile5_test_case_scenario
         WHERE
             id in( SELECT DISTINCT
-                    A.id FROM exile_test_case_scenario AS A
-                    INNER JOIN exile_test_mid_project_scenario AS B ON A.id = B.scenario_id
-                    {'INNER JOIN exile_test_mid_version_scenario AS C ON A.id = C.scenario_id' if version_id else ''}
-                    {'INNER JOIN exile_test_mid_module_scenario AS D ON A.id = D.scenario_id' if module_id else ''}
+                    A.id FROM exile5_test_case_scenario AS A
+                    INNER JOIN exile5_test_mid_project_scenario AS B ON A.id = B.scenario_id
+                    {'INNER JOIN exile5_test_mid_version_scenario AS C ON A.id = C.scenario_id' if version_id else ''}
+                    {'INNER JOIN exile5_test_mid_module_scenario AS D ON A.id = D.scenario_id' if module_id else ''}
                 WHERE
                     A.is_deleted = 0
                     AND B.project_id = {project_id}

@@ -289,7 +289,7 @@ class ExecuteUiCase:
         回写日志标识
         """
 
-        sql = """UPDATE `ExileTestPlatform5.0`.`exile_test_execute_logs` SET redis_key='{}', report_url='{}', execute_status={}, file_name='{}', update_time='{}', update_timestamp={} WHERE id={};""".format(
+        sql = """UPDATE `ExileTestPlatform5.0`.`exile5_test_execute_logs` SET redis_key='{}', report_url='{}', execute_status={}, file_name='{}', update_time='{}', update_timestamp={} WHERE id={};""".format(
             self.redis_key,
             report_url,
             int(self.execute_status),

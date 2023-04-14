@@ -180,7 +180,7 @@ case_list = [
                                 "db_id": 12,
                                 "assert_list": [
                                     {
-                                        "query": "select id, case_name FROM ExileTestPlatform.exile_test_case WHERE id=1;",
+                                        "query": "select id, case_name FROM ExileTestPlatform.exile5_test_case WHERE id=1;",
                                         "assert_field_list": [
                                             {
                                                 "rule": "==",
@@ -206,7 +206,7 @@ case_list = [
                                 "db_id": 12,
                                 "assert_list": [
                                     {
-                                        "query": "select id, case_name FROM ExileTestPlatform.exile_test_case WHERE id=0;",
+                                        "query": "select id, case_name FROM ExileTestPlatform.exile5_test_case WHERE id=0;",
                                         "assert_field_list": [
                                             {
                                                 "rule": "==",
@@ -447,7 +447,7 @@ case_list = [
                                 "db_id": 12,
                                 "assert_list": [
                                     {
-                                        "query": "select id, case_name FROM ExileTestPlatform.exile_test_case WHERE id=1;",
+                                        "query": "select id, case_name FROM ExileTestPlatform.exile5_test_case WHERE id=1;",
                                         "assert_field_list": [
                                             {
                                                 "rule": "==",
@@ -846,7 +846,7 @@ scenario_list = [
                                         "db_id": 12,
                                         "assert_list": [
                                             {
-                                                "query": "select id, case_name FROM ExileTestPlatform.exile_test_case WHERE id=1;",
+                                                "query": "select id, case_name FROM ExileTestPlatform.exile5_test_case WHERE id=1;",
                                                 "assert_field_list": [
                                                     {
                                                         "rule": "==",
@@ -872,7 +872,7 @@ scenario_list = [
                                         "db_id": 12,
                                         "assert_list": [
                                             {
-                                                "query": "select id, case_name FROM ExileTestPlatform.exile_test_case WHERE id=0;",
+                                                "query": "select id, case_name FROM ExileTestPlatform.exile5_test_case WHERE id=0;",
                                                 "assert_field_list": [
                                                     {
                                                         "rule": "==",
@@ -1118,7 +1118,7 @@ scenario_list = [
                                         "db_id": 12,
                                         "assert_list": [
                                             {
-                                                "query": "select id, case_name FROM ExileTestPlatform.exile_test_case WHERE id=1;",
+                                                "query": "select id, case_name FROM ExileTestPlatform.exile5_test_case WHERE id=1;",
                                                 "assert_field_list": [
                                                     {
                                                         "rule": "==",
@@ -1551,7 +1551,7 @@ test_obj2 = {
                                             "db_id": 12,
                                             "assert_list": [
                                                 {
-                                                    "query": "select id, case_name FROM ExileTestPlatform.exile_test_case WHERE id=1;",
+                                                    "query": "select id, case_name FROM ExileTestPlatform.exile5_test_case WHERE id=1;",
                                                     "assert_field_list": [
                                                         {
                                                             "rule": "==",
@@ -1791,7 +1791,7 @@ test_obj2 = {
                                             "db_id": 12,
                                             "assert_list": [
                                                 {
-                                                    "query": "select id, case_name FROM ExileTestPlatform.exile_test_case WHERE id=1;",
+                                                    "query": "select id, case_name FROM ExileTestPlatform.exile5_test_case WHERE id=1;",
                                                     "assert_field_list": [
                                                         {
                                                             "rule": "==",

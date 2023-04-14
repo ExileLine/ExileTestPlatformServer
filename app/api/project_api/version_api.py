@@ -144,7 +144,7 @@ class ProjectVersionPageApi(MethodView):
 
         sql = """
         SELECT * 
-        FROM exile_test_project_version  
+        FROM exile5_test_project_version  
         WHERE 
         id = "id" 
         and version_name LIKE"%B1%" 

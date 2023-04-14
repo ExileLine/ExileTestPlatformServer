@@ -489,10 +489,10 @@ class UiCasePageApi(MethodView):
         SELECT
             COUNT(*)
         FROM
-            exile_test_case
+            exile5_test_case
         WHERE
             id in( SELECT DISTINCT
-                    A.id FROM exile_test_case AS A
+                    A.id FROM exile5_test_case AS A
                     INNER JOIN exile5_test_mid_project_ui_case AS B ON A.id = B.case_id
                     {'INNER JOIN exile5_test_mid_version_ui_case AS C ON A.id = C.case_id' if version_id else ''}
                     {'INNER JOIN exile5_test_mid_module_ui_case AS D ON A.id = D.case_id' if module_id else ''}

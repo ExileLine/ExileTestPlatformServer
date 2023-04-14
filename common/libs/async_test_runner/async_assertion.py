@@ -631,7 +631,7 @@ class AsyncAssertionField(BaseAsyncAssertion, DBUtil):
 
         for index, ass in enumerate(ass_json):
             db_id = ass.get('db_id')
-            sql = f"""SELECT * FROM exile_test_databases WHERE id={db_id} and is_deleted=0;"""
+            sql = f"""SELECT * FROM exile5_test_databases WHERE id={db_id} and is_deleted=0;"""
             query_db = project_db.select(sql=sql, only=True)
 
             if query_db:  # 检查db配置是否存在或者是否可用

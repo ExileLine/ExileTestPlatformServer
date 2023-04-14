@@ -300,7 +300,7 @@ class FieldAssertionRuleApi(MethodView):
         "ass_json": [
             {
                 "db_id": 1,
-                "query": "select id FROM exile_test_case WHERE id=1;",
+                "query": "select id FROM exile5_test_case WHERE id=1;",
                 "assert_list": [
                     {
                         "assert_key": "id",

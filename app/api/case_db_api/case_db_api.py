@@ -174,7 +174,7 @@ class CaseDBPageApi(MethodView):
 
         sql = """
         SELECT * 
-        FROM exile_test_databases  
+        FROM exile5_test_databases  
         WHERE 
         id = "id" 
         and name LIKE"%yyx%" 

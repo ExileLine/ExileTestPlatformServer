@@ -14,7 +14,7 @@ def test_mysql():
     project_db = MyPyMysql(**MYSQL_CONF, debug=True)  # MySql实例
     print('ping:', project_db.ping())
 
-    sql = "SELECT id, case_name FROM exile_test_case limit 0,6;"
+    sql = "SELECT id, case_name FROM exile5_test_case limit 0,6;"
     result1 = project_db.select(sql, only=True)
     result2 = project_db.select(sql, size=3)
     result3 = project_db.select(sql)
@@ -29,7 +29,7 @@ def test_mysql_pool():
     project_db_pool = MyPyMysql(pool=MYSQL_POOL, is_pool=True, debug=True)  # MySql连接池实例
     print('ping:', project_db_pool.ping())
 
-    sql = "SELECT id, case_name FROM exile_test_case limit 0,6;"
+    sql = "SELECT id, case_name FROM exile5_test_case limit 0,6;"
     result1 = project_db_pool.select(sql, only=True)
     result2 = project_db_pool.select(sql, size=3)
     result3 = project_db_pool.select(sql)

@@ -24,7 +24,7 @@ class CaseLogsPageApi(MethodView):
 
         sql = """
         SELECT * 
-        FROM exile_test_logs  
+        FROM exile5_test_logs  
         WHERE 
         creator_id = 1 
         and is_deleted=0

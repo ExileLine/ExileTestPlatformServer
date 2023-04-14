@@ -225,7 +225,7 @@ class QueryExecuteData:
         """更新用例执行数"""
 
         sql = f"""
-        UPDATE exile_test_case 
+        UPDATE exile5_test_case 
         SET total_execution = total_execution +1 
         WHERE 
         {f'id={case_id_list[-1]}' if len(case_id_list) == 1 else f'id in {tuple(case_id_list)}'}
@@ -287,9 +287,9 @@ class QueryExecuteData:
             B.ass_resp_id_list,
             B.ass_field_id_list
         FROM
-            exile_test_case AS A
-            INNER JOIN exile_ass_bind AS B ON A.id = B.case_id
-            INNER JOIN exile_test_case_data AS C ON B.data_id = C.id
+            exile5_test_case AS A
+            INNER JOIN exile5_ass_bind AS B ON A.id = B.case_id
+            INNER JOIN exile5_test_case_data AS C ON B.data_id = C.id
         WHERE
             A.is_deleted = 0
             AND B.is_deleted = 0

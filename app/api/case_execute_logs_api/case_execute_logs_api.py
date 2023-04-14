@@ -115,7 +115,7 @@ class CaseExecuteLogsPageApi(MethodView):
 
         sql = """
         SELECT * 
-        FROM exile_test_execute_logs  
+        FROM exile5_test_execute_logs  
         WHERE 
         and execute_name LIKE"%B1%" 
         and execute_id = "execute_id" 

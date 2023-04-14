@@ -127,7 +127,7 @@ class DingDingPushConfPageApi(MethodView):
 
         sql = """
         SELECT * 
-        FROM exile_ding_ding_conf  
+        FROM exile5_ding_ding_conf  
         WHERE 
         id = "id" 
         and title LIKE"%B1%" 

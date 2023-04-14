@@ -206,7 +206,7 @@ class ModuleAppPageApi(MethodView):
 
         sql = """
         SELECT * 
-        FROM exile_test_module_app  
+        FROM exile5_test_module_app  
         WHERE 
         id = "id" 
         and module_name LIKE"%%" 

@@ -233,7 +233,7 @@ class AsyncCaseRunner:
 
         sql = f"""
         SELECT id, var_name, var_value, var_type, var_args, is_active 
-        FROM exile_test_variable 
+        FROM exile5_test_variable 
         WHERE {f"var_name in {tuple(var_name_list)}" if len(var_name_list) > 1 else f"var_name='{var_name_list[-1]}'"} 
         AND is_deleted=0 AND project_id={self.project_id};
         """
@@ -359,7 +359,7 @@ class AsyncCaseRunner:
             new_var = json.dumps(update_val_result, ensure_ascii=False)
 
             sql = f"""
-            UPDATE exile_test_variable SET var_value='{new_var}', update_time='{F.gen_datetime()}', update_timestamp={F.gen_timestamp()} WHERE id='{var_id}' and project_id={self.project_id}; """
+            UPDATE exile5_test_variable SET var_value='{new_var}', update_time='{F.gen_datetime()}', update_timestamp={F.gen_timestamp()} WHERE id='{var_id}' and project_id={self.project_id}; """
             self.sio.log(f'=== update variable sql ===\n{sql}', status='success')
             # project_db.update(sql)
             await self.aio_db.execute(sql=sql)
@@ -821,7 +821,7 @@ class AsyncCaseRunner:
         :return:
         """
 
-        sql = """INSERT INTO exile_test_execute_logs (`is_deleted`, `create_time`, `create_timestamp`,  `project_id`, `execute_id`, `execute_name`, `execute_key`, `execute_type`, `redis_key`, `report_url`, `execute_status`, `creator`, `creator_id`, `trigger_type`, `file_name`) VALUES (0,'{}','{}','{}','{}','{}','{}','{}','{}','{}',{},'{}','{}','{}','{}');""".format(
+        sql = """INSERT INTO exile5_test_execute_logs (`is_deleted`, `create_time`, `create_timestamp`,  `project_id`, `execute_id`, `execute_name`, `execute_key`, `execute_type`, `redis_key`, `report_url`, `execute_status`, `creator`, `creator_id`, `trigger_type`, `file_name`) VALUES (0,'{}','{}','{}','{}','{}','{}','{}','{}','{}',{},'{}','{}','{}','{}');""".format(
             F.gen_datetime(),
             int(self.start_time),
             self.project_id,
@@ -860,7 +860,7 @@ class AsyncCaseRunner:
         回写日志标识:替代 save_logs 方法
         """
 
-        sql = """UPDATE `ExileTestPlatform5.0`.`exile_test_execute_logs` SET redis_key='{}', report_url='{}', execute_status={}, file_name='{}', update_time='{}', update_timestamp={} WHERE id={};""".format(
+        sql = """UPDATE `ExileTestPlatform5.0`.`exile5_test_execute_logs` SET redis_key='{}', report_url='{}', execute_status={}, file_name='{}', update_time='{}', update_timestamp={} WHERE id={};""".format(
             self.redis_key,
             report_url,
             int(self.execute_status),

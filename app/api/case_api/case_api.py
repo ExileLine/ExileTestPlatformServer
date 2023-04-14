@@ -328,13 +328,13 @@ class CasePageApi(MethodView):
         SELECT
             *
         FROM
-            exile_test_case
+            exile5_test_case
         WHERE
             id in( SELECT DISTINCT
-                    A.id FROM exile_test_case AS A
-                    INNER JOIN exile_test_mid_project_case AS B ON A.id = B.case_id
-                    {'INNER JOIN exile_test_mid_version_case AS C ON A.id = C.case_id' if version_id else ''}
-                    {'INNER JOIN exile_test_mid_module_case AS D ON A.id = D.case_id' if module_id else ''}
+                    A.id FROM exile5_test_case AS A
+                    INNER JOIN exile5_test_mid_project_case AS B ON A.id = B.case_id
+                    {'INNER JOIN exile5_test_mid_version_case AS C ON A.id = C.case_id' if version_id else ''}
+                    {'INNER JOIN exile5_test_mid_module_case AS D ON A.id = D.case_id' if module_id else ''}
                 WHERE
                     A.is_deleted = 0
                     AND B.project_id = {project_id}
@@ -356,13 +356,13 @@ class CasePageApi(MethodView):
         SELECT
             COUNT(*)
         FROM
-            exile_test_case
+            exile5_test_case
         WHERE
             id in( SELECT DISTINCT
-                    A.id FROM exile_test_case AS A
-                    INNER JOIN exile_test_mid_project_case AS B ON A.id = B.case_id
-                    {'INNER JOIN exile_test_mid_version_case AS C ON A.id = C.case_id' if version_id else ''}
-                    {'INNER JOIN exile_test_mid_module_case AS D ON A.id = D.case_id' if module_id else ''}
+                    A.id FROM exile5_test_case AS A
+                    INNER JOIN exile5_test_mid_project_case AS B ON A.id = B.case_id
+                    {'INNER JOIN exile5_test_mid_version_case AS C ON A.id = C.case_id' if version_id else ''}
+                    {'INNER JOIN exile5_test_mid_module_case AS D ON A.id = D.case_id' if module_id else ''}
                 WHERE
                     A.is_deleted = 0
                     AND B.project_id = {project_id}
