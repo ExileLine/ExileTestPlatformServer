@@ -10,7 +10,7 @@ from common.libs.BaseModel import *
 
 
 class MailConfModel(BaseModel):
-    __tablename__ = 'exile_mail_conf'
+    __tablename__ = 'exile5_mail_conf'
     __table_args__ = {'comment': '邮件推送配置表'}
 
     mail = db.Column(db.String(255), comment='邮箱')
@@ -28,7 +28,7 @@ class MailConfModel(BaseModel):
 
 
 class DingDingConfModel(BaseModel):
-    __tablename__ = 'exile_ding_ding_conf'
+    __tablename__ = 'exile5_ding_ding_conf'
     __table_args__ = {'comment': '钉钉推送配置表'}
 
     title = db.Column(db.String(1024), comment='标题描述(机器人名称)')

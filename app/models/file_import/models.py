@@ -9,7 +9,7 @@ from common.libs.BaseModel import *
 
 
 class FileImportHistory(BaseModel):
-    __tablename__ = 'exile_file_import_history'
+    __tablename__ = 'exile5_file_import_history'
     __table_args__ = {'comment': '接口导入记录表'}
 
     file_name = db.Column(db.String(255), nullable=False, comment='文件名称')

@@ -10,7 +10,7 @@ from common.libs.BaseModel import *
 
 
 class TestExecuteLogs(BaseModel):
-    __tablename__ = 'exile_test_execute_logs'
+    __tablename__ = 'exile5_test_execute_logs'
     __table_args__ = {'comment': '用例执行记录表'}
 
     project_id = db.Column(BIGINT(20, unsigned=True), comment='项目id')
@@ -32,7 +32,7 @@ class TestExecuteLogs(BaseModel):
 
 
 class TestLogs(BaseModel):
-    __tablename__ = 'exile_test_logs'
+    __tablename__ = 'exile5_test_logs'
     __table_args__ = {'comment': '日志记录表'}
 
     log_type = db.Column(db.String(255), nullable=False, comment='类型')

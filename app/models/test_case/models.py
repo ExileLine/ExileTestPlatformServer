@@ -10,7 +10,7 @@ from common.libs.BaseModel import *
 
 
 class TestCase(BaseModel):
-    __tablename__ = 'exile_test_case'
+    __tablename__ = 'exile5_test_case'
     __table_args__ = {'comment': '测试用例'}
 
     hidden_fields = ["_is_public", "_is_shared", "is_copy"]
@@ -64,7 +64,7 @@ class TestCase(BaseModel):
 
 
 class TestCaseData(BaseModel):
-    __tablename__ = 'exile_test_case_data'
+    __tablename__ = 'exile5_test_case_data'
     __table_args__ = {'comment': '测试用例参数'}
 
     hidden_fields = ["_is_public", "_is_before", "_is_after"]

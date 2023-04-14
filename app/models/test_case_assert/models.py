@@ -84,7 +84,7 @@ class TestCaseAssertion(BaseModel):
 
 
 class TestCaseDataAssBind(BaseModel):
-    __tablename__ = 'exile_ass_bind'
+    __tablename__ = 'exile5_ass_bind'
     __table_args__ = (
         db.Index('idx_case_data', 'case_id', 'data_id', 'is_deleted'),
         {'comment': '用例断言关系绑定'}

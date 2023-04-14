@@ -9,7 +9,7 @@ from common.libs.BaseModel import *
 
 
 class TimedTaskModel(BaseModel):
-    __tablename__ = 'exile_timed_task'
+    __tablename__ = 'exile5_timed_task'
     __table_args__ = {'comment': '定时任务'}
 
     project_id = db.Column(BIGINT(20, unsigned=True), comment='项目id')

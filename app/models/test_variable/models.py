@@ -10,7 +10,7 @@ from common.libs.BaseModel import *
 
 
 class TestVariable(BaseModel):
-    __tablename__ = 'exile_test_variable'
+    __tablename__ = 'exile5_test_variable'
     __table_args__ = {'comment': '测试用例变量'}
 
     hidden_fields = ["_is_source", "_is_expression", "_is_public", "_is_active"]
@@ -86,7 +86,7 @@ class TestVariable(BaseModel):
 
 
 class TestVariableHistory(BaseModel):
-    __tablename__ = 'exile_test_variable_history'
+    __tablename__ = 'exile5_test_variable_history'
     __table_args__ = {'comment': '测试用例变量更新历史'}
 
     var_id = db.Column(BIGINT(20, unsigned=True), comment='变量id')

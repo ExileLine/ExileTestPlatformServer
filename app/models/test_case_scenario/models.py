@@ -10,7 +10,7 @@ from common.libs.BaseModel import *
 
 
 class TestCaseScenario(BaseModel):
-    __tablename__ = 'exile_test_case_scenario'
+    __tablename__ = 'exile5_test_case_scenario'
     __table_args__ = {'comment': '测试用例场景'}
 
     hidden_fields = ["_is_public", "_is_shared"]

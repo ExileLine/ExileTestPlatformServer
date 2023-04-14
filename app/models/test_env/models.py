@@ -10,7 +10,7 @@ from common.libs.BaseModel import *
 
 
 class TestEnv(BaseModel):
-    __tablename__ = 'exile_test_env'
+    __tablename__ = 'exile5_test_env'
     __table_args__ = {'comment': '测试环境'}
 
     project_id = db.Column(BIGINT(20, unsigned=True), comment='项目id')

@@ -11,7 +11,7 @@ from common.libs.BaseModel import *
 
 
 class Admin(BaseModel):
-    __tablename__ = 'exile_auth_admin'
+    __tablename__ = 'exile5_auth_admin'
     __table_args__ = {'comment': '后台用户表'}
     hidden_fields = ['_password']
 
@@ -52,7 +52,7 @@ class Admin(BaseModel):
 
 
 class Role(BaseModel):
-    __tablename__ = 'exile_auth_role'
+    __tablename__ = 'exile5_auth_role'
     __table_args__ = {'comment': '后台角色表'}
     name = db.Column(db.String(50), nullable=False, comment='角色名称')
     creator = db.Column(db.String(32), comment='创建人')
@@ -66,7 +66,7 @@ class Role(BaseModel):
 
 
 class Permission(BaseModel):
-    __tablename__ = 'exile_auth_permission'
+    __tablename__ = 'exile5_auth_permission'
     __table_args__ = {'comment': '后台权限表'}
     name = db.Column(db.String(50), nullable=False, comment='权限名称')
     resource_id = db.Column(BIGINT(20, unsigned=True), comment='ServerApi或WebRoute对应ec_crm_resource表')
@@ -89,7 +89,7 @@ class Permission(BaseModel):
 
 
 class MidAdminAndRole(BaseModel):
-    __tablename__ = 'exile_auth_mid_admin_role'
+    __tablename__ = 'exile5_auth_mid_admin_role'
     __table_args__ = (
         db.Index('idx_admin_role', 'admin_id', 'role_id', 'is_deleted'),
         {'comment': '用户角色中间表'}
@@ -106,7 +106,7 @@ class MidAdminAndRole(BaseModel):
 
 
 class MidPermissionAndRole(BaseModel):
-    __tablename__ = 'exile_auth_mid_permission_role'
+    __tablename__ = 'exile5_auth_mid_permission_role'
     __table_args__ = (
         db.Index('idx_role_permission', 'role_id', 'permission_id', 'is_deleted'),
         {'comment': '权限角色中间表'}
@@ -123,7 +123,7 @@ class MidPermissionAndRole(BaseModel):
 
 
 class ApiResource(BaseModel):
-    __tablename__ = 'exile_auth_api_resource'
+    __tablename__ = 'exile5_auth_api_resource'
     __table_args__ = {'comment': 'Api资源表'}
     name = db.Column(db.String(64), nullable=False, comment='Api名称')
     url = db.Column(db.String(128), comment='接口地址')
@@ -141,7 +141,7 @@ class ApiResource(BaseModel):
 
 
 class RouteResource(BaseModel):
-    __tablename__ = 'exile_auth_route_resource'
+    __tablename__ = 'exile5_auth_route_resource'
     __table_args__ = {'comment': 'Route资源表'}
     name = db.Column(db.String(50), nullable=False, comment='资源名称')
     code = db.Column(db.String(64), comment='路由编码')

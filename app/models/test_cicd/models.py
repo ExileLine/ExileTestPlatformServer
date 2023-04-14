@@ -10,7 +10,7 @@ from common.libs.BaseModel import *
 
 
 class TestCiCdMap(BaseModel):
-    __tablename__ = 'exile_cicd_map'
+    __tablename__ = 'exile5_cicd_map'
     __table_args__ = {'comment': 'CICD映射表'}
     project_id = db.Column(BIGINT(20, unsigned=True), comment='平台项目id')
     project_name = db.Column(db.String(255), comment='项目名')

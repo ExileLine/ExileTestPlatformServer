@@ -10,7 +10,7 @@ from common.libs.BaseModel import *
 
 
 class TestProject(BaseModel):
-    __tablename__ = 'exile_test_project'
+    __tablename__ = 'exile5_test_project'
     __table_args__ = {'comment': '项目表'}
 
     project_name = db.Column(db.String(128), nullable=False, unique=True, comment='项目名称')
@@ -27,7 +27,7 @@ class TestProject(BaseModel):
 
 
 class TestProjectVersion(BaseModel):
-    __tablename__ = 'exile_test_project_version'
+    __tablename__ = 'exile5_test_project_version'
     __table_args__ = {'comment': '项目版本迭代表'}
 
     version_name = db.Column(db.String(128), nullable=False, comment='版本名称')
@@ -45,7 +45,7 @@ class TestProjectVersion(BaseModel):
 
 
 class TestVersionTask(BaseModel):
-    __tablename__ = 'exile_test_version_task'
+    __tablename__ = 'exile5_test_version_task'
     __table_args__ = {'comment': '版本迭代任务表'}
 
     version_id = db.Column(BIGINT(20, unsigned=True), comment='版本迭代id(冗余字段)')
@@ -63,7 +63,7 @@ class TestVersionTask(BaseModel):
 
 
 class TestModuleApp(BaseModel):
-    __tablename__ = 'exile_test_module_app'
+    __tablename__ = 'exile5_test_module_app'
     __table_args__ = {'comment': '功能模块与应用'}
 
     project_id = db.Column(BIGINT(20, unsigned=True), comment='项目id')
@@ -86,7 +86,7 @@ class TestModuleApp(BaseModel):
 
 
 class MidProjectAndCase(BaseModel):
-    __tablename__ = 'exile_test_mid_project_case'
+    __tablename__ = 'exile5_test_mid_project_case'
     __table_args__ = (
         db.Index('idx_project_case', 'project_id', 'case_id'),
         {'comment': '项目-用例中间表'}
@@ -106,7 +106,7 @@ class MidProjectAndCase(BaseModel):
 
 
 class MidVersionCase(BaseModel):
-    __tablename__ = 'exile_test_mid_version_case'
+    __tablename__ = 'exile5_test_mid_version_case'
     __table_args__ = (
         db.Index('idx_version_case', 'version_id', 'case_id'),
         {'comment': '版本迭代-用例中间表'}
@@ -126,7 +126,7 @@ class MidVersionCase(BaseModel):
 
 
 class MidTaskCase(BaseModel):
-    __tablename__ = 'exile_test_mid_task_case'
+    __tablename__ = 'exile5_test_mid_task_case'
     __table_args__ = (
         db.Index('idx_task_case', 'task_id', 'case_id'),
         {'comment': '任务-用例中间表'}
@@ -146,7 +146,7 @@ class MidTaskCase(BaseModel):
 
 
 class MidModuleCase(BaseModel):
-    __tablename__ = 'exile_test_mid_module_case'
+    __tablename__ = 'exile5_test_mid_module_case'
     __table_args__ = (
         db.Index('idx_module_case', 'module_id', 'case_id'),
         {'comment': '模块-用例中间表'}
@@ -166,7 +166,7 @@ class MidModuleCase(BaseModel):
 
 
 class MidProjectScenario(BaseModel):
-    __tablename__ = 'exile_test_mid_project_scenario'
+    __tablename__ = 'exile5_test_mid_project_scenario'
     __table_args__ = (
         db.Index('idx_project_scenario', 'project_id', 'scenario_id'),
         {'comment': '项目-场景中间表'}
@@ -186,7 +186,7 @@ class MidProjectScenario(BaseModel):
 
 
 class MidVersionScenario(BaseModel):
-    __tablename__ = 'exile_test_mid_version_scenario'
+    __tablename__ = 'exile5_test_mid_version_scenario'
     __table_args__ = (
         db.Index('idx_version_scenario', 'version_id', 'scenario_id'),
         {'comment': '版本迭代-场景中间表'}
@@ -206,7 +206,7 @@ class MidVersionScenario(BaseModel):
 
 
 class MidTaskScenario(BaseModel):
-    __tablename__ = 'exile_test_mid_task_scenario'
+    __tablename__ = 'exile5_test_mid_task_scenario'
     __table_args__ = (
         db.Index('idx_task_scenario', 'task_id', 'scenario_id'),
         {'comment': '任务-用例中间表'}
@@ -226,7 +226,7 @@ class MidTaskScenario(BaseModel):
 
 
 class MidModuleScenario(BaseModel):
-    __tablename__ = 'exile_test_mid_module_scenario'
+    __tablename__ = 'exile5_test_mid_module_scenario'
     __table_args__ = (
         db.Index('idx_module_scenario', 'module_id', 'scenario_id'),
         {'comment': '模块-用例中间表'}

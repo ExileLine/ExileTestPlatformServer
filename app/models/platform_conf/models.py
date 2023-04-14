@@ -9,7 +9,7 @@ from common.libs.BaseModel import *
 
 
 class PlatformConfModel(BaseModel):
-    __tablename__ = 'exile_platform_conf'
+    __tablename__ = 'exile5_platform_conf'
     __table_args__ = {'comment': '平台配置表'}
 
     platform_conf_uuid = db.Column(db.String(1024), comment='UUID')
