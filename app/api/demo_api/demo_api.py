@@ -30,12 +30,21 @@ class TestApi(MethodView):
         return api_result(code=200, message='GET: test api', data=data)
 
     def post(self):
+        """test post"""
+
         data = request.get_json()
         print(data)
         return api_result(code=200, message='POST: test api', data=True)
 
+    def put(self):
+        """test put"""
+
+        data = request.get_json()
+        return api_result(code=203, message='PUT: test api', data=True)
+
     def delete(self):
-        """1"""
+        """test delete"""
+
         data = request.get_json()
         p1 = request.args.get('p1')
         p2 = request.args.get('p2')
