@@ -83,7 +83,7 @@ Respect ! ! !
 
 ### 数据库表设计
 
-- [SQL文件：ExileTestPlatform.sql](./docs/SQL/ExileTestPlatform.sql)
+- [SQL文件：ExileTestPlatform5.0.sql](./docs/SQL/ExileTestPlatform5.0.sql)
 
 - 数据库表设计总览
   ![数据库表设计总览](docs/ER图/总览.png)
