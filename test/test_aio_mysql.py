@@ -14,7 +14,7 @@ async def test_query():
     """测试直连查询"""
 
     db = MyAioMySQL(conf_dict=MYSQL_CONF, debug=True)
-    sql = "SELECT id, case_name FROM exile_test_case limit 0,6;"
+    sql = "SELECT id, case_name FROM exile5_test_case limit 0,6;"
 
     result1 = await db.query(sql, only=True)
     print(result1, type(result1))
@@ -31,7 +31,7 @@ async def test_pool_query():
     """测试连接池查询"""
 
     db = MyAioMySQL(conf_dict=MYSQL_CONF, debug=True)
-    sql = "SELECT id, case_name FROM exile_test_case limit 0,6;"
+    sql = "SELECT id, case_name FROM exile5_test_case limit 0,6;"
 
     result1 = await db.pool_query(sql, only=True)
     print(result1, type(result1))
@@ -47,8 +47,8 @@ async def test_pool_query():
 if __name__ == '__main__':
     db = MyAioMySQL(conf_dict=MYSQL_CONF, debug=True)
     print(db.conf_dict)
-    sql = "SELECT id, case_name FROM exile_test_case limit 0,6;"
-    update_sql = """UPDATE exile_test_case SET request_method = 'GET123' WHERE id = '1';"""
+    sql = "SELECT id, case_name FROM exile5_test_case limit 0,6;"
+    update_sql = """UPDATE exile5_test_case SET request_method = 'GET123' WHERE id = '1';"""
 
     print('\n=== 直接调用 ===')
     result1 = asyncio.run(db.query(sql, only=True))
