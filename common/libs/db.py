@@ -70,6 +70,8 @@ def result_format(data):
                 data[key] = float(decimal.Decimal(val).quantize(decimal.Decimal("0.000")))
             elif isinstance(val, datetime):
                 data[key] = str(val)
+            elif isinstance(val, bytes):
+                data[key] = val.decode('utf-8')
             elif isinstance(val, str):
                 try:
                     new_val = json.loads(val)
