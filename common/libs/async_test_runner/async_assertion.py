@@ -504,7 +504,7 @@ class AsyncAssertionField(BaseAsyncAssertion, DBUtil):
         return assert_result
 
     async def ass_list_consume(self):
-        """1"""
+        """查询结果集:[{},{}...]"""
 
     async def main_assert(self, assert_description, ass, db_result, db_type):
         """
@@ -551,7 +551,7 @@ class AsyncAssertionField(BaseAsyncAssertion, DBUtil):
             py_func = value_type_dict.get(str(expect_val_type))  # 反射原生方法
             assert_field_obj['expect_val'] = py_func(expect_val)  # 期望值强转类型重新赋值: 如 int(1)
 
-            if db_type in ('mysql', 'postgresql', 'sqlserver'):  # TODO 暂时支持唯一数据检验
+            if db_type in ('mysql', 'postgresql', 'sqlserver'):  # TODO 暂时支持唯一数据检验 即:limit 1
                 qr = query_result
                 if qr and isinstance(qr, list):
                     sql_query_result = qr[0]
@@ -587,8 +587,10 @@ class AsyncAssertionField(BaseAsyncAssertion, DBUtil):
             else:
                 await self.data_logs.add_logs(
                     key="field_assert",
-                    val=f"=== 暂未支持数据库:{db_type} ==="
+                    val=f"=== 暂未支持数据库:{db_type} ===",
+                    flag=False
                 )
+                self.count['fail'] += 1
 
     async def ping_db_connection(self, db_id, assert_description, name, db_type, db_connection):
         """
@@ -604,10 +606,11 @@ class AsyncAssertionField(BaseAsyncAssertion, DBUtil):
         db_obj = self.db_dict.get(db_type.lower())
 
         if not db_obj:
-            error_message = f"=== 数据断言:{assert_description} 使用ID为 {db_id} 的数据库数据类型: {db_type} 暂不支持 ==="
+            error_message = f"=== 未找到 数据断言:{assert_description} 使用ID为: {db_id} 的数据库数据类型: {db_type} ==="
             await self.data_logs.add_logs(
                 key="field_assert",
-                val=error_message
+                val=error_message,
+                flag=False
             )
             self.sio.log(error_message, status='error')
             return False
@@ -618,7 +621,8 @@ class AsyncAssertionField(BaseAsyncAssertion, DBUtil):
                 error_message = f"=== 数据断言:{assert_description} 数据库: {db_id}-{name} 连接失败 ==="
                 await self.data_logs.add_logs(
                     key="field_assert",
-                    val=error_message
+                    val=error_message,
+                    flag=False
                 )
                 self.sio.log(f'{error_message},{e}', status='error')
                 return False
@@ -651,12 +655,15 @@ class AsyncAssertionField(BaseAsyncAssertion, DBUtil):
                             db_type=db_type
                         ) for ass in assert_list
                     ]
+                else:  # ping_result:为`False`时已经设置`flag`=`False`
+                    self.count['fail'] += 1
 
             else:
-                error_message = f"=== 数据断言:{assert_description} 使用ID为 {db_id} 的数据库不存在或禁用 ==="
+                error_message = f"=== 数据断言:{assert_description} 使用ID为: {db_id} 的数据库不存在或禁用 ==="
                 await self.data_logs.add_logs(
                     key="field_assert",
-                    val=error_message
+                    val=error_message,
+                    flag=False
                 )
                 self.sio.log(error_message, status='error')
                 self.count['fail'] += 1
