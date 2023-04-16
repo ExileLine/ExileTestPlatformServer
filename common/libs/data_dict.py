@@ -363,7 +363,8 @@ class UiControlDict:
         {
             "title": "关闭(quit)",
             "type": "ui_control",
-            "function": "close"
+            "function": "close",
+            "args": {},
         },
         {
             "title": "输入(input)",
