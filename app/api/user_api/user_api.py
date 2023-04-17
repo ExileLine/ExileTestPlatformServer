@@ -63,6 +63,7 @@ class TouristApi(MethodView):
             password=password,
             phone=None,
             mail=None,
+            is_tourist=0,
             creator='shell',
             creator_id=0,
             remark='游客')

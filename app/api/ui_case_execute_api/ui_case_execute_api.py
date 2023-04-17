@@ -15,6 +15,28 @@ from app.models.push_reminder.models import DingDingConfModel, MailConfModel
 from app.api.case_execute_api.case_execute_api import create_execute_logs
 
 
+def limit_execution():
+    """
+    限制游客用户执行
+    :return:
+    """
+
+    user_id = g.app_user.id
+    username = g.app_user.username
+    is_tourist = g.app_user.is_tourist
+    print("is_tourist", is_tourist)
+    if not is_tourist:
+        print('=== 限制游客用户执行 ===')
+        key = f'ui_limit_execution_{user_id}_{username}'
+        if R.get(key):
+            return False
+        else:
+            R.set(key, '占用')
+            return True
+    else:
+        return True
+
+
 class UiCaseExecuteQuery:
     """执行数据查询组装"""
 
@@ -109,6 +131,9 @@ class UiCaseExecuteApi(MethodView):
         mail_send_all = data.get('mail_send_all', False)
         mail_list = data.get('mail_list', [])
 
+        if not limit_execution():
+            return api_result(code=BUSINESS_ERROR, message='游客用户最多同时执行 1 条UI用例，请稍后再试！')
+
         if use_client:  # TODO PC端执行
             print(client)
             return api_result(code=SUCCESS, message='调用PC端成功', data=client)
@@ -145,6 +170,7 @@ class UiCaseExecuteApi(MethodView):
             "execute_label": execute_label,
             "execute_user_id": g.app_user.id,
             "execute_username": g.app_user.username,
+            "execute_is_tourist": g.app_user.is_tourist,
             "ui_case_list": ui_case_list,
             "use_dd_push": use_dd_push,
             "dd_push_id": dd_push_id,

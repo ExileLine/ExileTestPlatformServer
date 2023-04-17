@@ -241,8 +241,9 @@ class ExecuteUiCase:
         self.execute_id = test_obj.get('execute_id')  # 执行名称(用例id,场景id,任务id,模块id...)
         self.execute_name = test_obj.get('execute_name')  # 执行名称(用例名,场景名,任务名,模块名...)
         self.execute_type = test_obj.get('execute_type')  # 执行类型(ui_case,scenario,task,module...)
-        self.execute_username = test_obj.get('execute_username')
-        self.execute_user_id = test_obj.get('execute_user_id')
+        self.execute_user_id = test_obj.get('execute_user_id')  # 用户id
+        self.execute_username = test_obj.get('execute_username')  # 用户名
+        self.execute_is_tourist = test_obj.get('execute_is_tourist')  # 用户是否为游客的标识
         self.trigger_type = test_obj.get('trigger_type')  # 触发执行类型(user_execute,timed_execute...)
         self.execute_logs_id = test_obj.get('execute_logs_id')  # 执行日志id用于执行完毕后回写redis_key等数据
         self.ui_case_list = test_obj.get('ui_case_list')
@@ -332,4 +333,8 @@ class ExecuteUiCase:
         self.gen_logs()
         self.write_back_logs()
 
+        if not self.execute_is_tourist:
+            key = f'ui_limit_execution_{self.execute_user_id}_{self.execute_username}'
+            R.delete(key)
+            print(f"释放游客占用:{key}")
         return 'ok'

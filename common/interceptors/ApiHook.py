@@ -44,7 +44,7 @@ def api_before_request():
             print(request.path)
             user = Admin.query.get(1)
             if not user:
-                g.app_user = type('A', (object,), {"id": 1, "username": "admin"})
+                g.app_user = type('A', (object,), {"id": 1, "username": "admin", "is_tourist": 1})
             else:
                 g.app_user = user
 
