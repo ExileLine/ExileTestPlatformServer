@@ -26,6 +26,7 @@ class Admin(BaseModel):
     position = db.Column(db.String(64), comment='职位')
     superior = db.Column(db.String(64), comment='上级')
     login_type = db.Column(db.String(32), default='single', comment='登录类型:single;many')
+    is_tourist = db.Column(TINYINT(1, unsigned=True), default=1, comment='0-游客账户;1-非游客账户')
     creator = db.Column(db.String(32), comment='创建人')
     creator_id = db.Column(BIGINT(20, unsigned=True), comment='创建人id')
     modifier = db.Column(db.String(32), comment='更新人')
