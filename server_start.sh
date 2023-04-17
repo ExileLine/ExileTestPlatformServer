@@ -14,7 +14,7 @@ docker build -t 'exile_platform' .
 echo "build success"
 
 # -v 宿主机目录 容器目录
-docker run -v /srv/test_reports:/srv/test_reports -d --network host --name exile_platform exile_platform
+docker run -v /srv/project_static:/srv/project_static -d --network host --name exile_platform exile_platform
 # docker run -d --network host --name exile_platform exile_platform
 # docker run -d -p 5000:5000 --name exile_platform exile_platform
 echo "run success"
