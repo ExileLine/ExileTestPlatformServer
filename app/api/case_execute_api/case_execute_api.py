@@ -517,8 +517,10 @@ class ExecuteQuery:
             "bind_info": bind_info
         }
 
-        if not case_info.get('is_shared'):
-            self.error_message = '执行失败,该用例是私有的,仅创建者执行!'
+        is_shared = case_info.get('is_shared')
+        creator_id = case_info.get('creator_id')
+        if not is_shared and creator_id != g.app_user.id:
+            self.error_message = f'执行失败,该用例是私有的,仅创建者执行!'
             return None
 
         self.case_list = [result]
@@ -532,7 +534,9 @@ class ExecuteQuery:
             self.error_message = f'场景id:{scenario_id}不存在'
             return None
 
-        if not query_scenario.is_shared:
+        is_shared = query_scenario.is_shared
+        creator_id = query_scenario.creator_id
+        if not is_shared and creator_id != g.app_user.id:
             self.error_message = f'执行失败,场景: {query_scenario.scenario_title} 是私有的,仅创建者执行!'
             return None
 
