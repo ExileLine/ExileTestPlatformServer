@@ -110,7 +110,6 @@ class ProjectDataInit:
                 request_method=random.choice(request_method),
                 request_base_url="http://0.0.0.0:7878",
                 request_url='/api/test',
-                is_shared=True,
                 is_public=True,
                 remark="脚本生成:{}".format(index),
                 creator="脚本生成:{}".format(index),

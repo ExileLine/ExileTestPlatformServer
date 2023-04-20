@@ -232,16 +232,13 @@ class RespAssertionRuleApi(MethodView):
         remark = data.get('remark')
 
         query_ass_resp = TestCaseAssertion.query.get(ass_resp_id)
+        query_is_public = bool(query_ass_resp.is_public)
 
         if not query_ass_resp:
             return api_result(code=NO_DATA, message='断言规则不存在')
 
-        if not bool(is_public) and query_ass_resp.creator_id != g.app_user.id:
-            return api_result(code=BUSINESS_ERROR, message='非创建人，无法修改使用状态')
-
-        if not bool(query_ass_resp.is_public):
-            if query_ass_resp.creator_id != g.app_user.id:
-                return api_result(code=BUSINESS_ERROR, message='该断言规则未开放,只能被创建人修改!')
+        if not query_is_public and query_ass_resp.creator_id != g.app_user.id:
+            return api_result(code=NOT_CREATOR_ERROR, message=NOT_CREATOR_ERROR_MESSAGE)
 
         for ass in ass_json:
             check_bool = check_keys(
@@ -400,16 +397,13 @@ class FieldAssertionRuleApi(MethodView):
         remark = data.get('remark')
 
         query_ass_field = TestCaseAssertion.query.get(ass_field_id)
+        query_is_public = bool(query_ass_field.is_public)
 
         if not query_ass_field:
             return api_result(code=NO_DATA, message='字段断言规则不存在')
 
-        if not bool(is_public) and query_ass_field.creator_id != g.app_user.id:
-            return api_result(code=BUSINESS_ERROR, message='非创建人，无法修改使用状态')
-
-        if not query_ass_field.is_public:
-            if query_ass_field.creator_id != g.app_user.id:
-                return api_result(code=BUSINESS_ERROR, message='该字段断言规则未开放,只能被创建人修改!')
+        if not query_is_public and query_ass_field.creator_id != g.app_user.id:
+            return api_result(code=NOT_CREATOR_ERROR, message=NOT_CREATOR_ERROR_MESSAGE)
 
         for ass_obj in ass_json:
 

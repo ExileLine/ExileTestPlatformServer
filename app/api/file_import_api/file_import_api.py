@@ -133,7 +133,6 @@ class PostManFileImport:
                         request_method=request_method,
                         request_base_url=request_base_url,
                         request_url=request_url,
-                        is_shared=1,
                         is_public=1,
                         remark=f'导入{index}',
                         creator=g.app_user.username,

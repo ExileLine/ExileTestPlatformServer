@@ -34,7 +34,6 @@ case_list = [
             "creator": "admin",
             "creator_id": 1,
             "is_public": True,
-            "is_shared": True
         },
         "bind_info": [
             {
@@ -313,7 +312,6 @@ case_list = [
             "creator": "admin",
             "creator_id": 1,
             "is_public": True,
-            "is_shared": True
         },
         "bind_info": [
             {
@@ -530,7 +528,6 @@ scenario_list = [
                     "request_method": "POST",
                     "request_base_url": "/api/123",
                     "request_url": "/api/123",
-                    "is_shared": 1,
                     "is_public": 1,
                     "total_execution": 0,
                     "creator": "admin",
@@ -700,7 +697,6 @@ scenario_list = [
                     "creator": "admin",
                     "creator_id": 1,
                     "is_public": True,
-                    "is_shared": True
                 },
                 "bind_info": [
                     {
@@ -984,7 +980,6 @@ scenario_list = [
                     "creator": "admin",
                     "creator_id": 1,
                     "is_public": True,
-                    "is_shared": True
                 },
                 "bind_info": [
                     {
@@ -1243,7 +1238,6 @@ test_obj2 = {
                         "request_method": "POST",
                         "request_base_url": "/api/123",
                         "request_url": "/api/123",
-                        "is_shared": 1,
                         "is_public": 1,
                         "total_execution": 0,
                         "creator": "admin",
@@ -1399,7 +1393,6 @@ test_obj2 = {
                         "request_method": "POST",
                         "request_base_url": "http://0.0.0.0:7878",
                         "request_url": "${重构url}",
-                        "is_shared": 1,
                         "is_public": 1,
                         "total_execution": 0,
                         "creator": "admin",
@@ -1639,7 +1632,6 @@ test_obj2 = {
                         "request_method": "POST",
                         "request_base_url": "http://0.0.0.0:7878",
                         "request_url": "${重构url}",
-                        "is_shared": 1,
                         "is_public": 1,
                         "total_execution": 0,
                         "creator": "admin",

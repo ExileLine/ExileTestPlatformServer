@@ -198,15 +198,13 @@ class CaseReqDataApi(MethodView):
         update_var_list = data.get('update_var_list', [])
 
         query_test_case_data = TestCaseData.query.get(req_data_id)
+        query_is_public = bool(query_test_case_data.is_public)
+
         if not query_test_case_data:
             return api_result(code=NO_DATA, message=f'参数不存在:{req_data_id}')
 
-        if not bool(is_public) and query_test_case_data.creator_id != g.app_user.id:
-            return api_result(code=BUSINESS_ERROR, message='非创建人，无法修改使用状态')
-
-        if not bool(query_test_case_data.is_public):
-            if query_test_case_data.creator_id != g.app_user.id:
-                return api_result(code=BUSINESS_ERROR, message='该参数未开放,只能被创建人修改!')
+        if not query_is_public and query_test_case_data.creator_id != g.app_user.id:
+            return api_result(code=NOT_CREATOR_ERROR, message=NOT_CREATOR_ERROR_MESSAGE)
 
         data_name = data.get('data_name')
         if query_test_case_data.data_name != data_name:

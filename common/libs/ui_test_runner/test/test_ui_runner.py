@@ -31,7 +31,6 @@ test_obj = {
             "id": 6,
             "is_deleted": 0,
             "is_public": True,
-            "is_shared": True,
             "meta_data": md,
             "modifier": None,
             "modifier_id": None,

@@ -52,7 +52,6 @@ class GenExecuteData:
                 "request_method": "",
                 "request_base_url": "",
                 "request_url": "",
-                "is_shared": "",
                 "is_public": "",
                 "total_execution": "",
                 "creator": "",
@@ -249,7 +248,6 @@ class QueryExecuteData:
             A.request_method,
             A.request_base_url,
             A.request_url,
-            A.is_shared,
             A.is_public,
             A.total_execution,
             A.creator,
@@ -517,9 +515,9 @@ class ExecuteQuery:
             "bind_info": bind_info
         }
 
-        is_shared = case_info.get('is_shared')
+        is_public = case_info.get('is_public')
         creator_id = case_info.get('creator_id')
-        if not is_shared and creator_id != g.app_user.id:
+        if not is_public and creator_id != g.app_user.id:
             self.error_message = f'执行失败,该用例是私有的,仅创建者执行!'
             return None
 
@@ -534,9 +532,9 @@ class ExecuteQuery:
             self.error_message = f'场景id:{scenario_id}不存在'
             return None
 
-        is_shared = query_scenario.is_shared
+        is_public = query_scenario.is_public
         creator_id = query_scenario.creator_id
-        if not is_shared and creator_id != g.app_user.id:
+        if not is_public and creator_id != g.app_user.id:
             self.error_message = f'执行失败,场景: {query_scenario.scenario_title} 是私有的,仅创建者执行!'
             return None
 

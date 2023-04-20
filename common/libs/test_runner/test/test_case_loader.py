@@ -41,7 +41,6 @@ test_obj = {
                 "is_pass": 0,
                 "modifier_id": 1,
                 "update_timestamp": 1659325393,
-                "is_shared": True,
                 "remark": "用例: 635-登录成功9999999 的复制",
                 "is_deleted": 0
             },
@@ -298,7 +297,6 @@ test_obj = {
                 "is_pass": 0,
                 "modifier_id": 1,
                 "update_timestamp": 1659325393,
-                "is_shared": True,
                 "remark": "用例: 635-登录成功9999999 的复制",
                 "is_deleted": 0
             },

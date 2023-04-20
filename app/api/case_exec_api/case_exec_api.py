@@ -108,7 +108,6 @@ class GenExecuteData:
                 "request_method": "",
                 "request_base_url": "",
                 "request_url": "",
-                "is_shared": "",
                 "is_public": "",
                 "total_execution": "",
                 "creator": "",
@@ -300,7 +299,6 @@ class QueryExecuteData:
             A.request_method,
             A.request_base_url,
             A.request_url,
-            A.is_shared,
             A.is_public,
             A.total_execution,
             A.creator,
@@ -558,7 +556,6 @@ class QueryExecuteData:
         bind_info = MapToJsonObj.gen_bind(case_id)
 
         case_info['is_public'] = bool(case_info.get('is_public'))
-        case_info['is_shared'] = bool(case_info.get('is_shared'))
         result = {
             "case_info": case_info,
             "bind_info": bind_info
@@ -566,7 +563,7 @@ class QueryExecuteData:
 
         # query_case.add_total_execution()
 
-        if not bool(case_info.get('is_shared')):
+        if not bool(case_info.get('is_public')):
             return False, '执行失败,该用例是私有的,仅创建者执行!'
 
         execute_name = case_info.get('case_name')
@@ -590,7 +587,7 @@ class QueryExecuteData:
         if not result:
             return False, f'场景id:{scenario_id}不存在'
 
-        if not bool(result.is_shared):
+        if not bool(result.is_public):
             return False, '执行失败,该场景是私有的,仅创建者执行!'
 
         scenario_obj = result.to_json()

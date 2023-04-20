@@ -63,7 +63,6 @@ class CopyGenExample:
             request_base_url=query_case.request_base_url,
             request_url=query_case.request_url,
             case_status=query_case.case_status,
-            is_shared=query_case.is_shared,
             is_public=query_case.is_public,
             is_copy=1,
             remark="复制用例: {}-{}".format(query_case.id, query_case.case_name),
@@ -97,7 +96,6 @@ class CopyGenExample:
         new_scenario = TestCaseScenario(
             scenario_title=query_scenario.scenario_title,
             case_list=query_scenario.case_list,
-            is_shared=query_scenario.is_shared,
             is_public=query_scenario.is_public,
             creator=g.app_user.username,
             creator_id=g.app_user.id,

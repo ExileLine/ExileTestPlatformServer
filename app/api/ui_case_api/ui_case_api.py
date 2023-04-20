@@ -292,7 +292,6 @@ class UiCaseApi(MethodView):
         module_list = data.get('module_list', [])
         case_name = data.get('case_name', '').strip()
         meta_data = data.get('meta_data')
-        is_shared = data.get('is_shared')
         is_public = data.get('is_public')
         case_status = data.get('case_status', 'debug')
         remark = data.get('remark')
@@ -308,7 +307,6 @@ class UiCaseApi(MethodView):
 
         new_ui_case = UiTestCase(
             case_name=case_name,
-            is_shared=is_shared,
             is_public=is_public,
             creator=g.app_user.username,
             creator_id=g.app_user.id,
@@ -348,25 +346,18 @@ class UiCaseApi(MethodView):
         case_id = data.get('id')
         case_name = data.get('case_name', '').strip()
         meta_data = data.get('meta_data')
-        is_shared = data.get('is_shared')
         is_public = data.get('is_public')
         case_status = data.get('case_status')
         remark = data.get('remark')
 
         query_ui_case = UiTestCase.query.get(case_id)
+        query_is_public = bool(query_ui_case.is_public)
 
         if not query_ui_case:
             return api_result(code=NO_DATA, message=f'UI用例不存在:{case_id}')
 
-        if not bool(is_public) and query_ui_case.creator_id != g.app_user.id:
-            return api_result(code=BUSINESS_ERROR, message='非创建人，无法修改使用状态')
-
-        if not bool(is_shared) and query_ui_case.creator_id != g.app_user.id:
-            return api_result(code=BUSINESS_ERROR, message='非创建人，无法修改执行状态')
-
-        if not bool(query_ui_case.is_public):
-            if query_ui_case.creator_id != g.app_user.id:
-                return api_result(code=BUSINESS_ERROR, message='该用例未开放,只能被创建人修改!')
+        if not query_is_public and query_ui_case.creator_id != g.app_user.id:
+            return api_result(code=NOT_CREATOR_ERROR, message=NOT_CREATOR_ERROR_MESSAGE)
 
         if query_ui_case.case_name != case_name:
             if UiTestCase.query.join(MidProjectAndUiCase, UiTestCase.id == MidProjectAndUiCase.case_id).filter(
@@ -378,7 +369,6 @@ class UiCaseApi(MethodView):
 
         query_ui_case.case_name = case_name
         query_ui_case.meta_data = meta_data
-        query_ui_case.is_shared = is_shared
         query_ui_case.is_public = is_public
         query_ui_case.modifier = g.app_user.username
         query_ui_case.modifier_id = g.app_user.id

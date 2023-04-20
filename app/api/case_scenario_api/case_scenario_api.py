@@ -183,7 +183,6 @@ class CaseScenarioApi(MethodView):
         module_list = data.get('module_list', [])
         scenario_title = data.get('scenario_title', '').strip()
         case_list = data.get('case_list', [])
-        is_shared = data.get('is_shared')
         is_public = data.get('is_public')
         remark = data.get('remark')
 
@@ -194,7 +193,6 @@ class CaseScenarioApi(MethodView):
         new_scenario = TestCaseScenario(
             scenario_title=scenario_title,
             case_list=case_list,
-            is_shared=is_shared,
             is_public=is_public,
             creator=g.app_user.username,
             creator_id=g.app_user.id,
@@ -232,24 +230,17 @@ class CaseScenarioApi(MethodView):
         scenario_id = data.get('id')
         scenario_title = data.get('scenario_title', '').strip()
         case_list = data.get('case_list', [])
-        is_shared = data.get('is_shared')
         is_public = data.get('is_public')
         remark = data.get('remark')
 
         query_scenario = TestCaseScenario.query.get(scenario_id)
+        query_is_public = bool(query_scenario.is_public)
 
         if not query_scenario:
             return api_result(code=NO_DATA, message=f'场景不存在: {scenario_id}')
 
-        if not bool(is_public) and query_scenario.creator_id != g.app_user.id:
-            return api_result(code=BUSINESS_ERROR, message='非创建人，无法修改使用状态')
-
-        if not bool(is_shared) and query_scenario.creator_id != g.app_user.id:
-            return api_result(code=BUSINESS_ERROR, message='非创建人，无法修改执行状态')
-
-        if not bool(query_scenario.is_public):
-            if query_scenario.creator_id != g.app_user.id:
-                return api_result(code=BUSINESS_ERROR, message='该用例未场景开放,只能被创建人修改!')
+        if not query_is_public and query_scenario.creator_id != g.app_user.id:
+            return api_result(code=NOT_CREATOR_ERROR, message=NOT_CREATOR_ERROR_MESSAGE)
 
         if query_scenario.scenario_title != scenario_title:
             if TestCaseScenario.query.join(
@@ -263,7 +254,6 @@ class CaseScenarioApi(MethodView):
 
         query_scenario.scenario_title = scenario_title
         query_scenario.case_list = case_list
-        query_scenario.is_shared = is_shared
         query_scenario.is_public = is_public
         query_scenario.modifier = g.app_user.username
         query_scenario.modifier_id = g.app_user.id

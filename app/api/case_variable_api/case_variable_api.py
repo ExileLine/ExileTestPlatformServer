@@ -154,15 +154,13 @@ class CaseVarApi(MethodView):
         remark = data.get('remark')
 
         query_variable = TestVariable.query.get(var_id)
+        query_is_public = bool(query_variable.is_public)
 
         if not query_variable:
             return api_result(code=NO_DATA, message='变量不存在')
 
-        if not bool(is_public) and query_variable.creator_id != g.app_user.id:
-            return api_result(code=BUSINESS_ERROR, message='非创建人，无法修改使用状态')
-
-        if not bool(query_variable.is_public) and query_variable.creator_id != g.app_user.id:
-            return api_result(code=BUSINESS_ERROR, message='该变量未开放,只能被创建人修改!')
+        if not query_is_public and query_variable.creator_id != g.app_user.id:
+            return api_result(code=NOT_CREATOR_ERROR, message=NOT_CREATOR_ERROR_MESSAGE)
 
         before_var = query_variable.var_value
         query_var_filter = TestVariable.query.filter_by(project_id=project_id, var_name=var_name, is_deleted=0).first()

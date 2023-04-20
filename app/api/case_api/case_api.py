@@ -151,7 +151,6 @@ class CaseApi(MethodView):
         request_method = data.get('request_method').upper()
         request_base_url = data.get('request_base_url', '').strip()
         request_url = data.get('request_url', '').strip()
-        is_shared = data.get('is_shared')
         is_public = data.get('is_public')
         case_status = data.get('case_status', 'debug')
         remark = data.get('remark')
@@ -170,7 +169,6 @@ class CaseApi(MethodView):
             request_method=request_method,
             request_base_url=request_base_url,
             request_url=request_url,
-            is_shared=is_shared,
             is_public=is_public,
             creator=g.app_user.username,
             creator_id=g.app_user.id,
@@ -211,25 +209,18 @@ class CaseApi(MethodView):
         request_method = data.get('request_method').upper()
         request_base_url = data.get('request_base_url', '').strip()
         request_url = data.get('request_url', '').strip()
-        is_shared = data.get('is_shared')
         is_public = data.get('is_public')
         case_status = data.get('case_status')
         remark = data.get('remark')
 
         query_case = TestCase.query.get(case_id)
+        query_is_public = bool(query_case.is_public)
 
         if not query_case:
-            return api_result(code=NO_DATA, message=f'用例不存在:{case_id}')
+            return api_result(code=NO_DATA, message=f'用例不存在: {case_id}')
 
-        if not bool(is_public) and query_case.creator_id != g.app_user.id:
-            return api_result(code=BUSINESS_ERROR, message='非创建人，无法修改使用状态')
-
-        if not bool(is_shared) and query_case.creator_id != g.app_user.id:
-            return api_result(code=BUSINESS_ERROR, message='非创建人，无法修改执行状态')
-
-        if not bool(query_case.is_public):
-            if query_case.creator_id != g.app_user.id:
-                return api_result(code=BUSINESS_ERROR, message='该用例未开放,只能被创建人修改!')
+        if not query_is_public and query_case.creator_id != g.app_user.id:
+            return api_result(code=NOT_CREATOR_ERROR, message=NOT_CREATOR_ERROR_MESSAGE)
 
         if query_case.case_name != case_name:
             if TestCase.query.join(MidProjectAndCase, TestCase.id == MidProjectAndCase.case_id).filter(
@@ -243,7 +234,6 @@ class CaseApi(MethodView):
         query_case.request_method = request_method
         query_case.request_base_url = request_base_url
         query_case.request_url = request_url
-        query_case.is_shared = is_shared
         query_case.is_public = is_public
         query_case.modifier = g.app_user.username
         query_case.modifier_id = g.app_user.id
