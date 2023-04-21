@@ -9,14 +9,12 @@ import time
 
 import shortuuid
 from loguru import logger
-from flask import request, g
+from flask import request, g, current_app
 
-from app.models.admin.models import Admin
 from common.libs.public_func import print_logs
 from common.libs.auth import Token
 from common.libs.response_code import UNAUTHORIZED
 from common.libs.customException import method_view_ab_code as ab_code
-from common.interceptors.ProjectHook import check_project_auth
 
 
 def api_before_request():
@@ -25,9 +23,10 @@ def api_before_request():
     logger.info('request log_uuid:{}'.format(g.log_uuid))
     print_logs()
 
-    dev_host_list = ['0.0.0.0', 'localhost']
     open_api_list = ['/api/open_exec', '/api/open_cicd']
     white_list = ['/api/login', '/api/auth', '/api/tourist', '/api/platform_conf']
+
+    PROJECT_ENV = current_app.config.get("PROJECT_ENV")
 
     if request.path in white_list:
         return
@@ -36,19 +35,8 @@ def api_before_request():
         token = request.headers.get('token', '')
         logger.info(f'headers token -> {token}')
 
-        # TODO 开发环境忽略鉴权
-        if (request.host.split(':')[0] in dev_host_list) or (request.path in open_api_list):
-            print('=== dev host ===')
-            print(request.host.split(':')[0])
-            print('=== open api ===')
-            print(request.path)
-            user = Admin.query.get(1)
-            if not user:
-                g.app_user = type('A', (object,), {"id": 1, "username": "admin", "is_tourist": 1})
-            else:
-                g.app_user = user
-
-            # return check_project_auth()
+        if PROJECT_ENV == "development":  # 开发环境忽略鉴权
+            g.app_user = type('A', (object,), {"id": 1, "username": "admin", "is_tourist": 1})
             return
 
         user_info = Token.get_user_info(token=token)
