@@ -245,7 +245,7 @@ class CaseVarHistoryApi(MethodView):
             'now_page': page,
             'total': total
         }
-        return api_result(code=200, message=SUCCESS_MESSAGE, data=result_data)
+        return api_result(code=POST_SUCCESS, message=SUCCESS_MESSAGE, data=result_data)
 
 
 class CaseVarPageApi(MethodView):

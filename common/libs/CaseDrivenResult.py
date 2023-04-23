@@ -5,6 +5,13 @@
 # @File    : CaseDrivenResult.py
 # @Software: PyCharm
 
+
+"""
+该函数已经无法在新的数据结构中使用,保留仅用于重构过程中作为参考!
+该函数已经无法在新的数据结构中使用,保留仅用于重构过程中作为参考!
+该函数已经无法在新的数据结构中使用,保留仅用于重构过程中作为参考!
+"""
+
 import os
 import sys
 import re
@@ -29,12 +36,6 @@ from common.tools.send_mail import SendEmail
 from common.tools.message_push import MessagePush
 from config.config import config_obj
 
-
-"""
-该函数已经无法在新的数据结构中使用,保留仅用于重构过程中作为参考!
-该函数已经无法在新的数据结构中使用,保留仅用于重构过程中作为参考!
-该函数已经无法在新的数据结构中使用,保留仅用于重构过程中作为参考!
-"""
 # 变量转换函数字典
 var_func_dict = {
     "7": F.gen_uuid_long,  # uuid

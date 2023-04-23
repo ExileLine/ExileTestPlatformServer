@@ -8,46 +8,6 @@
 from common.libs.BaseModel import *
 
 
-# 合并TestCaseAssertion
-class TestCaseAssResponse(BaseModel):
-    __tablename__ = 'exile_ass_response'
-    __table_args__ = {'comment': '断言返回值规则'}
-
-    assert_description = db.Column(db.String(255), nullable=False, comment='断言描述')
-    ass_json = db.Column(db.JSON, comment='断言')
-    is_public = db.Column(TINYINT(1, unsigned=True), default=1, comment='是否公共使用:0-否;1-是')
-    creator = db.Column(db.String(32), comment='创建人')
-    creator_id = db.Column(BIGINT(20, unsigned=True), comment='创建人id')
-    modifier = db.Column(db.String(32), comment='更新人')
-    modifier_id = db.Column(BIGINT(20, unsigned=True), comment='更新人id')
-    remark = db.Column(db.String(255), comment='备注')
-
-    def __repr__(self):
-        return 'TestCaseAssResponse 模型对象-> id:{} 断言描述:{} 断言规则:{}'.format(
-            self.id, self.assert_description, self.ass_json
-        )
-
-
-# 合并为TestCaseAssertion
-class TestCaseAssField(BaseModel):
-    __tablename__ = 'exile_ass_field'
-    __table_args__ = {'comment': '断言字段规则'}
-
-    assert_description = db.Column(db.String(255), nullable=False, comment='断言描述')
-    ass_json = db.Column(db.JSON, comment='断言')
-    is_public = db.Column(TINYINT(1, unsigned=True), default=1, comment='是否公共使用:0-否;1-是')
-    creator = db.Column(db.String(32), comment='创建人')
-    creator_id = db.Column(BIGINT(20, unsigned=True), comment='创建人id')
-    modifier = db.Column(db.String(32), comment='更新人')
-    modifier_id = db.Column(BIGINT(20, unsigned=True), comment='更新人id')
-    remark = db.Column(db.String(255), comment='备注')
-
-    def __repr__(self):
-        return 'TestCaseAssField 模型对象-> id:{} 断言描述:{} 断言规则:{}'.format(
-            self.id, self.assert_description, self.ass_json
-        )
-
-
 class TestCaseAssertion(BaseModel):
     __tablename__ = 'exile5_case_assertion'
     __table_args__ = {'comment': '断言规则'}

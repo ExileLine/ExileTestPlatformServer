@@ -29,16 +29,3 @@ class TestExecuteLogs(BaseModel):
 
     def __repr__(self):
         return f'TestExecuteLogs 模型对象-> ID:{self.id} project_id:{self.project_id} execute_id:{self.execute_id} execute_key:{self.execute_key} execute_name:{self.execute_name} execute_type:{self.execute_type} redis_key:{self.redis_key}'
-
-
-class TestLogs(BaseModel):
-    __tablename__ = 'exile5_test_logs'
-    __table_args__ = {'comment': '日志记录表'}
-
-    log_type = db.Column(db.String(255), nullable=False, comment='类型')
-    creator = db.Column(db.String(32), comment='创建人')
-    creator_id = db.Column(BIGINT(20, unsigned=True), comment='创建人id')
-    remark = db.Column(db.String(255), comment='备注')
-
-    def __repr__(self):
-        return 'TestLogs 模型对象-> ID:{} log_type:{}'.format(self.id, self.log_type)

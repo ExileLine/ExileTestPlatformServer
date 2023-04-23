@@ -11,30 +11,25 @@ from flask import Blueprint
 from .demo_api.demo_api import TestApi, TestCeleryAsyncTaskApi
 from .index_api.index_api import IndexApi
 from .dashboard_api.dashboard_api import DashboardApi
+from .auth_api.auth_api import AuthApi
 from .login_api.login_api import LoginApi
 from .user_api.user_api import TouristApi, UserApi, UserPasswordApi, UserPageApi, UserProfileApi
-from .auth_api.auth_api import AuthApi
 from .case_env_api.case_env_api import CaseEnvApi, CaseEnvPageApi
 from .case_api.case_api import CaseApi, CasePageApi
 from .case_copy_api.case_copy_api import CaseCopyApi, ScenarioCopyApi
 from .case_data_api.case_data_api import CaseReqDataApi, CaseReqDataPageApi
 from .case_variable_api.case_variable_api import CaseVarApi, CaseVarPageApi, CaseVarHistoryApi
 from .case_db_api.case_db_api import CaseDBApi, CaseDBPageApi, CaseDBPingApi
-from .case_logs_api.case_logs_api import CaseLogsPageApi
 from .case_execute_logs_api.case_execute_logs_api import CaseExecuteLogsApi, CaseExecuteLogsPageApi, LatestLogsApi
 from .case_report_api.case_report_api import CaseReportApi
 from .case_bind_api.case_bind_api import CaseBindApi
 from .case_assertion_api.case_assertion_api import RespAssertionRuleApi, FieldAssertionRuleApi, AssertionRulePageApi
 from .rule_test_api.rule_test_api import RuleTestApi
-from .case_exec_api.case_exec_api import CaseExecApi
-from .case_exec_api.case_send_api import CaseRequestSendApi
-from .case_exec_api.case_cicd_api import CaseCICDApi, CaseCICDMapApi, CaseCICDMapPageApi
+from .case_send_api.case_send_api import CaseRequestSendApi
 from .case_execute_api.case_execute_api import CaseExecuteApi
 from .case_scenario_api.case_scenario_api import CaseScenarioApi, CaseScenarioPageApi
-from .case_set_api.case_set_api import CaseSetApi
 from .mail_api.mail_api import MailApi, MailPageApi
 from .dingding_api.dingding_api import DingDingPushConfApi, DingDingPushConfPageApi
-from .platform_conf_api.platform_conf_api import PlatformConfApi
 from .project_api.project_api import ProjectApi, ProjectPageApi
 from .project_api.version_api import ProjectVersionApi, ProjectVersionPageApi
 from .project_api.version_task_api import VersionTaskApi, VersionTaskPageApi
@@ -55,19 +50,18 @@ api.add_url_rule('/test_celery', view_func=TestCeleryAsyncTaskApi.as_view('test_
 api.add_url_rule('/index', view_func=IndexApi.as_view('index_api'))
 api.add_url_rule('/index/<version_id>', view_func=IndexApi.as_view('index_version_api'))
 
-api.add_url_rule('/login', view_func=LoginApi.as_view('login_api'))
-
 api.add_url_rule('/dashboard', view_func=DashboardApi.as_view('dashboard_api'))
 
+api.add_url_rule('/auth', view_func=AuthApi.as_view('auth_api'))
+api.add_url_rule('/login', view_func=LoginApi.as_view('login_api'))
 api.add_url_rule('/tourist', view_func=TouristApi.as_view('tourist_api'))
+
 api.add_url_rule('/user', view_func=UserApi.as_view('user_api'))
 api.add_url_rule('/user/<user_id>', view_func=UserApi.as_view('user_detail'))
 api.add_url_rule('/user_pwd', view_func=UserPasswordApi.as_view('user_pwd'))
 api.add_url_rule('/user_profile', view_func=UserProfileApi.as_view('user_profile'))
 api.add_url_rule('/user_profile/<user_id>', view_func=UserProfileApi.as_view('user_profile_detail'))
 api.add_url_rule('/user_page', view_func=UserPageApi.as_view('user_page'))
-
-api.add_url_rule('/auth', view_func=AuthApi.as_view('auth_api'))
 
 api.add_url_rule('/case_env', view_func=CaseEnvApi.as_view('case_env'))
 api.add_url_rule('/case_env/<env_id>', view_func=CaseEnvApi.as_view('case_env_detail'))
@@ -93,7 +87,6 @@ api.add_url_rule('/case_db/<db_id>', view_func=CaseDBApi.as_view('case_db_detail
 api.add_url_rule('/case_db_page', view_func=CaseDBPageApi.as_view('case_db_page'))
 api.add_url_rule('/case_db_ping/<db_id>', view_func=CaseDBPingApi.as_view('case_db_ping'))
 
-api.add_url_rule('/case_logs_page', view_func=CaseLogsPageApi.as_view('case_logs_page'))
 api.add_url_rule('/case_latest_logs', view_func=LatestLogsApi.as_view('case_latest_logs_10'))
 api.add_url_rule('/case_execute_logs/<redis_key>', view_func=CaseExecuteLogsApi.as_view('case_execute_logs'))
 api.add_url_rule('/case_execute_logs', view_func=CaseExecuteLogsApi.as_view('case_execute_logs_first'))
@@ -115,18 +108,13 @@ api.add_url_rule('/case_scenario_page', view_func=CaseScenarioPageApi.as_view('c
 
 api.add_url_rule('/rule_test', view_func=RuleTestApi.as_view('rule_test'))
 api.add_url_rule('/case_send', view_func=CaseRequestSendApi.as_view('case_send'))
-api.add_url_rule('/case_exec', view_func=CaseExecApi.as_view('case_exec'))
 api.add_url_rule('/case_execute', view_func=CaseExecuteApi.as_view('case_execute'))
-api.add_url_rule('/open_exec', view_func=CaseExecApi.as_view('open_exec'))
-api.add_url_rule('/case_set', view_func=CaseSetApi.as_view('case_set'))
 
 api.add_url_rule('/mail_conf', view_func=MailApi.as_view('mail_conf'))
 api.add_url_rule('/mail_conf_page', view_func=MailPageApi.as_view('mail_conf_page'))
 
 api.add_url_rule('/dd_push_conf', view_func=DingDingPushConfApi.as_view('dd_push_conf'))
 api.add_url_rule('/dd_push_conf_page', view_func=DingDingPushConfPageApi.as_view('dd_push_conf_page'))
-
-api.add_url_rule('/platform_conf', view_func=PlatformConfApi.as_view('platform_conf'))
 
 api.add_url_rule('/project', view_func=ProjectApi.as_view('project'))
 api.add_url_rule('/project/<project_id>', view_func=ProjectApi.as_view('project_detail'))
@@ -150,13 +138,7 @@ api.add_url_rule('/timed_task_status', view_func=APSchedulerTaskStatusApi.as_vie
 api.add_url_rule('/timed_task_page', view_func=APSchedulerTaskPageApi.as_view('timed_task_page'))
 
 api.add_url_rule('/download_file', view_func=DownloadFileApi.as_view('download_file'))
-
 api.add_url_rule('/import_file', view_func=InterfaceFileImportApi.as_view('import_file'))
-
-api.add_url_rule('/open_cicd', view_func=CaseCICDApi.as_view('open_cicd'))
-api.add_url_rule('/open_cicd/<cicd_id>', view_func=CaseCICDApi.as_view('open_cicd_test'))
-api.add_url_rule('/cicd_map', view_func=CaseCICDMapApi.as_view('cicd_map'))
-api.add_url_rule('/cicd_map_page', view_func=CaseCICDMapPageApi.as_view('cicd_map_page'))
 
 api.add_url_rule('/ui_case/<ui_case_id>', view_func=UiCaseApi.as_view('ui_case_detail'))
 api.add_url_rule('/ui_case', view_func=UiCaseApi.as_view('ui_case'))

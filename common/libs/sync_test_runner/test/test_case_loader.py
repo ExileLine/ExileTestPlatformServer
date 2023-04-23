@@ -8,7 +8,7 @@
 
 import json
 
-from common.libs.test_runner.runner import CaseRunner
+from common.libs.sync_test_runner.runner import CaseRunner
 
 test_obj = {
     "execute_id": 8641,

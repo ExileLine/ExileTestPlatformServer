@@ -12,7 +12,6 @@ from common.libs.data_dict import GlobalsDict
 from common.libs.set_app_context import set_app_context
 from common.libs.public_func import gen_request_dict
 from ExtendRegister.db_register import db
-from app.models.platform_conf.models import PlatformConfModel
 from app.models.admin.models import Admin
 from app.models.test_project.models import TestProject, TestProjectVersion, TestModuleApp, MidProjectAndCase, \
     MidVersionCase, MidModuleCase
