@@ -74,7 +74,7 @@ Respect ! ! !
 
 ### 业务流程图
 
-![业务流程图](docs/领域模型/ExileTestPlatform业务流程.png)
+![业务流程图](docs/领域模型/ExileTestPlatform业务流程.jpg)
 
 
 [comment]: <> (![业务领域模型]&#40;docs/领域模型/业务领域模型.png&#41;)
