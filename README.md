@@ -25,10 +25,12 @@ Respect ! ! !
 
 `ExileTestPlatform`项目主要基于测试人员对测试用例配置环境，参数，变量，响应断言规则，数据库断言规则后，生成一套具备数据驱动的测试规则，实施接口，UI测试的持续测试平台。
 
-- 当前主要使用`Python`作为主要后端语言，因其丰富的三方扩展库以及对数据的处理方便而选择，开源：[ExileTestPlatServer-Python](https://github.com/ExileLine/ExileTestPlatformServer)
+- 当前主要使用`Python`
+  作为主要后端语言，因其丰富的三方扩展库以及对数据的处理方便而选择，开源：[ExileTestPlatServer-Python](https://github.com/ExileLine/ExileTestPlatformServer)
 - 对于使用`NodeJs`而言，前后端都基于`Js`
   并在webUI自动化与浏览器操作中能起到很好效果，未开源：[ExileTestPlatServer-Node](https://github.com/ExileLine/ExileTestPlatServer-Node)
-- 对于使用`Golang`而言，没有对`Selenium`很好的支持而且没有类似`Celery`的成熟的异步任务框架，未开源：[ExileTestPlatServer-Go](https://github.com/ExileLine/ExileTestPlatServer-Go)
+- 对于使用`Golang`而言，没有对`Selenium`很好的支持而且没有类似`Celery`
+  的成熟的异步任务框架，未开源：[ExileTestPlatServer-Go](https://github.com/ExileLine/ExileTestPlatServer-Go)
 - 对于使用`Java`而言，各方面都很好，但主作者 [YangYueXiong](https://github.com/yangyuexiong)
   比较抗拒，未开源：[ExileTestPlatServer-Java](https://github.com/ExileLine/ExileTestPlatServer-Java)
 
@@ -87,10 +89,6 @@ Respect ! ! !
 
 - 数据库表设计总览
   ![数据库表设计总览](docs/ER图/总览.png)
-
-- 核心业务数据库表设计
-  ![数据库表设计总览1](docs/ER图/核心业务1.png)
-  ![数据库表设计总览2](docs/ER图/核心业务2.png)
 
 ### 后端技术
 
