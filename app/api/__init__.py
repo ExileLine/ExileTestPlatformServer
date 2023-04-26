@@ -40,6 +40,7 @@ from .file_import_api.file_import_api import InterfaceFileImportApi
 from .ui_case_api.ui_case_api import UiCaseApi, UiCasePageApi
 from .ui_case_execute_api.ui_case_execute_api import UiCaseExecuteApi
 from .ui_control_dict_api.ui_control_dict_api import UiControlDictApi, UiControlMappingApi
+from .ui_pc_conf_api.ui_pc_conf_api import UiPcConfApi, UiPcConfPageApi
 
 api = Blueprint('api', __name__)
 crm = Blueprint('crm', __name__)
@@ -147,3 +148,7 @@ api.add_url_rule('/ui_case_execute', view_func=UiCaseExecuteApi.as_view('ui_case
 
 api.add_url_rule('/ui_control_dict_api', view_func=UiControlDictApi.as_view('ui_control_dict_api'))
 api.add_url_rule('/ui_control_map_api', view_func=UiControlMappingApi.as_view('ui_control_map_api'))
+
+api.add_url_rule('/ui_pc_conf_api/<pc_conf_id>', view_func=UiPcConfApi.as_view('ui_pc_conf_detail_api'))
+api.add_url_rule('/ui_pc_conf_api', view_func=UiPcConfApi.as_view('ui_pc_conf_api'))
+api.add_url_rule('/ui_pc_conf_page_api', view_func=UiPcConfPageApi.as_view('ui_pc_conf_page_api'))

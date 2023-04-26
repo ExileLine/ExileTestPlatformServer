@@ -26,3 +26,4 @@ from app.models.test_cicd.models import TestCiCdMap
 from app.models.ui_test_case.models import (
     UiTestCase, MidProjectAndUiCase, MidVersionUiCase, MidTaskUiCase, MidModuleUiCase
 )
+from app.models.ui_pc_conf.models import UiPcConf
