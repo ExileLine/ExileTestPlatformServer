@@ -5,6 +5,7 @@
 # @File    : ApiHook.py
 # @Software: PyCharm
 
+import re
 import time
 
 import shortuuid
@@ -29,6 +30,9 @@ def api_before_request():
     PROJECT_ENV = current_app.config.get("PROJECT_ENV")
 
     if request.path in white_list:
+        return
+
+    if re.match(r'/api/case_report/.*', request.path):
         return
 
     if '/api' in request.path:

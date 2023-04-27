@@ -149,6 +149,6 @@ api.add_url_rule('/ui_case_execute', view_func=UiCaseExecuteApi.as_view('ui_case
 api.add_url_rule('/ui_control_dict_api', view_func=UiControlDictApi.as_view('ui_control_dict_api'))
 api.add_url_rule('/ui_control_map_api', view_func=UiControlMappingApi.as_view('ui_control_map_api'))
 
-api.add_url_rule('/ui_pc_conf_api/<pc_conf_id>', view_func=UiPcConfApi.as_view('ui_pc_conf_detail_api'))
-api.add_url_rule('/ui_pc_conf_api', view_func=UiPcConfApi.as_view('ui_pc_conf_api'))
-api.add_url_rule('/ui_pc_conf_page_api', view_func=UiPcConfPageApi.as_view('ui_pc_conf_page_api'))
+api.add_url_rule('/ui_pc_conf/<pc_conf_id>', view_func=UiPcConfApi.as_view('ui_pc_conf_detail'))
+api.add_url_rule('/ui_pc_conf', view_func=UiPcConfApi.as_view('ui_pc_conf'))
+api.add_url_rule('/ui_pc_conf_page', view_func=UiPcConfPageApi.as_view('ui_pc_conf_page'))

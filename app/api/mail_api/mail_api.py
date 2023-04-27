@@ -34,6 +34,7 @@ class MailApi(MethodView):
         for mail in mail_list:
             current_mail = mail.get('mail')
             current_mail_user = mail.get('mail_user')
+            remark = mail.get('remark')
             if "@" not in current_mail:
                 return api_result(code=BUSINESS_ERROR, message=f'{current_mail}:邮箱格式错误')
 
@@ -45,7 +46,8 @@ class MailApi(MethodView):
                 mail=current_mail,
                 mail_user=current_mail_user,
                 creator=g.app_user.username,
-                creator_id=g.app_user.id
+                creator_id=g.app_user.id,
+                remark=remark
             )
             db.session.add(new_mail)
         db.session.commit()
