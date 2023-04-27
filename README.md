@@ -122,9 +122,9 @@ Respect ! ! !
 |Vuex|全局状态管理框架|https://vuex.vuejs.org|
 |Axios|前端HTTP框架|https://github.com/axios/axios|
 |TDesign|腾讯前端UI框架|https://tdesign.tencent.com|
-|v-charts|基于Echarts的图表框架|https://v-charts.js.org|
+|Echarts|Echarts开源可视化图表库|https://echarts.apache.org|
+|CodeMirror|Microsoft开源在线代码编辑器|https://codemirror.net|
 |Js-cookie|cookie管理工具|https://github.com/js-cookie/js-cookie|
-|nprogress|进度条控件|https://github.com/rstacruz/nprogress|
 
 ### 接口清单
 
