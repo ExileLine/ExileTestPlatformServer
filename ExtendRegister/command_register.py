@@ -34,41 +34,34 @@ def register_commands(app):
 
         if os.path.exists(migrations_path):
             shutil.rmtree(migrations_path)
-            print('migrations 删除')
+            print(f'>>> migrations 删除: {migrations_path}')
         else:
-            print('migrations 不存在')
+            print(f'>>> migrations 不存在: {migrations_path}')
 
         try:
-            query_table_sql = """SHOW TABLES LIKE 'alembic_version';"""
-            print(query_table_sql)
-            query_result = project_db.execute_sql(sql=query_table_sql)
-            print('query_result:{} {}'.format(query_result, bool(query_result)))
-            if bool(query_result):
-                delete_table_sql = """DROP TABLE alembic_version;"""
-                print(delete_table_sql)
-                delete_result = project_db.execute_sql(sql=delete_table_sql)
-                print('delete_result:{} {}'.format(delete_result, bool(delete_result)))
-            else:
-                pass
+            drop_table_sql = """DROP TABLE IF EXISTS alembic_version;"""
+            print(drop_table_sql)
+            drop_result = project_db.execute_sql(sql=drop_table_sql)
+            print(f'>>> drop_result: {drop_result}')
         except BaseException as e:
-            print('删除 alembic_version 失败:{}'.format(str(e)))
+            print(f'>>> 删除 alembic_version 失败:{e}')
 
         try:
             os.system("flask db init")
             os.system("flask db migrate")
             os.system("flask db upgrade")
-            print('创建成功')
+            print('>>> 创建成功')
         except BaseException as e:
-            print('创建失败:{}'.format(str(e)))
+            print(f'>>> 创建失败:{e}')
 
     @app.cli.command(help='更新表')
     def table():
         try:
             os.system("flask db migrate")
             os.system("flask db upgrade")
-            print('创建成功')
+            print('>>> 创建成功')
         except BaseException as e:
-            print('创建失败:{}'.format(str(e)))
+            print(f'>>> 创建失败:{e}')
 
     @app.cli.command("create_user", help="创建用户")
     @click.option("--username", help="用户名", type=str)
@@ -82,7 +75,7 @@ def register_commands(app):
 
         query_user = Admin.query.filter_by(username=username).first()
         if query_user:
-            print('用户:{} 已存在'.format(username))
+            print(f'>>> 用户: {username} 已存在')
         else:
             new_admin = Admin(
                 username=username,
@@ -90,12 +83,13 @@ def register_commands(app):
                 phone=None,
                 mail=None,
                 creator='shell',
-                creator_id='0',
-                remark='manage shell')
+                creator_id=0,
+                remark='manage shell'
+            )
             new_admin.set_code()
             db.session.add(new_admin)
             db.session.commit()
-            print('用户: {} 添加成功'.format(username))
+            print(f'用户: {username} 添加成功')
 
     @app.cli.command("auth_init", help='鉴权初始化')
     def auth_init():
@@ -272,7 +266,7 @@ def register_commands(app):
             query_admin = Admin.query.filter(
                 or_(Admin.username == ad.get('username'), Admin.phone == ad.get('phone'))).first()
             if query_admin:
-                print('CRM用户: {} 已存在'.format(query_admin))
+                print(f'CRM用户: {query_admin} 已存在')
             else:
                 new_admin = Admin(
                     username=ad.get('username'),
@@ -281,22 +275,23 @@ def register_commands(app):
                     mail=ad.get('mail'),
                     code=ad.get('code'),
                     creator='shell',
-                    creator_id='0',
-                    remark='manage shell')
+                    creator_id=0,
+                    remark='manage shell'
+                )
                 db.session.add(new_admin)
                 db.session.commit()
-                print('CRM用户: {} 添加成功'.format(admin))
+                print(f'CRM用户: {admin} 添加成功')
 
         # 创建角色
         for role in role_list:
             query_role = Role.query.filter_by(name=role).first()
             if query_role:
-                print('CRM角色: {} 已存在'.format(query_role))
+                print(f'CRM角色: {query_role} 已存在')
             else:
-                new_role = Role(name=role, creator='shell', creator_id='0', remark='manage shell')
+                new_role = Role(name=role, creator='shell', creator_id=0, remark='manage shell')
                 db.session.add(new_role)
                 db.session.commit()
-                print('CRM角色: {} 添加成功'.format(role))
+                print(f'CRM角色: {role} 添加成功')
 
         # 创建权限
         for api in api_resource:
@@ -305,7 +300,7 @@ def register_commands(app):
             method = api.get('method')
             query_api = ApiResource.query.filter(and_(ApiResource.url == url, ApiResource.method == method)).first()
             if query_api:
-                print('CRM Api: {} 已存在'.format(query_api))
+                print(f'CRM Api: {query_api} 已存在')
             else:
                 api_resource = ApiResource(
                     name=name,
@@ -313,28 +308,28 @@ def register_commands(app):
                     method=api.get('method'),
                     is_url_var=api.get('is_url_var'),
                     creator='shell',
-                    creator_id='0',
+                    creator_id=0,
                     remark='manage shell'
                 )
                 db.session.add(api_resource)
                 db.session.commit()
-                print('CRM Api 创建完成:{}'.format(name))
+                print(f'CRM Api 创建完成:{name}')
 
                 query_permission = Permission.query.filter_by(name=name).first()
                 if query_permission:
-                    print('CRM 权限: {} 已存在'.format(query_permission))
+                    print(f'CRM 权限: {query_permission} 已存在')
                 else:
                     permission = Permission(
                         name=name,
                         resource_id=api_resource.id,
                         resource_type='SERVER_API',
                         creator='shell',
-                        creator_id='0',
+                        creator_id=0,
                         remark='manage shell'
                     )
                     db.session.add(permission)
                     db.session.commit()
-                    print('CRM 权限 创建完成:{}'.format(name))
+                    print(f'CRM 权限: {name} 创建完成')
 
         # 为admin设置所有角色权限
         root_admin = Admin.query.filter_by(username='admin').first()
@@ -348,32 +343,32 @@ def register_commands(app):
                 role_id=super_role.id,
                 permission_id=per.id).first()
             if query_mid_permission_role:
-                print('角色:{} 已拥有权限:{}'.format(super_role.name, per.name))
+                print(f'角色: {super_role.name} 已拥有权限: {per.name}')
             else:
                 mid_permission_role = MidPermissionAndRole(
                     permission_id=per.id,
                     role_id=super_role.id,
                     creator='shell',
-                    creator_id='0'
+                    creator_id=0
                 )
                 db.session.add(mid_permission_role)
-                print('角色:{} 添加 权限:{} 完成'.format(super_role.name, per.name))
+                print(f'角色: {super_role.name} 添加 权限: {per.name} 完成')
         db.session.commit()
 
         # 配置角色
         for role in all_role:
             query_mid_admin_role = MidAdminAndRole.query.filter_by(admin_id=root_admin.id, role_id=role.id).first()
             if query_mid_admin_role:
-                print('用户:{} 已拥有角色:{}'.format(root_admin.username, role.name))
+                print(f'用户: {root_admin.username} 已拥有角色: {role.name}')
             else:
                 mid_admin_role = MidAdminAndRole(
                     admin_id=root_admin.id,
                     role_id=role.id,
                     creator='shell',
-                    creator_id='0'
+                    creator_id=0
                 )
                 db.session.add(mid_admin_role)
-                print('用户:{} 添加 角色:{} 完成'.format(root_admin.username, role.name))
+                print(f'用户: {root_admin.username} 添加 角色: {role.name} 完成')
         db.session.commit()
 
     @app.cli.command("project_init", help='项目初始化')

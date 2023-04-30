@@ -60,9 +60,6 @@ class NewConfig(BaseConfig):
 
     conf = get_config()  # 根据环境变量获取对应的配置文件
 
-    # env
-    PROJECT_ENV = conf.get('env', 'PROJECT_ENV')
-
     # base
     SECRET_KEY = conf.get('base', 'SECRET_KEY')  # session加密
     PERMANENT_SESSION_LIFETIME = timedelta(days=30)  # 设置session过期时间
