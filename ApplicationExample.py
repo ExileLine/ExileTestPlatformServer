@@ -43,3 +43,6 @@ def create_app(is_context=False):
     if not is_context:
         register_apscheduler(app)  # 定时任务
     return app
+
+
+app = create_app()
