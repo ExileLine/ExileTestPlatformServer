@@ -27,7 +27,7 @@ def api_before_request():
     open_api_list = ['/api/open_exec', '/api/open_cicd']
     white_list = ['/api/login', '/api/auth', '/api/tourist', '/api/platform_conf']
 
-    PROJECT_ENV = current_app.config.get("PROJECT_ENV")
+    current_debug = current_app.config.get("DEBUG")
 
     if request.path in white_list:
         return
@@ -39,7 +39,7 @@ def api_before_request():
         token = request.headers.get('token', '')
         logger.info(f'headers token -> {token}')
 
-        if PROJECT_ENV == "development":  # 开发环境忽略鉴权
+        if current_debug:  # 开发环境忽略鉴权
             g.app_user = type('A', (object,), {"id": 1, "username": "admin", "is_tourist": 1})
             return
 

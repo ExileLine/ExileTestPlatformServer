@@ -6,13 +6,15 @@
 # @Software: PyCharm
 
 
-from tasks.celery import cel
+from celery_app import cel
 from common.libs.BaseWebDriver import BaseWebDriver
 from common.libs.ui_test_runner.ui_case_runner import ExecuteUiCase
 
 
 @cel.task
 def execute_ui_case(test_obj):
+    """WebUi异步任务"""
+
     new_execute = ExecuteUiCase(test_obj=test_obj, web_driver=BaseWebDriver)
     result = new_execute.main()
     return "执行完成", result

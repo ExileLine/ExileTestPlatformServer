@@ -9,7 +9,7 @@
 import time
 import datetime
 
-from tasks.celery import cel
+from celery_app import cel
 from common.libs.BaseWebDriver import BaseWebDriver
 
 

@@ -7,12 +7,14 @@
 
 import asyncio
 
-from tasks.celery import cel
+from celery_app import cel
 from common.libs.async_test_runner.async_runner import AsyncCaseRunner
 
 
 @cel.task
 def execute_case(test_obj):
+    """Api异步任务"""
+
     acr = AsyncCaseRunner(test_obj=test_obj)
     asyncio.run(acr.main())
     return "执行完成"

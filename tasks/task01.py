@@ -7,7 +7,8 @@
 
 import time
 import datetime
-from tasks.celery import cel
+
+from celery_app import cel
 
 
 @cel.task

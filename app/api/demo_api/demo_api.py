@@ -8,7 +8,8 @@
 
 from all_reference import *
 from tasks.task01 import send_email
-from tasks.task02 import send_msg
+from tasks.task02 import send_message
+from tasks.task03 import test_context
 from tasks.web_ui import web_ui
 
 
@@ -62,8 +63,10 @@ class TestCeleryAsyncTaskApi(MethodView):
     def get(self):
         """调试Celery异步任务"""
 
-        # results = send_email.delay('yyx123')
-        # results = send_msg.delay('yyx456')
-        results = web_ui.delay()
-        print(results)
-        return api_result(code=200, message='调试Celery异步任务', data=[str(results)])
+        results1 = send_email.delay('yyx123')
+        results2 = send_message.delay('yyx456')
+        results3 = test_context.delay()
+        results4 = web_ui.delay()
+        data = [str(results1), str(results2), str(results3), str(results4)]
+        print(data)
+        return api_result(code=200, message='调试Celery异步任务', data=data)

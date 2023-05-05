@@ -5,32 +5,43 @@
 # @File    : celery_app.py
 # @Software: PyCharm
 
-
+from flask import Flask
 from celery import Celery
-from ApplicationExample import app
 
 
-def create_celery(app):
+def create_celery_app() -> Flask:
+    """celery实例化应用实例"""
+
+    app = Flask(__name__)  # 实例
+    from ExtendRegister.conf_register import register_config
+    from ExtendRegister.db_register import register_db
+    register_config(app)  # 配置注册
+    register_db(app)  # db注册
+    return app
+
+
+def create_celery(app: Flask) -> Celery:
     """
 
     :param app: Flask应用实例
     :return:
     """
 
-    my_celery = Celery(app.import_name)
+    celery_example = Celery(app.import_name)
 
-    my_celery.config_from_object("config.celeryconfig")
+    celery_example.config_from_object("config.celeryconfig")
 
-    class ContextTask(my_celery.Task):
+    class ContextTask(celery_example.Task):
         def __call__(self, *args, **kwargs):
             with app.app_context():
                 return self.run(*args, **kwargs)
 
-    my_celery.Task = ContextTask
-    return my_celery
+    celery_example.Task = ContextTask
+    return celery_example
 
 
-cel = create_celery(app)
+init_app = create_celery_app()
+cel = create_celery(app=init_app)
 
 """
 前台执行:
