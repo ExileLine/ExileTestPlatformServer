@@ -37,15 +37,17 @@ Respect ! ! !
 ### 项目演示
 
 - 封面
-  ![exile_cover](docs/展示图/exile_cover.png)
+  ![登录页](docs/展示图/登录页.png)
 - 主页  
-  ![exile_home](docs/展示图/exile_home.png)
+  ![仪表盘](docs/展示图/仪表盘.png)
 - Api用例
-  ![exile_case1](docs/展示图/exile_case1.png)
-  ![exile_case2](docs/展示图/exile_case2.png)
-- UI用例
-  ![exile_ui_case](docs/展示图/exile_ui_case.png)
-
+  ![接口测试1](docs/展示图/接口测试1.png)
+  ![接口测试2](docs/展示图/接口测试2.png)
+- UI用例(简单业务)
+  ![UI测试简单业务流程](docs/展示图/UI测试简单业务流程.png)
+- UI用例(复杂业务)
+  ![UI测试复杂业务流程](docs/展示图/UI测试复杂业务流程.png)
+  
 - 项目演示地址：http://106.75.174.40 (点击：`获取游客账号` 即可)
 - 警告：切勿在`演示地址`平台中使用重要或私密数据进行操作，损失概不负责，谢谢！
 
