@@ -611,6 +611,8 @@ class CaseExecuteApi(MethodView):
     def get(self):
         """调试"""
 
+        execute_logs_id = create_execute_logs(**debug_test_obj)
+        debug_test_obj['execute_logs_id'] = execute_logs_id
         results = execute_case.delay(debug_test_obj)
         print(results)
         return api_result(code=SUCCESS, message='GET:操作成功,请前往日志查看执行结果', data=[str(results)])

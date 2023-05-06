@@ -1193,6 +1193,7 @@ test_obj = {
     "project_id": 30,
     "execute_id": 8646,
     "execute_name": "测试重构用例相关",
+    "execute_key": "case",
     "execute_type": "case",
     "execute_label": "execute_label",
     "execute_user_id": 1,
