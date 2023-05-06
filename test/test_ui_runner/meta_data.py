@@ -69,7 +69,7 @@ class TestMetaData:
         "args": {
             "mode": "XPATH",
             "value": """//*[@id="project-search-container"]/div/form/div/div/div/input""",
-            "data": "zxc"
+            "data": "初始化项目"
         }
     }
     project_select = {
@@ -454,7 +454,7 @@ end = {
 
 meta_data = [
     start,
-    test_001,
+    # test_001,
     test_for_001,
     # test_002,
     end
@@ -611,7 +611,7 @@ meta_data3 = [
                 "args": {
                     "mode": "XPATH",
                     "value": "//*[@id=\"project-search-container\"]/div/form/div/div/div/input",
-                    "data": "zxc"
+                    "data": "初始化项目"
                 }
             },
             {
@@ -750,7 +750,7 @@ meta_data3 = [
                                 "args": {
                                     "mode": "XPATH",
                                     "value": "//*[@id=\"project-search-container\"]/div/form/div/div/div/input",
-                                    "data": "zxc"
+                                    "data": "初始化项目"
                                 }
                             },
                             {

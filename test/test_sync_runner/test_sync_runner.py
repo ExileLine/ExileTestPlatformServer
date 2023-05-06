@@ -1,10 +1,9 @@
 # -*- coding: utf-8 -*-
-# @Time    : 2022/8/6 19:58
+# @Time    : 2023/5/6 16:51
 # @Author  : yangyuexiong
 # @Email   : yang6333yyx@126.com
-# @File    : test_case_loader.py
+# @File    : test_sync_runner.py
 # @Software: PyCharm
-
 
 import json
 
@@ -550,7 +549,7 @@ test_obj = {
 
 
 def test_sync_request():
-    """1"""
+    """测试"""
     d = {
         'url': 'http://106.75.174.40:5000/api/login',
         'headers': {
@@ -562,3 +561,7 @@ def test_sync_request():
     cr = CaseRunner({})
     resp = cr.current_request('post', **d)
     print(resp)
+
+
+if __name__ == '__main__':
+    test_sync_request()

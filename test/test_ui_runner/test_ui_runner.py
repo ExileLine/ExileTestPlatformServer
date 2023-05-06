@@ -5,9 +5,10 @@
 # @File    : test_ui_runner.py
 # @Software: PyCharm
 
+
+from test.test_ui_runner.meta_data import meta_data as md
+from test.test_ui_runner.meta_data import meta_data2 as md2
 from common.libs.BaseWebDriver import BaseWebDriver
-from common.libs.ui_test_runner.test.meta_data import meta_data as md
-from common.libs.ui_test_runner.test.meta_data import meta_data2 as md2
 from common.libs.ui_test_runner.ui_case_runner import ExecuteUiCase
 
 test_obj = {

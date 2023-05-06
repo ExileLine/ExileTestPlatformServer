@@ -19,7 +19,7 @@ from app.models.test_project.models import (
 from app.models.test_env.models import TestEnv
 from app.models.test_logs.models import TestExecuteLogs
 from app.models.push_reminder.models import DingDingConfModel, MailConfModel
-from common.libs.async_test_runner.test.test_async_runner import test_obj as debug_test_obj
+from test.test_async_runner.test_async_runner import test_obj as debug_test_obj
 from tasks.execute_case import execute_case
 
 
