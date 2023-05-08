@@ -77,7 +77,9 @@ class ControlFunction:
         "open": "open",
         "close": "close",
         "input": "custom_input",
-        "click": "custom_click"
+        "click": "custom_click",
+        "clear": "custom_clear",
+        "text": "custom_text",
     }
 
     api_control_dict = {

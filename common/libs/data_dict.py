@@ -348,7 +348,82 @@ class GlobalsDict(F):
         return d
 
 
-class UiControlDict:
+class TemplateRender:
+    """组件渲染"""
+
+    mode_list = [
+        {"value": "ID", 'label': 'id'},
+        {"value": "XPATH", 'label': 'xpath'},
+        {"value": "NAME", 'label': 'name'},
+        {"value": "TAG_NAME", 'label': 'tag name'},
+        {"value": "CLASS_NAME", 'label': 'class name'},
+        {"value": "CSS_SELECTOR", 'label': 'css selector'},
+        {"value": "LINK_TEXT", 'label': 'link text'},
+        {"value": "PARTIAL_LINK_TEXT", 'label': 'partial link text'}
+    ]
+
+    @classmethod
+    def mode_dict(cls, label: str = "定位方式") -> dict:
+        """定位方式目标对象"""
+
+        res = {
+            "value": "mode",
+            "label": label,
+            "component": "t-select",
+            "list": cls.mode_list
+        }
+        return res
+
+    @classmethod
+    def ele_value_dict(cls, label: str = "元素") -> dict:
+        """元素模板对象"""
+
+        res = {
+            "value": "value",
+            "label": label,
+            "component": 't-input'
+        }
+        return res
+
+    @classmethod
+    def ele_data_dict(cls, label: str = "值") -> dict:
+        """值模板对象"""
+
+        res = {
+            "value": "data",
+            "label": label,
+            "component": 't-input'
+        }
+        return res
+
+    @classmethod
+    def rules(cls, trigger: str, message: str, required: bool = True) -> list:
+        """下拉框/输入框验证规则"""
+
+        if trigger not in ("change", "blur"):
+            raise TypeError(f"模板渲染失败，验证规则 {trigger} 不存在")
+
+        res = [
+            {
+                "required": required,
+                "message": message,
+                "type": "error",
+                "trigger": trigger
+            }
+        ]
+        return res
+
+    @classmethod
+    def extra(cls, lw: (int, float)) -> dict:
+        """输入框宽度"""
+
+        res = {
+            "label-width": f"{lw}em"
+        }
+        return res
+
+
+class UiControlDict(TemplateRender):
     """UI控件字典"""
 
     ui_control_list = [
@@ -605,101 +680,46 @@ class UiControlDict:
                     }
                 ],
                 "rules": {
-                    "url": [
-                        {
-                            "required": True,
-                            "message": "请输入url",
-                            "type": "error",
-                            "trigger": "blur",
-                        }
-                    ]
+                    "url": cls.rules("blur", "请输入url")
                 },
-                "extra": {
-                    "label-width": "4.5em"
-                }
+                "extra": cls.extra(4.5)
             },
             "input": {
                 "fieldList": [
-                    {
-                        "value": "mode",
-                        "label": "定位方式",
-                        "component": "t-select",
-                        "list": [
-                            {"value": "XPATH", 'label': 'XPATH'},
-                            {"value": "CSS", 'label': 'CSS'}
-                        ],
-                    },
-                    {
-                        "value": "value",
-                        "label": "元素",
-                        "component": 't-input',
-                    },
-                    {
-                        "value": "data",
-                        "label": "值",
-                        "component": 't-input',
-                    }
+                    cls.mode_dict(),
+                    cls.ele_value_dict(),
+                    cls.ele_data_dict()
                 ],
                 "rules": {
-                    "mode": [
-                        {
-                            "required": True,
-                            "message": "请选择定位方式",
-                            "type": "error",
-                            "trigger": "change"
-                        }
-                    ],
-                    "value": [
-                        {
-                            "required": True,
-                            "message": "请输入元素",
-                            "type": "error",
-                            "trigger": "blur",
-                        }
-                    ],
+                    "mode": cls.rules("change", "请选择定位方式"),
+                    "value": cls.rules("blur", "请输入元素")
                 },
-                "extra": {
-                    "label-width": "5.5em"
-                }
+                "extra": cls.extra(5.5)
             },
             "click": {
                 "fieldList": [
-                    {
-                        "value": "mode",
-                        "label": "定位方式",
-                        "component": "t-select",
-                        "list": [
-                            {"value": "XPATH", 'label': 'XPATH'},
-                            {"value": "CSS", 'label': 'CSS'}
-                        ],
-                    },
-                    {
-                        "value": "value",
-                        "label": "元素",
-                        "component": 't-input',
-                    }
+                    cls.mode_dict(),
+                    cls.ele_value_dict(),
                 ],
                 "rules": {
-                    "mode": [
-                        {
-                            "required": True,
-                            "message": "请选择定位方式",
-                            "type": "error",
-                            "trigger": "change"
-                        }
-                    ],
-                    "value": [
-                        {
-                            "required": True,
-                            "message": "请输入元素",
-                            "type": "error",
-                            "trigger": "blur",
-                        }
-                    ],
+                    "mode": cls.rules("change", "请选择定位方式"),
+                    "value": cls.rules("blur", "请输入元素")
                 },
-                "extra": {
-                    "label-width": "5.5em"
-                }
+                "extra": cls.extra(5.5)
+            },
+            "clear": {},
+            "text": {
+                "fieldList": [
+                    cls.mode_dict(),
+                    cls.ele_value_dict(),
+                    cls.ele_data_dict(label="临时变量名称")
+                ],
+                "rules": {
+                    "mode": cls.rules("change", "请选择定位方式"),
+                    "value": cls.rules("blur", "请输入元素"),
+                    "data": cls.rules("blur", "请输入临时变量名称")
+                },
+                "extra": cls.extra(7.5)
             }
         }
 
