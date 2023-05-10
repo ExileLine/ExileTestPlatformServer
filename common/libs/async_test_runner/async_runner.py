@@ -792,6 +792,7 @@ class AsyncCaseRunner:
             "execute_name": self.execute_name,
             "case_logs": self.case_logs,
             "scenario_logs": self.scenario_logs,
+            "ui_case_logs": [],  # 兼容测试报告数据结构
             "result_summary": self.result_summary
         }
         json_str = json.dumps(return_case_result, ensure_ascii=False)

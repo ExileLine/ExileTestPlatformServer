@@ -270,6 +270,8 @@ class ExecuteUiCase:
             "execute_username": self.execute_username,
             "execute_type": self.execute_type,
             "execute_name": self.execute_name,
+            "case_logs": [],  # 兼容测试报告数据结构
+            "scenario_logs": [],  # 兼容测试报告数据结构
             "ui_case_logs": ui_case_logs,
             "result_summary": result_summary,
         }
