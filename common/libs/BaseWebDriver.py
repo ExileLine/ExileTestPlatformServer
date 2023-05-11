@@ -71,6 +71,8 @@ class BaseWebDriver:
 
         self.download_path = download_path
 
+        self.custom_ele_text_dict = {}
+
     def driver_init(self):
         """
         driver初始化
@@ -204,6 +206,50 @@ class BaseWebDriver:
 
         ele = self.get_element(mode=mode, value=value)
         ele.click()
+
+    def custom_clear(self, mode: str, value: str):
+        """
+        清空输入框
+        :param mode:
+        :param value:
+        :return:
+        """
+
+        ele = self.get_element(mode=mode, value=value)
+        ele.clear()
+
+        if ele.text not in ('', None):
+            if self.pf == "Darwin":
+                ActionChains(self.driver).key_down(Keys.COMMAND).send_keys('a').key_down(Keys.BACKSPACE).key_up(
+                    Keys.COMMAND).key_up(Keys.BACKSPACE).perform()
+            else:
+                ActionChains(self.driver).key_down(Keys.CONTROL).send_keys('a').key_down(Keys.BACKSPACE).key_up(
+                    Keys.CONTROL).key_up(Keys.BACKSPACE).perform()
+
+    def custom_sleep(self, num: (int, float)):
+        """
+        等待
+        :param num:
+        :return:
+        """
+
+        try:
+            if isinstance(num, str):
+                n = float(num) if '.' in num else int(num)
+            else:
+                n = num
+        except:
+            n = 0
+
+        time.sleep(n)
+        print(f'等待 {n} s')
+
+    def custom_get_text(self, mode: str, value: str, data: str):
+        """获取文本字符串"""
+
+        ele = self.get_element(mode=mode, value=value)
+        self.custom_ele_text_dict[data] = ele.text
+        print("=== custom_ele_text_dict ===", self.custom_ele_text_dict)
 
     def test(self):
         self.driver_init()

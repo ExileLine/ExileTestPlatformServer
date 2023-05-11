@@ -79,7 +79,8 @@ class ControlFunction:
         "input": "custom_input",
         "click": "custom_click",
         "clear": "custom_clear",
-        "text": "custom_text",
+        "text": "custom_get_text",
+        "sleep": "custom_sleep",
     }
 
     api_control_dict = {

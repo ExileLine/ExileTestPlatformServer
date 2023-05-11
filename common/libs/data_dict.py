@@ -363,6 +363,17 @@ class TemplateRender:
     ]
 
     @classmethod
+    def sleep_dict(cls, label: str = "等待时间(s)") -> dict:
+        """等待时间"""
+
+        res = {
+            "value": "num",
+            "label": label,
+            "component": 't-input'
+        }
+        return res
+
+    @classmethod
     def mode_dict(cls, label: str = "定位方式") -> dict:
         """定位方式目标对象"""
 
@@ -461,9 +472,23 @@ class UiControlDict(TemplateRender):
             },
         },
         {
+            "title": "清空输入框(clear)",
+            "type": "ui_control",
+            "function": "clear",
+            "args": {
+                "mode": "",
+                "value": ""
+            },
+        },
+        {
             "title": "获取文本(text)",
             "type": "ui_control",
-            "function": "text"
+            "function": "text",
+            "args": {
+                "mode": "",
+                "value": "",
+                "data": ""
+            },
         },
         {
             "title": "键盘事件",
@@ -481,6 +506,12 @@ class UiControlDict(TemplateRender):
             "title": "调用其他UI用例",
             "type": "ui_control",
             "function": "other_case",
+            "args": {}
+        },
+        {
+            "title": "等待",
+            "type": "ui_control",
+            "function": "sleep",
             "args": {}
         },
     ]
@@ -707,7 +738,17 @@ class UiControlDict(TemplateRender):
                 },
                 "extra": cls.extra(5.5)
             },
-            "clear": {},
+            "clear": {
+                "fieldList": [
+                    cls.mode_dict(),
+                    cls.ele_value_dict(),
+                ],
+                "rules": {
+                    "mode": cls.rules("change", "请选择定位方式"),
+                    "value": cls.rules("blur", "请输入元素")
+                },
+                "extra": cls.extra(5.5)
+            },
             "text": {
                 "fieldList": [
                     cls.mode_dict(),
@@ -720,6 +761,15 @@ class UiControlDict(TemplateRender):
                     "data": cls.rules("blur", "请输入临时变量名称")
                 },
                 "extra": cls.extra(7.5)
+            },
+            "sleep": {
+                "fieldList": [
+                    cls.sleep_dict()
+                ],
+                "rules": {
+                    "num": cls.rules("blur", "请输入等待时间(s)"),
+                },
+                "extra": cls.extra(6.5)
             }
         }
 
