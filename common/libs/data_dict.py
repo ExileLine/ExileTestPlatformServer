@@ -348,8 +348,8 @@ class GlobalsDict(F):
         return d
 
 
-class TemplateRender:
-    """组件渲染"""
+class FieldListRender:
+    """fieldList"""
 
     mode_list = [
         {"value": "ID", 'label': 'id'},
@@ -361,17 +361,6 @@ class TemplateRender:
         {"value": "LINK_TEXT", 'label': 'link text'},
         {"value": "PARTIAL_LINK_TEXT", 'label': 'partial link text'}
     ]
-
-    @classmethod
-    def sleep_dict(cls, label: str = "等待时间(s)") -> dict:
-        """等待时间"""
-
-        res = {
-            "value": "num",
-            "label": label,
-            "component": 't-input'
-        }
-        return res
 
     @classmethod
     def mode_dict(cls, label: str = "定位方式") -> dict:
@@ -407,6 +396,10 @@ class TemplateRender:
         }
         return res
 
+
+class RulesRender:
+    """rules"""
+
     @classmethod
     def rules(cls, trigger: str, message: str, required: bool = True) -> list:
         """下拉框/输入框验证规则"""
@@ -424,12 +417,31 @@ class TemplateRender:
         ]
         return res
 
+
+class ExtraRender:
+    """extra"""
+
     @classmethod
     def extra(cls, lw: (int, float)) -> dict:
         """输入框宽度"""
 
         res = {
             "label-width": f"{lw}em"
+        }
+        return res
+
+
+class TemplateRender(FieldListRender, RulesRender, ExtraRender):
+    """组件渲染"""
+
+    @classmethod
+    def common_dict(cls, label: str = "通用模板") -> dict:
+        """通用模板"""
+
+        res = {
+            "value": "num",
+            "label": label,
+            "component": 't-input'
         }
         return res
 
@@ -607,7 +619,7 @@ class UiControlDict(TemplateRender):
 
     @classmethod
     def get_uc_dict(cls):
-        """获取UI控件字典"""
+        """获取UI控件字典(页面左边的控件tag块)"""
 
         result = [
             {
@@ -636,9 +648,9 @@ class UiControlDict(TemplateRender):
 
     @classmethod
     def get_uc_mapping(cls):
-        """获取UI控件映射"""
+        """获取UI控件映射(控件tag块弹窗细节渲染)"""
 
-        result = {
+        ui_dict = {
             "demo": {
                 "fieldList": [
                     {
@@ -764,7 +776,7 @@ class UiControlDict(TemplateRender):
             },
             "sleep": {
                 "fieldList": [
-                    cls.sleep_dict()
+                    cls.common_dict(label="等待时间(s)")
                 ],
                 "rules": {
                     "num": cls.rules("blur", "请输入等待时间(s)"),
@@ -773,6 +785,22 @@ class UiControlDict(TemplateRender):
             }
         }
 
+        logic_dict = {
+            "for": {
+                "fieldList": [
+                    cls.common_dict(label="循环次数")
+                ],
+                "rules": {
+                    "num": cls.rules("blur", "输入循环次数"),
+                },
+                "extra": cls.extra(6.5)
+            }
+        }
+
+        result = {
+            **ui_dict,
+            **logic_dict
+        }
         return result
 
 
