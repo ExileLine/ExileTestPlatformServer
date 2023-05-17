@@ -8,7 +8,8 @@
 import random
 
 from all_reference import *
-from app.models.test_project.models import TestProject, TestProjectVersion
+from app.models.test_project.models import TestProjectVersion
+from app.api.project_api.project_api import qp_deco
 
 
 def gen_icon(n):
@@ -38,6 +39,7 @@ class ProjectVersionApi(MethodView):
 
         return api_result(code=SUCCESS, message=SUCCESS_MESSAGE, data=query_version.to_json())
 
+    @qp_deco
     def post(self):
         """版本迭代新增"""
 
@@ -47,10 +49,6 @@ class ProjectVersionApi(MethodView):
         version_number = data.get('version_number')
         icon = data.get('icon')
         remark = data.get('remark')
-
-        query_project = TestProject.query.get(project_id)
-        if not query_project:
-            return api_result(code=NO_DATA, message="项目不存在或已禁用")
 
         query_version = TestProjectVersion.query.filter_by(project_id=project_id, version_name=version_name).first()
 
@@ -69,6 +67,7 @@ class ProjectVersionApi(MethodView):
         new_version.save()
         return api_result(code=POST_SUCCESS, message=POST_MESSAGE)
 
+    @qp_deco
     def put(self):
         """版本迭代编辑"""
 
@@ -79,11 +78,6 @@ class ProjectVersionApi(MethodView):
         version_number = data.get('version_number')
         icon = data.get('icon')
         remark = data.get('remark')
-
-        query_project = TestProject.query.get(project_id)
-
-        if not query_project:
-            return api_result(code=NO_DATA, message="项目不存在或已禁用")
 
         query_version = TestProjectVersion.query.get(version_id)
 

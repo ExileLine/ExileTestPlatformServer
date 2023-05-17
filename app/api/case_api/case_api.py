@@ -7,8 +7,10 @@
 
 from all_reference import *
 from app.models.test_case.models import TestCase
-from app.models.test_project.models import TestProject, TestProjectVersion, TestModuleApp, MidProjectAndCase, \
-    MidVersionCase, MidModuleCase, MidTaskCase
+from app.models.test_project.models import (
+    TestProjectVersion, TestModuleApp, MidProjectAndCase, MidVersionCase, MidModuleCase, MidTaskCase
+)
+from app.api.project_api.project_api import qp_deco
 
 params_key = [
     ("case_name", "用例名称"),
@@ -85,10 +87,6 @@ def case_decorator(func):
         if not check_bool:
             return api_result(code=NO_DATA, message=check_msg)
 
-        query_project = TestProject.query.get(project_id)
-        if not query_project:
-            return api_result(code=NO_DATA, message=f'项目: {project_id} 不存在')
-
         if version_list:
             result = new_check_version(project_id, version_list)
             if result:
@@ -139,6 +137,7 @@ class CaseApi(MethodView):
 
         return api_result(code=SUCCESS, message=SUCCESS_MESSAGE, data=result)
 
+    @qp_deco
     @case_decorator
     def post(self):
         """用例新增"""
@@ -196,6 +195,7 @@ class CaseApi(MethodView):
         db.session.commit()
         return api_result(code=POST_SUCCESS, message=POST_MESSAGE, data=new_test_case.to_json())
 
+    @qp_deco
     @case_decorator
     def put(self):
         """用例编辑"""

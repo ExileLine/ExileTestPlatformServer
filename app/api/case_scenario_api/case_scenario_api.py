@@ -7,9 +7,11 @@
 
 from all_reference import *
 from app.models.test_case_scenario.models import TestCaseScenario
-from app.models.test_project.models import TestProject, TestProjectVersion, TestModuleApp, MidProjectScenario, \
-    MidVersionScenario, MidTaskScenario, MidModuleScenario
+from app.models.test_project.models import (
+    TestProjectVersion, TestModuleApp, MidProjectScenario, MidVersionScenario, MidTaskScenario, MidModuleScenario
+)
 from app.api.case_api.case_api import new_check_version, new_check_module
+from app.api.project_api.project_api import qp_deco
 
 
 def zip_case(before_id_list, before_obj_list):
@@ -67,10 +69,6 @@ def scenario_decorator(func):
         module_list = data.get('module_list', [])
         scenario_title = data.get('scenario_title', '').strip()
         case_list = data.get('case_list', [])
-
-        query_project = TestProject.query.get(project_id)
-        if not query_project:
-            return api_result(code=NO_DATA, message=f'项目: {project_id} 不存在')
 
         if version_list:
             result = new_check_version(project_id, version_list)
@@ -173,6 +171,7 @@ class CaseScenarioApi(MethodView):
         result["module_list"] = module_list
         return api_result(code=SUCCESS, message=SUCCESS_MESSAGE, data=result)
 
+    @qp_deco
     @scenario_decorator
     def post(self):
         """用例场景新增"""
@@ -219,6 +218,7 @@ class CaseScenarioApi(MethodView):
         db.session.commit()
         return api_result(code=POST_SUCCESS, message=POST_MESSAGE)
 
+    @qp_deco
     @scenario_decorator
     def put(self):
         """用例场景编辑"""

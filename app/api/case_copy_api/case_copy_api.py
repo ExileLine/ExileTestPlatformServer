@@ -10,8 +10,9 @@ from all_reference import *
 
 from app.models.test_case.models import TestCase
 from app.models.test_case_scenario.models import TestCaseScenario
-from app.models.test_project.models import TestProject, MidProjectAndCase, MidProjectScenario
+from app.models.test_project.models import MidProjectAndCase, MidProjectScenario
 from app.models.test_case_assert.models import TestCaseDataAssBind
+from app.api.project_api.project_api import qp
 
 
 def copy_api_decorator(func):
@@ -23,10 +24,10 @@ def copy_api_decorator(func):
         project_id = data.get('project_id', 0)
 
         if not is_cross:  # 复制到当前项目
-            query_project = TestProject.query.get(project_id)
+            query_project = qp(project_id)
             err_message = f'项目id: {project_id} 不存在'
         else:  # 跨项目复制
-            query_project = TestProject.query.get(cross_project_id)
+            query_project = qp(cross_project_id)
             err_message = f'跨项目id: {cross_project_id} 不存在'
 
         if not query_project:

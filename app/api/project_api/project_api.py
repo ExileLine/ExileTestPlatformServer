@@ -19,6 +19,18 @@ def qp(project_id):
     return True
 
 
+def qp_deco(func):
+    @wraps(func)
+    def wrapper(*args, **kwargs):
+        data = request.get_json()
+        project_id = data.get('project_id', 0)
+        if not qp(project_id):
+            return api_result(code=NO_DATA, message=f"项目id: {project_id} 不存在或被禁用")
+        return func(*args, **kwargs)
+
+    return wrapper
+
+
 class ProjectApi(MethodView):
     """
     项目管理 api
@@ -78,7 +90,6 @@ class ProjectApi(MethodView):
 
         query_project = TestProject.query.get(project_id)
         if not query_project:
-        # if not qp(project_id):
             return api_result(code=NO_DATA, message=f"项目id: {project_id} 不存在")
 
         if query_project.project_name != project_name:

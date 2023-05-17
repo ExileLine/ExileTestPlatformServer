@@ -11,6 +11,7 @@ from app.models.ui_test_case.models import (
     UiTestCase, MidProjectAndUiCase, MidVersionUiCase, MidTaskUiCase, MidModuleUiCase
 )
 from app.api.case_api.case_api import new_check_version, new_check_module
+from app.api.project_api.project_api import qp_deco
 
 demo_data = [
     {
@@ -235,10 +236,6 @@ def ui_case_decorator(func):
         case_status = data.get('case_status')
         meta_data = data.get('meta_data')
 
-        query_project = TestProject.query.get(project_id)
-        if not query_project:
-            return api_result(code=NO_DATA, message=f'项目: {project_id} 不存在')
-
         if version_list:
             result = new_check_version(project_id, version_list)
             if result:
@@ -282,6 +279,7 @@ class UiCaseApi(MethodView):
 
         return api_result(code=SUCCESS, message=SUCCESS_MESSAGE, data=query_ui_case.to_json())
 
+    @qp_deco
     @ui_case_decorator
     def post(self):
         """新增UI用例"""
@@ -335,6 +333,7 @@ class UiCaseApi(MethodView):
         db.session.commit()
         return api_result(code=POST_SUCCESS, message=POST_MESSAGE, data=new_ui_case.to_json())
 
+    @qp_deco
     @ui_case_decorator
     def put(self):
         """编辑UI用例"""
