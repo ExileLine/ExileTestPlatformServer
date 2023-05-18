@@ -8,7 +8,10 @@
 from all_reference import *
 from app.models.test_case.models import TestCase
 from app.models.test_case_scenario.models import TestCaseScenario
-from app.models.test_project.models import TestModuleApp, TestProject, MidModuleCase, MidModuleScenario
+from app.models.test_project.models import TestModuleApp, MidModuleCase, MidModuleScenario
+from app.models.ui_test_case.models import UiTestCase, MidModuleUiCase
+from app.api.project_api.project_api import qp_deco
+from app.api.project_api.version_task_api import SaveMid
 
 
 class ModuleAppApi(MethodView):
@@ -27,20 +30,29 @@ class ModuleAppApi(MethodView):
         if not query_module:
             return api_result(code=NO_DATA, message=f'功能模块或应用不存在:{module_id}')
 
+        # 用例
         case_id_list = [mid.case_id for mid in MidModuleCase.query.filter_by(module_id=module_id).all()]
         query_case = TestCase.query.filter(TestCase.id.in_(case_id_list)).all()
         case_list = [case.to_json() for case in query_case if query_case]
 
+        # 场景
         scenario_id_list = [mid.scenario_id for mid in MidModuleScenario.query.filter_by(module_id=module_id).all()]
         query_scenario = TestCaseScenario.query.filter(TestCaseScenario.id.in_(scenario_id_list)).all()
         scenario_list = [scenario.to_json() for scenario in query_scenario if query_scenario]
 
+        # UI用例
+        ui_case_id_list = [mid.case_id for mid in MidModuleUiCase.query.filter_by(module_id=module_id).all()]
+        query_ui_case = UiTestCase.query.filter(UiTestCase.id.in_(ui_case_id_list)).all()
+        ui_case_list = [ui_case.to_json() for ui_case in query_ui_case if query_ui_case]
+
         result = query_module.to_json()
         result['case_list'] = case_list
         result['scenario_list'] = scenario_list
+        result['ui_case_list'] = ui_case_list
 
         return api_result(code=SUCCESS, message=SUCCESS_MESSAGE, data=result)
 
+    @qp_deco
     def post(self):
         """模块应用新增"""
 
@@ -52,11 +64,8 @@ class ModuleAppApi(MethodView):
         module_source = data.get('module_source')
         case_list = data.get('case_list')
         scenario_list = data.get('scenario_list')
+        ui_case_list = data.get('ui_case_list', [])
         remark = data.get('remark')
-
-        query_project = TestProject.query.get(project_id)
-        if not query_project:
-            return api_result(code=NO_DATA, message=f"项目: {project_id} 不存在")
 
         query_module = TestModuleApp.query.filter_by(module_code=module_code).first()
         if query_module:
@@ -83,22 +92,16 @@ class ModuleAppApi(MethodView):
         new_module.save()
         module_id = new_module.id
 
-        if case_list:
-            list(map(lambda case_id: db.session.add(
-                MidModuleCase(
-                    module_id=module_id, case_id=case_id, creator=g.app_user.username, creator_id=g.app_user.id)),
-                     case_list))
-
-        if scenario_list:
-            list(map(lambda scenario_id: db.session.add(
-                MidModuleScenario(
-                    module_id=module_id, scenario_id=scenario_id, creator=g.app_user.username,
-                    creator_id=g.app_user.id)),
-                     scenario_list))
-
-        db.session.commit()
+        SaveMid(
+            save_type="module",
+            module_id=module_id,
+            case_list=case_list,
+            scenario_list=scenario_list,
+            ui_case_list=ui_case_list,
+        ).main()
         return api_result(code=POST_SUCCESS, message=SUCCESS_MESSAGE)
 
+    @qp_deco
     def put(self):
         """模块应用编辑"""
 
@@ -111,11 +114,8 @@ class ModuleAppApi(MethodView):
         module_source = data.get('module_source')
         case_list = data.get('case_list')
         scenario_list = data.get('scenario_list')
+        ui_case_list = data.get('ui_case_list', [])
         remark = data.get('remark')
-
-        query_project = TestProject.query.get(project_id)
-        if not query_project:
-            return api_result(code=NO_DATA, message=f"项目: {project_id} 不存在")
 
         query_module = TestModuleApp.query.get(module_id)
         if not query_module:
@@ -149,20 +149,16 @@ class ModuleAppApi(MethodView):
         db.session.query(MidModuleScenario).filter(MidModuleScenario.module_id == module_id).delete(
             synchronize_session=False)
 
-        if case_list:
-            list(map(lambda case_id: db.session.add(
-                MidModuleCase(
-                    module_id=module_id, case_id=case_id, creator=g.app_user.username, creator_id=g.app_user.id)),
-                     case_list))
+        db.session.query(MidModuleUiCase).filter(MidModuleUiCase.module_id == module_id).delete(
+            synchronize_session=False)
 
-        if scenario_list:
-            list(map(lambda scenario_id: db.session.add(
-                MidModuleScenario(
-                    module_id=module_id, scenario_id=scenario_id, creator=g.app_user.username,
-                    creator_id=g.app_user.id)),
-                     scenario_list))
-
-        db.session.commit()
+        SaveMid(
+            save_type="module",
+            module_id=module_id,
+            case_list=case_list,
+            scenario_list=scenario_list,
+            ui_case_list=ui_case_list,
+        ).main()
         return api_result(code=PUT_SUCCESS, message=SUCCESS_MESSAGE)
 
     def delete(self):
@@ -181,6 +177,8 @@ class ModuleAppApi(MethodView):
         db.session.query(MidModuleCase).filter(MidModuleCase.module_id == module_id).delete(
             synchronize_session=False)
         db.session.query(MidModuleScenario).filter(MidModuleScenario.module_id == module_id).delete(
+            synchronize_session=False)
+        db.session.query(MidModuleUiCase).filter(MidModuleUiCase.module_id == module_id).delete(
             synchronize_session=False)
         db.session.commit()
         return api_result(code=DEL_SUCCESS, message=SUCCESS_MESSAGE)

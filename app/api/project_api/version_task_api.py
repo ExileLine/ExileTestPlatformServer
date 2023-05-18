@@ -10,7 +10,94 @@ from all_reference import *
 from app.models.admin.models import Admin
 from app.models.test_case.models import TestCase
 from app.models.test_case_scenario.models import TestCaseScenario
-from app.models.test_project.models import TestProjectVersion, TestVersionTask, MidTaskCase, MidTaskScenario
+from app.models.test_project.models import (
+    TestProjectVersion, TestVersionTask, MidTaskCase, MidTaskScenario, MidModuleCase, MidModuleScenario
+)
+from app.models.ui_test_case.models import UiTestCase, MidTaskUiCase, MidModuleUiCase
+
+
+class SaveMid:
+    """写入关联关系"""
+
+    def __init__(self, save_type: str, case_list: list, scenario_list: list, ui_case_list: list, task_id: int = None,
+                 module_id: int = None):
+        """
+
+        :param save_type: 类型(task,module)
+        :param case_list: 用例列表
+        :param scenario_list: 场景列表
+        :param ui_case_list: ui用例列表
+        :param task_id: 任务id
+        :param module_id: 模块id
+        """
+
+        self.save_type = save_type
+        self.case_list = case_list
+        self.scenario_list = scenario_list
+        self.ui_case_list = ui_case_list
+        self.task_id = task_id
+        self.module_id = module_id
+        self.d = {
+            "task": self.save_task_mid,
+            "module": self.save_module_mid
+        }
+        if self.save_type not in ("task", "module"):
+            raise KeyError("save_type 应为 task 或 module")
+
+    def save_task_mid(self):
+        """写入任务关联关系"""
+
+        if self.case_list:
+            list(map(lambda case_id: db.session.add(
+                MidTaskCase(
+                    task_id=self.task_id, case_id=case_id, creator=g.app_user.username, creator_id=g.app_user.id)),
+                     self.case_list))
+
+        if self.scenario_list:
+            list(map(lambda scenario_id: db.session.add(
+                MidTaskScenario(
+                    task_id=self.task_id, scenario_id=scenario_id, creator=g.app_user.username,
+                    creator_id=g.app_user.id)),
+                     self.scenario_list))
+
+        if self.ui_case_list:
+            list(map(lambda ui_case_id: db.session.add(
+                MidTaskUiCase(
+                    task_id=self.task_id, case_id=ui_case_id, creator=g.app_user.username, creator_id=g.app_user.id)),
+                     self.ui_case_list))
+
+        db.session.commit()
+
+    def save_module_mid(self):
+        """写入模块关联关系"""
+
+        if self.case_list:
+            list(map(lambda case_id: db.session.add(
+                MidModuleCase(
+                    module_id=self.module_id, case_id=case_id, creator=g.app_user.username, creator_id=g.app_user.id)),
+                     self.case_list))
+
+        if self.scenario_list:
+            list(map(lambda scenario_id: db.session.add(
+                MidModuleScenario(
+                    module_id=self.module_id, scenario_id=scenario_id, creator=g.app_user.username,
+                    creator_id=g.app_user.id)),
+                     self.scenario_list))
+
+        if self.ui_case_list:
+            list(map(lambda ui_case_id: db.session.add(
+                MidModuleUiCase(
+                    module_id=self.module_id, case_id=ui_case_id, creator=g.app_user.username,
+                    creator_id=g.app_user.id)),
+                     self.ui_case_list))
+
+        db.session.commit()
+
+    def main(self):
+        """main"""
+
+        f = self.d.get(self.save_type)
+        f()
 
 
 def vt_decorator(func):
@@ -42,30 +129,6 @@ def vt_decorator(func):
     return wrapper
 
 
-def save_case_and_scenario_list(task_id: int, case_list: list, scenario_list: list):
-    """
-    写入
-    :param task_id: 任务id
-    :param case_list: 用例列表
-    :param scenario_list: 场景列表
-    :return:
-    """
-
-    if case_list:
-        list(map(lambda case_id: db.session.add(
-            MidTaskCase(
-                task_id=task_id, case_id=case_id, creator=g.app_user.username, creator_id=g.app_user.id)),
-                 case_list))
-
-    if scenario_list:
-        list(map(lambda scenario_id: db.session.add(
-            MidTaskScenario(
-                task_id=task_id, scenario_id=scenario_id, creator=g.app_user.username, creator_id=g.app_user.id)),
-                 scenario_list))
-
-    db.session.commit()
-
-
 class VersionTaskApi(MethodView):
     """
     版本迭代任务 api
@@ -85,18 +148,26 @@ class VersionTaskApi(MethodView):
         query_user_list = Admin.query.filter(Admin.id.in_(query_task.user_list)).all()
         user_list = [user.to_json() for user in query_user_list]
 
+        # 用例
         case_id_list = [mid.case_id for mid in MidTaskCase.query.filter_by(task_id=task_id).all()]
         query_case = TestCase.query.filter(TestCase.id.in_(case_id_list)).all()
         case_list = [case.to_json() for case in query_case if query_case]
 
+        # 场景
         scenario_id_list = [mid.scenario_id for mid in MidTaskScenario.query.filter_by(task_id=task_id).all()]
         query_scenario = TestCaseScenario.query.filter(TestCaseScenario.id.in_(scenario_id_list)).all()
         scenario_list = [scenario.to_json() for scenario in query_scenario if query_scenario]
+
+        # UI用例
+        ui_case_id_list = [mid.case_id for mid in MidTaskUiCase.query.filter_by(task_id=task_id).all()]
+        query_ui_case = UiTestCase.query.filter(UiTestCase.id.in_(ui_case_id_list)).all()
+        ui_case_list = [ui_case.to_json() for ui_case in query_ui_case if query_ui_case]
 
         result = query_task.to_json()
         result['user_list'] = user_list
         result['case_list'] = case_list
         result['scenario_list'] = scenario_list
+        result['ui_case_list'] = ui_case_list
 
         return api_result(code=SUCCESS, message=SUCCESS_MESSAGE, data=result)
 
@@ -111,6 +182,7 @@ class VersionTaskApi(MethodView):
         user_list = data.get('user_list', [])
         case_list = data.get('case_list', [])
         scenario_list = data.get('scenario_list', [])
+        ui_case_list = data.get('ui_case_list', [])
         remark = data.get('remark')
 
         new_version_task = TestVersionTask(
@@ -124,7 +196,14 @@ class VersionTaskApi(MethodView):
         )
         new_version_task.save()
         task_id = new_version_task.id
-        save_case_and_scenario_list(task_id, case_list, scenario_list)
+
+        SaveMid(
+            save_type="task",
+            task_id=task_id,
+            case_list=case_list,
+            scenario_list=scenario_list,
+            ui_case_list=ui_case_list,
+        ).main()
         return api_result(code=POST_SUCCESS, message=SUCCESS_MESSAGE)
 
     @vt_decorator
@@ -138,6 +217,7 @@ class VersionTaskApi(MethodView):
         user_list = data.get('user_list', [])
         case_list = data.get('case_list', [])
         scenario_list = data.get('scenario_list', [])
+        ui_case_list = data.get('ui_case_list', [])
         remark = data.get('remark')
 
         query_task = TestVersionTask.query.get(task_id)
@@ -157,7 +237,16 @@ class VersionTaskApi(MethodView):
         db.session.query(MidTaskScenario).filter(MidTaskScenario.task_id == task_id).delete(
             synchronize_session=False)
 
-        save_case_and_scenario_list(task_id, case_list, scenario_list)
+        db.session.query(MidTaskUiCase).filter(MidTaskUiCase.task_id == task_id).delete(
+            synchronize_session=False)
+
+        SaveMid(
+            save_type="task",
+            task_id=task_id,
+            case_list=case_list,
+            scenario_list=scenario_list,
+            ui_case_list=ui_case_list,
+        ).main()
         return api_result(code=PUT_SUCCESS, message=SUCCESS_MESSAGE)
 
     def delete(self):
@@ -177,6 +266,7 @@ class VersionTaskApi(MethodView):
         db.session.query(MidTaskCase).filter(MidTaskCase.task_id == task_id).delete(synchronize_session=False)
         db.session.query(MidTaskScenario).filter(MidTaskScenario.task_id == task_id).delete(
             synchronize_session=False)
+        db.session.query(MidTaskUiCase).filter(MidTaskUiCase.task_id == task_id).delete(synchronize_session=False)
         db.session.commit()
         return api_result(code=DEL_SUCCESS, message=SUCCESS_MESSAGE)
 
