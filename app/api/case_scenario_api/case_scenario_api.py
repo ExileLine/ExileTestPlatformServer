@@ -73,12 +73,12 @@ def scenario_decorator(func):
         if version_list:
             result = new_check_version(project_id, version_list)
             if result:
-                return api_result(code=NO_DATA, message=f'项目:{query_project.project_name}下不存在->版本迭代id:{result}')
+                return api_result(code=NO_DATA, message=f'项目id: {project_id} 未关联->版本迭代id:{result}')
 
         if module_list:
             result = new_check_module(project_id, module_list)
             if result:
-                return api_result(code=NO_DATA, message=f'项目:{query_project.project_name}下不存在->模块id:{result}')
+                return api_result(code=NO_DATA, message=f'项目id: {project_id} 未关联->模块id:{result}')
 
         if not scenario_title:
             return api_result(code=REQUIRED, message='场景名称不能为空')

@@ -53,7 +53,7 @@ class ProjectVersionApi(MethodView):
         query_version = TestProjectVersion.query.filter_by(project_id=project_id, version_name=version_name).first()
 
         if query_version:
-            return api_result(code=UNIQUE_ERROR, message=f"项目: {query_project.project_name} 已经存在 迭代: {version_name}")
+            return api_result(code=UNIQUE_ERROR, message=f"项目id: {project_id} 已经存在 迭代: {version_name}")
 
         new_version = TestProjectVersion(
             version_name=version_name,
@@ -79,18 +79,21 @@ class ProjectVersionApi(MethodView):
         icon = data.get('icon')
         remark = data.get('remark')
 
-        query_version = TestProjectVersion.query.get(version_id)
+        query_version = TestProjectVersion.query.filter_by(id=version_id, project_id=project_id).first()
 
         if not query_version:
             return api_result(code=NO_DATA, message="迭代不存在或已禁用")
 
-        if query_version.project_id != project_id:  # 入参 project_id
-            query_version = TestProjectVersion.query.filter_by(project_id=project_id, version_name=version_name).first()
-            if query_version.id != version_id:
-                return api_result(
-                    code=UNIQUE_ERROR,
-                    message=f"项目: {query_project.project_name} 中已经存在版本迭代名称: {version_name}"
-                )
+        query_version_name = TestProjectVersion.query.filter_by(
+            project_id=project_id,
+            version_name=version_name
+        ).first()
+
+        if query_version_name.id != query_version.id:
+            return api_result(
+                code=UNIQUE_ERROR,
+                message=f"项目id: {project_id} 中已经存在版本迭代名称: {version_name}"
+            )
 
         query_version.version_name = version_name
         query_version.version_number = version_number

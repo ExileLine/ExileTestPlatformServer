@@ -239,12 +239,12 @@ def ui_case_decorator(func):
         if version_list:
             result = new_check_version(project_id, version_list)
             if result:
-                return api_result(code=NO_DATA, message=f'项目:{query_project.project_name}下不存在->版本迭代id:{result}')
+                return api_result(code=NO_DATA, message=f'项目id: {project_id} 未关联->版本迭代id:{result}')
 
         if module_list:
             result = new_check_module(project_id, module_list)
             if result:
-                return api_result(code=NO_DATA, message=f'项目:{query_project.project_name}下不存在->模块id:{result}')
+                return api_result(code=NO_DATA, message=f'项目id: {project_id} 未关联->模块id:{result}')
 
         if not case_name:
             return api_result(code=NO_DATA, message='用例名称不能为空')
@@ -277,7 +277,19 @@ class UiCaseApi(MethodView):
         if not query_ui_case:
             return api_result(code=NO_DATA, message=f'UI用例id:{ui_case_id}不存在')
 
-        return api_result(code=SUCCESS, message=SUCCESS_MESSAGE, data=query_ui_case.to_json())
+        result = query_ui_case.to_json()
+
+        version_id_list = [m.version_id for m in MidVersionUiCase.query.filter_by(case_id=ui_case_id).all()]
+        version_list = [m.to_json() for m in
+                        TestProjectVersion.query.filter(TestProjectVersion.id.in_(version_id_list)).all()]
+
+        module_id_list = [m.module_id for m in MidModuleUiCase.query.filter_by(case_id=ui_case_id).all()]
+        module_list = [m.to_json() for m in TestModuleApp.query.filter(TestModuleApp.id.in_(module_id_list)).all()]
+
+        result["version_list"] = version_list
+        result["module_list"] = module_list
+
+        return api_result(code=SUCCESS, message=SUCCESS_MESSAGE, data=result)
 
     @qp_deco
     @ui_case_decorator
