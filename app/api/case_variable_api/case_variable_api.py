@@ -163,10 +163,10 @@ class CaseVarApi(MethodView):
             return api_result(code=NOT_CREATOR_ERROR, message=NOT_CREATOR_ERROR_MESSAGE)
 
         before_var = query_variable.var_value
-        query_var_filter = TestVariable.query.filter_by(project_id=project_id, var_name=var_name, is_deleted=0).first()
 
-        if query_var_filter and query_variable.id != query_var_filter.id:
-            return api_result(code=UNIQUE_ERROR, message=f'变量名称:{var_name} 已存在')
+        if query_variable.var_name != var_name:
+            if TestVariable.query.filter_by(project_id=project_id, var_name=var_name, is_deleted=0).first():
+                return api_result(code=UNIQUE_ERROR, message=f'变量名称:{var_name} 已存在')
 
         query_variable.var_name = var_name
         query_variable.var_init_value = var_init_value
