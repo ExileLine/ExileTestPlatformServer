@@ -89,7 +89,7 @@ class ProjectVersionApi(MethodView):
             version_name=version_name
         ).first()
 
-        if query_version_name.id != query_version.id:
+        if query_version_name and query_version_name.id != query_version.id:
             return api_result(
                 code=UNIQUE_ERROR,
                 message=f"项目id: {project_id} 中已经存在版本迭代名称: {version_name}"
