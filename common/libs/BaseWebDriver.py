@@ -272,7 +272,33 @@ class BaseWebDriver:
 
         self.end()
 
+    def test_h5(self):
+        """
+        1.设置窗口大小触发H5适配
+        2.设置为手机模式与对应宽和高
+        :return:
+        """
+
+        self.driver_init()
+        self.start()
+
+        # self.driver.get('https://www.metatuple.com/')
+        self.driver.get('http://192.168.8.97:9966/play/73I96Vc0')
+        # self.driver.get('https://www.baidu.com')
+        self.driver.set_window_size(390, 844)
+
+        # self.driver.set_window_size(390, 844)
+        # set_device_metrics_override = dict({
+        #     "width": 390,
+        #     "height": 844,
+        #     "deviceScaleFactor": 1000,
+        #     "mobile": False
+        # })
+        # self.driver.execute_cdp_cmd('Emulation.setDeviceMetricsOverride', set_device_metrics_override)
+        # self.driver.get('https://www.metatuple.com/')
+
 
 if __name__ == '__main__':
     bwd = BaseWebDriver(headless=False)
     bwd.test()
+    # bwd.test_h5()

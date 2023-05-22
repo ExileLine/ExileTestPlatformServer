@@ -17,10 +17,12 @@ app = create_app()
 
 def show():
     flask_env = os.environ.get('FLASK_ENV')
+    flask_app = os.environ.get('FLASK_APP')
     print('<', '-' * 66, '>')
     print('时间:{}'.format(datetime.datetime.now()))
     print('操作系统:{}'.format(platform.system()))
     print('项目路径:{}'.format(os.getcwd()))
+    print('应用实例:{}'.format(flask_app))
     print('当前环境:{}'.format(flask_env))
     print('父进程id:{}'.format(os.getppid()))
     print('子进程id:{}'.format(os.getpid()))
