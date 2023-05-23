@@ -6,12 +6,9 @@
 # @Software: PyCharm
 
 from all_reference import *
-from app.models.test_case.models import TestCase
-from app.models.test_case_scenario.models import TestCaseScenario
 from app.models.test_project.models import TestModuleApp, MidModuleCase, MidModuleScenario
-from app.models.ui_test_case.models import UiTestCase, MidModuleUiCase
+from app.models.ui_test_case.models import MidModuleUiCase
 from app.api.project_api.project_api import qp_deco
-from app.api.project_api.version_task_api import SaveMid
 
 
 class ModuleAppApi(MethodView):
@@ -30,26 +27,7 @@ class ModuleAppApi(MethodView):
         if not query_module:
             return api_result(code=NO_DATA, message=f'功能模块或应用不存在:{module_id}')
 
-        # 用例
-        case_id_list = [mid.case_id for mid in MidModuleCase.query.filter_by(module_id=module_id).all()]
-        query_case = TestCase.query.filter(TestCase.id.in_(case_id_list)).all()
-        case_list = [case.to_json() for case in query_case if query_case]
-
-        # 场景
-        scenario_id_list = [mid.scenario_id for mid in MidModuleScenario.query.filter_by(module_id=module_id).all()]
-        query_scenario = TestCaseScenario.query.filter(TestCaseScenario.id.in_(scenario_id_list)).all()
-        scenario_list = [scenario.to_json() for scenario in query_scenario if query_scenario]
-
-        # UI用例
-        ui_case_id_list = [mid.case_id for mid in MidModuleUiCase.query.filter_by(module_id=module_id).all()]
-        query_ui_case = UiTestCase.query.filter(UiTestCase.id.in_(ui_case_id_list)).all()
-        ui_case_list = [ui_case.to_json() for ui_case in query_ui_case if query_ui_case]
-
         result = query_module.to_json()
-        result['case_list'] = case_list
-        result['scenario_list'] = scenario_list
-        result['ui_case_list'] = ui_case_list
-
         return api_result(code=SUCCESS, message=SUCCESS_MESSAGE, data=result)
 
     @qp_deco
@@ -62,20 +40,11 @@ class ModuleAppApi(MethodView):
         module_type = data.get('module_type')
         module_code = data.get('module_code', f"默认{int(time.time())}")
         module_source = data.get('module_source')
-        case_list = data.get('case_list')
-        scenario_list = data.get('scenario_list')
-        ui_case_list = data.get('ui_case_list', [])
         remark = data.get('remark')
 
         query_module = TestModuleApp.query.filter_by(module_code=module_code).first()
         if query_module:
             return api_result(code=UNIQUE_ERROR, message=f"应用编号:{module_code}已存在")
-
-        if not isinstance(case_list, list):
-            return api_result(code=TYPE_ERROR, message=f'参数错误:{case_list}')
-
-        if not isinstance(scenario_list, list):
-            return api_result(code=TYPE_ERROR, message=f'参数错误:{scenario_list}')
 
         new_module = TestModuleApp(
             project_id=project_id,
@@ -83,22 +52,11 @@ class ModuleAppApi(MethodView):
             module_type=module_type,
             module_code=module_code,
             module_source=module_source,
-            case_list=case_list,
-            scenario_list=scenario_list,
             remark=remark,
             creator=g.app_user.username,
             creator_id=g.app_user.id
         )
         new_module.save()
-        module_id = new_module.id
-
-        SaveMid(
-            save_type="module",
-            module_id=module_id,
-            case_list=case_list,
-            scenario_list=scenario_list,
-            ui_case_list=ui_case_list,
-        ).main()
         return api_result(code=POST_SUCCESS, message=SUCCESS_MESSAGE)
 
     @qp_deco
@@ -112,9 +70,6 @@ class ModuleAppApi(MethodView):
         module_type = data.get('module_type')
         module_code = data.get('module_code', f"默认{int(time.time())}")
         module_source = data.get('module_source')
-        case_list = data.get('case_list')
-        scenario_list = data.get('scenario_list')
-        ui_case_list = data.get('ui_case_list', [])
         remark = data.get('remark')
 
         query_module = TestModuleApp.query.get(module_id)
@@ -126,39 +81,15 @@ class ModuleAppApi(MethodView):
             if query_module_code:
                 return api_result(code=UNIQUE_ERROR, message="应用编号已存在")
 
-        if not isinstance(case_list, list):
-            return api_result(code=TYPE_ERROR, message=f'参数错误:{case_list}')
-
-        if not isinstance(scenario_list, list):
-            return api_result(code=TYPE_ERROR, message=f'参数错误:{scenario_list}')
-
         query_module.project_id = project_id
         query_module.module_name = module_name
         query_module.module_type = module_type
         query_module.module_code = module_code
         query_module.module_source = module_source
-        query_module.case_list = case_list
-        query_module.scenario_list = scenario_list
         query_module.remark = remark
         query_module.modifier = g.app_user.username,
         query_module.modifier_id = g.app_user.id
-
-        db.session.query(MidModuleCase).filter(MidModuleCase.module_id == module_id).delete(
-            synchronize_session=False)
-
-        db.session.query(MidModuleScenario).filter(MidModuleScenario.module_id == module_id).delete(
-            synchronize_session=False)
-
-        db.session.query(MidModuleUiCase).filter(MidModuleUiCase.module_id == module_id).delete(
-            synchronize_session=False)
-
-        SaveMid(
-            save_type="module",
-            module_id=module_id,
-            case_list=case_list,
-            scenario_list=scenario_list,
-            ui_case_list=ui_case_list,
-        ).main()
+        db.session.commit()
         return api_result(code=PUT_SUCCESS, message=SUCCESS_MESSAGE)
 
     def delete(self):
