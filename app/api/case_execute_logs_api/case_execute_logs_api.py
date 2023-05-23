@@ -107,6 +107,7 @@ class CaseExecuteLogsPageApi(MethodView):
         execute_id = data.get('execute_id')
         execute_name = data.get('execute_name')
         trigger_type = data.get('trigger_type')
+        execute_key = data.get('execute_key')
         execute_type = data.get('execute_type')
         execute_status = data.get('execute_status')
         creator_id = data.get('creator_id')
@@ -127,7 +128,8 @@ class CaseExecuteLogsPageApi(MethodView):
         where_dict = {
             "execute_id": execute_id,
             "trigger_type": trigger_type,
-            "execute_type": execute_type,
+            "execute_key": execute_key,
+            # "execute_type": execute_type,
             "execute_status": execute_status,
             "creator_id": creator_id
         }
@@ -141,4 +143,4 @@ class CaseExecuteLogsPageApi(MethodView):
             page=page,
             size=size
         )
-        return api_result(code=200, message=SUCCESS_MESSAGE, data=result_data)
+        return api_result(code=POST_SUCCESS, message=SUCCESS_MESSAGE, data=result_data)
