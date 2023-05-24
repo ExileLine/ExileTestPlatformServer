@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="{{url_for('static',filename='favicon.ico')}}" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Exile测试报告</title>
+    <script type="module" crossorigin src="{{url_for('static',filename='index.js')}}"></script>
+    <link rel="stylesheet" href="{{url_for('static',filename='index.css')}}" />
+</head>
+<body>
+<div id="data" style="display: none">{{logs_json}}</div>
+<div id="app"></div>
+<script>
+    window.logData = JSON.parse(document.getElementById('data').innerText)
+</script>
+</body>
+</html>

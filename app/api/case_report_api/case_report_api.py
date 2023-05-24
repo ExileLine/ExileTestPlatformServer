@@ -5,7 +5,6 @@
 # @File    : case_report_api.py
 # @Software: PyCharm
 
-
 from all_reference import *
 
 demo_html = """
@@ -36,4 +35,4 @@ class CaseReportApi(MethodView):
         if not query_logs_json:
             return api_result(code=NO_DATA, message="日志不存在无法生成测试报告")
 
-        return demo_html
+        return render_template('test_report.html', **{"logs_json": query_logs_json})

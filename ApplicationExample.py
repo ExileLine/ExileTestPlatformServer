@@ -22,7 +22,10 @@ from ExtendRegister.model_register import *  # models
 from config.config import config_obj
 
 template_folder = f"{os.getcwd()}/app/templates"
-static_folder = config_obj['new'].STATIC_FOLDER
+static_folder = f"{os.getcwd()}/app/static"
+
+
+# static_folder = config_obj['new'].STATIC_FOLDER
 
 
 def create_app(is_context: bool = False):
