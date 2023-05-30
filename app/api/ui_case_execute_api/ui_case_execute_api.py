@@ -41,7 +41,7 @@ class UiCaseExecuteQuery:
     """执行数据查询组装"""
 
     def __init__(self, execute_key: str = None, query_id: int = None):
-        self.execute_key = execute_key  # case,project,version,task,module...
+        self.execute_key = execute_key  # ui_case,ui_project_all,ui_version_all,ui_task_all,ui_module_all...
         self.query_id = query_id
         self.query_func_dict = {
             "ui_case": self.query_single_case,
