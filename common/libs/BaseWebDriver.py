@@ -73,6 +73,8 @@ class BaseWebDriver:
 
         self.custom_ele_text_dict = {}
 
+        print("=== headless ===", self.headless)
+
     def driver_init(self):
         """
         driver初始化
@@ -88,7 +90,8 @@ class BaseWebDriver:
         if self.headless:  # 无界面模式
             options.add_argument('headless')
 
-        if self.pf == "Linux":
+        if self.pf == "Linux":  # 无界面模式,禁用沙盒模式
+            options.add_argument('headless')
             options.add_argument("--no-sandbox")
 
         if self.options == 'chrome':
