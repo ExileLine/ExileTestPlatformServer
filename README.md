@@ -149,11 +149,11 @@ Respect ! ! !
 
 ### 致谢
 
-- [GATING](https://github.com/GATING/) ：感谢核心开发者 GATING
-- [yugijiudai](https://github.com/yugijiudai) ：感谢核心开发者 yugijiudai
-- [miterwan](https://github.com/miterwan) ：感谢核心开发者 miterwan
-- [YangYueXiong](https://github.com/yangyuexiong) ：感谢核心开发者 YangYueXiong
-- [Flask_BestPractices](https://github.com/yangyuexiong/Flask_BestPractices) ：感谢 YangYueXiong 提供的 Flask最佳实践 作为项目结构
-- [TDesign](https://tdesign.tencent.com/) ：感谢 腾讯TDesign 提供的优秀组件库
-- [honghuangdc](https://github.com/honghuangdc/soybean-admin/) ：感谢 honghuangdc 提供的开源 soybean 作为页面参考
+- [GATING](https://github.com/GATING/) ：感谢核心开发者 `GATING`
+- [yugijiudai](https://github.com/yugijiudai) ：感谢核心开发者 `yugijiudai`
+- [miterwan](https://github.com/miterwan) ：感谢核心开发者 `miterwan`
+- [YangYueXiong](https://github.com/yangyuexiong) ：感谢核心开发者 `YangYueXiong`
+- [Flask_BestPractices](https://github.com/yangyuexiong/Flask_BestPractices) ：感谢 `YangYueXiong` 提供的 `Flask最佳实践` 作为项目结构
+- [TDesign](https://tdesign.tencent.com/) ：感谢 `腾讯TDesign` 提供的优秀组件库
+- [honghuangdc](https://github.com/honghuangdc/soybean-admin/) ：感谢 `honghuangdc` 提供的开源 `soybean` 作为页面参考
 
