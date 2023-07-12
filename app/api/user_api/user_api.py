@@ -135,6 +135,8 @@ class UserApi(MethodView):
                 elif admin.phone == str(phone):
                     return api_result(code=UNIQUE_ERROR, message=f"手机号: {phone} 已存在")
 
+        is_tourist = 0 if R.get('ui_limit_execution') else 1
+
         new_admin = Admin(
             username=username,
             nickname=nickname,
@@ -143,7 +145,8 @@ class UserApi(MethodView):
             phone=phone,
             remark=remark,
             creator=g.app_user.username,
-            creator_id=g.app_user.id
+            creator_id=g.app_user.id,
+            is_tourist=is_tourist
         )
         if code:
             new_admin.code = code
