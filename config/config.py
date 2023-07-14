@@ -132,9 +132,6 @@ class NewConfig(BaseConfig):
     # 静态资源目录
     STATIC_FOLDER = conf.get('base', 'STATIC_FOLDER')
 
-    # aio中间件服务
-    AIO_SERVER = conf.get('base', 'AIO_SERVER')
-
     # celery
     broker_url = f'redis://:{REDIS_PWD}@{REDIS_HOST}:{REDIS_PORT}/2'
     result_backend = f'redis://:{REDIS_PWD}@{REDIS_HOST}:{REDIS_PORT}/3'
