@@ -147,7 +147,7 @@ class MyPyMysql(BaseDatabase):
                     conn.commit()
             return result
         except BaseException as e:
-            cur.rollback()
+            conn.rollback()
             return f"执行错误:{e}"
 
     def insert(self, sql):
@@ -245,7 +245,7 @@ class MyPostgreSql(BaseDatabase):
                     db.commit()
             return result
         except BaseException as e:
-            cur.rollback()
+            db.rollback()
             return f"执行错误:{str(e)}"
 
     def insert(self, sql):
@@ -328,7 +328,7 @@ class MySqlServer(BaseDatabase):
                     db.commit()
             return result
         except BaseException as e:
-            cur.rollback()
+            db.rollback()
             return f"执行错误:{str(e)}"
 
     def insert(self, sql):
