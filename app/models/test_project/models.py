@@ -41,7 +41,9 @@ class TestProjectVersion(BaseModel):
     remark = db.Column(db.String(255), comment='备注')
 
     def __repr__(self):
-        return 'TestProjectVersion 模型对象-> ID:{} 版本名称:{} 版本号:{}'.format(self.id, self.version_name, self.version_number)
+        return 'TestProjectVersion 模型对象-> ID:{} 版本名称:{} 版本号:{}'.format(
+            self.id, self.version_name, self.version_number
+        )
 
 
 class TestVersionTask(BaseModel):
@@ -59,7 +61,9 @@ class TestVersionTask(BaseModel):
     remark = db.Column(db.String(255), comment='备注')
 
     def __repr__(self):
-        return 'TestVersionTask 模型对象-> ID:{} 任务名称:{} 任务类型:{}'.format(self.id, self.task_name, self.task_type)
+        return 'TestVersionTask 模型对象-> ID:{} 任务名称:{} 任务类型:{}'.format(
+            self.id, self.task_name, self.task_type
+        )
 
 
 class TestModuleApp(BaseModel):
