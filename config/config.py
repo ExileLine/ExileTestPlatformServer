@@ -68,7 +68,6 @@ class NewConfig(BaseConfig):
     RUN_PORT = conf.getint('base', 'RUN_PORT')
 
     # mysql
-    MYSQL_URI = conf.get('mysql', 'MYSQL_URI')
     MYSQL_USERNAME = conf.get('mysql', 'USERNAME')
     MYSQL_PASSWORD = conf.get('mysql', 'PASSWORD')
     MYSQL_HOSTNAME = conf.get('mysql', 'HOSTNAME')
@@ -157,8 +156,3 @@ if __name__ == '__main__':
     print(config_obj['new'].DEBUG)
     os.environ['yyx'] = 'yyyyyyyyyyyyyyy'
     print(os.environ)
-
-    mysql_uri = config_obj['default'].MYSQL_URI
-    print(f"mysql_uri:{mysql_uri}")
-    print(f"mysql_uri_type:{type(mysql_uri)}")
-    print(f"mysql_uri_bool:{bool(mysql_uri)}")

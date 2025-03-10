@@ -1,0 +1,78 @@
+version: '3.8'
+
+services:
+  nginx:
+    container_name: exile_platform_nginx  # 设置容器名称
+    image: ${DOCKER_REGISTRY}nginx:latest
+    restart: always
+    ports:
+      - "80:8080"
+    depends_on:
+      - api
+#      - web
+    volumes:
+      - ./volumes/nginx/exile_platform.conf:/etc/nginx/conf.d/exile_platform.conf  # Nginx 配置文件映射
+      - ./volumes/nginx/logs:/var/log/nginx  # Nginx 日志映射
+      - ./volumes/web:/srv/web  # 前端项目(dist)
+    entrypoint: [ "/bin/sh", "-c", "mkdir -p /srv/web && nginx -g 'daemon off;'" ]
+    networks:
+      - default
+  api:
+    container_name: exile_platform_server # 设置容器名称
+    build:
+      context: ..
+      args:
+        DOCKER_REGISTRY: ${DOCKER_REGISTRY}
+    ports:
+      - "7999:5000"
+    depends_on:
+      - redis
+      - mariadb
+    networks:
+      - default
+#  web:
+#    container_name: exile_platform_web # 设置容器名称
+#    image: ${DOCKER_REGISTRY}node:16-alpine  # 使用轻量级 Node.js 16 镜像
+#    working_dir: /srv/ExileTestPlatformWeb  # 容器内部的工作目录
+#    volumes:
+#      - ${WEB_PROJECT_PATH}:/srv/ExileTestPlatformWeb  # 将项目代码映射到容器内
+#      - ./volumes/web:/srv/web  # 构建dist文件夹映射到项目,随后nginx使用该目录
+#    command: sh -c "npm install && npm run build && cp -r dist /srv/web && tail -f /dev/null"
+#    networks:
+#      - default
+  redis:
+    container_name: exile_platform_redis  # 设置容器名称
+    image: ${DOCKER_REGISTRY}redis:6.2
+    restart: always
+    command: redis-server /usr/local/etc/redis/redis.conf --requirepass 123456  # 设置 Redis 密码并指定配置文件
+    volumes:
+      - ./volumes/redis/redis.conf:/usr/local/etc/redis/redis.conf  # 配置文件映射
+      - ./volumes/redis/data:/data  # 数据持久化
+      - ./volumes/redis/logs:/var/log/redis  # Redis 日志映射
+    ports:
+      - "6380:6379"
+    networks:
+      - default
+  mariadb:
+    container_name: exile_platform_mariadb # 设置容器名称
+    image: ${DOCKER_REGISTRY}mariadb:10.11  # 使用 MariaDB 10.11 版本
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: root12345678  # 设置 root 密码
+      MYSQL_DATABASE: exile_test_platform_5  # 创建数据库
+      MYSQL_USER: yangyuexiong  # 创建用户
+      MYSQL_PASSWORD: tgn1m3uUy<Z*hoB3-?=  # 设置用户密码
+    volumes:
+      - ./volumes/mariadb/data:/var/lib/mysql  # 数据持久化
+      - ./volumes/mariadb/my.cnf:/etc/mysql/my.cnf  # 配置文件映射
+      - ./volumes/mariadb/binlog:/var/lib/mysql/binlog  # Binlog 映射
+      - ./volumes/mariadb/logs:/var/log/mysql  # MariaDB 日志映射
+      - ./volumes/cmd/init.sql:/docker-entrypoint-initdb.d/init.sql  # 挂载初始化脚本
+    ports:
+      - "3307:3306"
+    networks:
+      - default
+networks:
+  default:
+    driver: bridge
+

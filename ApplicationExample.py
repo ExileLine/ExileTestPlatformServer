@@ -40,6 +40,6 @@ def create_app(is_context: bool = False):
     register_bp(app)  # 蓝图注册
     register_db(app)  # db注册
     Migrate(app, db)  # ORM迁移
-    if not is_context:
-        register_apscheduler(app)  # 定时任务
+    # if not is_context:
+    #     register_apscheduler(app)  # 定时任务
     return app
