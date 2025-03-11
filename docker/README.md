@@ -25,7 +25,7 @@
 
   ```shell
   docker build -t 'exile_platform_server' .
-  docker run -d -p 8000:8000 bm_data_govern_server
+  docker run -d -p 8000:8000 exile_platform_server
   ```
 
 打包为`.tar`,上传到服务器(按需要执行)
@@ -33,11 +33,11 @@
 - 打包
 
    ```shell
-   docker save -o bm_plat.tar bm_data_govern-api:latest
+   docker save -o exile_platform_server.tar exile_test_platform-api:latest
    ```
 
 - 导入
 
    ```shell
-   docker load -i bm_plat.tar
+   docker load -i exile_platform_server.tar
    ```
