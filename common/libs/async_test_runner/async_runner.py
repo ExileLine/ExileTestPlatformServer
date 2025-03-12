@@ -861,7 +861,7 @@ class AsyncCaseRunner:
         回写日志标识:替代 save_logs 方法
         """
 
-        sql = """UPDATE `ExileTestPlatform5.0`.`exile5_test_execute_logs` SET redis_key='{}', report_url='{}', execute_status={}, file_name='{}', update_time='{}', update_timestamp={} WHERE id={};""".format(
+        sql = """UPDATE exile5_test_execute_logs SET redis_key='{}', report_url='{}', execute_status={}, file_name='{}', update_time='{}', update_timestamp={} WHERE id={};""".format(
             self.redis_key,
             report_url,
             int(self.execute_status),
@@ -955,6 +955,6 @@ class AsyncCaseRunner:
                 error_info = traceback.format_exc()
                 status = 2
 
-            sql = f"""INSERT INTO `ExileTestPlatform5.0`.`exile5_ding_ding_push_logs` (`send_message`, `error_info`, `status`) VALUES ('{markdown_text}', '{error_info}', {status});"""
+            sql = f"""INSERT INTO exile5_ding_ding_push_logs (`send_message`, `error_info`, `status`) VALUES ('{markdown_text}', '{error_info}', {status});"""
             print(sql)
             await self.aio_db.execute(sql=sql)
