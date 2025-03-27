@@ -6,7 +6,8 @@ services:
     image: ${DOCKER_REGISTRY}nginx:latest
     restart: always
     ports:
-      - "80:8080"
+      #- "80:8080"
+      - "8080:8080"
     depends_on:
       - api
 #      - web
@@ -18,18 +19,29 @@ services:
     networks:
       - default
   api:
-    container_name: exile_platform_server # 设置容器名称
-    build:
-      context: ..
-      args:
-        DOCKER_REGISTRY: ${DOCKER_REGISTRY}
-    ports:
-      - "7999:5000"
-    depends_on:
-      - redis
-      - mariadb
-    networks:
-      - default
+      container_name: exile_platform_server # 设置容器名称
+      image: exile_test_platform-api:latest
+      restart: always
+      ports:
+        - "7999:5000"
+      depends_on:
+        - redis
+        - mariadb
+      networks:
+        - default
+#  api:
+#    container_name: exile_platform_server # 设置容器名称
+#    build:
+#      context: ..
+#      args:
+#        DOCKER_REGISTRY: ${DOCKER_REGISTRY}
+#    ports:
+#      - "7999:5000"
+#    depends_on:
+#      - redis
+#      - mariadb
+#    networks:
+#      - default
 #  web:
 #    container_name: exile_platform_web # 设置容器名称
 #    image: ${DOCKER_REGISTRY}node:16-alpine  # 使用轻量级 Node.js 16 镜像
